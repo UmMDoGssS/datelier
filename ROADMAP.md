@@ -14,11 +14,10 @@ not bundled data snapshots. ML requires an explicit command. Third-party
 plugins, arbitrary Python mappings, additional platforms, larger-than-memory
 execution, images, and text are post-v1 investigations.
 
-The starting repository contains a `uv`-managed `src/` package, a placeholder
-`datelier` CLI, an empty README, and configured Pyrefly. Application dependencies,
-pytest, and Ruff are not yet established. `.python-version` selects 3.14 while
-`pyproject.toml` still permits 3.12+; M0.1 will align them. These documents do
-not mean application milestones have been completed.
+The repository has a Python 3.14+ `uv`-managed `src/` package, a placeholder
+`datelier` CLI, and configured Pyrefly, pytest, and Ruff. M0.1 is verified;
+application stack feasibility remains M0.2 work. These documents do not mean
+later application milestones have been completed.
 
 ## Gate and evidence rules
 
@@ -61,11 +60,11 @@ not mean application milestones have been completed.
 
 ### M0.1 — Establish the development baseline
 
-- [ ] **Deliverables:** Python 3.14+ metadata, consistent lockfile, pytest/Ruff configuration, documented check commands.
-- [ ] **Entry gate:** inspect the scaffold and contributor conventions; confirm the available Python 3.14 environment.
-- [ ] **Exit gate:** clean environment sync and existing CLI launch work; Pyrefly, lint, format checks, and a meaningful baseline test pass.
-- [ ] **Verification evidence:** environment/setup commands, interpreter version, CLI result, and complete check outputs; confirm the dev group installs required tools.
-- [ ] **Suggested step commits:** `chore: align python target` → `build: establish development checks` → `test: verify baseline launch`.
+- [x] **Deliverables:** Python 3.14+ metadata, consistent lockfile, pytest/Ruff configuration, documented check commands.
+- [x] **Entry gate:** inspect the scaffold and contributor conventions; confirm the available Python 3.14 environment.
+- [x] **Exit gate:** clean environment sync and existing CLI launch work; Pyrefly, lint, format checks, and a meaningful baseline test pass.
+- [x] **Verification evidence:** [baseline evidence](docs/phase-0.md#m01-development-baseline) records clean sync, Python 3.14.7, CLI launch, dev imports, and all check outcomes.
+- [x] **Step commit:** `build: establish Python 3.14 development baseline` combines the metadata, tools, documentation, and installed-entry-point test as one verified foundation step.
 
 ### M0.2 — Validate stack integration and performance fixtures
 

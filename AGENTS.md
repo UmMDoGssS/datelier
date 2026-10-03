@@ -31,11 +31,10 @@ speculative infrastructure for them.
 
 ## Repository state and sources of truth
 
-The repository currently has a `uv`-managed `src/` scaffold, a placeholder CLI,
-and configured Pyrefly. The application dependencies, pytest, and Ruff are not
-established yet. Foundation work in [ROADMAP.md](ROADMAP.md) must align the
-Python requirement with 3.14+ and establish the intended stack and checks.
-Update this state description when those milestones are completed.
+The repository has a Python 3.14+ `uv`-managed `src/` scaffold, a placeholder CLI,
+and configured Pyrefly, pytest, and Ruff. M0.1 has passed its clean-install and
+check gates; application dependency and GUI/analysis feasibility work remains
+in M0.2 of [ROADMAP.md](ROADMAP.md).
 
 Use this file for durable conventions and `ROADMAP.md` for sequencing,
 deliverables, and acceptance gates. Inspect actual code and configuration
