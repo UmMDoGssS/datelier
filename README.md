@@ -38,3 +38,12 @@ The probe shows a deterministic synthetic Polars table and a bounded scatter
 plot in two dockable panels. Drag the tabs to rearrange them; zoom and pan in
 the plot. This is a stack integration probe; dataset import and workspaces
 follow in later phases. Loading the probe does not run machine learning.
+
+Run the tiny analysis compatibility probes explicitly:
+
+```sh
+OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 uv run scripts/analysis_smoke.py
+```
+
+See [Phase 0 evidence](docs/phase-0.md) for dependency versions, settings,
+GUI observations, and performance measurements.

@@ -69,3 +69,32 @@ Step checks: Pyrefly: 0 errors; focused pytest: 5 passed in 0.15s; Ruff lint:
 passed; Ruff format: 13 files already formatted; `git diff --check`: passed.
 The bounded exit uses the active runner parameters; callbacks hold prepared
 preview strings and plot arrays, with no table-wide work inside a frame.
+
+## M0.2 analysis compatibility
+
+```sh
+OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 NUMBA_CACHE_DIR=/tmp/datelier-numba-cache \
+  uv run scripts/analysis_smoke.py
+```
+
+The fixture has 64 rows and three Float64 features. Four periodic-null rows
+are excluded; standard scaling converts only the selected finite feature
+matrix. IDs preserve the original order. Seed 42 and explicit settings are
+recorded in [the result report](evidence/analysis-smoke.json).
+
+| Algorithm | Output shape | Output dtype | Finite | Run seconds |
+| --- | --- | --- | --- | --- |
+| PCA | 60 × 2 | Float64 | yes | 0.0004 |
+| t-SNE | 60 × 2 | Float32 | yes | 0.0379 |
+| UMAP | 60 × 2 | Float32 | yes | 4.8688 |
+| k-means | 60 labels | Int32 | yes | 0.0119 |
+
+These are compatibility timings after imports, not throughput guarantees.
+UMAP's timing includes first-fit JIT compilation in the process. Probes are
+only invoked by explicit commands/tests. The GUI imports no analysis modules.
+Tests additionally verify three separated k-means groups, dominant first PCA
+variance, excluded NaN/null row alignment, standardized means, and rejection
+of too few eligible rows.
+
+Step checks: Pyrefly: 0 errors; focused pytest: 6 passed in 9.24s; Ruff lint:
+passed; Ruff format: 16 files already formatted; `git diff --check`: passed.
