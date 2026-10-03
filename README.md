@@ -20,3 +20,21 @@ uv run ruff format --check .
 
 `uv sync` installs the default `dev` group with Pyrefly, pytest, and Ruff.
 Use `uv sync --no-dev` for runtime dependencies alone.
+
+## Phase 0 GUI probe
+
+On a Linux graphical session with OpenGL support:
+
+```sh
+uv run datelier --feasibility
+uv run datelier --feasibility --smoke-frames 120
+```
+
+The verified renderer on the Phase 0 reference machine is Mesa software OpenGL:
+use `LIBGL_ALWAYS_SOFTWARE=1 uv run datelier --feasibility` if the default
+renderer stalls. Accelerated rendering remains unverified on that machine.
+
+The probe shows a deterministic synthetic Polars table and a bounded scatter
+plot in two dockable panels. Drag the tabs to rearrange them; zoom and pan in
+the plot. This is a stack integration probe; dataset import and workspaces
+follow in later phases. Loading the probe does not run machine learning.

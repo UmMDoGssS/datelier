@@ -35,3 +35,37 @@ Numba 0.68.0, llvmlite 0.50.0, and pynndescent 0.6.0.
 All five direct runtime imports passed without creating a GUI. Step checks:
 Pyrefly: 0 errors; full pytest: 6 passed in 10.69s; Ruff lint: passed; Ruff
 format: 7 files already formatted; `git diff --check`: passed.
+
+## M0.2 GUI and conversion probe
+
+```sh
+LIBGL_ALWAYS_SOFTWARE=1 uv run scripts/gui_smoke.py
+```
+
+The command rendered 120 frames, with 118 successful ImPlot frames and
+distinct nonzero dock IDs (preview: 1, scatter: 2). The 256-row fixture has
+eight columns; the preview shows the first 12 rows and four columns. The plot
+shows all 256 finite coordinate pairs. The captured final frame was visually
+inspected: readable native table, two docked tabs, labeled axes, and the expected
+three synthetic groups. [Screenshot](evidence/gui-smoke.png) and
+[raw timing/docking evidence](evidence/gui-smoke.json) are retained. Frame
+interval p95 after ten warmup frames was 10.83 ms.
+
+The session uses Wayland with Xwayland display `:0`. OpenGL inspection
+(`glxinfo -B`) reports Mesa 26.0.8 and Intel RPL-P graphics. The default
+accelerated probe stalled and was stopped; the successful probe uses
+`LIBGL_ALWAYS_SOFTWARE=1`. Accelerated rendering is not claimed verified.
+The sandbox cannot access the display socket, so GUI runs required approved
+display access. This does not affect headless domain tests.
+
+`prepare_scatter` selects only row identity and two numeric columns, excludes
+null/nonfinite pairs, and takes at most 10,000 eligible rows before NumPy
+conversion. It retains source IDs independently of position and labels the
+displayed/eligible/source counts. Tests cover filtered identity, values,
+numeric dtype, empty inputs, deterministic mixed fixtures, and rejected
+coordinates/limits. No analysis runs on GUI load.
+
+Step checks: Pyrefly: 0 errors; focused pytest: 5 passed in 0.15s; Ruff lint:
+passed; Ruff format: 13 files already formatted; `git diff --check`: passed.
+The bounded exit uses the active runner parameters; callbacks hold prepared
+preview strings and plot arrays, with no table-wide work inside a frame.

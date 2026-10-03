@@ -5,11 +5,12 @@ from pathlib import Path
 
 def test_installed_cli_launches() -> None:
     result = subprocess.run(
-        [str(Path(sys.executable).parent / "datelier")],
+        [str(Path(sys.executable).parent / "datelier"), "--help"],
         capture_output=True,
         text=True,
         check=True,
         timeout=10,
     )
-    assert result.stdout == "Hello from datelier!\n"
+    assert "Datelier data inspection workbench" in result.stdout
+    assert "--feasibility" in result.stdout
     assert result.stderr == ""
