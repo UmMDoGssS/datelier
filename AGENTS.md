@@ -31,10 +31,14 @@ speculative infrastructure for them.
 
 ## Repository state and sources of truth
 
-The repository has a Python 3.14+ `uv`-managed `src/` scaffold, a placeholder CLI,
-and configured Pyrefly, pytest, and Ruff. M0.1 has passed its clean-install and
-check gates; application dependency and GUI/analysis feasibility work remains
-in M0.2 of [ROADMAP.md](ROADMAP.md).
+The repository has a Python 3.14+ `uv`-managed `src/` package, configured Pyrefly,
+pytest, and Ruff, and a locked Polars/ImGui Bundle/analysis dependency set.
+Phase 0 has passed its clean-install, docking/plot, tiny-analysis, and synthetic
+benchmark gates; evidence and acceptance budgets are in
+[docs/phase-0.md](docs/phase-0.md). The CLI exposes a synthetic feasibility
+window. Linux GUI rendering is verified with Mesa software OpenGL on the
+reference machine; accelerated rendering remains unverified. Dataset import
+and the application state model begin in Phase 1 of [ROADMAP.md](ROADMAP.md).
 
 Use this file for durable conventions and `ROADMAP.md` for sequencing,
 deliverables, and acceptance gates. Inspect actual code and configuration
@@ -98,7 +102,7 @@ Keep both documents aligned when an authorized decision changes direction.
 - Keep Pyrefly LSP diagnostics enabled in an editor that supports them. Always
   run `uv run pyrefly check` for each implementation step before committing;
   editor diagnostics are not a substitute for the batch check.
-- Establish pytest and Ruff in M0.1. Once available, use
+- Pytest and Ruff were established in M0.1. Use
   `uv run pytest <relevant tests>`, `uv run ruff check .`, and
   `uv run ruff format --check .` for step verification. Run
   `uv run pytest` at milestone completion, plus the milestone's other gates.

@@ -14,10 +14,12 @@ not bundled data snapshots. ML requires an explicit command. Third-party
 plugins, arbitrary Python mappings, additional platforms, larger-than-memory
 execution, images, and text are post-v1 investigations.
 
-The repository has a Python 3.14+ `uv`-managed `src/` package, a placeholder
-`datelier` CLI, and configured Pyrefly, pytest, and Ruff. M0.1 is verified;
-application stack feasibility remains M0.2 work. These documents do not mean
-later application milestones have been completed.
+The repository has a Python 3.14+ `uv`-managed `src/` package, configured
+Pyrefly/pytest/Ruff, and a locked application stack. Phase 0 is verified with
+a synthetic docking/plot CLI probe, tiny analysis runs, and benchmark fixtures.
+[Phase 0 evidence](docs/phase-0.md) records versions, commands, budgets, and
+limitations, including the verified Mesa software renderer. Dataset import
+and application state remain Phase 1 work; later milestones are unchecked.
 
 ## Gate and evidence rules
 
@@ -56,7 +58,7 @@ later application milestones have been completed.
 
 ## Phase 0 — Foundation and feasibility
 
-- [ ] **Phase complete.** **Entry:** existing scaffold. **Exit:** M0.1 and M0.2 pass.
+- [x] **Phase complete.** **Entry:** existing scaffold. **Exit:** M0.1 and M0.2 pass. [Evidence](docs/phase-0.md) recorded 2026-10-04.
 
 ### M0.1 — Establish the development baseline
 
@@ -64,15 +66,15 @@ later application milestones have been completed.
 - [x] **Entry gate:** inspect the scaffold and contributor conventions; confirm the available Python 3.14 environment.
 - [x] **Exit gate:** clean environment sync and existing CLI launch work; Pyrefly, lint, format checks, and a meaningful baseline test pass.
 - [x] **Verification evidence:** [baseline evidence](docs/phase-0.md#m01-development-baseline) records clean sync, Python 3.14.7, CLI launch, dev imports, and all check outcomes.
-- [x] **Step commit:** `build: establish Python 3.14 development baseline` combines the metadata, tools, documentation, and installed-entry-point test as one verified foundation step.
+- [x] **Step commit:** `768a8c6` — `build: establish Python 3.14 development baseline` combines the metadata, tools, documentation, and installed-entry-point test as one verified foundation step.
 
 ### M0.2 — Validate stack integration and performance fixtures
 
-- [ ] **Deliverables:** Linux feasibility slice, verified dependency set, synthetic benchmark fixtures, recorded baseline and acceptance budgets.
-- [ ] **Entry gate:** M0.1 passes; the GUI can be exercised on a Linux graphical environment.
-- [ ] **Exit gate:** docking and an ImPlot plot render; selected Polars data reaches the plot; tiny PCA, t-SNE, UMAP, and k-means runs succeed on Python 3.14.
-- [ ] **Verification evidence:** locked dependency versions, GUI smoke observations, algorithm result shapes/finite values, conversion checks, and reproducible benchmark measurements.
-- [ ] **Suggested step commits:** `build: establish application dependencies` → `feat: validate gui and table integration` → `test: verify analysis compatibility` → `perf: record feasibility baseline`.
+- [x] **Deliverables:** Linux feasibility slice, verified dependency set, synthetic benchmark fixtures, recorded baseline and acceptance budgets.
+- [x] **Entry gate:** M0.1 passes; the GUI can be exercised on a Linux graphical environment using Mesa software OpenGL.
+- [x] **Exit gate:** docking and an ImPlot plot render; selected Polars data reaches the plot; tiny PCA, t-SNE, UMAP, and k-means runs succeed on Python 3.14.7.
+- [x] **Verification evidence:** [complete evidence](docs/phase-0.md) includes locked versions, screenshots/dock IDs, finite algorithm shapes and row alignment, 12 fresh-process table measurements, large/wide GUI timings, and acceptance budgets. Full suite: 17 passed; Pyrefly/Ruff/lock consistency checks pass. Accelerated rendering remains unverified; only software rendering is claimed.
+- [x] **Step commits:** `97f2f08` dependencies → `fe81f8b` GUI/table integration → `a2c737c` analysis compatibility → `1e4cc32` measured baseline and bounded scatter rendering.
 
 ## Phase 1 — First usable inspection slice
 

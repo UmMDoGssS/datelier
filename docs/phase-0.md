@@ -202,3 +202,17 @@ The full test command used `OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1` and
 saved reports confirmed that all 12 table runs and both final GUI runs meet
 every applicable component budget above. Timing collection is limited to
 bounded smoke runs; interactive sessions do not accumulate timing samples.
+
+## Completed step commits
+
+| Commit | Verified step |
+| --- | --- |
+| `768a8c6` | Python 3.14 metadata, development tools, clean CLI baseline |
+| `97f2f08` | Locked runtime dependency set and import compatibility |
+| `fe81f8b` | Prepared Polars preview/plot, docking, and GUI smoke evidence |
+| `a2c737c` | Explicit PCA/t-SNE/UMAP/k-means compatibility and row alignment |
+| `1e4cc32` | Synthetic benchmarks, budgets, and bounded scatter rendering |
+
+M0.1 and M0.2 exit gates pass. Phase 0 is complete; the next outstanding gate
+is M1.1 (CSV import and dataset state). No later application milestones are
+claimed complete.
