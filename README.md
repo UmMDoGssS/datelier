@@ -47,3 +47,12 @@ OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 uv run scripts/analysis_smoke.py
 
 See [Phase 0 evidence](docs/phase-0.md) for dependency versions, settings,
 GUI observations, and performance measurements.
+
+Reproduce the synthetic table benchmark (large CSVs are temporary):
+
+```sh
+POLARS_MAX_THREADS=8 uv run scripts/benchmark_feasibility.py
+```
+
+The JSON report is written to `/tmp/datelier-benchmark.json`. The plot probe
+defaults to the first 2,000 finite rows and labels truncation explicitly.

@@ -4,6 +4,8 @@ import numpy as np
 import polars as pl
 from numpy.typing import NDArray
 
+DEFAULT_POINT_LIMIT = 2_000
+
 
 @dataclass(frozen=True)
 class ScatterData:
@@ -17,7 +19,7 @@ class ScatterData:
 
 
 def prepare_scatter(
-    table: pl.DataFrame, x: str, y: str, *, limit: int = 10_000
+    table: pl.DataFrame, x: str, y: str, *, limit: int = DEFAULT_POINT_LIMIT
 ) -> ScatterData:
     """Convert only bounded, finite selected coordinates at the plot boundary."""
     if limit < 1 or x == y:

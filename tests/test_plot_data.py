@@ -3,7 +3,7 @@ import polars as pl
 import pytest
 
 from datelier.feasibility.fixtures import make_table
-from datelier.feasibility.plot_data import prepare_scatter
+from datelier.feasibility.plot_data import DEFAULT_POINT_LIMIT, prepare_scatter
 
 
 def test_bounded_conversion_retains_filtered_row_identity() -> None:
@@ -27,6 +27,14 @@ def test_bounded_conversion_retains_filtered_row_identity() -> None:
 def test_empty_fixture_has_valid_empty_plot_arrays() -> None:
     points = prepare_scatter(make_table(0), "feature_0", "feature_1")
     assert points.x.shape == points.y.shape == points.row_ids.shape == (0,)
+
+
+def test_default_plot_conversion_is_bounded_on_a_larger_table() -> None:
+    points = prepare_scatter(make_table(10_000), "feature_0", "feature_1")
+    assert len(points.x) == len(points.y) == len(points.row_ids) == DEFAULT_POINT_LIMIT
+    assert points.eligible_rows == 10_000
+    assert points.row_ids[-1] == DEFAULT_POINT_LIMIT - 1
+    assert points.x.nbytes + points.y.nbytes + points.row_ids.nbytes <= 48_000
 
 
 def test_fixture_is_deterministic_mixed_and_identified() -> None:

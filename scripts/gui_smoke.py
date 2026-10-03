@@ -12,6 +12,7 @@ from numpy.typing import NDArray
 
 from datelier.feasibility.fixtures import make_table
 from datelier.feasibility.gui import run_gui
+from datelier.feasibility.plot_data import DEFAULT_POINT_LIMIT
 
 
 def main() -> None:
@@ -19,12 +20,15 @@ def main() -> None:
     parser.add_argument("--rows", type=int, default=256)
     parser.add_argument("--numeric-columns", type=int, default=6)
     parser.add_argument("--frames", type=int, default=120)
+    parser.add_argument("--point-limit", type=int, default=DEFAULT_POINT_LIMIT)
     parser.add_argument("--output", type=Path, default=Path("/tmp/datelier-gui.ppm"))
     args = parser.parse_args()
     if args.frames < 20:
         parser.error("Require at least 20 frames for warmup and docking")
     evidence = run_gui(
-        make_table(args.rows, args.numeric_columns), smoke_frames=args.frames
+        make_table(args.rows, args.numeric_columns),
+        smoke_frames=args.frames,
+        point_limit=args.point_limit,
     )
     if not (
         evidence.frames == args.frames
@@ -45,6 +49,7 @@ def main() -> None:
         "frame_p95_ms": float(np.percentile(evidence.frame_intervals_ms, 95)),
         "rows": args.rows,
         "numeric_columns": args.numeric_columns,
+        "point_limit": args.point_limit,
     }
     args.output.with_suffix(".json").write_text(json.dumps(report, indent=2) + "\n")
     print(

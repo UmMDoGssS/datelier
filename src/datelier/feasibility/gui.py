@@ -4,7 +4,7 @@ from time import perf_counter
 import polars as pl
 from imgui_bundle import hello_imgui, imgui, immapp, implot
 
-from datelier.feasibility.plot_data import prepare_scatter
+from datelier.feasibility.plot_data import DEFAULT_POINT_LIMIT, prepare_scatter
 
 
 @dataclass
@@ -16,11 +16,19 @@ class GuiEvidence:
     frame_intervals_ms: list[float] = field(default_factory=list)
 
 
-def run_gui(table: pl.DataFrame, *, smoke_frames: int = 0) -> GuiEvidence:
+def run_gui(
+    table: pl.DataFrame,
+    *,
+    smoke_frames: int = 0,
+    point_limit: int = DEFAULT_POINT_LIMIT,
+) -> GuiEvidence:
     """Render prepared synthetic data, optionally exit after a bounded smoke run."""
     if smoke_frames < 0:
         raise ValueError("Smoke frame count must be nonnegative")
-    points = prepare_scatter(table, "feature_0", "feature_1")
+    points = prepare_scatter(table, "feature_0", "feature_1", limit=point_limit)
+    scatter_style = implot.Spec()
+    scatter_style.marker_size = 2
+    scatter_style.line_weight = 0
     columns = ("row_id", "feature_0", "feature_1", "category")
     preview = tuple(
         tuple(
@@ -62,7 +70,7 @@ def run_gui(table: pl.DataFrame, *, smoke_frames: int = 0) -> GuiEvidence:
         imgui.text("Drag tabs to rearrange; use plot axes to zoom and pan.")
         if implot.begin_plot("Selected Polars coordinates", (-1, -1)):
             implot.setup_axes(points.x_name, points.y_name)
-            implot.plot_scatter("Synthetic rows", points.x, points.y)
+            implot.plot_scatter("Synthetic rows", points.x, points.y, scatter_style)
             implot.end_plot()
             evidence.plot_frames += 1
 
@@ -86,7 +94,7 @@ def run_gui(table: pl.DataFrame, *, smoke_frames: int = 0) -> GuiEvidence:
     def on_frame() -> None:
         nonlocal previous_frame
         now = perf_counter()
-        if evidence.frames >= 10:
+        if smoke_frames and evidence.frames >= 10:
             evidence.frame_intervals_ms.append((now - previous_frame) * 1000)
         previous_frame = now
         evidence.frames += 1
