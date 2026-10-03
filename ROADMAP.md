@@ -82,11 +82,11 @@ and application state remain Phase 1 work; later milestones are unchecked.
 
 ### M1.1 — CSV import and dataset state
 
-- [ ] **Deliverables:** CSV adapter, import options/diagnostics, typed dataset state, stable row identity, dataset revisions.
-- [ ] **Entry gate:** stack feasibility passes and Polars import behavior is verified.
-- [ ] **Exit gate:** normal CSV files load correctly; empty, malformed, and mixed-type inputs have defined outcomes; row identity is independent of display order.
-- [ ] **Verification evidence:** fixture-based schema/value checks, option handling, useful error messages, and source-byte preservation tests.
-- [ ] **Suggested step commits:** `feat: define dataset state` → `feat: import csv tables` → `test: cover csv failures and identity`.
+- [x] **Deliverables:** CSV adapter, import options/diagnostics, typed dataset state, stable row identity, dataset revisions.
+- [x] **Entry gate:** stack feasibility passes and Polars import behavior is verified.
+- [x] **Exit gate:** normal CSV files load correctly; empty, malformed, and mixed-type inputs have defined outcomes; row identity is independent of display order.
+- [x] **Verification evidence:** [M1.1 evidence](docs/phase-1.md#m11-csv-import-and-dataset-state): 22 focused tests, 39 full-suite tests, Pyrefly/Ruff and source preservation checks pass.
+- [x] **Step commits:** `cd69ef1` dataset identity/revisions → `7c65f4f` CSV import/options/diagnostics, including failure and preservation tests.
 
 ### M1.2 — Responsive preview and job lifecycle
 
