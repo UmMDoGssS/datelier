@@ -24,3 +24,14 @@ git diff --check             passed
 Commands in this environment used `UV_CACHE_DIR=/tmp/datelier-uv-cache` because
 the default cache is outside the writable sandbox. PyPI downloads ran with
 approved network access; subsequent checks ran in the sandbox.
+
+## M0.2 dependency installation
+
+`uv add polars imgui-bundle numpy scikit-learn umap-learn` resolved and installed
+Linux wheels on CPython 3.14.7. The lockfile records ImGui Bundle 1.92.900,
+Polars 1.44.2, NumPy 2.5.3, scikit-learn 1.9.1, UMAP 0.5.12, SciPy 1.18.1,
+Numba 0.68.0, llvmlite 0.50.0, and pynndescent 0.6.0.
+
+All five direct runtime imports passed without creating a GUI. Step checks:
+Pyrefly: 0 errors; full pytest: 6 passed in 10.69s; Ruff lint: passed; Ruff
+format: 7 files already formatted; `git diff --check`: passed.

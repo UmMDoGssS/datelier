@@ -7,7 +7,13 @@ authors = [
     { name = "UmMDoGssS", email = "thuongduykhang@gmail.com" }
 ]
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "imgui-bundle>=1.92.900",
+    "numpy>=2.5.3",
+    "polars>=1.44.2",
+    "scikit-learn>=1.9.1",
+    "umap-learn>=0.5.12",
+]
 
 [tool.pyrefly]
 project-includes = [
