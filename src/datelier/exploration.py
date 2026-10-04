@@ -5,8 +5,10 @@ from dataclasses import dataclass
 
 from datelier.dataset import Dataset, DatasetRevision
 from datelier.plotting import (
+    Bars,
     Correlation,
     Scatter,
+    prepare_bars,
     prepare_correlations,
     prepare_scatter,
 )
@@ -43,6 +45,7 @@ class Dashboard:
     profiles: Profiles
     correlations: tuple[Correlation, ...]
     scatters: tuple[Scatter, ...]
+    bars: tuple[Bars, ...]
 
 
 def prepare_dashboard(
@@ -71,7 +74,14 @@ def prepare_dashboard(
     scatters = tuple(
         prepare_scatter(dataset, *pair, limit=settings.point_limit) for pair in pairs
     )
-    return Dashboard(dataset.revision, settings, profiles, correlations, scatters)
+    return Dashboard(
+        dataset.revision,
+        settings,
+        profiles,
+        correlations,
+        scatters,
+        tuple(prepare_bars(profile) for profile in profiles.columns),
+    )
 
 
 class Explorer:

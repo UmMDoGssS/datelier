@@ -8,8 +8,10 @@ from time import perf_counter
 from imgui_bundle import hello_imgui, imgui, immapp
 
 from datelier.editing import DatasetEditor
+from datelier.exploration import Explorer
 from datelier.exporting import DatasetExporter
 from datelier.gui_controls import ImportControls, show_schema
+from datelier.gui_exploration import ExplorationView
 from datelier.gui_export import ExportControls
 from datelier.gui_operations import OperationControls
 from datelier.gui_table import TableView
@@ -27,6 +29,8 @@ class GuiSession:
     operations: OperationControls
     exporter: DatasetExporter
     exports: ExportControls
+    explorer: Explorer
+    exploration: ExplorationView
 
 
 @dataclass
@@ -58,8 +62,19 @@ def run_gui(
     operations = OperationControls()
     exporter = DatasetExporter()
     exports = ExportControls()
+    explorer = Explorer()
+    exploration = ExplorationView()
     session = GuiSession(
-        loader, pages, view, controls, editor, operations, exporter, exports
+        loader,
+        pages,
+        view,
+        controls,
+        editor,
+        operations,
+        exporter,
+        exports,
+        explorer,
+        exploration,
     )
     evidence = InspectionEvidence()
     params = hello_imgui.RunnerParams()
@@ -97,9 +112,15 @@ def run_gui(
     edits.new_dock = "EditSpace"
     edits.direction = imgui.Dir.right
     edits.ratio = 0.32
-    params.docking_params.docking_splits = [left, lower, edits]
+    plots = hello_imgui.DockingSplit()
+    plots.initial_dock = "MainDockSpace"
+    plots.new_dock = "PlotSpace"
+    plots.direction = imgui.Dir.down
+    plots.ratio = 0.58
+    params.docking_params.docking_splits = [left, lower, edits, plots]
     windows = []
     for label, space, callback in (
+        ("Explore", "PlotSpace", lambda: exploration.show(explorer)),
         ("Open dataset", "ImportSpace", lambda: controls.show(loader)),
         ("Table preview", "MainDockSpace", show_table),
         ("Schema and nulls", "SchemaSpace", schema),
@@ -142,6 +163,7 @@ def run_gui(
             editor.bind(loader.active)
             pages.bind(loader.active)
             view.reset()
+            explorer.request(loader.active.dataset)
         if loader.status.phase == LoadPhase.LOADING:
             editor.abandon()
         edited = editor.poll(loader.revision)
@@ -149,6 +171,8 @@ def run_gui(
             loader.active = edited
             pages.bind(edited)
             view.reset()
+            explorer.request(edited.dataset)
+        explorer.poll(loader.revision)
         exporter.poll()
         pages.poll()
         if loader.status.phase == LoadPhase.LOADING:
@@ -162,10 +186,13 @@ def run_gui(
 
     params.callbacks.show_gui = frame
     try:
-        immapp.run(params)
+        addons = immapp.AddOnsParams()
+        addons.with_implot = True
+        immapp.run(params, addons)
     finally:
         loader.close()
         pages.close()
         editor.close()
         exporter.close()
+        explorer.close()
     return evidence

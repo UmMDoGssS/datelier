@@ -9,8 +9,29 @@ import polars as pl
 from numpy.typing import NDArray
 
 from datelier.dataset import Dataset, DatasetRevision
+from datelier.profiling import ColumnProfile
 
 CORRELATION_ROW_LIMIT = 10_000
+
+
+@dataclass(frozen=True)
+class Bars:
+    positions: NDArray[np.float64]
+    counts: NDArray[np.float64]
+    labels: tuple[str, ...]
+
+
+def prepare_bars(profile: ColumnProfile) -> Bars:
+    counts = profile.distribution.counts
+    labels = profile.distribution.labels
+    if profile.other_count:
+        counts = (*counts, profile.other_count)
+        labels = (*labels, "Other (remaining values)")
+    return Bars(
+        np.arange(len(counts), dtype=np.float64),
+        np.array(counts, dtype=np.float64),
+        labels,
+    )
 
 
 @dataclass(frozen=True)
