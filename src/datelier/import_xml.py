@@ -9,9 +9,9 @@ from xml.etree import ElementTree as ET
 import polars as pl
 
 from datelier.import_records import records_to_table
-from datelier.import_source import read_source, validate_utf8
+from datelier.import_source import read_source
 from datelier.import_types import ImportFormat, ImportResult, XmlOptions
-from datelier.xml_records import RecordPath, selected_records
+from datelier.xml_records import RecordPath, selected_records, validate_xml_source
 from datelier.xml_types import infer_xml_types
 
 
@@ -68,7 +68,7 @@ def load_xml(path: Path, options: XmlOptions | None = None) -> ImportResult:
     options = options or XmlOptions()
 
     def read(source: BinaryIO) -> tuple[pl.DataFrame, tuple[str, ...]]:
-        validate_utf8(source, forbidden=("<!DOCTYPE", "<!ENTITY"))
+        validate_xml_source(source)
         header = source.read(512)
         # XML declarations may contain whitespace beyond the initial read.
         if re.match(rb"(?:\xef\xbb\xbf)?<\?xml\s", header):

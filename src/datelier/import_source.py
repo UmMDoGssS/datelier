@@ -64,16 +64,10 @@ def read_source(
     )
 
 
-def validate_utf8(source: BinaryIO, *, forbidden: tuple[str, ...] = ()) -> None:
+def validate_utf8(source: BinaryIO) -> None:
     """Validate headers as well as values before a native parser can replace bytes."""
     decoder = codecs.getincrementaldecoder("utf-8")()
-    tail = ""
     while chunk := source.read(1024 * 1024):
-        text = tail + decoder.decode(chunk)
-        if any(token in text for token in forbidden):
-            raise ValueError(
-                "XML DTD/entity declarations are unsupported; supply plain tabular XML."
-            )
-        tail = text[-32:]
+        decoder.decode(chunk)
     decoder.decode(b"", final=True)
     source.seek(0)

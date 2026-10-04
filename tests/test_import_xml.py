@@ -217,3 +217,37 @@ def test_xml_non_utf8_declaration_is_explicitly_rejected(tmp_path: Path) -> None
 def test_xml_encoding_attribute_is_data(tmp_path: Path) -> None:
     path = xml_file(tmp_path, '<rows><row encoding="custom"><x>café</x></row></rows>')
     assert load_file(path).dataset.table.rows() == [("custom", "café")]
+
+
+def test_xml_declaration_words_in_comments_and_cdata_are_scalar_text(
+    tmp_path: Path,
+) -> None:
+    path = xml_file(
+        tmp_path,
+        "<rows><!-- <!DOCTYPE example> -->"
+        "<?metadata <!ENTITY example> ?>"
+        "<row><text><![CDATA[<!DOCTYPE literal> & café]]></text></row>"
+        "<row><text>&lt;!ENTITY escaped&gt;</text></row></rows>",
+    )
+    assert load_file(path).dataset.table.rows() == [
+        ("<!DOCTYPE literal> & café",),
+        ("<!ENTITY escaped>",),
+    ]
+
+
+def test_xml_declaration_scan_handles_source_chunk_boundaries(tmp_path: Path) -> None:
+    # Split both the CDATA opening and closing tokens across decoder chunks.
+    chunk = 1024 * 1024
+    prefix = "<rows><row><text>"
+    padding = " " * (chunk - len(prefix) - 4)
+    literal = "<![CDATA[<!DOCTYPE text>"
+    rest = "x" * (chunk - len(literal) + 3)
+    path = xml_file(
+        tmp_path, prefix + padding + literal + rest + "]]></text></row></rows>"
+    )
+    assert load_file(path).dataset.table.item().startswith("<!DOCTYPE text>")
+    path = xml_file(
+        tmp_path, " " * (chunk - 4) + "<!DOCTYPE rows><rows><row><x>1</x></row></rows>"
+    )
+    with pytest.raises(ImportFailure, match="DTD/entity"):
+        load_file(path)

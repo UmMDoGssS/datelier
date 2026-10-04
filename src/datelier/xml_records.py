@@ -1,5 +1,6 @@
 """Bounded XML parsing for explicit relative child and descendant paths."""
 
+import codecs
 import re
 from collections.abc import Iterator
 from typing import BinaryIO
@@ -85,3 +86,37 @@ def selected_records(source: BinaryIO, path: RecordPath) -> Iterator[ET.Element]
                 stack.pop()
     except ET.ParseError as error:
         raise ValueError(f"Malformed XML: {error}") from error
+
+
+def validate_xml_source(source: BinaryIO) -> None:
+    """Validate UTF-8 and reject declarations outside comments/CDATA/PIs."""
+    decoder = codecs.getincrementaldecoder("utf-8")()
+    opening = re.compile(r"<!--|<!\[CDATA\[|<\?|<!DOCTYPE|<!ENTITY")
+    closing: str | None = None
+    tail = ""
+    while chunk := source.read(1024 * 1024):
+        text = tail + decoder.decode(chunk)
+        position = 0
+        while True:
+            if closing is not None:
+                end = text.find(closing, position)
+                if end < 0:
+                    tail = text[-(len(closing) - 1) :]
+                    break
+                position = end + len(closing)
+                closing = None
+            else:
+                match = opening.search(text, position)
+                if match is None:
+                    tail = text[max(position, len(text) - 8) :]
+                    break
+                token = match.group()
+                if token in ("<!DOCTYPE", "<!ENTITY"):
+                    raise ValueError(
+                        "XML DTD/entity declarations are unsupported; "
+                        "supply plain tabular XML."
+                    )
+                closing = {"<!--": "-->", "<![CDATA[": "]]>", "<?": "?>"}[token]
+                position = match.end()
+    decoder.decode(b"", final=True)
+    source.seek(0)
