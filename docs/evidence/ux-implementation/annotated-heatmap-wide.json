@@ -1,0 +1,14 @@
+{
+  "frames": 47,
+  "features": 16,
+  "expanded": false,
+  "light_theme": false,
+  "numeric_cell_format": "%.2f",
+  "undefined_cells": 31,
+  "color_scale": [
+    -1,
+    1
+  ],
+  "wide_canvas_scroll_max": 731.0,
+  "source_sha256": "ca7c65ae3bb2474574e1bdb1051c7361a1fcd943bf57057ce62ff499eb8b0f02"
+}

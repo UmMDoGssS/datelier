@@ -213,8 +213,10 @@ in the background when changed. Analysis runs only after an explicit command.
 In Correlations, **Features** chooses an ordered numeric list; **Apply features**
 updates the view. **Chart type** switches between a Pearson heatmap (up to 16 features)
 and a pair grid (default six, maximum eight). The grid option appears only for
-eight or fewer features. Heatmap colors span
-−1 to +1; gray cells are undefined and hover shows finite-pair counts. Click a
+eight or fewer features. Heatmap cells show Pearson values to two decimal places,
+with a matching **Pearson r** color bar from −1 to +1. Gray cells show a dash for
+undefined correlations; hover shows finite-pair counts. Wide matrices scroll
+horizontally to retain readable values and names, with the color bar alongside. Click a
 pair to open raw scatter. Grid diagonals show distributions; mirrored scatter
 cells reuse up to 150 points from the common correlation cohort. Double-click a
 scatter cell to open its axes; click a diagonal to open that column's profile.

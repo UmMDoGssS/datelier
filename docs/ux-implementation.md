@@ -249,3 +249,25 @@ ranges, selection, and source hashes. The strengthened 3D gesture smoke passes
 (141 frames). Checks use Linux/Mesa software OpenGL. API behavior was checked
 against installed bindings and [ImPlot3D's rotation setup contract](https://github.com/brenocq/implot3d/blob/main/implot3d.cpp).
 The remaining two relationship-readability slices are open.
+
+### Annotated correlation heatmap (complete)
+
+Every finite cell displays its Pearson value to two decimal places, with native
+contrast against the diverging colors. Undefined cells show a white dash on
+gray. A matching **Pearson r** color bar spans −1 through 0 to +1 and replaces
+the scale subtitle. Wide matrices reserve label space and scroll horizontally;
+the color scale stays beside the canvas. Matrix height grows with feature count.
+The dedicated heatmap renderer keeps relationship controls/grid rendering small.
+
+Verification: thirteen focused relationship/exploration tests pass; Pyrefly
+reports zero errors; Ruff lint/format and diff whitespace pass. Titanic's five
+features pass annotation ordering, color-map/range matching, source preservation,
+and expanded rendering (49 frames). A sixteen-feature matrix passes readable
+horizontal space and 31 undefined-cell annotations; a light-theme expanded
+fixture passes nine undefined cells and numeric contrast (46 frames). The
+existing relationship drill-down, grid linked selection, and wide-option check
+passes (77 frames), and real heatmap drag/expand/restore passes (88 frames).
+GUI checks use Linux/Mesa software OpenGL.
+
+[Annotated Titanic heatmap](evidence/ux-implementation/annotated-heatmap.png)
+records the final layout. The pair-grid naming slice remains open.

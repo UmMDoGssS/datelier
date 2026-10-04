@@ -1,15 +1,14 @@
 """Heatmap and bounded subplot grid with navigation and linked selection."""
 
-import math
 from dataclasses import dataclass, field
 
-import numpy as np
 from imgui_bundle import imgui, implot
 
 from datelier.dataset import Dataset
 from datelier.exploration import Explorer
 from datelier.gui_axes import AxisControls
 from datelier.gui_fields import combo
+from datelier.gui_heatmap import HeatmapView
 from datelier.gui_plot_area import PlotArea
 from datelier.gui_plot_controls import PlotControls
 from datelier.gui_profiles import draw_histogram
@@ -24,10 +23,14 @@ class RelationshipView:
     mode: int = 0
     area: PlotArea = field(default_factory=PlotArea)
     frames: int = 0
-    pair_pixel: tuple[float, float] = (0, 0)
+    heatmap: HeatmapView = field(default_factory=HeatmapView)
     interactions: dict[tuple[int, int], ScatterInteraction] = field(
         default_factory=dict
     )
+
+    @property
+    def pair_pixel(self) -> tuple[float, float]:
+        return self.heatmap.pair_pixel
 
     def show_features(
         self, plots: PlotControls, explorer: Explorer, dataset: Dataset
@@ -69,7 +72,7 @@ class RelationshipView:
         if imgui.collapsing_header("Details##relationships"):
             imgui.text_wrapped(
                 "Pearson correlation uses pairwise finite values. "
-                "Gray cells are undefined. "
+                "Gray cells with a dash are undefined. "
                 "Click a heatmap cell to open its profile or scatter. "
                 "In the pair grid, click to select a row or double-click "
                 "to open its axes. Grid cells show at most 150 sampled points; "
@@ -83,11 +86,12 @@ class RelationshipView:
         def draw(height: float, fit: bool, _axes: AxisControls) -> bool:
             nonlocal action
             before = self.frames
-            action = (
-                self._heatmap(data, height)
-                if self.mode == 0
-                else self._grid(data, selection, table, height, fit)
-            )
+            if self.mode == 0:
+                before_heatmap = self.heatmap.frames
+                action = self.heatmap.show(data, height, self.area.axes)
+                self.frames += self.heatmap.frames - before_heatmap
+            else:
+                action = self._grid(data, selection, table, height, fit)
             return self.frames > before
 
         self.area.show(
@@ -95,62 +99,13 @@ class RelationshipView:
             (selection.revision, data.names, self.mode),
             draw,
             numeric_axes=(False, False),
-            minimum_height=max(170, len(data.names) * 100) if self.mode else 170,
+            minimum_height=max(
+                170,
+                len(data.names)
+                * (100 if self.mode else imgui.get_text_line_height() + 8)
+                + (0 if self.mode else 85),
+            ),
         )
-        return action
-
-    def _heatmap(
-        self, data: Relationships, height: float
-    ) -> tuple[str, str | None] | None:
-        n = len(data.names)
-        action = None
-        if implot.begin_plot("Pearson heatmap", (-1, height), implot.Flags_.no_legend):
-            implot.setup_axes("Feature X", "Feature Y")
-            implot.setup_axes_limits(0, n, 0, n, imgui.Cond_.always)
-            ticks = [i + 0.5 for i in range(n)]
-            implot.setup_axis_ticks(implot.ImAxis_.x1, ticks, list(data.names))
-            implot.setup_axis_ticks(implot.ImAxis_.y1, ticks, list(data.names))
-            implot.push_colormap(implot.Colormap_.rd_bu)
-            implot.plot_heatmap(
-                "Pearson",
-                np.nan_to_num(data.values[::-1]).copy(),
-                -1,
-                1,
-                "",
-                implot.Point(0, 0),
-                implot.Point(n, n),
-            )
-            implot.pop_colormap()
-            implot.push_plot_clip_rect()
-            for i, j in zip(*np.nonzero(~np.isfinite(data.values)), strict=True):
-                a, b = (
-                    implot.plot_to_pixels(float(j), float(i)),
-                    implot.plot_to_pixels(float(j + 1), float(i + 1)),
-                )
-                implot.get_plot_draw_list().add_rect_filled(
-                    imgui.ImVec2(min(a.x, b.x), min(a.y, b.y)),
-                    imgui.ImVec2(max(a.x, b.x), max(a.y, b.y)),
-                    0xFF777777,
-                )
-            implot.pop_plot_clip_rect()
-            self.area.axes.observe()
-            pixel = implot.plot_to_pixels(min(1.5, n - 0.5), 0.5)
-            self.pair_pixel = (pixel.x, pixel.y)
-            if implot.is_plot_hovered():
-                mouse = implot.get_plot_mouse_pos()
-                i, j = math.floor(mouse.y), math.floor(mouse.x)
-                if 0 <= i < n and 0 <= j < n:
-                    value = data.values[i, j]
-                    imgui.set_tooltip(
-                        f"{data.names[j]} / {data.names[i]}: "
-                        + (f"{value:.4f}" if np.isfinite(value) else "undefined")
-                        + f" · {data.finite_counts[i, j]:,} finite pairs"
-                    )
-                    if imgui.is_mouse_clicked(imgui.MouseButton_.left):
-                        action = (data.names[j], data.names[i] if i != j else None)
-            implot.end_plot()
-            self.frames += 1
-        imgui.text("Scale: −1 (red) · 0 (white) · +1 (blue)")
         return action
 
     def _grid(
