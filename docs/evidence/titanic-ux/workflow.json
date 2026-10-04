@@ -1,0 +1,26 @@
+{
+  "stages_completed": 9,
+  "frames": 135,
+  "first_preview_ms": 117.36840900266543,
+  "source_sha256_before": "ae179070a631b75d2c3fc7439d624c7fb5e0c8859919dc1d4f96d4d3ed6e854b",
+  "source_sha256_after": "ae179070a631b75d2c3fc7439d624c7fb5e0c8859919dc1d4f96d4d3ed6e854b",
+  "observations": [
+    {
+      "stage": "sort",
+      "rows": 850,
+      "first_source_row": 60
+    },
+    {
+      "stage": "filter",
+      "rows": 299
+    },
+    {
+      "stage": "undo",
+      "rows": 850
+    },
+    {
+      "stage": "redo",
+      "rows": 299
+    }
+  ]
+}

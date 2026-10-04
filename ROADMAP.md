@@ -35,6 +35,12 @@ end-to-end hardening and local installation; [Phase 7 evidence](docs/phase-7.md)
 records workflow/resource checks and the clean-wheel install. The personal-use
 v1 scope is complete. Phase 8 remains optional investigation for concrete needs.
 
+A concrete post-v1 usability need is recorded in the
+[Titanic UX review and proposed repair plan](docs/ux-titanic-review.md): readable
+plot axes and sizes, unified inspection/analysis controls, and more direct
+workflows. Its steps and acceptance targets are proposals; implementation and
+user usability validation remain open. Existing feature gates are unchanged.
+
 This is a simple personal tool. Phase 7 verifies reliability and local setup;
 public publishing, release automation and product infrastructure are not goals.
 
