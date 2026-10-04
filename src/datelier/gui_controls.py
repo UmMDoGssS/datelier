@@ -11,6 +11,7 @@ from datelier.import_types import (
     ImportOptions,
     JsonOptions,
     ParquetOptions,
+    XmlOptions,
 )
 from datelier.importing import detect_format
 from datelier.loading import DatasetLoader, LoadPhase
@@ -20,6 +21,7 @@ from datelier.loading import DatasetLoader, LoadPhase
 class ImportControls:
     path: str = ""
     format_index: int = 0
+    options_expanded: bool = False
     separator: str = ""
     quote: str = '"'
     header: bool = True
@@ -29,6 +31,10 @@ class ImportControls:
     skip_rows: int = 0
     null_tokens: str = ""
     parquet_columns: str = ""
+    xml_path: str = "./*"
+    xml_namespaces: str = ""
+    xml_attributes: bool = True
+    xml_strip: bool = True
     error: str = ""
 
     def selected_format(self) -> ImportFormat:
@@ -39,6 +45,27 @@ class ImportControls:
         )
 
     def options(self, selected: ImportFormat) -> ImportOptions:
+        if selected == ImportFormat.XML:
+            namespaces: list[tuple[str, str]] = []
+            for entry in self.xml_namespaces.split("|"):
+                if entry:
+                    prefix, separator, uri = entry.partition("=")
+                    if not separator:
+                        raise ValueError(
+                            "Namespaces use prefix=URI entries separated by |."
+                        )
+                    namespaces.append((prefix, uri))
+            return XmlOptions(
+                record_path=self.xml_path,
+                namespaces=tuple(namespaces),
+                include_attributes=self.xml_attributes,
+                strip_text=self.xml_strip,
+                infer_types=not self.text_only,
+                try_parse_dates=self.dates,
+                null_values=tuple(self.null_tokens.split("|"))
+                if self.null_tokens
+                else (),
+            )
         if selected == ImportFormat.PARQUET:
             return ParquetOptions(
                 columns=tuple(self.parquet_columns.split("|"))
@@ -63,13 +90,36 @@ class ImportControls:
         if selected is None:
             imgui.text_wrapped("Choose a format or enter a supported file extension.")
             return
+        if selected == ImportFormat.XML:
+            imgui.text_wrapped(
+                "Record path is relative to the root. ./* selects root children; "
+                ".//record selects descendants."
+            )
+            _, self.xml_path = imgui.input_text("Record path", self.xml_path)
+            imgui.text_wrapped(
+                "Namespaces: prefix=URI, separated by |. "
+                "Qualified {URI} names also work in paths."
+            )
+            _, self.xml_namespaces = imgui.input_text("Namespaces", self.xml_namespaces)
+            _, self.xml_attributes = imgui.checkbox(
+                "Include attributes", self.xml_attributes
+            )
+            _, self.xml_strip = imgui.checkbox("Trim text whitespace", self.xml_strip)
+            _, self.text_only = imgui.checkbox("Read columns as text", self.text_only)
+            _, self.dates = imgui.checkbox("Parse ISO dates", self.dates)
+            _, self.null_tokens = imgui.input_text("Null tokens (|)", self.null_tokens)
+            imgui.text_wrapped(
+                "Nested/repeated fields and mixed content are rejected. "
+                "Missing/empty fields become null."
+            )
+            return
         if selected == ImportFormat.PARQUET:
             imgui.text_wrapped(
                 "Stored types are preserved. Nested columns must be excluded "
                 "or flattened before import."
             )
             _, self.parquet_columns = imgui.input_text(
-                "Columns (|, empty = all)", self.parquet_columns
+                "Columns (|; empty = all)", self.parquet_columns
             )
             return
         _, self.text_only = imgui.checkbox("Read columns as text", self.text_only)
@@ -80,20 +130,17 @@ class ImportControls:
                 "Nested objects/arrays are rejected with a field diagnostic."
             )
             return
-        _, self.separator = imgui.input_text(
-            "Delimiter (empty = default, \\t = tab)", self.separator
-        )
-        _, self.quote = imgui.input_text("Quote (empty to disable)", self.quote)
+        _, self.separator = imgui.input_text("Delimiter (\\t = tab)", self.separator)
+        _, self.quote = imgui.input_text("Quote (empty = none)", self.quote)
         _, self.header = imgui.checkbox("First record is a header", self.header)
         _, self.dates = imgui.checkbox("Parse dates", self.dates)
         _, self.infer_rows = imgui.input_int("Infer rows (0 = all)", self.infer_rows)
         _, self.skip_rows = imgui.input_int("Skip records", self.skip_rows)
-        _, self.null_tokens = imgui.input_text(
-            "Null tokens (separate with |)", self.null_tokens
-        )
+        _, self.null_tokens = imgui.input_text("Null tokens (|)", self.null_tokens)
 
     def show(self, loader: DatasetLoader) -> None:
-        _, self.path = imgui.input_text("Dataset path", self.path)
+        imgui.push_item_width(imgui.get_content_region_avail().x * 0.5)
+        _, self.path = imgui.input_text("Path", self.path)
         _, self.format_index = imgui.combo(
             "Format",
             self.format_index,
@@ -103,7 +150,9 @@ class ImportControls:
             selected = self.selected_format()
         except ImportFailure:
             selected = None
-        if imgui.collapsing_header("Import options", imgui.TreeNodeFlags_.default_open):
+        imgui.set_next_item_open(self.options_expanded, imgui.Cond_.always)
+        self.options_expanded = imgui.collapsing_header("Import options")
+        if self.options_expanded:
             self.show_options(selected)
         if imgui.button("Open dataset"):
             try:
@@ -114,6 +163,7 @@ class ImportControls:
                 self.error = ""
             except (ValueError, ImportFailure) as error:
                 self.error = str(error)
+        imgui.pop_item_width()
         if loader.status.phase == LoadPhase.LOADING:
             imgui.same_line()
             if imgui.button("Abandon load"):

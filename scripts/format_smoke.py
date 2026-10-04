@@ -13,7 +13,7 @@ from imgui_bundle import hello_imgui
 from numpy.typing import NDArray
 
 from datelier.gui import GuiSession, InspectionEvidence, run_gui
-from datelier.import_types import ImportFormat
+from datelier.import_types import ImportFormat, XmlOptions
 from datelier.loading import LoadPhase
 
 
@@ -23,6 +23,7 @@ def main() -> None:
         "--format", choices=[str(f) for f in ImportFormat], required=True
     )
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--show-options", action="store_true")
     args = parser.parse_args()
     format = ImportFormat(args.format)
     observed: dict[str, bool | int] = {}
@@ -36,13 +37,23 @@ def main() -> None:
             table.write_csv(path, separator="\t" if format == ImportFormat.TSV else ",")
         elif format == ImportFormat.JSON:
             table.write_json(path)
+        elif format == ImportFormat.XML:
+            path.write_text(
+                '<root xmlns="urn:smoke"><meta>excluded</meta><records>'
+                "<record><id>1</id><value>1.5</value><label>café</label></record>"
+                "<record><id>2</id><value/><label>last</label></record>"
+                "</records></root>"
+            )
+            # Apply the exact settings exposed by the controls after startup.
         elif format == ImportFormat.PARQUET:
             table.write_parquet(path)
         else:
             table.write_ndjson(path)
         bad = root / ("bad." + format.lower())
         bad.write_text(
-            'a\n"unterminated\n'
+            "<root><record><payload><hidden>1</hidden></payload></record></root>"
+            if format == ImportFormat.XML
+            else 'a\n"unterminated\n'
             if format in (ImportFormat.CSV, ImportFormat.TSV)
             else '{"payload":{"hidden":1}}'
             if format == ImportFormat.JSONL
@@ -52,6 +63,15 @@ def main() -> None:
         expected = (("1", "1.5", "café"), ("2", "NULL", "last"))
 
         def frame(session: GuiSession, evidence: InspectionEvidence) -> None:
+            if evidence.frames == 1:
+                session.controls.options_expanded = True
+            elif evidence.frames == 60 and not args.show_options:
+                session.controls.options_expanded = False
+            if format == ImportFormat.XML and evidence.frames == 1:
+                session.controls.xml_path = "./s:records/s:record"
+                session.controls.xml_namespaces = "s=urn:smoke"
+                session.loader.request(path, session.controls.options(format))
+                observed["extraction_controls"] = True
             active = session.loader.active
             if active:
                 assert active.imported.format == format
@@ -62,12 +82,18 @@ def main() -> None:
                 if session.table.prepared_visible_rows:
                     observed["prepared_preview"] = True
             if evidence.frames == 30:
-                session.loader.request(bad)
+                if format == ImportFormat.XML:
+                    session.loader.request(bad, XmlOptions(record_path="./record"))
+                else:
+                    session.loader.request(bad)
             if session.loader.status.phase == LoadPhase.FAILED:
                 observed["failure_visible"] = True
                 assert active is not None
                 if format in (ImportFormat.JSON, ImportFormat.JSONL):
                     assert "nested JSON" in session.loader.status.message
+                    observed["nested_diagnostic"] = True
+                elif format == ImportFormat.XML:
+                    assert "nested XML" in session.loader.status.message
                     observed["nested_diagnostic"] = True
 
         evidence = run_gui(path, smoke_frames=90, on_frame=frame)

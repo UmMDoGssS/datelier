@@ -13,6 +13,7 @@ class ImportFormat(StrEnum):
     JSON = "JSON"
     JSONL = "JSONL"
     PARQUET = "Parquet"
+    XML = "XML"
 
 
 @dataclass(frozen=True)
@@ -56,7 +57,27 @@ class ParquetOptions:
             raise ValueError("Selected Parquet columns must be nonempty and unique")
 
 
-type ImportOptions = CsvOptions | JsonOptions | ParquetOptions
+@dataclass(frozen=True)
+class XmlOptions:
+    record_path: str = "./*"
+    namespaces: tuple[tuple[str, str], ...] = ()
+    include_attributes: bool = True
+    strip_text: bool = True
+    null_values: tuple[str, ...] = ()
+    infer_types: bool = True
+    try_parse_dates: bool = False
+
+    def __post_init__(self) -> None:
+        if not self.record_path.strip():
+            raise ValueError("XML record path must be nonempty")
+        prefixes = [prefix for prefix, _ in self.namespaces]
+        if len(set(prefixes)) != len(prefixes) or any(
+            not prefix or not uri for prefix, uri in self.namespaces
+        ):
+            raise ValueError("XML namespaces require unique nonempty prefixes and URIs")
+
+
+type ImportOptions = CsvOptions | JsonOptions | ParquetOptions | XmlOptions
 
 
 class ImportFailure(Exception):

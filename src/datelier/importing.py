@@ -13,7 +13,9 @@ from datelier.import_types import (
     ImportResult,
     JsonOptions,
     ParquetOptions,
+    XmlOptions,
 )
+from datelier.import_xml import load_xml
 
 
 def detect_format(path: Path) -> ImportFormat:
@@ -25,6 +27,7 @@ def detect_format(path: Path) -> ImportFormat:
         ".ndjson": ImportFormat.JSONL,
         ".parquet": ImportFormat.PARQUET,
         ".pq": ImportFormat.PARQUET,
+        ".xml": ImportFormat.XML,
     }
     try:
         return formats[path.suffix.lower()]
@@ -41,6 +44,10 @@ def load_file(
     format: ImportFormat | None = None,
 ) -> ImportResult:
     selected = format if format is not None else detect_format(path)
+    if selected == ImportFormat.XML:
+        if options is not None and not isinstance(options, XmlOptions):
+            raise ImportFailure(path, "XML requires XML import options.")
+        return load_xml(path, options)
     if selected == ImportFormat.PARQUET:
         if options is not None and not isinstance(options, ParquetOptions):
             raise ImportFailure(path, "Parquet requires Parquet import options.")
