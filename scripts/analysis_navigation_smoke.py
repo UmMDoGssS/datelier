@@ -8,6 +8,7 @@ from tempfile import TemporaryDirectory
 import polars as pl
 from imgui_bundle import hello_imgui, imgui
 
+from datelier.analysis_types import Algorithm
 from datelier.gui import GuiSession, InspectionEvidence, run_gui
 
 
@@ -35,6 +36,7 @@ def main() -> None:
                 )
                 window.is_visible = not args.hidden
                 session.exploration.tab = "Scatter"
+                session.analysis.source = Algorithm.PCA
                 stage, entered = 1, evidence.frames
             elif stage == 1 and age > 15:
                 io.mouse_pos = imgui.ImVec2(*session.analysis.inputs_pixel)

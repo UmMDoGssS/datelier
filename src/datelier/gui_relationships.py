@@ -6,6 +6,10 @@ from dataclasses import dataclass, field
 import numpy as np
 from imgui_bundle import imgui, implot
 
+from datelier.dataset import Dataset
+from datelier.exploration import Explorer
+from datelier.gui_fields import combo
+from datelier.gui_plot_controls import PlotControls
 from datelier.gui_profiles import draw_histogram
 from datelier.gui_selection import ScatterInteraction
 from datelier.gui_table import TableView
@@ -22,19 +26,54 @@ class RelationshipView:
         default_factory=dict
     )
 
+    def show_features(
+        self, plots: PlotControls, explorer: Explorer, dataset: Dataset
+    ) -> None:
+        features = list(plots.relationship_features or ())
+        if imgui.button(f"Features ({len(features)})##relationships"):
+            imgui.open_popup("Relationship features")
+        if imgui.begin_popup("Relationship features"):
+            if imgui.begin_child("Relationship feature list", (260, 140)):
+                for name in plots.numeric:
+                    chosen = name in features
+                    imgui.begin_disabled(not chosen and len(features) >= 16)
+                    changed, checked = imgui.checkbox(name, chosen)
+                    imgui.end_disabled()
+                    if changed:
+                        if checked:
+                            features.append(name)
+                        else:
+                            features.remove(name)
+                plots.relationship_features = features
+            imgui.end_child()
+            imgui.begin_disabled(len(features) < 2)
+            if imgui.button("Apply features"):
+                explorer.request(dataset, plots.settings())
+                imgui.close_current_popup()
+            imgui.end_disabled()
+            imgui.end_popup()
+
     def show(
         self, data: Relationships, selection: LinkedSelection, table: TableView
     ) -> tuple[str, str | None] | None:
-        _, self.mode = imgui.combo(
-            "Relationship view", self.mode, ["Heatmap", "Distribution / scatter grid"]
-        )
+        choices = ["Heatmap", "Pair grid"] if 0 < len(data.names) <= 8 else ["Heatmap"]
+        self.mode = min(self.mode, len(choices) - 1)
+        _, self.mode = combo("Chart type", self.mode, choices)
         imgui.text_wrapped(
-            f"Pearson: {data.sampled_rows:,} of {data.total_rows:,} input rows; "
-            "pairwise finite values. Gray = undefined. Click a cell to open its "
-            "profile/scatter; grid clicks select points, double-click opens axes."
+            f"{len(data.names)} features · "
+            f"{data.sampled_rows:,} / {data.total_rows:,} rows"
         )
+        if imgui.collapsing_header("Details##relationships"):
+            imgui.text_wrapped(
+                "Pearson correlation uses pairwise finite values. "
+                "Gray cells are undefined. "
+                "Click a heatmap cell to open its profile or scatter. "
+                "In the pair grid, click to select a row or double-click "
+                "to open its axes. Grid cells show at most 150 sampled points; "
+                "diagonal histograms use all finite values."
+            )
         if not data.names:
-            imgui.text("Choose numeric relationship features in Plot settings.")
+            imgui.text("Choose numeric features to compare.")
             return None
         return (
             self._heatmap(data)
@@ -103,10 +142,6 @@ class RelationshipView:
             )
             return None
         action = None
-        imgui.text_wrapped(
-            "At most 150 sampled points per cell. Diagonal histograms use all "
-            "finite values."
-        )
         dense = n > 4
         if dense:
             imgui.text_wrapped(

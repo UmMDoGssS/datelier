@@ -17,6 +17,7 @@ from datelier.analysis_types import (
     UMAPParameters,
 )
 from datelier.dataset import Dataset
+from datelier.gui_analysis_form import show_inputs, show_parameters
 from datelier.plotting import numeric_columns
 
 
@@ -97,93 +98,19 @@ class AnalysisControls:
                 jobs.cancel()
         if dataset is None:
             return
-        imgui.text_wrapped(
-            "Choose analysis inputs independently of raw scatter axes. "
-            "Loading data never starts analysis."
-        )
-        imgui.push_item_width(110)
         imgui.begin_disabled(jobs.busy)
-        if imgui.button("Select numeric features"):
-            self.features = list(self.numeric[:128])
-        imgui.same_line()
-        if imgui.button("Clear features"):
-            self.features.clear()
-        if imgui.begin_child("Analysis features", (0, 110)):
-            for name in self.numeric:
-                chosen = name in self.features
-                imgui.begin_disabled(not chosen and len(self.features) >= 128)
-                changed, checked = imgui.checkbox(name, chosen)
-                imgui.end_disabled()
-                if changed:
-                    if checked:
-                        self.features.append(name)
-                    else:
-                        self.features.remove(name)
-        imgui.end_child()
-        _, self.standardize = imgui.checkbox(
-            "Standardize analysis features", self.standardize
-        )
-        _, self.impute = imgui.checkbox("Impute missing with median", self.impute)
-        changed, dims = imgui.combo(
-            "Output dimensions", self.dimensions - 2, ["2", "3"]
-        )
-        if changed:
-            self.dimensions = dims + 2
-        _, self.seed = imgui.input_int("Random seed", self.seed)
-        _, self.pca_limit = imgui.input_int("PCA rows (max 100k)", self.pca_limit)
-        _, self.pca_solver = imgui.combo(
-            "PCA solver", self.pca_solver, ["randomized", "full"]
-        )
-        _, self.pca_whiten = imgui.checkbox("PCA whitening", self.pca_whiten)
-        if imgui.button("Run PCA"):
-            self.start(jobs, dataset, Algorithm.PCA)
-        if imgui.tree_node("t-SNE settings"):
-            _, self.tsne_limit = imgui.input_int(
-                "t-SNE rows (max 10k)", self.tsne_limit
-            )
-            _, self.perplexity = imgui.input_float("Perplexity", self.perplexity)
-            _, self.tsne_iterations = imgui.input_int(
-                "t-SNE iterations", self.tsne_iterations
-            )
-            _, self.tsne_auto_rate = imgui.checkbox(
-                "Automatic learning rate", self.tsne_auto_rate
-            )
-            if not self.tsne_auto_rate:
-                _, self.tsne_rate = imgui.input_float("Learning rate", self.tsne_rate)
-            _, self.tsne_init = imgui.combo(
-                "Initialization", self.tsne_init, ["pca", "random"]
-            )
-            imgui.tree_pop()
-        if imgui.button("Run t-SNE"):
-            self.start(jobs, dataset, Algorithm.TSNE)
-        if imgui.tree_node("UMAP settings"):
-            _, self.umap_limit = imgui.input_int("UMAP rows (max 50k)", self.umap_limit)
-            _, self.neighbors = imgui.input_int("Neighbors", self.neighbors)
-            _, self.min_distance = imgui.slider_float(
-                "Minimum distance", self.min_distance, 0, 1
-            )
-            _, self.umap_metric = imgui.combo(
-                "Metric", self.umap_metric, ["euclidean", "cosine"]
-            )
-            imgui.tree_pop()
-        if imgui.button("Run UMAP"):
-            self.start(jobs, dataset, Algorithm.UMAP)
-        if imgui.tree_node("K-means settings"):
-            _, self.kmeans_limit = imgui.input_int(
-                "K-means rows (max 100k)", self.kmeans_limit
-            )
-            _, self.clusters = imgui.input_int("Clusters (max 256)", self.clusters)
-            _, self.initializations = imgui.input_int(
-                "Initializations", self.initializations
-            )
-            _, self.kmeans_iterations = imgui.input_int(
-                "Iterations", self.kmeans_iterations
-            )
-            imgui.tree_pop()
-        if imgui.button("Fit k-means"):
-            self.start(jobs, dataset, Algorithm.KMEANS)
+        show_inputs(self)
+        for algorithm in Algorithm:
+            if imgui.tree_node(f"{algorithm} settings"):
+                imgui.push_id(str(algorithm))
+                show_parameters(self, algorithm)
+                imgui.pop_id()
+                imgui.tree_pop()
+            imgui.begin_disabled(not self.features)
+            if imgui.button(f"Run {algorithm}"):
+                self.start(jobs, dataset, algorithm)
+            imgui.end_disabled()
         imgui.end_disabled()
-        imgui.pop_item_width()
         if self.error:
             imgui.text_wrapped(self.error)
         for algorithm, result in jobs.results.items():

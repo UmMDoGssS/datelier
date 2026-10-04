@@ -124,6 +124,7 @@ def capture_views(session: GuiSession) -> WorkspaceViews:
         session.table.column_start,
         session.table.target_row,
         view.profile_mode,
+        session.analysis.source,
     )
 
 
@@ -147,6 +148,7 @@ def restore_view_settings(session: GuiSession, saved: WorkspaceViews) -> None:
     )
     view.profile_index = saved.profile_index
     view.profile_mode = saved.profile_mode
+    session.analysis.source = saved.coordinate_source
     view.saved_scatter_index = saved.scatter_index
     session.table.column_start = min(saved.column_start, dataset.table.width - 1)
     session.table.target_row = min(saved.target_row, max(1, dataset.table.height))

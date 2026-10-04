@@ -68,11 +68,14 @@ class ExplorationView:
         dashboard = explorer.active
         if dashboard is None:
             if plots is not None and dataset is not None:
-                plots.show_axes(explorer, dataset)
                 if analysis is not None:
                     points = analysis.scatter_controls(dataset, plots)
                     if points is not None:
                         self.show_scatter(None, selection, table, points, plots)
+                    elif analysis.source is None:
+                        plots.show_axes(explorer, dataset)
+                else:
+                    plots.show_axes(explorer, dataset)
             return
         profiles = dashboard.profiles
         imgui.text(f"{profiles.row_count:,} rows · {profiles.total_columns} columns")
@@ -141,6 +144,8 @@ class ExplorationView:
     ) -> None:
         if dashboard.relationships is None:
             return
+        if plots is not None and dataset is not None:
+            self.relationships.show_features(plots, explorer, dataset)
         action = self.relationships.show(dashboard.relationships, selection, table)
         if action is not None and plots is not None and dataset is not None:
             x, y = action
@@ -182,13 +187,17 @@ class ExplorationView:
                 first = dashboard.scatters[self.scatter_index]
                 plots.x_index = plots.numeric.index(first.x_name)
                 plots.y_index = plots.numeric.index(first.y_name)
-        if plots is not None and dataset is not None:
-            plots.show_axes(explorer, dataset)
         points = None
         if analysis is not None and dataset is not None and plots is not None:
             points = analysis.scatter_controls(dataset, plots)
             if analysis.source is not None and points is None:
                 return
+        if (
+            plots is not None
+            and dataset is not None
+            and (analysis is None or analysis.source is None)
+        ):
+            plots.show_axes(explorer, dataset)
         self.show_scatter(dashboard, selection, table, points, plots)
 
     def show_scatter(
@@ -209,9 +218,11 @@ class ExplorationView:
             assert dashboard is not None
             names = [f"{p.x_name} / {p.y_name}" for p in dashboard.scatters]
             self.scatter_index = min(self.scatter_index, len(names) - 1)
-            changed, self.scatter_index = imgui.combo(
-                "Suggested scatter", self.scatter_index, names
-            )
+            changed = False
+            if plots is None:
+                changed, self.scatter_index = imgui.combo(
+                    "Suggested scatter", self.scatter_index, names
+                )
             points = dashboard.scatters[self.scatter_index]
             if changed and plots is not None:
                 plots.x_index = plots.numeric.index(points.x_name)
@@ -220,17 +231,14 @@ class ExplorationView:
         else:
             points = override
         imgui.text_wrapped(
-            f"{len(points.x):,} evenly spaced points of {points.eligible_rows:,} "
-            f"finite rows ({points.total_rows:,} rows). "
-            + (
-                "Sampled."
-                if len(points.x) < points.eligible_rows
-                else "All eligible rows."
-            )
+            f"{len(points.x):,} displayed / {points.eligible_rows:,} fitted"
+            if override is not None
+            else f"{len(points.x):,} displayed / {points.eligible_rows:,} eligible · "
+            f"{points.total_rows - points.eligible_rows:,} excluded"
         )
         if points.colors is not None:
-            imgui.text_wrapped(points.colors.name + ": " + points.colors.note)
             if imgui.collapsing_header("Color legend"):
+                imgui.text_wrapped(points.colors.note)
                 for label, rgba in points.colors.legend:
                     color = imgui.ImVec4(
                         (rgba & 255) / 255,
@@ -241,33 +249,41 @@ class ExplorationView:
                     imgui.text_colored(color, label)
                     imgui.same_line()
                 imgui.new_line()
-        imgui.text_wrapped(selection.message)
+        if selection.row_ids:
+            imgui.text(f"{len(selection.row_ids):,} selected")
         if imgui.button("Clear selection"):
             selection.choose(points.revision, ())
         imgui.same_line()
         if imgui.button("Fit scatter"):
             self.fit = True
+        three_d = (
+            points.z is not None
+            if override is not None
+            else plots.three_d
+            if plots is not None
+            else False
+        )
         key = (
             points.revision,
             points.x_name,
             points.y_name,
             points.z_name,
-            plots.three_d if plots is not None else False,
+            three_d,
         )
         if key != self._scatter_key:
             self.fit = True
             self._scatter_key = key
         shown = (
             self.scatter3d.show(points, selection, table, self.fit)
-            if plots is not None and plots.three_d
+            if three_d
             else draw_scatter(points, selection, table, self.interaction, self.fit)
         )
         if shown:
             self.fit = False
             self.plot_frames += 1
             self.scatter_frames += 1
-        if imgui.collapsing_header("Scatter gestures"):
-            if plots is not None and plots.three_d:
+        if imgui.collapsing_header("Details##scatter"):
+            if three_d:
                 imgui.text_wrapped(
                     "3D: left-drag rotates, right-drag pans, wheel zooms. "
                     "Click selects; Ctrl-click toggles; "

@@ -6,6 +6,7 @@ from tempfile import TemporaryDirectory
 
 from imgui_bundle import hello_imgui
 
+from datelier.analysis_types import Algorithm
 from datelier.editing import HistoryAction
 from datelier.gui import GuiSession, InspectionEvidence, run_gui
 from datelier.operations import Sort
@@ -43,6 +44,7 @@ def main() -> None:
                 session.analysis.controls.seed = 17
                 session.analysis.controls.clusters = 2
                 session.analysis.controls.pca_whiten = True
+                session.analysis.source = Algorithm.TSNE
                 session.exploration.tab = "Correlations"
                 session.exploration.relationships.mode = 1
                 session.exploration.profile_mode = 2
@@ -114,11 +116,13 @@ def main() -> None:
                 assert session.exploration.relationships.mode == 1
                 assert session.exploration.active_tab == "Correlations"
                 assert session.exploration.profile_mode == 2
+                assert session.analysis.source == Algorithm.TSNE
                 session.editor.request(HistoryAction.REDO)
                 stage = 3
             elif stage == 3 and not session.editor.busy and not session.explorer.busy:
                 assert active.dataset.row_ids.to_list() == [1, 2, 0, 3]
                 session.exploration.tab = "Scatter"
+                session.analysis.source = None
                 session.selection.choose(active.dataset.revision, (1,))
                 ready, stage = evidence.frames, 4
             elif stage == 4 and evidence.frames > ready + 20:
@@ -145,6 +149,7 @@ def main() -> None:
                     "redo_and_selection": True,
                     "implicit_ml_runs": 0,
                     "profile_chart_type_restored": True,
+                    "unfitted_coordinate_source_restored": True,
                     "source_preserved": True,
                 }
             )

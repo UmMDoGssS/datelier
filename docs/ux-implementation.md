@@ -118,3 +118,39 @@ panels (42 frames each), with no ML started. Sixteen focused analysis-job,
 workspace-view, and exploration tests pass; Pyrefly reports zero errors and
 Ruff lint/format plus diff whitespace checks pass. Scatter mode separation and
 chart sizing remain the next verified slices.
+
+## Follow-up — Contextual scatter and correlation controls (complete)
+
+Scatter has one Coordinates selector. Columns shows manual X/Y and optional Z;
+PCA, t-SNE, and UMAP show the selected method's inputs and explicit Run command.
+Unfitted methods retain their setup without displaying a raw fallback or
+starting ML. Shared feature/preprocessing forms keep the Analysis panel and
+inline inputs consistent. Fitted views collapse setup by default, identify
+changed inputs, and preserve linked rows and independent raw 2D/3D settings.
+One Color selector covers uniform, column, and completed cluster colors.
+Manual axes update in the worker when changed; occupied axes swap safely.
+
+Correlations now has a local Features picker, an above-control Chart type
+caption, and compact counts. Pair grid is omitted when more than eight features
+are present. Detailed explanations are collapsed. Workspace/preferences recipes
+save the coordinate source with a backwards-compatible default of Columns;
+restoring an unfitted method does not run it.
+
+Verification:
+
+- 62 focused workspace/preferences/exploration/analysis-job/relationship tests
+  pass; Pyrefly reports zero errors; Ruff lint/format and diff whitespace pass.
+- `scatter_modes_smoke.py` on Titanic verifies the widgets actually rendered
+  in each mode, clicks Run PCA, visits unfitted t-SNE/UMAP, and returns to Columns.
+  The source hash remains unchanged.
+- `analysis_workbench_smoke.py --dimensions 3` passes explicit PCA, linked 3D
+  selection, k-means colors on embedding and raw plots, and source preservation.
+- `selection_smoke.py` passes linked selection, wheel zoom, middle-button pan,
+  and Shift brushing. `relationship_smoke.py` passes heatmap navigation and
+  grid highlighting.
+- `workspace_smoke.py` passes saved unfitted coordinate-source restoration,
+  moved-source relink, history/selection, and zero implicit ML runs.
+
+These are the requested contextual-control repairs within review step 3. The
+broader shared-column context, input preview, and default dock-layout redesign
+remain open. Fixed/capped plot heights are addressed in the next slice.

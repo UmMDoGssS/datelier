@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass, replace
 
-from datelier.analysis_types import AnalysisRequest
+from datelier.analysis_types import Algorithm, AnalysisRequest
 from datelier.exploration import PlotSettings
 from datelier.import_types import (
     CsvOptions,
@@ -33,6 +33,7 @@ class WorkspaceViews:
     column_start: int = 0
     target_row: int = 1
     profile_mode: int = 0
+    coordinate_source: Algorithm | None = None
 
     def validate(self) -> None:
         if self.tab not in ("Profiles", "Scatter", "Correlations"):
@@ -45,6 +46,8 @@ class WorkspaceViews:
             raise ValueError("Target row must be positive")
         if not 0 <= self.profile_mode < 5:
             raise ValueError("Unknown profile chart type")
+        if self.coordinate_source == Algorithm.KMEANS:
+            raise ValueError("Clustering does not supply scatter coordinates")
 
 
 @dataclass(frozen=True)

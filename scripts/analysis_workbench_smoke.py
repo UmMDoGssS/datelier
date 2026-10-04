@@ -69,6 +69,9 @@ def main() -> None:
                 if colors is not None and colors.name == "K-means":
                     assert "30 sampled" in colors.note
                     analysis.source = None
+                    session.plots.three_d = args.dimensions == 3
+                    session.plots.custom_scatter = True
+                    session.explorer.request(active.dataset, session.plots.settings())
                     stage, entered = 4, evidence.frames
             elif stage == 4 and age > 20:
                 assert dashboard.scatters[0].colors is not None

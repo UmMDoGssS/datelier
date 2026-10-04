@@ -8,6 +8,7 @@ from datelier.analysis_types import ClusteringResult
 from datelier.dataset import Dataset
 from datelier.distributions import DistributionSettings
 from datelier.exploration import Explorer, PlotSettings
+from datelier.gui_fields import combo
 from datelier.plotting import numeric_columns
 from datelier.profiling import ProfileKind, profile_kind
 
@@ -38,8 +39,10 @@ class PlotControls:
     cluster_result: ClusteringResult | None = None
     three_d: bool = False
     z_index: int = 2
+    scatter_dirty: bool = False
 
     def bind(self, dataset: Dataset) -> None:
+        self.scatter_dirty = False
         self.cluster_result = None
         self.cluster_color = False
         previous_x = self.numeric[self.x_index] if self.numeric else ""
@@ -167,22 +170,6 @@ class PlotControls:
             )
             _, self.seed = imgui.input_int("Comparison seed", self.seed)
             imgui.tree_pop()
-        if imgui.tree_node(
-            "Relationship features (grid up to eight, heatmap up to 16)"
-        ):
-            features = self.relationship_features or []
-            for name in self.numeric:
-                chosen = name in features
-                imgui.begin_disabled(not chosen and len(features) >= 16)
-                changed, checked = imgui.checkbox(name + "##relationship", chosen)
-                imgui.end_disabled()
-                if changed:
-                    if checked:
-                        features.append(name)
-                    else:
-                        features.remove(name)
-            self.relationship_features = features
-            imgui.tree_pop()
         if imgui.button("Apply plot settings"):
             try:
                 settings = self.settings()
@@ -205,7 +192,12 @@ class PlotControls:
         if len(self.numeric) < 2:
             imgui.text("Scatter requires at least two numeric columns.")
             return
-        changed, self.three_d = imgui.checkbox("3D scatter", self.three_d)
+        changed, dimensions = combo(
+            "Dimensions",
+            int(self.three_d and len(self.numeric) >= 3),
+            ["2D", "3D"] if len(self.numeric) >= 3 else ["2D"],
+        )
+        self.three_d = dimensions == 1
         if (
             changed
             and self.three_d
@@ -217,25 +209,26 @@ class PlotControls:
                 for i in range(len(self.numeric))
                 if i not in (self.x_index, self.y_index)
             )
-        imgui.same_line()
-        imgui.set_next_item_width(100 if self.three_d else 160)
-        _, self.x_index = imgui.combo("Raw X", self.x_index, list(self.numeric))
-        imgui.same_line()
-        imgui.set_next_item_width(100 if self.three_d else 160)
-        _, self.y_index = imgui.combo("Raw Y", self.y_index, list(self.numeric))
-        if self.three_d:
-            imgui.same_line()
-            imgui.set_next_item_width(100)
-            _, self.z_index = imgui.combo("Raw Z", self.z_index, list(self.numeric))
-        imgui.set_next_item_width(160)
-        _, self.color_index = imgui.combo(
-            "Color column", self.color_index, ["Uniform", *self.color_columns]
-        )
-        if self.cluster_result is not None:
-            imgui.same_line()
-            _, self.cluster_color = imgui.checkbox("K-means colors", self.cluster_color)
-        imgui.same_line()
-        if imgui.button("Update raw scatter"):
+        axes = ["x_index", "y_index"] + (["z_index"] if self.three_d else [])
+        if imgui.begin_table(
+            "Scatter axes", len(axes), imgui.TableFlags_.sizing_stretch_same
+        ):
+            imgui.table_next_row()
+            for col, attr in enumerate(axes):
+                imgui.table_set_column_index(col)
+                current = getattr(self, attr)
+                picked, index = combo(
+                    "XYZ"[col],
+                    current,
+                    list(self.numeric),
+                )
+                if picked:
+                    self.choose_axis(attr, index)
+                    changed = True
+            imgui.end_table()
+        changed = self.show_color() or changed or self.scatter_dirty
+        if changed:
+            self.scatter_dirty = False
             self.custom_scatter = True
             try:
                 if self.x_index == self.y_index:
@@ -251,3 +244,31 @@ class PlotControls:
                 self.error = str(error)
         if self.error:
             imgui.text_wrapped(self.error)
+
+    def show_color(self) -> bool:
+        choices = ["Uniform", *self.color_columns]
+        if self.cluster_result is not None:
+            choices.append("K-means clusters")
+        selected = (
+            len(choices) - 1
+            if self.cluster_color and self.cluster_result is not None
+            else self.color_index
+        )
+        changed, index = combo("Color", selected, choices)
+        if changed:
+            self.scatter_dirty = True
+            self.cluster_color = (
+                self.cluster_result is not None and index == len(choices) - 1
+            )
+            if not self.cluster_color:
+                self.color_index = index
+        return changed
+
+    def choose_axis(self, attr: str, index: int) -> None:
+        """Swap an occupied axis so two-column datasets can reverse X and Y."""
+        axes = ["x_index", "y_index"] + (["z_index"] if self.three_d else [])
+        previous = getattr(self, attr)
+        for other in axes:
+            if other != attr and getattr(self, other) == index:
+                setattr(self, other, previous)
+        setattr(self, attr, index)

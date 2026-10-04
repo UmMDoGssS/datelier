@@ -203,15 +203,17 @@ and seed (default 42). Box quartiles/Tukey whiskers are exact; displayed outlier
 use that sample, capped at 150. Empty/constant inputs have explicit explanations.
 Categorical and temporal profiles remain available under Individual profiles.
 
-Scatter keeps independent X/Y selectors visible; **3D scatter** adds Z.
-Suggested pairs are shortcuts. **Color** selects another column: continuous
+In Scatter, **Coordinates → Columns** shows X/Y selectors; **Dimensions → 3D**
+adds Z. Choosing PCA, t-SNE, or UMAP replaces the manual axes with that method's
+inputs and Run command. **Color** selects another column: continuous
 numeric/temporal colors, top-12 categorical colors plus Other, and neutral missing
-values. Selected points retain their highlight. **Update scatter** prepares the
-chosen axes/colors in the background, independently of analysis features.
+values. Selected points retain their highlight. Column axes and colors update
+in the background when changed. Analysis runs only after an explicit command.
 
-Under **Relationship features**, choose an ordered numeric list and apply
-settings. Correlations switches between a Pearson heatmap (up to 16 features)
-and scatter/distribution grid (default six, maximum eight). Heatmap colors span
+In Correlations, **Features** chooses an ordered numeric list; **Apply features**
+updates the view. **Chart type** switches between a Pearson heatmap (up to 16 features)
+and a pair grid (default six, maximum eight). The grid option appears only for
+eight or fewer features. Heatmap colors span
 −1 to +1; gray cells are undefined and hover shows finite-pair counts. Click a
 pair to open raw scatter. Grid diagonals show distributions; mirrored scatter
 cells reuse up to 150 points from the common correlation cohort. Double-click a
@@ -236,9 +238,10 @@ See [Phase 4 evidence](docs/phase-4.md) and
 
 ## On-demand analysis
 
-In the **Analysis** panel, select numeric features separately from raw axes and
-color. Choose preprocessing, dimensions, seed and the algorithm's sample limit,
-then explicitly press **Run PCA**, **Run t-SNE**, **Run UMAP** or **Fit k-means**.
+In Scatter, choose PCA, t-SNE, or UMAP under **Coordinates**, then select
+features under **Inputs and settings**. Choose preprocessing, dimensions,
+seed and the algorithm's sample limit, then explicitly press its **Run** button.
+The **Analysis** panel also provides these controls and **Run K-means**.
 Defaults drop missing/nonfinite rows and standardize features; optional median
 imputation and no scaling are available. Constant features are removed and
 reported; unusable data or invalid parameter combinations fail without adjusting
@@ -258,8 +261,9 @@ phases and elapsed time; **Cancel analysis** reports completion after the worker
 exits. Dataset revisions invalidate results and stale jobs cannot publish.
 These sample limits are bounds, not capacity guarantees.
 
-Choose Raw or a completed embedding in Scatter to switch views without fitting
-again. Changed settings require another command. **K-means colors** uses the
+Choose Columns or an embedding in Scatter to switch views without fitting
+again. An unfitted method shows its setup; it never falls back to column axes.
+Changed settings require another command. **Color → K-means clusters** uses the
 completed clustering result on raw or reduced plots. Fitting samples and
 nearest-center predictions in the original fitted feature space are disclosed;
 excluded rows receive neutral colors. Provenance records inputs, exclusions,

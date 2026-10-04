@@ -236,19 +236,6 @@ def run_gui(
         completed = analysis.poll(loader.active.dataset if loader.active else None)
         if completed:
             exploration.tab = "Scatter"
-            latest = analysis.jobs.latest
-            if latest is not None:
-                plot_controls.three_d = latest.provenance.request.dimensions == 3
-                if plot_controls.three_d and len(plot_controls.numeric) >= 3:
-                    if plot_controls.z_index in (
-                        plot_controls.x_index,
-                        plot_controls.y_index,
-                    ):
-                        plot_controls.z_index = next(
-                            i
-                            for i in range(len(plot_controls.numeric))
-                            if i not in (plot_controls.x_index, plot_controls.y_index)
-                        )
         cluster = analysis.jobs.results.get(Algorithm.KMEANS)
         if (
             isinstance(cluster, ClusteringResult)

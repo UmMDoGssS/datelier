@@ -110,9 +110,46 @@ def test_analysis_controls_round_trip_without_launching_jobs(tmp_path: Path) -> 
 def test_profile_chart_type_recipes_remain_backward_compatible() -> None:
     old = decode_record(WorkspaceViews, {"kind": "WorkspaceViews", "profile_index": 4})
     assert old.profile_mode == 0
-    saved = WorkspaceViews(profile_mode=2, profile_index=4)
+    assert old.coordinate_source is None
+    saved = WorkspaceViews(
+        profile_mode=2, profile_index=4, coordinate_source=Algorithm.PCA
+    )
     assert decode_record(WorkspaceViews, encode(saved)) == saved
     saved.validate()
+
+
+def test_unfitted_coordinates_survive_polling_without_starting_analysis(
+    tmp_path: Path,
+) -> None:
+    from datelier.gui_analysis import AnalysisSession
+
+    source = tmp_path / "data.csv"
+    source.write_text("x,y,z\n1,2,3\n3,4,5\n")
+    data = load_file(source).dataset
+    session = AnalysisSession(source=Algorithm.PCA)
+    plots = PlotControls(three_d=True, custom_scatter=True)
+    plots.bind(data)
+    plots.custom_scatter = True
+    try:
+        assert not session.poll(data)
+        assert session.source == Algorithm.PCA
+        assert not session.jobs.busy and not session.jobs.results
+        assert plots.three_d and plots.settings().scatter_z == "z"
+        session.source = None
+        assert not session.poll(data)
+        assert session.source is None and plots.three_d
+    finally:
+        session.close()
+
+
+def test_manual_axes_can_swap_without_duplicate_coordinates() -> None:
+    controls = PlotControls(numeric=("x", "y"))
+    controls.choose_axis("x_index", 1)
+    assert (controls.x_index, controls.y_index) == (1, 0)
+    controls.numeric = ("x", "y", "z")
+    controls.three_d = True
+    controls.choose_axis("x_index", 2)
+    assert (controls.x_index, controls.y_index, controls.z_index) == (2, 0, 1)
 
 
 def test_profile_summary_accounts_for_missing_and_nonfinite(tmp_path: Path) -> None:
