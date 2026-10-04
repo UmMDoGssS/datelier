@@ -1,6 +1,7 @@
 """Virtualized row rendering with bounded, asynchronous column/page preparation."""
 
 from dataclasses import dataclass
+from math import ceil
 
 from imgui_bundle import imgui
 
@@ -65,7 +66,12 @@ class TableView:
             )
         imgui.table_setup_scroll_freeze(1, 1)
         imgui.table_headers_row()
-        row_height = imgui.get_text_line_height() + 2 * imgui.get_style().cell_padding.y
+        # Quantized padding keeps row geometry aligned at million-row scroll
+        # offsets, where ImGui's float coordinates lose single-pixel precision.
+        content_height = (
+            imgui.get_text_line_height() + 2 * imgui.get_style().cell_padding.y
+        )
+        row_height = ceil(content_height / 8) * 8
         if self.jump:
             imgui.set_scroll_y((self.target_row - 1) * row_height)
             self.jump = False

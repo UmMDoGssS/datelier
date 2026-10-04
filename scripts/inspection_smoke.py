@@ -14,6 +14,7 @@ import numpy as np
 from imgui_bundle import hello_imgui, imgui
 from numpy.typing import NDArray
 
+from datelier.dataset import DatasetRevision
 from datelier.feasibility.fixtures import make_table
 from datelier.gui import GuiSession, InspectionEvidence, run_gui
 from datelier.import_csv import CsvImport, CsvOptions, load_csv
@@ -39,6 +40,9 @@ def main() -> None:
     scroll_started: float | None = None
     wheel_started: float | None = None
     wheel_row = 0
+    reload_started: float | None = None
+    reload_revision: DatasetRevision | None = None
+    reload_published_frame = 0
     with TemporaryDirectory(prefix="datelier-inspection-") as directory:
         root = Path(directory)
         path = root / "fixture.csv"
@@ -59,6 +63,26 @@ def main() -> None:
 
         def frame(session: GuiSession, evidence: InspectionEvidence) -> None:
             nonlocal scroll_started, wheel_started, wheel_row
+            nonlocal reload_started, reload_revision, reload_published_frame
+            if args.scenario == "preview" and evidence.frames == 20:
+                reload_started = perf_counter()
+                reload_revision = session.loader.revision
+                session.loader.request(path)
+            if reload_started is not None:
+                if evidence.frame_intervals_ms:
+                    observed["reload_max_frame_ms"] = max(
+                        float(observed.get("reload_max_frame_ms", 0)),
+                        evidence.frame_intervals_ms[-1],
+                    )
+                if session.loader.revision != reload_revision:
+                    if not reload_published_frame:
+                        reload_published_frame = evidence.frames
+                    elif session.table.prepared_visible_rows:
+                        observed["reload_to_visible_ms"] = (
+                            perf_counter() - reload_started
+                        ) * 1000
+                        observed["background_reload_verified"] = True
+                        reload_started = None
             if args.scenario == "switch-failure":
                 if (
                     started.is_set()
@@ -125,6 +149,8 @@ def main() -> None:
                 ) * 1000
                 observed["wheel_scrolled"] = True
                 wheel_started = None
+            if evidence.frames == 120:
+                imgui.get_io().add_mouse_pos_event(-1000, -1000)
 
         try:
             evidence = run_gui(
@@ -147,7 +173,9 @@ def main() -> None:
             if evidence.loading_frames < 20 or evidence.failed_frames == 0:
                 raise RuntimeError("Loading/failure states did not render")
         elif not (
-            observed.get("row_identity_verified") and observed.get("wheel_scrolled")
+            observed.get("row_identity_verified")
+            and observed.get("wheel_scrolled")
+            and observed.get("background_reload_verified")
         ):
             raise RuntimeError(f"Scroll gate incomplete: {observed}")
         pixels = cast(NDArray[np.uint8], hello_imgui.final_app_window_screenshot())

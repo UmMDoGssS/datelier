@@ -1,0 +1,137 @@
+{
+  "platform": "Linux-7.0.0-34-generic-x86_64-with-glibc2.43",
+  "python": "3.14.7",
+  "cpu": "13th Gen Intel(R) Core(TM) i7-13620H",
+  "logical_cpus": 16,
+  "ram_bytes": 33255641088,
+  "polars_threads": 8,
+  "versions": {
+    "polars": "1.44.2",
+    "imgui-bundle": "1.92.900",
+    "numpy": "2.5.3"
+  },
+  "fixture_types": "UInt64 row_id, Float64 numeric features, String category",
+  "repeats": 3,
+  "measurements": [
+    {
+      "rows": 10000,
+      "columns": 8,
+      "csv_import_ms": 1.3282849977258593,
+      "inspection_ms": 1.081021000572946,
+      "csv_to_prepared_ms": 2.409305998298805,
+      "last_page_ms": 0.6858910019218456,
+      "background_to_prepared_ms": 4.549883997242432,
+      "peak_rss_mib": 80.421875
+    },
+    {
+      "rows": 10000,
+      "columns": 8,
+      "csv_import_ms": 1.7258020016015507,
+      "inspection_ms": 1.3249949988676235,
+      "csv_to_prepared_ms": 3.0507970004691742,
+      "last_page_ms": 0.9362800010421779,
+      "background_to_prepared_ms": 4.3361839998397045,
+      "peak_rss_mib": 80.46875
+    },
+    {
+      "rows": 10000,
+      "columns": 8,
+      "csv_import_ms": 1.4022780014784075,
+      "inspection_ms": 1.0227889979432803,
+      "csv_to_prepared_ms": 2.425066999421688,
+      "last_page_ms": 0.7105190015863627,
+      "background_to_prepared_ms": 4.495670000324026,
+      "peak_rss_mib": 80.68359375
+    },
+    {
+      "rows": 100000,
+      "columns": 8,
+      "csv_import_ms": 4.751594002300408,
+      "inspection_ms": 1.576476999616716,
+      "csv_to_prepared_ms": 6.328071001917124,
+      "last_page_ms": 0.9587059976183809,
+      "background_to_prepared_ms": 7.334382000408368,
+      "peak_rss_mib": 125.23828125
+    },
+    {
+      "rows": 100000,
+      "columns": 8,
+      "csv_import_ms": 4.719289001513971,
+      "inspection_ms": 1.5288239992514718,
+      "csv_to_prepared_ms": 6.248113000765443,
+      "last_page_ms": 1.0708579975471366,
+      "background_to_prepared_ms": 7.226312001876067,
+      "peak_rss_mib": 124.61328125
+    },
+    {
+      "rows": 100000,
+      "columns": 8,
+      "csv_import_ms": 4.096356999070849,
+      "inspection_ms": 1.2113369994040113,
+      "csv_to_prepared_ms": 5.307693998474861,
+      "last_page_ms": 0.7060979987727478,
+      "background_to_prepared_ms": 7.079733997670701,
+      "peak_rss_mib": 124.85546875
+    },
+    {
+      "rows": 1000000,
+      "columns": 8,
+      "csv_import_ms": 28.140764999989187,
+      "inspection_ms": 1.2326500000199303,
+      "csv_to_prepared_ms": 29.373415000009118,
+      "last_page_ms": 0.814797000202816,
+      "background_to_prepared_ms": 32.80962200005888,
+      "peak_rss_mib": 513.76953125
+    },
+    {
+      "rows": 1000000,
+      "columns": 8,
+      "csv_import_ms": 30.560507002519444,
+      "inspection_ms": 1.7917320001288317,
+      "csv_to_prepared_ms": 32.352239002648275,
+      "last_page_ms": 1.1698359994625207,
+      "background_to_prepared_ms": 35.798540000541834,
+      "peak_rss_mib": 517.890625
+    },
+    {
+      "rows": 1000000,
+      "columns": 8,
+      "csv_import_ms": 27.864692998264218,
+      "inspection_ms": 1.4796450013818685,
+      "csv_to_prepared_ms": 29.344337999646086,
+      "last_page_ms": 0.9368179999000859,
+      "background_to_prepared_ms": 34.66636700250092,
+      "peak_rss_mib": 526.7265625
+    },
+    {
+      "rows": 100000,
+      "columns": 66,
+      "csv_import_ms": 25.42372300013085,
+      "inspection_ms": 4.270155000995146,
+      "csv_to_prepared_ms": 29.693878001125995,
+      "last_page_ms": 2.5035450016730465,
+      "background_to_prepared_ms": 34.69769600269501,
+      "peak_rss_mib": 488.8359375
+    },
+    {
+      "rows": 100000,
+      "columns": 66,
+      "csv_import_ms": 25.53348199944594,
+      "inspection_ms": 4.572376001306111,
+      "csv_to_prepared_ms": 30.10585800075205,
+      "last_page_ms": 3.074749001825694,
+      "background_to_prepared_ms": 31.047727999975905,
+      "peak_rss_mib": 488.59765625
+    },
+    {
+      "rows": 100000,
+      "columns": 66,
+      "csv_import_ms": 24.32572899851948,
+      "inspection_ms": 3.556378000212135,
+      "csv_to_prepared_ms": 27.882106998731615,
+      "last_page_ms": 2.327056001377059,
+      "background_to_prepared_ms": 34.218392000184394,
+      "peak_rss_mib": 488.375
+    }
+  ]
+}

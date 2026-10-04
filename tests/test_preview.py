@@ -2,6 +2,7 @@ from pathlib import Path
 from time import monotonic, sleep
 
 import polars as pl
+import pytest
 
 from datelier.dataset import Dataset, SourceReference
 from datelier.import_csv import CsvImport, CsvOptions
@@ -41,5 +42,43 @@ def test_preview_pages_are_bounded_aligned_and_invalidated() -> None:
         assert page.revision == changed.revision
         assert len(page.rows) == 1
         assert pages.page_count == 1
+    finally:
+        pages.close()
+
+
+def test_preview_worker_failure_is_visible_and_retryable(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from datelier import preview
+
+    dataset = Dataset.from_source(
+        pl.DataFrame({"value": range(200)}), SourceReference(Path("table.csv"), 1, 1)
+    )
+    pages = PreviewCache()
+    pages.bind(prepare_inspection(CsvImport(dataset, CsvOptions(), ())))
+    original = preview.prepare_page
+
+    def failed_page(dataset: Dataset, row: int, column: int = 0) -> None:
+        raise RuntimeError("test preparation failed")
+
+    monkeypatch.setattr(preview, "prepare_page", failed_page)
+    try:
+        pages.get(100)
+        deadline = monotonic() + 3
+        while not pages.error and monotonic() < deadline:
+            pages.poll()
+            sleep(0.001)
+        assert "test preparation failed" in pages.error
+        assert pages.get(0) is not None  # existing prepared data survives
+        monkeypatch.setattr(preview, "prepare_page", original)
+        pages.retry()
+        deadline = monotonic() + 3
+        while pages.get(100) is None and monotonic() < deadline:
+            pages.poll()
+            sleep(0.001)
+        page = pages.get(100)
+        assert page is not None
+        assert page.row_ids[0] == 100
+        assert not pages.error
     finally:
         pages.close()

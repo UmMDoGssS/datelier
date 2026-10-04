@@ -109,3 +109,38 @@ def test_revision_change_rejects_pending_result(tmp_path: Path) -> None:
         assert loader.active is active
     finally:
         loader.close()
+
+
+def test_rapid_requests_cancel_obsolete_queued_work(tmp_path: Path) -> None:
+    path = tmp_path / "latest.csv"
+    path.write_text("v\n3\n")
+    first_started, second_started, release = Event(), Event(), Event()
+    seen: list[str] = []
+
+    def importer(source: Path, options: CsvOptions) -> CsvImport:
+        seen.append(source.name)
+        if source.name in ("first.csv", "second.csv"):
+            (first_started if source.name == "first.csv" else second_started).set()
+            assert release.wait(3)
+            raise RuntimeError("An obsolete parser failed")
+        return load_csv(source, options)
+
+    loader = DatasetLoader(importer)
+    try:
+        loader.request(tmp_path / "first.csv")
+        assert first_started.wait(3)
+        loader.request(tmp_path / "second.csv")
+        assert second_started.wait(3)
+        for number in range(20):
+            loader.request(tmp_path / f"queued-{number}.csv")
+        loader.request(path)
+        assert loader.retired_running == 2
+        release.set()
+        await_load(loader)
+        assert loader.status.phase == LoadPhase.READY
+        assert loader.active is not None
+        assert loader.active.dataset.table["v"].to_list() == [3]
+        assert set(seen) == {"first.csv", "second.csv", "latest.csv"}
+    finally:
+        release.set()
+        loader.close()
