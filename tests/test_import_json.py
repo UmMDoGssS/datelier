@@ -92,3 +92,74 @@ def test_jsonl_checks_every_record_for_nesting_and_new_fields(tmp_path: Path) ->
     path.write_text('{"x":1}\n' * 150 + '{"late":{"hidden":2}}\n')
     with pytest.raises(ImportFailure, match="Line 151.*late"):
         load_file(path)
+
+
+@pytest.mark.parametrize("suffix", ["json", "jsonl"])
+def test_batches_preserve_empty_rows_late_fields_and_type_changes(
+    tmp_path: Path, suffix: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import json
+
+    import datelier.import_records as batches
+    import datelier.json_records as arrays
+
+    monkeypatch.setattr(batches, "BATCH_RECORDS", 2)
+    monkeypatch.setattr(arrays, "CHUNK_CHARACTERS", 7)
+    rows = [
+        {},
+        {},
+        {"x": 1, "label": 'café "quote"\nline'},
+        {},
+        {"x": 2.5, "late": True},
+        {},
+    ]
+    path = tmp_path / ("batch." + suffix)
+    path.write_text(
+        json.dumps(rows, ensure_ascii=False)
+        if suffix == "json"
+        else "\n".join(json.dumps(row, ensure_ascii=False) for row in rows)
+    )
+    imported = load_file(path)
+    assert imported.dataset.table.schema == {
+        "x": pl.Float64,
+        "label": pl.String,
+        "late": pl.Boolean,
+    }
+    assert imported.dataset.table.rows() == [
+        (None, None, None),
+        (None, None, None),
+        (1.0, 'café "quote"\nline', None),
+        (None, None, None),
+        (2.5, None, True),
+        (None, None, None),
+    ]
+    assert imported.dataset.row_ids.to_list() == list(range(6))
+    assert load_file(path, JsonOptions(read_as_text=True)).dataset.table.row(4) == (
+        "2.5",
+        None,
+        "true",
+    )
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        '[{"x":1},]',
+        '[{"x":1}{"x":2}]',
+        '[{"x":1}]extra',
+        '[{"x":1}',
+        '[{"x":"unterminated}]',
+        '[{"x":1},\n',
+    ],
+)
+def test_streaming_json_rejects_bad_array_grammar(
+    tmp_path: Path, text: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import datelier.json_records as arrays
+
+    monkeypatch.setattr(arrays, "CHUNK_CHARACTERS", 3)
+    path = tmp_path / "bad.json"
+    path.write_text(text)
+    with pytest.raises(ImportFailure):
+        load_file(path)
+    assert path.read_text() == text

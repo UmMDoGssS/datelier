@@ -2,13 +2,16 @@
 
 import json
 import math
+from collections.abc import Iterator
 from pathlib import Path
 from typing import BinaryIO, cast
 
 import polars as pl
 
+from datelier.import_records import records_to_table
 from datelier.import_source import read_source
 from datelier.import_types import ImportFormat, ImportResult, JsonOptions
+from datelier.json_records import array_records
 
 type JsonScalar = str | int | float | bool | None
 
@@ -62,48 +65,26 @@ def load_json(
     format = ImportFormat.JSONL if lines else ImportFormat.JSON
 
     def read(source: BinaryIO) -> tuple[pl.DataFrame, tuple[str, ...]]:
-        records: list[dict[str, JsonScalar]] = []
-        if lines:
-            for number, raw in enumerate(source, 1):
-                if not raw.strip():
-                    continue
-                try:
-                    records.append(
-                        _record(_decode(raw.decode("utf-8")), f"Line {number}")
-                    )
-                except ValueError as error:
-                    raise ValueError(f"Line {number}: {error}") from error
-        else:
-            value = _decode(source.read().decode("utf-8"))
-            if not isinstance(value, list):
-                raise ValueError(
-                    "Expected a JSON array of record objects; "
-                    "use JSONL for one object per line."
-                )
-            records = [
-                _record(row, f"Record {number}") for number, row in enumerate(value, 1)
-            ]
-        if not records or not any(records):
-            raise ValueError(
-                "No records with fields found; empty JSON has no tabular schema."
-            )
-        if options.read_as_text:
-            records = [
-                {
-                    key: item
-                    if isinstance(item, str) or item is None
-                    else json.dumps(item)
-                    for key, item in row.items()
-                }
-                for row in records
-            ]
-        # Scan all validated records so late keys/types cannot disappear.
-        table = pl.from_dicts(records, infer_schema_length=None, strict=True)
+        def records() -> Iterator[dict[str, JsonScalar]]:
+            if lines:
+                for number, raw in enumerate(source, 1):
+                    if not raw.strip():
+                        continue
+                    try:
+                        yield _record(_decode(raw.decode("utf-8")), f"Line {number}")
+                    except ValueError as error:
+                        raise ValueError(f"Line {number}: {error}") from error
+            else:
+                for number, row in enumerate(
+                    array_records(source, _object, _constant), 1
+                ):
+                    yield _record(row, f"Record {number}")
+
+        table = records_to_table(records(), as_text=options.read_as_text)
         diagnostics = (
             "Types inferred across all records; missing fields become null.",
         )
         if options.read_as_text:
-            table = table.cast(pl.String)
             diagnostics += ("Columns loaded as text; JSON null remains null.",)
         return table, diagnostics
 

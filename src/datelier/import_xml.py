@@ -1,30 +1,24 @@
 """Explicit record extraction of scalar XML fields without silent data loss."""
 
+import re
+from collections.abc import Iterator
 from pathlib import Path
 from typing import BinaryIO
 from xml.etree import ElementTree as ET
 
 import polars as pl
 
-from datelier.import_source import read_source
+from datelier.import_records import records_to_table
+from datelier.import_source import read_source, validate_utf8
 from datelier.import_types import ImportFormat, ImportResult, XmlOptions
+from datelier.xml_records import RecordPath, selected_records
 from datelier.xml_types import infer_xml_types
 
 
-def _records(
-    root: ET.Element,
-    options: XmlOptions,
-) -> tuple[list[dict[str, str | None]], int]:
-    try:
-        selected = root.findall(options.record_path, dict(options.namespaces))
-    except (SyntaxError, KeyError, TypeError) as error:
-        raise ValueError(f"Invalid XML record path/namespaces: {error}") from error
-    if not selected:
-        raise ValueError(
-            f"No XML records match {options.record_path!r}; "
-            "check the path and namespaces."
-        )
-    rows: list[dict[str, str | None]] = []
+def _record(
+    record: ET.Element, options: XmlOptions, number: int
+) -> tuple[dict[str, str | None], int]:
+    row: dict[str, str | None] = {}
     excluded_attributes = 0
 
     def scalar(text: str | None) -> str | None:
@@ -33,74 +27,91 @@ def _records(
         value = text.strip() if options.strip_text else text
         return None if value == "" or value in options.null_values else value
 
-    for number, record in enumerate(selected, 1):
-        row: dict[str, str | None] = {}
-        if record.text and record.text.strip():
+    if record.text and record.text.strip():
+        raise ValueError(
+            f"Record {number}: mixed or scalar record text is unsupported; "
+            "select a record containing named fields."
+        )
+    for name, value in record.attrib.items():
+        if options.include_attributes:
+            row["@" + name] = scalar(value)
+        else:
+            excluded_attributes += 1
+    for child in record:
+        if len(child):
             raise ValueError(
-                f"Record {number}: mixed or scalar record text is unsupported; "
-                "select a record containing named fields."
+                f"Record {number}, field {child.tag!r}: nested XML is unsupported; "
+                "choose a deeper record path or flatten fields before importing."
             )
-        for name, value in record.attrib.items():
+        if child.tag in row:
+            raise ValueError(
+                f"Record {number}, field {child.tag!r}: "
+                "repeated fields are unsupported; "
+                "flatten repeated values before importing."
+            )
+        if child.tail and child.tail.strip():
+            raise ValueError(
+                f"Record {number}, field {child.tag!r}: "
+                "mixed XML text is unsupported; "
+                "flatten fields before importing."
+            )
+        row[child.tag] = scalar(child.text)
+        for name, value in child.attrib.items():
             if options.include_attributes:
-                row["@" + name] = scalar(value)
+                row[child.tag + "/@" + name] = scalar(value)
             else:
                 excluded_attributes += 1
-        for child in record:
-            if len(child):
-                raise ValueError(
-                    f"Record {number}, field {child.tag!r}: nested XML is unsupported; "
-                    "choose a deeper record path or flatten fields before importing."
-                )
-            if child.tag in row:
-                raise ValueError(
-                    f"Record {number}, field {child.tag!r}: "
-                    "repeated fields are unsupported; "
-                    "flatten repeated values before importing."
-                )
-            if child.tail and child.tail.strip():
-                raise ValueError(
-                    f"Record {number}, field {child.tag!r}: "
-                    "mixed XML text is unsupported; "
-                    "flatten fields before importing."
-                )
-            row[child.tag] = scalar(child.text)
-            for name, value in child.attrib.items():
-                if options.include_attributes:
-                    row[child.tag + "/@" + name] = scalar(value)
-                else:
-                    excluded_attributes += 1
-        rows.append(row)
-    return rows, excluded_attributes
+    return row, excluded_attributes
 
 
 def load_xml(path: Path, options: XmlOptions | None = None) -> ImportResult:
     options = options or XmlOptions()
 
     def read(source: BinaryIO) -> tuple[pl.DataFrame, tuple[str, ...]]:
-        text = source.read().decode("utf-8")
-        if "<!DOCTYPE" in text or "<!ENTITY" in text:
-            raise ValueError(
-                "XML DTD/entity declarations are unsupported; supply plain tabular XML."
-            )
-        try:
-            root = ET.fromstring(text)
-        except ET.ParseError as error:
-            raise ValueError(f"Malformed XML: {error}") from error
-        rows, excluded = _records(root, options)
-        fields = list(dict.fromkeys(name for row in rows for name in row))
-        if not fields:
-            raise ValueError(
-                "Selected XML records have no fields; include attributes "
-                "or select another record path."
-            )
-        table = pl.from_dicts(
-            rows, schema={name: pl.String for name in fields}, strict=True
+        validate_utf8(source, forbidden=("<!DOCTYPE", "<!ENTITY"))
+        header = source.read(512)
+        # XML declarations may contain whitespace beyond the initial read.
+        if re.match(rb"(?:\xef\xbb\xbf)?<\?xml\s", header):
+            while b"?>" not in header:
+                more = source.read(512)
+                if not more:
+                    break
+                header += more
+        source.seek(0)
+        declaration = re.match(rb"(?:\xef\xbb\xbf)?<\?xml\s+([^?]*)\?>", header)
+        encoding = (
+            re.search(rb"encoding\s*=\s*['\"]([^'\"]+)['\"]", declaration[1])
+            if declaration
+            else None
         )
+        if encoding and encoding[1].lower() not in (b"utf-8", b"utf8"):
+            raise ValueError(
+                "XML input must use UTF-8 encoding; "
+                "convert the source before importing."
+            )
+        record_path = RecordPath(options)
+        excluded: int = 0
+
+        def records() -> Iterator[dict[str, str | None]]:
+            nonlocal excluded
+            found = False
+            for number, record in enumerate(selected_records(source, record_path), 1):
+                found = True
+                row, skipped = _record(record, options, number)
+                excluded += skipped
+                yield row
+            if not found:
+                raise ValueError(
+                    f"No XML records match {options.record_path!r}; "
+                    "check the path and namespaces."
+                )
+
+        table = records_to_table(records(), as_text=True)
         if options.infer_types:
             table = infer_xml_types(table, dates=options.try_parse_dates)
         diagnostics = (
             f"XML record path {options.record_path!r}: "
-            f"{len(rows)} records in document order.",
+            f"{table.height} records in document order.",
             "Missing/empty fields become null. Namespaces retain {URI} names. "
             "Attributes map to @name and field/@name columns.",
             "Types inferred across all records."

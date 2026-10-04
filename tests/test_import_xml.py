@@ -160,3 +160,59 @@ def test_xml_options_validation() -> None:
         XmlOptions(record_path=" ")
     with pytest.raises(ValueError, match="unique"):
         XmlOptions(namespaces=(("a", "one"), ("a", "two")))
+
+
+def test_xml_batches_preserve_order_late_types_and_empty_records(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import datelier.import_records as batches
+
+    monkeypatch.setattr(batches, "BATCH_RECORDS", 2)
+    path = xml_file(
+        tmp_path,
+        "<rows><row/><row/><row><x>1</x></row><row/>"
+        "<row><x>2.5</x><late>true</late></row><row/></rows>",
+    )
+    imported = load_file(path)
+    assert imported.dataset.table.schema == {"x": pl.Float64, "late": pl.Boolean}
+    assert imported.dataset.table.rows() == [
+        (None, None),
+        (None, None),
+        (1.0, None),
+        (None, None),
+        (2.5, True),
+        (None, None),
+    ]
+    assert imported.dataset.row_ids.to_list() == list(range(6))
+
+
+def test_xml_http_namespaces_and_descendant_child_paths(tmp_path: Path) -> None:
+    path = xml_file(
+        tmp_path,
+        '<r:root xmlns:r="https://example.org/data/">'
+        "<r:group><r:record><r:x>1</r:x></r:record></r:group>"
+        "<r:group><r:record><r:x>2</r:x></r:record></r:group></r:root>",
+    )
+    uri = "https://example.org/data/"
+    first = load_file(
+        path, XmlOptions(record_path=f".//{{{uri}}}group/{{{uri}}}record")
+    )
+    second = load_file(
+        path, XmlOptions(record_path=".//r:group/r:*", namespaces=(("r", uri),))
+    )
+    assert_frame_equal(first.dataset.table, second.dataset.table)
+    assert first.dataset.table.rows() == [(1,), (2,)]
+
+
+def test_xml_non_utf8_declaration_is_explicitly_rejected(tmp_path: Path) -> None:
+    path = xml_file(
+        tmp_path,
+        '<?xml version="1.0" encoding="ISO-8859-1"?><rows><row><x>1</x></row></rows>',
+    )
+    with pytest.raises(ImportFailure, match="UTF-8 encoding"):
+        load_file(path)
+
+
+def test_xml_encoding_attribute_is_data(tmp_path: Path) -> None:
+    path = xml_file(tmp_path, '<rows><row encoding="custom"><x>café</x></row></rows>')
+    assert load_file(path).dataset.table.rows() == [("custom", "café")]
