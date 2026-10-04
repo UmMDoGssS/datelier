@@ -20,3 +20,17 @@ Ruff lint/format and diff whitespace passed. `scripts/comparison_smoke.py`
 rendered all five modes in 83 Linux/Mesa frames. Its final screenshot was
 visually inspected. This is a frame-hook renderer check, not a physical-input
 claim. Final milestone/resource gates remain open.
+
+## Step 2 — Raw axes and column coloring
+
+Raw X/Y and color selectors are now visible in Scatter, independent of profile
+controls. Prepared per-point colors support continuous numeric/temporal scales
+and deterministic top-12 categorical/Boolean legends with Other and missing.
+Temporal colors shift in integer space, preserving close nanosecond values.
+Source positions and IDs remain aligned after sorting; selections override
+colors visibly. Compact controls and expandable legends/help keep the plot usable.
+
+Verification: 15 focused coloring/exploration/selection/plot tests passed;
+Pyrefly zero errors; Ruff lint/format and diff checks passed. The live comparison
+smoke now also exercises a colored raw scatter and table-linked highlight
+(116 frames initially, final layout rerun recorded in command output).

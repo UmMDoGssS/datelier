@@ -37,10 +37,22 @@ def main() -> None:
             elif stage == 2 and evidence.frames > ready + 15:
                 modes.append(session.exploration.comparison_mode)
                 if len(modes) == 5:
-                    hello_imgui.get_runner_params().app_shall_exit = True
+                    session.plots.custom_scatter = True
+                    session.plots.color_index = 2
+                    session.explorer.request(active.dataset, session.plots.settings())
+                    session.exploration.tab = "Scatter"
+                    stage, ready = 3, evidence.frames
                 else:
                     session.exploration.comparison_mode += 1
                     ready = evidence.frames
+
+            elif stage == 3 and evidence.frames > ready + 20:
+                assert dashboard.scatters[0].colors is not None
+                session.selection.choose(active.dataset.revision, (0,))
+                stage, ready = 4, evidence.frames
+            elif stage == 4 and evidence.frames > ready + 10:
+                assert session.exploration.interaction.selected_points == 1
+                hello_imgui.get_runner_params().app_shall_exit = True
 
         evidence = run_gui(source, smoke_frames=10000, on_frame=frame)
         assert modes == list(range(5))

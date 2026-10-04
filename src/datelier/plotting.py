@@ -8,6 +8,7 @@ import numpy as np
 import polars as pl
 from numpy.typing import NDArray
 
+from datelier.coloring import PointColors, prepare_colors
 from datelier.dataset import Dataset, DatasetRevision
 from datelier.profiling import ColumnProfile
 
@@ -53,6 +54,7 @@ class Scatter:
     positions: NDArray[np.uint64]
     eligible_rows: int
     total_rows: int
+    colors: PointColors | None = None
 
 
 def sample_indices(rows: int, limit: int) -> NDArray[np.int64]:
@@ -65,7 +67,9 @@ def numeric_columns(dataset: Dataset) -> tuple[str, ...]:
     )
 
 
-def prepare_scatter(dataset: Dataset, x: str, y: str, *, limit: int = 2_000) -> Scatter:
+def prepare_scatter(
+    dataset: Dataset, x: str, y: str, *, limit: int = 2_000, color: str | None = None
+) -> Scatter:
     if not 1 <= limit <= 10_000 or x == y:
         raise ValueError(
             "Scatter requires distinct numeric columns and 1–10,000 points"
@@ -96,7 +100,16 @@ def prepare_scatter(dataset: Dataset, x: str, y: str, *, limit: int = 2_000) -> 
     for array in (xs, ys, ids, positions):
         array.flags.writeable = False
     return Scatter(
-        dataset.revision, x, y, xs, ys, ids, positions, eligible.height, table.height
+        dataset.revision,
+        x,
+        y,
+        xs,
+        ys,
+        ids,
+        positions,
+        eligible.height,
+        table.height,
+        prepare_colors(dataset, positions, color) if color else None,
     )
 
 

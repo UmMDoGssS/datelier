@@ -107,7 +107,13 @@ def run_gui(
 
     def explore() -> None:
         plot_controls.show(explorer, loader.active.dataset if loader.active else None)
-        exploration.show(explorer, selection, view)
+        exploration.show(
+            explorer,
+            selection,
+            view,
+            plot_controls,
+            loader.active.dataset if loader.active else None,
+        )
 
     left = hello_imgui.DockingSplit()
     left.initial_dock = "MainDockSpace"

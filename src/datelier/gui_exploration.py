@@ -2,11 +2,13 @@
 
 from dataclasses import dataclass, field
 
+import numpy as np
 from imgui_bundle import imgui, implot
 
-from datelier.dataset import DatasetRevision
+from datelier.dataset import Dataset, DatasetRevision
 from datelier.exploration import Dashboard, Explorer
 from datelier.gui_distributions import MODES, show_comparison
+from datelier.gui_plot_controls import PlotControls
 from datelier.gui_selection import ScatterInteraction
 from datelier.gui_table import TableView
 from datelier.plotting import CORRELATION_ROW_LIMIT
@@ -29,7 +31,12 @@ class ExplorationView:
     _profile_key: tuple[DatasetRevision, str, int, int] | None = None
 
     def show(
-        self, explorer: Explorer, selection: LinkedSelection, table: TableView
+        self,
+        explorer: Explorer,
+        selection: LinkedSelection,
+        table: TableView,
+        plots: PlotControls | None = None,
+        dataset: Dataset | None = None,
     ) -> None:
         self.dock_id = imgui.get_window_dock_id()
         imgui.text_wrapped(explorer.message)
@@ -43,7 +50,9 @@ class ExplorationView:
                 ("Profiles", self.show_profile),
                 (
                     "Scatter",
-                    lambda dashboard: self.show_scatter(dashboard, selection, table),
+                    lambda dashboard: self.show_scatter_controls(
+                        explorer, dashboard, selection, table, plots, dataset
+                    ),
                 ),
                 ("Correlations", self.show_correlations),
             ):
@@ -134,6 +143,19 @@ class ExplorationView:
                 f"· {correlation.finite_pairs:,} finite pairs"
             )
 
+    def show_scatter_controls(
+        self,
+        explorer: Explorer,
+        dashboard: Dashboard,
+        selection: LinkedSelection,
+        table: TableView,
+        plots: PlotControls | None,
+        dataset: Dataset | None,
+    ) -> None:
+        if plots is not None and dataset is not None:
+            plots.show_axes(explorer, dataset)
+        self.show_scatter(dashboard, selection, table)
+
     def show_scatter(
         self, dashboard: Dashboard, selection: LinkedSelection, table: TableView
     ) -> None:
@@ -158,10 +180,19 @@ class ExplorationView:
                 else "All eligible rows."
             )
         )
-        imgui.text_wrapped(
-            "Wheel: zoom · middle-drag: pan · double-click: fit. "
-            "Click: select · Ctrl-click: toggle · Shift-drag: brush displayed points."
-        )
+        if points.colors is not None:
+            imgui.text_wrapped(points.colors.name + ": " + points.colors.note)
+            if imgui.collapsing_header("Color legend"):
+                for label, rgba in points.colors.legend:
+                    color = imgui.ImVec4(
+                        (rgba & 255) / 255,
+                        ((rgba >> 8) & 255) / 255,
+                        ((rgba >> 16) & 255) / 255,
+                        1,
+                    )
+                    imgui.text_colored(color, label)
+                    imgui.same_line()
+                imgui.new_line()
         imgui.text_wrapped(selection.message)
         if imgui.button("Clear selection"):
             selection.choose(dashboard.revision, ())
@@ -183,9 +214,19 @@ class ExplorationView:
         if implot.begin_plot("Scatter", (-1, height)):
             implot.setup_axes(points.x_name, points.y_name)
             xs, ys = selection.unselected(points)
+            if points.colors is not None:
+                mask = ~np.isin(points.row_ids, tuple(selection.row_ids))
+                style.marker_fill_colors = points.colors.rgba[mask]
+                style.marker_line_colors = points.colors.rgba[mask]
             if len(xs):
                 implot.plot_scatter("Rows", xs, ys, style)
             self.interaction.show(points, selection, table)
             implot.end_plot()
             self.plot_frames += 1
             self.scatter_frames += 1
+        if imgui.collapsing_header("Scatter gestures"):
+            imgui.text_wrapped(
+                "Wheel: zoom · middle-drag: pan · double-click: fit. "
+                "Click: select · Ctrl-click: toggle · "
+                "Shift-drag: brush displayed points."
+            )

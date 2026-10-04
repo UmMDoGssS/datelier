@@ -8,6 +8,7 @@ from datelier.dataset import Dataset
 from datelier.distributions import DistributionSettings
 from datelier.exploration import Explorer, PlotSettings
 from datelier.plotting import numeric_columns
+from datelier.profiling import ProfileKind, profile_kind
 
 
 @dataclass
@@ -29,6 +30,8 @@ class PlotControls:
     density: bool = True
     bandwidth: float = 1.0
     seed: int = 42
+    color_index: int = 0
+    color_columns: tuple[str, ...] = ()
 
     def bind(self, dataset: Dataset) -> None:
         previous_x = self.numeric[self.x_index] if self.numeric else ""
@@ -36,7 +39,20 @@ class PlotControls:
         previous_profile = (
             self.columns[self.profile_index - 1] if self.profile_index else ""
         )
+        previous_color = (
+            self.color_columns[self.color_index - 1] if self.color_index else ""
+        )
         self.columns = tuple(dataset.table.columns)
+        self.color_columns = tuple(
+            n
+            for n, t in dataset.table.schema.items()
+            if profile_kind(t) != ProfileKind.UNSUPPORTED
+        )
+        self.color_index = (
+            self.color_columns.index(previous_color) + 1
+            if previous_color in self.color_columns
+            else 0
+        )
         self.numeric = numeric_columns(dataset)
         self.compare_columns = [n for n in self.compare_columns if n in self.numeric]
         self.x_index = (
@@ -81,6 +97,7 @@ class PlotControls:
                 self.bandwidth,
                 self.seed,
             ),
+            self.color_columns[self.color_index - 1] if self.color_index else None,
         )
 
     def show(self, explorer: Explorer, dataset: Dataset | None) -> None:
@@ -122,13 +139,6 @@ class PlotControls:
             )
             _, self.seed = imgui.input_int("Comparison seed", self.seed)
             imgui.tree_pop()
-        if len(self.numeric) >= 2:
-            _, self.custom_scatter = imgui.checkbox(
-                "Choose scatter columns", self.custom_scatter
-            )
-            if self.custom_scatter:
-                _, self.x_index = imgui.combo("X", self.x_index, list(self.numeric))
-                _, self.y_index = imgui.combo("Y", self.y_index, list(self.numeric))
         if imgui.button("Apply plot settings"):
             try:
                 settings = self.settings()
@@ -144,5 +154,31 @@ class PlotControls:
         imgui.same_line()
         if imgui.button("Abandon exploration"):
             explorer.abandon()
+        if self.error:
+            imgui.text_wrapped(self.error)
+
+    def show_axes(self, explorer: Explorer, dataset: Dataset) -> None:
+        if len(self.numeric) < 2:
+            imgui.text("Scatter requires at least two numeric columns.")
+            return
+        imgui.set_next_item_width(160)
+        _, self.x_index = imgui.combo("Raw X", self.x_index, list(self.numeric))
+        imgui.same_line()
+        imgui.set_next_item_width(160)
+        _, self.y_index = imgui.combo("Raw Y", self.y_index, list(self.numeric))
+        imgui.set_next_item_width(160)
+        _, self.color_index = imgui.combo(
+            "Color column", self.color_index, ["Uniform", *self.color_columns]
+        )
+        imgui.same_line()
+        if imgui.button("Update raw scatter"):
+            self.custom_scatter = True
+            try:
+                if self.x_index == self.y_index:
+                    raise ValueError("Choose distinct raw axes")
+                explorer.request(dataset, self.settings())
+                self.error = ""
+            except ValueError as error:
+                self.error = str(error)
         if self.error:
             imgui.text_wrapped(self.error)

@@ -26,6 +26,7 @@ class PlotSettings:
     scatter_pair: tuple[str, str] | None = None
     profile_column: str | None = None
     comparison: DistributionSettings = DistributionSettings()
+    color_column: str | None = None
 
     def validate(self) -> None:
         self.comparison.validate()
@@ -78,7 +79,10 @@ def prepare_dashboard(
             *[p for p in pairs if p != settings.scatter_pair],
         ][:3]
     scatters = tuple(
-        prepare_scatter(dataset, *pair, limit=settings.point_limit) for pair in pairs
+        prepare_scatter(
+            dataset, *pair, limit=settings.point_limit, color=settings.color_column
+        )
+        for pair in pairs
     )
     return Dashboard(
         dataset.revision,
