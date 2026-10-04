@@ -44,6 +44,11 @@ sizing/axis repairs, with separately verified slices. Remaining
 steps and user usability validation remain open. Existing feature gates are
 unchanged.
 
+The next requested plot-readability follow-up passes 3D viewing-face controls,
+annotated correlation heatmaps with color scales, and named pair-grid axes.
+[Implementation evidence](docs/ux-implementation.md#follow-up--3d-faces-and-relationship-readability-complete)
+records live input/native-state checks and the full-suite gate for these slices.
+
 This is a simple personal tool. Phase 7 verifies reliability and local setup;
 public publishing, release automation and product infrastructure are not goals.
 

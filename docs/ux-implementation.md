@@ -212,7 +212,7 @@ column context, pre-fit input preview, full layout/hierarchy redesign, and
 pointer-only usability timings remain open; these functional checks do not
 claim completion of every original UX acceptance target.
 
-## Follow-up — 3D faces and relationship readability (in progress)
+## Follow-up — 3D faces and relationship readability (complete)
 
 Three bounded slices follow the user's next inspection request:
 
@@ -248,7 +248,7 @@ presets, expected projected planes, free rotation, expanded-menu use, stable
 ranges, selection, and source hashes. The strengthened 3D gesture smoke passes
 (141 frames). Checks use Linux/Mesa software OpenGL. API behavior was checked
 against installed bindings and [ImPlot3D's rotation setup contract](https://github.com/brenocq/implot3d/blob/main/implot3d.cpp).
-The remaining two relationship-readability slices are open.
+Relationship-readability verification follows below.
 
 ### Annotated correlation heatmap (complete)
 
@@ -270,4 +270,31 @@ passes (77 frames), and real heatmap drag/expand/restore passes (88 frames).
 GUI checks use Linux/Mesa software OpenGL.
 
 [Annotated Titanic heatmap](evidence/ux-implementation/annotated-heatmap.png)
-records the final layout. The pair-grid naming slice remains open.
+records the final layout.
+
+### Named pair-grid axes (complete)
+
+Five-to-eight-feature grids display full feature names across the top and down
+the left, replacing numeric indices and the Feature order mapping. Smaller grids
+retain their existing named axes/titles. Cell size accounts for long names;
+large grids scroll within an adaptive chart viewport, keeping both scrollbars
+accessible. Stable child/plot IDs preserve native zoom on expand/restore. The
+common chart Height controls resize the viewport while cells retain readable
+minimum space.
+
+Verification: eleven focused relationship/exploration/selection tests pass.
+The final **full suite passes all 365 tests** (13.48 s); Pyrefly reports zero
+errors; Ruff lint/format (158 files) and diff whitespace pass. Titanic's five
+features pass actual native-axis label checks, wheel zoom, expand/restore ranges,
+linked highlighting, and source preservation (75 frames). An eight-feature
+fixture with long names passes all 64 native-cell labels and both scroll
+directions (74 frames); its visible scrollbars and labels were inspected.
+Correlation drill-down/wide-grid-option checks pass (77 frames). Real grid
+height dragging and expanded-view preservation pass (87 frames). All GUI checks
+use Linux/Mesa software OpenGL.
+
+[Named Titanic grid](evidence/ux-implementation/named-pair-grid.png) and its
+[native label/interaction record](evidence/ux-implementation/named-pair-grid.json)
+capture the final layout. The three changes requested in this follow-up are
+complete, committed as separate verified slices. Titanic's source SHA-256 is
+unchanged. The broader original review's remaining usability gates stay open.

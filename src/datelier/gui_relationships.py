@@ -99,12 +99,9 @@ class RelationshipView:
             (selection.revision, data.names, self.mode),
             draw,
             numeric_axes=(False, False),
-            minimum_height=max(
-                170,
-                len(data.names)
-                * (100 if self.mode else imgui.get_text_line_height() + 8)
-                + (0 if self.mode else 85),
-            ),
+            minimum_height=170
+            if self.mode
+            else max(170, len(data.names) * (imgui.get_text_line_height() + 8) + 85),
         )
         return action
 
@@ -122,14 +119,52 @@ class RelationshipView:
                 "Select at most eight relationship features for the grid."
             )
             return None
+        label_width = max(imgui.calc_text_size(name).x for name in data.names)
+        cell_width = max(120, label_width + 40)
+        cell_height = max(100, label_width + 30)
+        minimum_width = n * cell_width
+        available = imgui.get_content_region_avail().x
+        scroll = minimum_width > available
+        content_height = max(
+            n * cell_height,
+            height - 16 - (imgui.get_style().scrollbar_size if scroll else 0),
+        )
+        imgui.set_next_window_content_size(
+            (minimum_width if scroll else 0, content_height)
+        )
+        # BeginChild's window name changes under Expand. Preserve the plot IDs
+        # through that child scope so zoom and linked interactions stay put.
+        plot_id = imgui.get_id("Pair grid canvas")
+        action = None
+        shown = imgui.begin_child(
+            "Pair grid canvas",
+            (-1, height),
+            window_flags=imgui.WindowFlags_.horizontal_scrollbar,
+        )
+        if shown:
+            imgui.internal.push_override_id(plot_id)
+            action = self._grid_cells(
+                data,
+                selection,
+                table,
+                content_height,
+                fit,
+            )
+            imgui.pop_id()
+        imgui.end_child()
+        return action
+
+    def _grid_cells(
+        self,
+        data: Relationships,
+        selection: LinkedSelection,
+        table: TableView,
+        height: float,
+        fit: bool,
+    ) -> tuple[str, str | None] | None:
+        n = len(data.names)
         action = None
         dense = n > 4
-        if dense:
-            imgui.text_wrapped(
-                "Feature order: "
-                + " · ".join(f"{i + 1}={name}" for i, name in enumerate(data.names))
-                + ". Hover a cell for its full axes."
-            )
         if implot.begin_subplots("Pair grid", n, n, (-1, height)):
             for i, y in enumerate(data.names):
                 for j, x in enumerate(data.names):
@@ -143,17 +178,9 @@ class RelationshipView:
                         continue
                     axis_flags = implot.AxisFlags_.no_tick_labels if dense else 0
                     implot.setup_axes(
-                        (str(j + 1) if i == n - 1 else "")
-                        if dense
-                        else x
-                        if i != j
-                        else x,
-                        (str(i + 1) if j == 0 else "")
-                        if dense
-                        else y
-                        if i != j
-                        else "Rows",
-                        axis_flags,
+                        (x if i == 0 else "") if dense else x,
+                        (y if j == 0 else "") if dense else y if i != j else "Rows",
+                        axis_flags | (implot.AxisFlags_.opposite if dense else 0),
                         axis_flags,
                     )
                     points = data.cells[i][j]

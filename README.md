@@ -220,6 +220,8 @@ horizontally to retain readable values and names, with the color bar alongside. 
 pair to open raw scatter. Grid diagonals show distributions; mirrored scatter
 cells reuse up to 150 points from the common correlation cohort. Double-click a
 scatter cell to open its axes; click a diagonal to open that column's profile.
+Dense grids show feature names across the top and down the left. Large grids
+scroll inside the chart area, retaining space for full names and readable cells.
 
 **Apply plot settings** prepares a new dashboard in the background. Bounds are
 128 leading profile columns, 100 bins/counts, 16 correlation features (120 pairs),
@@ -231,7 +233,7 @@ toggles membership. A plot click brings its row into the table view. Shift-drag
 brushes the displayed scatter points. Table rows and matching plot points share
 highlights; selected rows outside the plot sample remain selected. Selections
 are limited to 10,000 rows and clear when the dataset revision changes. Use the
-wheel to zoom, middle-drag to pan, and **Fit scatter** or double-click to fit.
+wheel to zoom, middle-drag to pan, and **Fit axes** or double-click to fit.
 In 3D, right-drag rotates, left-drag pans, and the wheel zooms. Click picking and
 Shift brushing use projected displayed points; camera gestures are disabled
 during brushing. **View face** offers Top/Bottom (XY), Front/Back (XZ), Left/Right
