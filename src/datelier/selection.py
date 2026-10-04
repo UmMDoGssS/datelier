@@ -1,5 +1,6 @@
 """Bounded, revision-bound source-row selection shared by tables and plots."""
 
+import math
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 
@@ -21,6 +22,13 @@ class LinkedSelection:
     _overlay_points: Scatter | None = None
     _overlay_version: int = -1
     _overlay: tuple[NDArray[np.float64], NDArray[np.float64]] = field(
+        default_factory=lambda: (
+            np.array([], dtype=np.float64),
+            np.array([], dtype=np.float64),
+        )
+    )
+
+    _unselected: tuple[NDArray[np.float64], NDArray[np.float64]] = field(
         default_factory=lambda: (
             np.array([], dtype=np.float64),
             np.array([], dtype=np.float64),
@@ -78,7 +86,17 @@ class LinkedSelection:
     ) -> int | None:
         if points.revision != self.revision or not len(points.x):
             return None
-        distances = ((points.x - x) * x_scale) ** 2 + ((points.y - y) * y_scale) ** 2
+        if (
+            not all(math.isfinite(value) for value in (x, y, x_scale, y_scale))
+            or x_scale <= 0
+            or y_scale <= 0
+        ):
+            return None
+        with np.errstate(over="ignore", invalid="ignore"):
+            distances = ((points.x - x) * x_scale) ** 2 + (
+                (points.y - y) * y_scale
+            ) ** 2
+        distances = np.where(np.isfinite(distances), distances, np.inf)
         index = int(np.argmin(distances))
         if distances[index] > 64:  # Eight screen pixels, independent of zoom.
             return None
@@ -93,6 +111,15 @@ class LinkedSelection:
             ids = self.row_ids if points.revision == self.revision else frozenset()
             mask = np.isin(points.row_ids, tuple(ids))
             self._overlay = (points.x[mask], points.y[mask])
+            self._unselected = (
+                (points.x[~mask], points.y[~mask]) if ids else (points.x, points.y)
+            )
             self._overlay_points = points
             self._overlay_version = self.version
         return self._overlay
+
+    def unselected(
+        self, points: Scatter
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
+        self.overlay(points)
+        return self._unselected

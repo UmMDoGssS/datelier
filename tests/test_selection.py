@@ -46,7 +46,13 @@ def test_point_brush_table_overlay_after_sort_filter_and_sample() -> None:
     selected.choose(active.revision, [19], toggle=True)
     assert selected.row_ids == {6, 19}
     assert selected.overlay(points)[0].tolist() == [19]
+    assert selected.unselected(points)[0].tolist() == [15, 10, 5]
+    assert len(selected.overlay(points)[0]) + len(
+        selected.unselected(points)[0]
+    ) == len(points.x)
     assert selected.nearest(points, -100, -100, 10, 10) is None
+    assert selected.nearest(points, float("nan"), 10, 10, 10) is None
+    assert selected.nearest(points, 10, 10, 0, 10) is None
 
 
 def test_stale_selection_and_revision_reset() -> None:

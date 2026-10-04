@@ -1,5 +1,6 @@
 """Scatter input and overlays; all interaction work is bounded by displayed points."""
 
+import math
 from dataclasses import dataclass
 
 from imgui_bundle import imgui, implot
@@ -42,7 +43,12 @@ class ScatterInteraction:
                 self.brush_start = (mouse.x, mouse.y)
             else:
                 x_span, y_span = bounds.x.size(), bounds.y.size()
-                if x_span > 0 and y_span > 0:
+                if (
+                    x_span > 0
+                    and y_span > 0
+                    and math.isfinite(x_span)
+                    and math.isfinite(y_span)
+                ):
                     row = selection.nearest(
                         points,
                         mouse.x,
@@ -70,7 +76,8 @@ class ScatterInteraction:
         self.selected_points = len(xs)
         if len(xs):
             style = implot.Spec()
-            style.marker_size = 5
+            style.marker_size = 3
+            style.marker = implot.Marker_.square
             style.line_weight = 0
             style.marker_fill_color = imgui.ImVec4(1, 0.7, 0.2, 1)
             style.marker_line_color = imgui.ImVec4(1, 0.7, 0.2, 1)

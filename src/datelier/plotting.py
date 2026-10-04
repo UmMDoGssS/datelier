@@ -121,10 +121,14 @@ def prepare_correlations(
         mask = np.isfinite(xs) & np.isfinite(ys)
         xs, ys = xs[mask], ys[mask]
         value = None
-        if len(xs) >= 2 and np.ptp(xs) > 0 and np.ptp(ys) > 0:
-            with np.errstate(over="ignore", invalid="ignore", divide="ignore"):
-                correlation = float(np.corrcoef(xs, ys)[0, 1])
-            if math.isfinite(correlation):
-                value = correlation
+        if len(xs) >= 2:
+            x_scale, y_scale = float(np.max(np.abs(xs))), float(np.max(np.abs(ys)))
+            xs = xs / x_scale if x_scale else xs
+            ys = ys / y_scale if y_scale else ys
+            if np.ptp(xs) > 0 and np.ptp(ys) > 0:
+                with np.errstate(over="ignore", invalid="ignore", divide="ignore"):
+                    correlation = float(np.corrcoef(xs, ys)[0, 1])
+                if math.isfinite(correlation):
+                    value = correlation
         results.append(Correlation(x, y, value, len(xs)))
     return tuple(results)

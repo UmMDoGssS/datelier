@@ -60,13 +60,47 @@ def profile_kind(dtype: pl.DataType) -> ProfileKind:
     return ProfileKind.UNSUPPORTED
 
 
-def _range_profile(series: pl.Series, kind: ProfileKind, bins: int) -> ColumnProfile:
-    values = (
-        series.cast(pl.Float64)
-        if kind == ProfileKind.NUMERIC
-        else series.to_physical().cast(pl.Float64)
+def _temporal_range(series: pl.Series) -> tuple[str, str]:
+    extrema = (
+        series.rename("value")
+        .to_frame()
+        .select(
+            pl.col("value").min().alias("minimum"),
+            pl.col("value").max().alias("maximum"),
+        )
     )
-    values = values.rename("value")
+    if isinstance(series.dtype, pl.Duration):
+        extrema = extrema.cast(pl.Int64).cast(pl.String)
+        minimum, maximum = extrema.row(0)
+        unit = series.dtype.time_unit
+        return f"{minimum} {unit}", f"{maximum} {unit}"
+    if series.dtype == pl.Time:
+        extrema = extrema.select(pl.all().dt.to_string("%H:%M:%S%.9f"))
+    else:
+        extrema = extrema.cast(pl.String)
+    minimum, maximum = extrema.row(0)
+    return str(minimum), str(maximum)
+
+
+def _range_profile(series: pl.Series, kind: ProfileKind, bins: int) -> ColumnProfile:
+    if kind == ProfileKind.TEMPORAL:
+        physical = series.rename("value").to_physical()
+        origin = physical.min()
+        # Shift in integer space before Float64 conversion so close timestamps
+        # keep nanosecond differences. Int128 avoids overflow across Int64 dates.
+        values = (
+            physical.to_frame()
+            .select(
+                (
+                    pl.col("value").cast(pl.Int128) - pl.lit(origin, dtype=pl.Int128)
+                ).cast(pl.Float64)
+            )
+            .to_series()
+            if isinstance(origin, int)
+            else physical.cast(pl.Float64)
+        )
+    else:
+        values = series.rename("value").cast(pl.Float64)
     finite = values.filter(values.is_finite())
     count = len(finite)
     invalid = len(series) - series.null_count() - count
@@ -79,20 +113,39 @@ def _range_profile(series: pl.Series, kind: ProfileKind, bins: int) -> ColumnPro
             invalid,
             note="No finite values to plot.",
         )
-    hist = finite.hist(bin_count=bins)
+    minimum_value, maximum_value = finite.min(), finite.max()
+    assert isinstance(minimum_value, (int, float))
+    assert isinstance(maximum_value, (int, float))
+    scale = max(abs(minimum_value), abs(maximum_value))
+    # A finite column can still overflow its range or sum. Normalize extreme
+    # ranges before histogramming, and compute its mean without overflowing.
+    scaled_histogram = not math.isfinite(maximum_value - minimum_value)
+    histogram_values = finite / scale if scaled_histogram else finite
+    hist = histogram_values.hist(bin_count=bins)
+    if sum(hist.get_column("count")) != count:
+        raise ValueError(f"Could not account for all finite values in {series.name!r}")
     # Polars supplies explicit interval labels, including its boundary policy.
     labels = tuple(str(value) for value in hist.get_column("category").to_list())
     if kind == ProfileKind.TEMPORAL:
-        valid = series.rename("value").drop_nulls()
-        minimum, maximum = str(valid.min()), str(valid.max())
+        minimum, maximum = _temporal_range(series)
         note = (
-            f"Bins use {series.dtype} physical units; "
-            "range is shown as temporal values."
+            f"Bins use {series.dtype} physical units relative to the minimum; "
+            "the range preserves temporal precision."
         )
     else:
         minimum, maximum = str(finite.min()), str(finite.max())
         note = "Exact finite-value distribution; null and nonfinite values excluded."
-    mean = finite.mean() if kind == ProfileKind.NUMERIC else None
+    if scaled_histogram:
+        note += (
+            f" Histogram labels use values divided by {scale:.6g} to avoid overflow."
+        )
+    mean = (
+        ((finite / scale).mean() if scale else 0.0)
+        if kind == ProfileKind.NUMERIC
+        else None
+    )
+    if isinstance(mean, (int, float)):
+        mean = max(-1.0, min(1.0, mean)) * scale
     return ColumnProfile(
         series.name,
         str(series.dtype),
@@ -133,7 +186,8 @@ def _counts_profile(series: pl.Series, top: int) -> ColumnProfile:
             if sampled
             else "Exact counts. "
         )
-        + f"Top {top}; remaining values grouped as Other; nulls excluded.",
+        + f"Top {top}; remaining values grouped as Other; nulls excluded. "
+        + "Category labels truncate after 120 characters.",
     )
 
 

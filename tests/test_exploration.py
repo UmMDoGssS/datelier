@@ -128,3 +128,10 @@ def test_background_failure_stale_abandon_and_newer_request(monkeypatch) -> None
     finally:
         release.set()
         explorer.close()
+
+
+def test_extreme_finite_correlations_avoid_overflow() -> None:
+    points = dataset(
+        pl.DataFrame({"x": [-1e308, 0.0, 1e308], "y": [-1e308, 0.0, 1e308]})
+    )
+    assert prepare_correlations(points)[0].value == pytest.approx(1.0)

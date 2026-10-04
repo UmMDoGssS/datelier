@@ -74,3 +74,25 @@ def test_literal_names_and_boolean_counts() -> None:
     )
     assert profile.columns[0].distribution.counts == (2, 1)
     assert profile.columns[1].mean == 2
+
+
+def test_extreme_finite_values_keep_counts_and_mean() -> None:
+    profile = prepare_profiles(
+        dataset(pl.DataFrame({"x": [1e308, -1e308, 0.0]}))
+    ).columns[0]
+    assert sum(profile.distribution.counts) == 3
+    assert profile.mean == 0 and "divided by" in profile.note
+    constant = prepare_profiles(dataset(pl.DataFrame({"x": [1e308, 1e308]}))).columns[0]
+    assert (
+        constant.mean == pytest.approx(1e308) and sum(constant.distribution.counts) == 2
+    )
+
+
+def test_nanosecond_temporal_ranges_and_distributions() -> None:
+    for dtype in (pl.Datetime("ns"), pl.Duration("ns"), pl.Time):
+        base = 1_704_067_200_000_000_000 if isinstance(dtype, pl.Datetime) else 100
+        series = pl.Series("t", [base, base + 1, base + 2], dtype=pl.Int64).cast(dtype)
+        profile = prepare_profiles(dataset(series.to_frame()), bins=2).columns[0]
+        assert profile.minimum != profile.maximum
+        assert profile.distribution.counts == (2, 1)
+        assert "relative to the minimum" in profile.note

@@ -9,7 +9,7 @@ from typing import cast
 
 import numpy as np
 import polars as pl
-from imgui_bundle import hello_imgui
+from imgui_bundle import hello_imgui, imgui
 from numpy.typing import NDArray
 
 from datelier.gui import GuiSession, InspectionEvidence, run_gui
@@ -21,6 +21,7 @@ def main() -> None:
     parser.add_argument(
         "--output", type=Path, default=Path("/tmp/datelier-exploration.ppm")
     )
+    parser.add_argument("--settings", action="store_true")
     args = parser.parse_args()
     stage, ready_frame = 0, 0
     with TemporaryDirectory(prefix="datelier-explore-") as directory:
@@ -65,10 +66,16 @@ def main() -> None:
                 assert dashboard.scatters[0].row_ids.tolist() == [0, 2, 1]
                 stage, ready_frame = 6, evidence.frames
             elif stage == 6 and evidence.frames > ready_frame + 30:
+                if args.settings:
+                    imgui.set_next_item_open(True, imgui.Cond_.always)
+                    stage, ready_frame = 7, evidence.frames
+                else:
+                    hello_imgui.get_runner_params().app_shall_exit = True
+            elif stage == 7 and evidence.frames > ready_frame + 10:
                 hello_imgui.get_runner_params().app_shall_exit = True
 
         evidence = run_gui(source, smoke_frames=1000, on_frame=frame)
-        assert stage == 6 and source.read_bytes() == original
+        assert stage == (7 if args.settings else 6) and source.read_bytes() == original
         pixels = cast(NDArray[np.uint8], hello_imgui.final_app_window_screenshot())
         height, width = pixels.shape[:2]
         args.output.write_bytes(

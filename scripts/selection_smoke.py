@@ -150,7 +150,7 @@ def main() -> None:
             "middle_pan": True,
             "shift_brush": True,
             "source_preserved": True,
-            "input": "Dear ImGui queued mouse/key events",
+            "input": "Dear ImGui mouse/key events and backend cursor positioning",
         }
         args.output.with_suffix(".json").write_text(json.dumps(report, indent=2) + "\n")
         print(json.dumps(report))

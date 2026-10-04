@@ -162,11 +162,14 @@ class ExplorationView:
             self.fit = False
         style = implot.Spec()
         style.marker_size = 2
+        style.marker = implot.Marker_.square
         style.line_weight = 0
         height = max(150, min(220, imgui.get_content_region_avail().y - 5))
         if implot.begin_plot("Scatter", (-1, height)):
             implot.setup_axes(points.x_name, points.y_name)
-            implot.plot_scatter("Rows", points.x, points.y, style)
+            xs, ys = selection.unselected(points)
+            if len(xs):
+                implot.plot_scatter("Rows", xs, ys, style)
             self.interaction.show(points, selection, table)
             implot.end_plot()
             self.plot_frames += 1
