@@ -25,6 +25,10 @@ def fake_result(prepared: PreparedInput) -> EmbeddingResult:
     )
 
 
+def failed_result(prepared: PreparedInput) -> EmbeddingResult:
+    raise ValueError("deliberate worker error")
+
+
 def slow_result(prepared: PreparedInput) -> EmbeddingResult:
     sleep(10)
     return fake_result(prepared)
@@ -84,13 +88,13 @@ def test_cancel_worker_and_reject_stale() -> None:
 
 def test_preparation_and_worker_errors_are_visible() -> None:
     data = dataset()
-    jobs = AnalysisJobs()
+    jobs = AnalysisJobs(failed_result)
     try:
         jobs.request(data, AnalysisRequest(("missing",)))
         wait(jobs, data)
         assert "failed" in jobs.message
         jobs.request(data, AnalysisRequest(("x", "y")))
         wait(jobs, data)
-        assert "not implemented" in jobs.message
+        assert "deliberate worker error" in jobs.message
     finally:
         jobs.close()

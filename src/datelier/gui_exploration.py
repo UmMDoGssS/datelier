@@ -7,11 +7,13 @@ from imgui_bundle import imgui, implot
 
 from datelier.dataset import Dataset, DatasetRevision
 from datelier.exploration import Dashboard, Explorer
+from datelier.gui_analysis import AnalysisSession
 from datelier.gui_distributions import MODES, show_comparison
 from datelier.gui_plot_controls import PlotControls
 from datelier.gui_relationships import RelationshipView
 from datelier.gui_selection import ScatterInteraction
 from datelier.gui_table import TableView
+from datelier.plotting import Scatter
 from datelier.selection import LinkedSelection
 
 
@@ -38,6 +40,7 @@ class ExplorationView:
         table: TableView,
         plots: PlotControls | None = None,
         dataset: Dataset | None = None,
+        analysis: AnalysisSession | None = None,
     ) -> None:
         self.dock_id = imgui.get_window_dock_id()
         imgui.text_wrapped(explorer.message)
@@ -53,7 +56,7 @@ class ExplorationView:
                 (
                     "Scatter",
                     lambda dashboard: self.show_scatter_controls(
-                        explorer, dashboard, selection, table, plots, dataset
+                        explorer, dashboard, selection, table, plots, dataset, analysis
                     ),
                 ),
                 (
@@ -168,26 +171,39 @@ class ExplorationView:
         table: TableView,
         plots: PlotControls | None,
         dataset: Dataset | None,
+        analysis: AnalysisSession | None,
     ) -> None:
         if plots is not None and dataset is not None:
             plots.show_axes(explorer, dataset)
-        self.show_scatter(dashboard, selection, table)
+        points = None
+        if analysis is not None and dataset is not None and plots is not None:
+            points = analysis.scatter_controls(dataset, plots)
+            if analysis.source is not None and points is None:
+                return
+        self.show_scatter(dashboard, selection, table, points)
 
     def show_scatter(
-        self, dashboard: Dashboard, selection: LinkedSelection, table: TableView
+        self,
+        dashboard: Dashboard,
+        selection: LinkedSelection,
+        table: TableView,
+        override: Scatter | None = None,
     ) -> None:
-        if not dashboard.scatters:
+        if override is None and not dashboard.scatters:
             imgui.text_wrapped(
                 "No suitable automatic scatter: requires two numeric columns "
                 "with finite, nonconstant pairs."
             )
             return
-        names = [f"{p.x_name} / {p.y_name}" for p in dashboard.scatters]
-        self.scatter_index = min(self.scatter_index, len(names) - 1)
-        _, self.scatter_index = imgui.combo(
-            "Suggested scatter", self.scatter_index, names
-        )
-        points = dashboard.scatters[self.scatter_index]
+        if override is None:
+            names = [f"{p.x_name} / {p.y_name}" for p in dashboard.scatters]
+            self.scatter_index = min(self.scatter_index, len(names) - 1)
+            _, self.scatter_index = imgui.combo(
+                "Suggested scatter", self.scatter_index, names
+            )
+            points = dashboard.scatters[self.scatter_index]
+        else:
+            points = override
         imgui.text_wrapped(
             f"{len(points.x):,} evenly spaced points of {points.eligible_rows:,} "
             f"finite pairs ({points.total_rows:,} rows). "

@@ -7,6 +7,9 @@ from multiprocessing.connection import Connection
 from threading import Event
 from time import perf_counter
 
+import numpy as np
+from numpy.typing import NDArray
+
 from datelier.analysis import run_analysis
 from datelier.analysis_input import prepare_input
 from datelier.analysis_types import (
@@ -34,6 +37,7 @@ def _worker(prepared: PreparedInput, runner: Runner, connection: Connection) -> 
 class AnalysisJobs:
     def __init__(self, runner: Runner = run_analysis) -> None:
         self.results: dict[Algorithm, AnalysisResult] = {}
+        self.latest: AnalysisResult | None = None
         self.message = "Select analysis features and explicitly run an algorithm."
         self.phase = "Idle"
         self._runner = runner
@@ -100,6 +104,24 @@ class AnalysisJobs:
                 raise RuntimeError(
                     "Analysis worker returned mismatched identity or settings"
                 )
+            arrays: list[
+                NDArray[np.uint64] | NDArray[np.float64] | NDArray[np.int64]
+            ] = [result.row_ids]
+            if isinstance(result, EmbeddingResult):
+                arrays.extend((result.values, result.positions))
+            else:
+                arrays.extend(
+                    (
+                        result.labels,
+                        result.centers,
+                        result.model.magnitudes,
+                        result.model.medians,
+                        result.model.means,
+                        result.model.deviations,
+                    )
+                )
+            for array in arrays:
+                array.flags.writeable = False
             return result
         finally:
             receiving.close()
@@ -122,6 +144,8 @@ class AnalysisJobs:
             )
 
     def poll(self, revision: DatasetRevision | None) -> bool:
+        if self.latest is not None and self.latest.revision != revision:
+            self.latest = None
         self.results = {
             key: value
             for key, value in self.results.items()
@@ -145,6 +169,7 @@ class AnalysisJobs:
         if result.revision != revision:
             self.message = "Dataset changed; obsolete analysis ignored."
             return False
+        self.latest = result
         self.results[result.provenance.request.algorithm] = result
         self.message = f"{result.provenance.request.algorithm} completed."
         return True

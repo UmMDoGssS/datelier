@@ -65,3 +65,20 @@ Verification: 12 focused preparation and actual spawned-process lifecycle tests
 passed; Pyrefly zero errors; Ruff lint/format and diff checks passed. No GUI
 behavior changes in this foundation step. Algorithm runners and milestone
 acceptance remain open until their subsequent verified steps.
+
+## Step 5a — PCA and explicit analysis GUI
+
+PCA runs in the worker with full/randomized solver, whitening, 2/3 dimensions,
+seed, preprocessing and sample limits. Completed coordinates and library/runtime
+provenance are immutable and revision-bound. A separate docked Analysis panel
+selects features independently of visible raw X/Y. Scatter switches between raw
+and completed embeddings without refitting; embedding preparation/colors run
+in a background job. Explicit completion opens the scatter view. Changing
+settings marks the retained result as needing an explicit rerun.
+
+Verification: 19 focused preparation/job/PCA/all-format exploration tests passed;
+known PCA subspace, seed repeatability, three components, bounded plots and source
+alignment pass. Pyrefly zero errors; Ruff lint/format and diff checks passed.
+The live PCA workbench smoke passed 109 frames before the final label adjustment;
+its final rerun passed and the embedding/linked-table screenshot was inspected.
+M5.1 remains open until k-means and resource/workflow acceptance pass.

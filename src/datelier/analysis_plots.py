@@ -1,0 +1,81 @@
+"""Bounded embedding coordinates and column colors prepared off the GUI thread."""
+
+from concurrent.futures import Future, ThreadPoolExecutor
+
+from datelier.analysis_types import EmbeddingResult
+from datelier.coloring import prepare_colors
+from datelier.dataset import Dataset, DatasetRevision
+from datelier.plotting import Scatter, sample_indices
+
+
+def prepare_embedding_plot(
+    dataset: Dataset, result: EmbeddingResult, limit: int, color: str | None
+) -> Scatter:
+    if dataset.revision != result.revision:
+        raise ValueError("Embedding belongs to an obsolete dataset revision")
+    if not 1 <= limit <= 10_000:
+        raise ValueError("Displayed embedding limit must be 1–10,000")
+    indices = sample_indices(len(result.row_ids), limit)
+    coordinates = result.values[indices]
+    positions = result.positions[indices]
+    ids = result.row_ids[indices]
+    x, y = coordinates[:, 0].copy(), coordinates[:, 1].copy()
+    for array in (x, y, positions, ids):
+        array.flags.writeable = False
+    name = result.provenance.request.algorithm
+    return Scatter(
+        result.revision,
+        f"{name} 1",
+        f"{name} 2",
+        x,
+        y,
+        ids,
+        positions,
+        len(result.row_ids),
+        dataset.table.height,
+        prepare_colors(dataset, positions, color) if color else None,
+    )
+
+
+class AnalysisPlots:
+    def __init__(self) -> None:
+        self.active: Scatter | None = None
+        self.message = ""
+        self._executor = ThreadPoolExecutor(
+            max_workers=1, thread_name_prefix="embedding"
+        )
+        self._future: Future[Scatter] | None = None
+        self._key: tuple[DatasetRevision, int, int, str | None] | None = None
+
+    def ensure(
+        self, dataset: Dataset, result: EmbeddingResult, limit: int, color: str | None
+    ) -> None:
+        key = (dataset.revision, id(result), limit, color)
+        if key == self._key:
+            return
+        if self._future is not None:
+            self._future.cancel()
+        self._key = key
+        self.active = None
+        self._future = self._executor.submit(
+            prepare_embedding_plot, dataset, result, limit, color
+        )
+        self.message = "Preparing embedding plot…"
+
+    def poll(self, revision: DatasetRevision | None) -> None:
+        if self.active is not None and self.active.revision != revision:
+            self.active = None
+        future = self._future
+        if future is None or not future.done():
+            return
+        self._future = None
+        if self._key is None or self._key[0] != revision:
+            return
+        try:
+            self.active = future.result()
+            self.message = "Embedding plot ready."
+        except Exception as error:
+            self.message = f"Embedding plot failed: {error}"
+
+    def close(self) -> None:
+        self._executor.shutdown(wait=False, cancel_futures=True)

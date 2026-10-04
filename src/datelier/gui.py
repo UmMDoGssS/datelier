@@ -10,6 +10,7 @@ from imgui_bundle import hello_imgui, imgui, immapp
 from datelier.editing import DatasetEditor
 from datelier.exploration import Explorer
 from datelier.exporting import DatasetExporter
+from datelier.gui_analysis import AnalysisSession
 from datelier.gui_controls import ImportControls, show_schema
 from datelier.gui_exploration import ExplorationView
 from datelier.gui_export import ExportControls
@@ -35,6 +36,7 @@ class GuiSession:
     exploration: ExplorationView
     plots: PlotControls
     selection: LinkedSelection
+    analysis: AnalysisSession
 
 
 @dataclass
@@ -70,6 +72,7 @@ def run_gui(
     exploration = ExplorationView()
     plot_controls = PlotControls()
     selection = LinkedSelection()
+    analysis = AnalysisSession()
     session = GuiSession(
         loader,
         pages,
@@ -83,6 +86,7 @@ def run_gui(
         exploration,
         plot_controls,
         selection,
+        analysis,
     )
     evidence = InspectionEvidence()
     params = hello_imgui.RunnerParams()
@@ -113,6 +117,7 @@ def run_gui(
             view,
             plot_controls,
             loader.active.dataset if loader.active else None,
+            analysis,
         )
 
     left = hello_imgui.DockingSplit()
@@ -135,13 +140,25 @@ def run_gui(
     plots.new_dock = "PlotSpace"
     plots.direction = imgui.Dir.down
     plots.ratio = 0.58
-    params.docking_params.docking_splits = [left, lower, edits, plots]
+    analysis_split = hello_imgui.DockingSplit()
+    analysis_split.initial_dock = "EditSpace"
+    analysis_split.new_dock = "AnalysisSpace"
+    analysis_split.direction = imgui.Dir.down
+    analysis_split.ratio = 0.65
+    params.docking_params.docking_splits = [left, lower, edits, plots, analysis_split]
     windows = []
     for label, space, callback in (
         ("Explore", "PlotSpace", explore),
         ("Open dataset", "ImportSpace", lambda: controls.show(loader)),
         ("Table preview", "MainDockSpace", show_table),
         ("Schema and nulls", "SchemaSpace", schema),
+        (
+            "Analysis",
+            "AnalysisSpace",
+            lambda: analysis.controls.show(
+                analysis.jobs, loader.active.dataset if loader.active else None
+            ),
+        ),
         (
             "Transform and history",
             "EditSpace",
@@ -181,6 +198,7 @@ def run_gui(
             editor.bind(loader.active)
             pages.bind(loader.active)
             view.reset()
+            analysis.controls.bind(loader.active.dataset)
             plot_controls.bind(loader.active.dataset)
             selection.bind(loader.active.dataset.revision)
             explorer.request(loader.active.dataset, plot_controls.settings())
@@ -191,9 +209,12 @@ def run_gui(
             loader.active = edited
             pages.bind(edited)
             view.reset()
+            analysis.controls.bind(edited.dataset)
             plot_controls.bind(edited.dataset)
             selection.bind(edited.dataset.revision)
             explorer.request(edited.dataset, plot_controls.settings())
+        if analysis.poll(loader.active.dataset if loader.active else None):
+            exploration.tab = "Scatter"
         explorer.poll(loader.revision)
         exporter.poll()
         pages.poll()
@@ -217,4 +238,5 @@ def run_gui(
         editor.close()
         exporter.close()
         explorer.close()
+        analysis.close()
     return evidence
