@@ -30,9 +30,10 @@ provides automatic exploration and linked selections;
 [richer-inspection evidence](docs/richer-inspection.md) records passed comparison,
 color and matrix extensions. Phase 5 provides explicit analysis and linked 3D
 views; [Phase 5 evidence](docs/phase-5.md) records its passed gates. Phase 6 provides referenced workspaces, saved layouts, themes and plot preferences;
-[Phase 6 evidence](docs/phase-6.md) records its passed gates. Phase 7 hardening
-passes M7.1; [Phase 7 evidence](docs/phase-7.md) records workflow/resource checks.
-Local installation (M7.2) and later investigations remain unchecked.
+[Phase 6 evidence](docs/phase-6.md) records its passed gates. Phase 7 passes
+end-to-end hardening and local installation; [Phase 7 evidence](docs/phase-7.md)
+records workflow/resource checks and the clean-wheel install. The personal-use
+v1 scope is complete. Phase 8 remains optional investigation for concrete needs.
 
 This is a simple personal tool. Phase 7 verifies reliability and local setup;
 public publishing, release automation and product infrastructure are not goals.
@@ -51,7 +52,8 @@ public publishing, release automation and product infrastructure are not goals.
   check a phase complete only after all its milestone exit gates pass.
 - Phase entry requires the previous phase's exit plus milestone-specific
   prerequisites. Phase exit requires every milestone in that phase to pass.
-  Phase 8 investigations are independent; each requires the local v1 install gate.
+  Phase 8 investigations are independent and optional; each requires the local
+  v1 install gate and a concrete personal-use need.
 - Each code step requires Pyrefly, relevant tests, Ruff checks once established,
   and applicable GUI smoke checks. Each implementation milestone exit also
   requires the full test suite and its listed verification. Documentation-only
@@ -230,7 +232,7 @@ workspace persistence schema.
 
 ## Phase 7 — Personal-use hardening and installation
 
-- [ ] **Phase complete.** **Entry:** Phases 0–6 pass. **Exit:** M7.1 and M7.2 pass.
+- [x] **Phase complete.** **Entry:** Phases 0–6 pass. **Exit:** M7.1 and M7.2 pass. [Evidence](docs/phase-7.md) recorded 2026-10-04.
 
 ### M7.1 — End-to-end correctness and performance
 
@@ -238,15 +240,15 @@ workspace persistence schema.
 - [x] **Entry gate:** every v1 capability has passed its milestone; benchmark environment, fixtures, budgets, and algorithm limits are recorded.
 - [x] **Exit gate:** import → inspect → transform → plot → analyze → save/reopen → export workflows pass; pathological data and job failures are handled; measured budgets pass.
 - [x] **Verification evidence:** [M7.1 evidence](docs/phase-7.md#m71--complete-workflows-and-reliability): 344 tests, Pyrefly/Ruff, six format GUI regressions, fresh save/reopen workflow, 40 headless resource runs and large/wide live analysis pass. Abrupt worker exits now report their exit code and allow retry.
-- [x] **Step commits:** `3e946d1` complete workflow tests → `1ff0298` worker-exit error detail → verified fresh-process GUI walkthrough and recorded acceptance evidence.
+- [x] **Step commits:** `3e946d1` complete workflow tests → `1ff0298` worker-exit error detail → `e11158e` fresh-process GUI walkthrough and recorded acceptance evidence.
 
 ### M7.2 — Local Linux installation
 
-- [ ] **Deliverables:** locally installable wheel/source archive, working CLI launch, concise setup/usage documentation and personal-use checklist.
-- [ ] **Entry gate:** M7.1 passes and no earlier required v1 gate remains open.
-- [ ] **Exit gate:** a clean Linux environment can install and launch the built package and complete a representative workflow using the documentation; package version/metadata and checklist are consistent.
-- [ ] **Verification evidence:** build/install commands, clean-environment launch and workflow observations, README walkthrough, full check outcomes and a completed local-use checklist.
-- [ ] **Suggested step commits:** `docs: document personal installation and usage` → `chore: verify local Linux package readiness`.
+- [x] **Deliverables:** locally installable wheel/source archive, working CLI launch, concise setup/usage documentation and personal-use checklist.
+- [x] **Entry gate:** M7.1 passes and no earlier required v1 gate remains open.
+- [x] **Exit gate:** a clean Linux environment can install and launch the built package and complete a representative workflow using the documentation; package version/metadata and checklist are consistent.
+- [x] **Verification evidence:** [M7.2 evidence](docs/phase-7.md#m72--local-linux-installation): built wheel/source archive, isolated runtime install with locked dependencies, all CLI launch modes, fresh-process installed GUI workflow, metadata/hash checks and README walkthrough pass. Version 0.1.0 retained; nothing published.
+- [x] **Step commits:** `b6d201d` personal installation/first-session documentation → final local-package acceptance evidence and checklist recorded with this gate.
 
 ## Phase 8 — Post-v1 investigations
 

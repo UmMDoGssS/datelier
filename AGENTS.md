@@ -4,9 +4,8 @@
 
 Datelier is a simple personal desktop data inspection workbench. Keep changes
 practical; public release infrastructure and decorative polish are not goals.
-Start with
-tabular data; image and text inspection are later directions. Prioritize useful
-inspection, responsive interactions, and customization over decorative UI.
+Start with tabular data; image and text inspection are later directions. Prioritize
+useful inspection, responsive interactions, and customization over decorative UI.
 
 The v1 target is Linux, Python 3.14+, and datasets that fit in memory. Use Polars
 for tabular operations and Dear ImGui/ImPlot through
@@ -58,9 +57,11 @@ Phase 5 has passed explicit PCA/k-means/t-SNE/UMAP, worker lifecycle, provenance
 [docs/phase-5.md](docs/phase-5.md) records correctness, GUI and resource evidence.
 Phase 6 has passed referenced-workspace restore/relink, saved-layout/theme/plot
 preference and recovery gates; [docs/phase-6.md](docs/phase-6.md) records
-correctness and fresh-process GUI evidence. Phase 7 end-to-end hardening has
-passed M7.1; [docs/phase-7.md](docs/phase-7.md) records workflow and resource
-evidence. Local Linux installation is the remaining gate in [ROADMAP.md](ROADMAP.md).
+correctness and fresh-process GUI evidence. Phase 7 has passed end-to-end
+hardening and local Linux installation; [docs/phase-7.md](docs/phase-7.md) records
+workflow, resource and clean-wheel evidence. The personal-use v1 scope is complete.
+Further work should follow a concrete need; Phase 8 of [ROADMAP.md](ROADMAP.md)
+lists optional investigations, not an automatic feature backlog.
 
 Use this file for durable conventions and `ROADMAP.md` for sequencing,
 deliverables, and acceptance gates. Inspect actual code and configuration
