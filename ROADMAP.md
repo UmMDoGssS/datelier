@@ -148,11 +148,11 @@ and later milestones remain unchecked.
 
 ### M4.1 — Type-aware profiles and automatic plots
 
-- [ ] **Deliverables:** numeric/categorical/temporal profiles, distributions, counts, correlations, bounded suggested scatter plots, revision-aware prepared plot data.
-- [ ] **Entry gate:** table operations and revision invalidation are tested; baseline summaries and background jobs work.
-- [ ] **Exit gate:** opening a dataset automatically provides the exploration dashboard; plots match known data; unsuitable columns and excessive pairwise work are handled explicitly.
-- [ ] **Verification evidence:** known-summary/distribution/correlation tests, null/nonfinite and constant-column cases, high-cardinality/wide-table limits, and automatic-dashboard smoke checks.
-- [ ] **Suggested step commits:** `feat: compute type-aware profiles` → `feat: prepare bounded plot suggestions` → `feat: render automatic exploration dashboard`.
+- [x] **Deliverables:** numeric/categorical/temporal profiles, distributions, counts, correlations, bounded suggested scatter plots, revision-aware prepared plot data.
+- [x] **Entry gate:** table operations and revision invalidation are tested; baseline summaries and background jobs work.
+- [x] **Exit gate:** opening a dataset automatically provides the exploration dashboard; plots match known data; unsuitable columns and excessive pairwise work are handled explicitly.
+- [x] **Verification evidence:** [M4.1 evidence](docs/phase-4.md#m41-type-aware-profiles-and-automatic-plots): 230 full-suite tests, Pyrefly/Ruff, known distributions/correlations, bounded high-cardinality/wide work, and live dashboard/edit-invalidation checks pass.
+- [x] **Step commits:** `345a45e` profiles → `4b144cb` prepared plots/background lifecycle → `8bc4d29` automatic dashboard.
 
 ### M4.2 — Plot controls and linked selection
 
