@@ -59,7 +59,8 @@ def test_kmeans_fit_sample_and_displayed_prediction_alignment() -> None:
     request = AnalysisRequest(("x", "y"), KMeansParameters(), row_limit=30)
     result = run_analysis(prepare_input(dataset, request))
     assert isinstance(result, ClusteringResult)
-    assert sum(result.counts) == 30 and result.centers.shape == (3, 2)
+    assert result.fit is not None
+    assert sum(result.counts) == 30 and result.fit.centers.shape == (3, 2)
     labels = predict_clusters(dataset, np.arange(240, dtype=np.uint64), result)
     assert (
         len(set(labels[:80])) == len(set(labels[80:160])) == len(set(labels[160:])) == 1
@@ -72,6 +73,18 @@ def test_kmeans_fit_sample_and_displayed_prediction_alignment() -> None:
     repeat = run_analysis(prepare_input(dataset, request))
     assert isinstance(repeat, ClusteringResult)
     np.testing.assert_array_equal(result.labels, repeat.labels)
+
+    # The shared result/color boundary also accepts labels without a predictor.
+    from dataclasses import replace
+
+    labels_only = replace(result, fit=None)
+    assigned = predict_clusters(dataset, np.arange(240, dtype=np.uint64), labels_only)
+    np.testing.assert_array_equal(assigned[result.row_ids], result.labels)
+    assert (assigned[np.setdiff1d(np.arange(240), result.row_ids)] == -1).all()
+    colors_only = prepare_cluster_colors(
+        dataset, np.arange(240, dtype=np.uint64), labels_only
+    )
+    assert "unseen rows have no assignment" in colors_only.note
 
 
 def test_tsne_finite_dimensions_seed_and_explicit_settings() -> None:

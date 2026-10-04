@@ -79,8 +79,11 @@ class Scatter3DView:
                 bounds.extend((lo - pad, hi + pad))
             implot3d.setup_axes_limits(*bounds, cond=implot3d.Cond_.always)
         style = implot3d.Spec()
-        style.marker_size = 2
+        style.marker = implot3d.Marker_.square
+        style.marker_size = 1.5
         style.line_weight = 0
+        # Keep colors opaque: native fill enablement follows item opacity,
+        # even when an explicit marker-fill color is present.
         if self._colors is not None:
             style.marker_fill_colors = style.marker_line_colors = self._colors
         if self._coordinates is not None and len(self._coordinates[0]):
@@ -89,7 +92,9 @@ class Scatter3DView:
             self._selected_coordinates[0]
         ):
             highlight = implot3d.Spec()
-            highlight.marker_size = 3
+            highlight.marker = implot3d.Marker_.square
+            highlight.line_weight = 0
+            highlight.marker_size = 2
             highlight.marker_fill_color = highlight.marker_line_color = imgui.ImVec4(
                 1, 0.7, 0.2, 1
             )

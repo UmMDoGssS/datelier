@@ -49,8 +49,7 @@ Linux spawn bootstrap/inherited high-water accounting. The second run warms
 filesystem/library caches, not a retained estimator process. Thread settings:
 `POLARS_MAX_THREADS=8 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1`.
 
-M5.1 passes. M5.2, 3D acceptance and final richer-inspection resource gates
-remain open. No full-million-row ML fit or unverified rendering/platform
+M5.1 passes; subsequent gates are recorded below. No full-million-row ML fit or unverified rendering/platform
 support is claimed.
 
 ## M5.2 — t-SNE, UMAP and bounded jobs
@@ -92,4 +91,65 @@ owned-process startup, library initialization and fitting; they do not promise
 interactive fit latency or capacity for full-million-row analysis. First/warmed
 fits run in distinct workers, preserving cancellation isolation.
 
-M5.2 passes. Added M5.3 3D and final richer-inspection gates remain open.
+M5.2 passes; final M5.3 evidence follows.
+
+## M5.3 — 3D and final live acceptance
+
+Raw XYZ and three-component PCA/t-SNE/UMAP views use bundled ImPlot3D, with
+identity-aligned column/k-means colors, projected picking and screen-space Shift
+brushing. Camera rotation/pan/zoom remain available and brushing locks camera
+gestures. Two-component results never silently refit to supply Z. The shared
+clustering record now carries optional fitted k-means artifacts; label-only
+results can retain identity without a prediction contract. No additional
+clustering algorithm, public registry or persistence schema was introduced.
+
+Final full suite **271 passed**, Pyrefly zero errors, Ruff lint/format,
+lock and diff checks pass. [Final inspection evidence](richer-inspection.md#step-8--final-workflow-and-resource-acceptance)
+records live controls/gesture checks, visually inspected screenshots and eight
+large/wide GUI measurements. Every inspection case passes **33ms frame p95**
+and **1GiB parent RSS** with bounded displayed points and source preservation.
+The final 3D benchmark additionally verifies visible selected marker pixels.
+
+All four default algorithms also run explicitly, sequentially, in fresh live
+GUI parents with the source table still open:
+
+| Source rows × numeric analysis features | GUI frame p95 | Parent peak | Worker peak | Combined upper bound |
+| --- | ---: | ---: | ---: | ---: |
+| 1,000,000 × 6 | 16.82 ms | 725.95 MiB | 725.95 MiB | 1,451.90 MiB |
+| 100,000 × 64 | 17.71 ms | 691.82 MiB | 691.82 MiB | 1,383.64 MiB |
+
+Both pass **2GiB combined parent/worker RSS** and the frame budget. Limits are
+10,000 rows for PCA/k-means, 2,000 for t-SNE and 5,000 for UMAP. Reports:
+[million-row GUI](evidence/analysis-live-large.json),
+[wide GUI](evidence/analysis-live-wide.json), and
+[screenshot](evidence/analysis-live-wide.png). These runs did not set user
+OMP/BLAS thread limits; runtime estimator limits apply. Live request-to-result
+times were 1.28s PCA, 1.43–1.46s k-means, 9.15–14.04s t-SNE and 31.56–32.91s
+UMAP, including background input and display preparation. The separate
+first/warmed worker reports in M5.1/M5.2 remain the cold/warm timing evidence.
+Process high-water sums conservatively include inherited spawn accounting;
+identical parent/worker peaks are not simultaneous-live-memory measurements.
+
+Four separate million-row requests cancel after worker startup, during the
+reported combined library-loading/fitting phase. Cancellation-to-confirmed-exit
+was **0.121–0.172s**, with zero results published; estimator iteration progress
+was not observed. Reports are `evidence/analysis-cancel-{pca,kmeans,tsne,umap}.json`.
+The lifecycle tests additionally reject failures, obsolete revisions and a
+cancel arriving after worker exit but before GUI publication. Preparation cannot
+be forcibly interrupted; cancellation waits for preparation or terminates and
+joins the owned worker before reporting stopped.
+
+Reproduction on the Linux graphical session:
+
+```sh
+POLARS_MAX_THREADS=8 uv run scripts/benchmark_exploration.py
+LIBGL_ALWAYS_SOFTWARE=1 POLARS_MAX_THREADS=8 uv run scripts/benchmark_exploration.py --gui 100000 64 --three-d --output /tmp/rich-3d.ppm
+LIBGL_ALWAYS_SOFTWARE=1 POLARS_MAX_THREADS=8 uv run scripts/benchmark_exploration.py --gui 100000 64 --view grid --output /tmp/rich-grid.ppm
+LIBGL_ALWAYS_SOFTWARE=1 POLARS_MAX_THREADS=8 uv run scripts/benchmark_analysis_gui.py --rows 1000000 --columns 6 --output /tmp/analysis-gui.ppm
+POLARS_MAX_THREADS=8 uv run scripts/benchmark_analysis.py --algorithm tsne --cancel --output /tmp/analysis-cancel.json
+```
+
+M5.3 and Phase 5 pass. Linux/Mesa remains the verified renderer; accelerated
+rendering and other platforms remain unverified. User-raised sample caps were
+validated as bounds, not benchmarked as capacity guarantees. Workspaces remain
+Phase 6. Spectral, agglomerative, DBSCAN and HDBSCAN remain future additions.

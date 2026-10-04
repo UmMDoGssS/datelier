@@ -48,10 +48,13 @@ and explicit CSV/Parquet export gates; [docs/phase-3.md](docs/phase-3.md) record
 correctness, GUI, and resource evidence. Phase 4 has passed automatic
 profiles/plots and configurable linked-selection gates;
 [docs/phase-4.md](docs/phase-4.md) records correctness, GUI, and resource
-evidence. Phase 5 M5.1 has passed shared analysis, PCA and k-means gates;
+evidence. The richer Phase 4 extension has passed multi-column comparisons,
+independent axes/colors and relationship heatmap/grid gates;
+[docs/richer-inspection.md](docs/richer-inspection.md) records evidence.
+Phase 5 has passed explicit PCA/k-means/t-SNE/UMAP, worker lifecycle, provenance,
+3D linked interaction and final resource gates;
 [docs/phase-5.md](docs/phase-5.md) records correctness, GUI and resource evidence.
-M5.2 t-SNE/UMAP has also passed; 3D/final inspection-extension gates remain open in
-[ROADMAP.md](ROADMAP.md).
+Workspace persistence begins in Phase 6 of [ROADMAP.md](ROADMAP.md).
 
 Use this file for durable conventions and `ROADMAP.md` for sequencing,
 deliverables, and acceptance gates. Inspect actual code and configuration

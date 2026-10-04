@@ -222,17 +222,21 @@ class EmbeddingResult:
 
 
 @dataclass(frozen=True)
+class KMeansFit:
+    model: PreprocessingModel
+    centers: NDArray[np.float64]
+    inertia: float
+
+
+@dataclass(frozen=True)
 class ClusteringResult:
     revision: DatasetRevision
     row_ids: NDArray[np.uint64]
     labels: NDArray[np.int64]
     provenance: Provenance
-    # K-means-specific fitted artifacts support predictions, while source labels
-    # and provenance remain usable by future clustering methods without predict.
-    model: PreprocessingModel
-    centers: NDArray[np.float64]
     counts: tuple[int, ...]
-    inertia: float
+    # Label-only results need no prediction capability or fitted centers.
+    fit: KMeansFit | None = None
 
 
 AnalysisResult = EmbeddingResult | ClusteringResult

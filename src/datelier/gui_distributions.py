@@ -52,13 +52,19 @@ def show_comparison(comparison: Comparison, mode: int, fit: bool) -> bool:
     imgui.text_wrapped(
         f"{'Z-score' if settings.standardize else 'Original'} units · seed "
         f"{settings.seed} · KDE/ECDF/violin sample at most 2,000 finite values "
-        "per column. Histogram and box statistics use all finite values."
+        "per column. Histogram and box statistics use all finite values. "
+        "Outlier points use that sample, capped at 150 per column."
     )
-    for series in comparison.series:
-        imgui.text_wrapped(
-            f"{series.name}: {series.count:,} finite, {series.sample_count:,} sampled. "
-            + series.note
-        )
+    if imgui.collapsing_header("Counts and sample details"):
+        for series in comparison.series:
+            imgui.text_wrapped(
+                f"{series.name}: {series.count:,} finite, "
+                f"{series.sample_count:,} sampled. " + series.note
+            )
+    if mode in (1, 4):
+        for series in comparison.series:
+            if not len(series.kde_y):
+                imgui.text_wrapped(series.name + ": " + series.note)
     if fit:
         implot.set_next_axes_to_fit()
     if not implot.begin_plot("Column comparison", (-1, 220)):
@@ -80,10 +86,16 @@ def show_comparison(comparison: Comparison, mode: int, fit: bool) -> bool:
             [float(i) for i in range(len(comparison.series))],
             [s.name for s in comparison.series],
         )
-    centers = comparison.edges[:-1] + np.diff(comparison.edges) / 2
     for i, series in enumerate(comparison.series):
         if mode == 0:
-            implot.plot_line(series.name, centers, series.histogram)
+            hist_style = implot.Spec()
+            hist_style.flags = implot.StairsFlags_.pre_step
+            implot.plot_stairs(
+                series.name,
+                comparison.edges,
+                np.concatenate(([series.histogram[0]], series.histogram)),
+                hist_style,
+            )
         elif mode == 1 and len(series.kde_y):
             implot.plot_line(series.name, series.kde_x, series.kde_y)
         elif mode == 2 and len(series.ecdf_x):

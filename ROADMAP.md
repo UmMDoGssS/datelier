@@ -26,8 +26,11 @@ with explicit nested-input diagnostics; [Phase 2 evidence](docs/phase-2.md)
 records its passed gates. Phase 3 provides reversible transformations and explicit
 export; [Phase 3 evidence](docs/phase-3.md) records its passed gates. Phase 4
 provides automatic exploration and linked selections;
-[Phase 4 evidence](docs/phase-4.md) records its passed gates. Phase 5 and later
-milestones remain unchecked.
+[Phase 4 evidence](docs/phase-4.md) records its baseline gates, and
+[richer-inspection evidence](docs/richer-inspection.md) records passed comparison,
+color and matrix extensions. Phase 5 provides explicit analysis and linked 3D
+views; [Phase 5 evidence](docs/phase-5.md) records its passed gates. Phase 6 and
+later milestones remain unchecked.
 
 ## Gate and evidence rules
 
@@ -166,13 +169,17 @@ milestones remain unchecked.
 
 ### M4.3 — Richer inspection extension
 
-- [ ] **Deliverables:** multi-column histogram/KDE/ECDF/box/violin comparisons, independent scatter axes and column colors, Pearson heatmap and bounded pair grid.
-- [ ] **Exit gate:** comparison/statistics/identity tests, live mode/navigation/selection checks, and existing inspection resource budgets pass.
-- [ ] **Verification evidence:** [incremental evidence](docs/richer-inspection.md); final extension gates remain open.
+- [x] **Deliverables:** multi-column histogram/KDE/ECDF/box/violin comparisons, independent scatter axes and column colors, Pearson heatmap and bounded pair grid.
+- [x] **Exit gate:** comparison/statistics/identity tests, live mode/navigation/selection checks, and existing inspection resource budgets pass.
+- [x] **Verification evidence:** [incremental and final evidence](docs/richer-inspection.md): 271 tests, Pyrefly/Ruff/lock checks, live modes/navigation/recovery, four fresh headless fixtures and eight large/wide GUI cases pass the 33ms/1GiB budgets.
 
 ## Phase 5 — On-demand unsupervised analysis
 
-- [ ] **Phase complete.** **Entry:** Phase 4 passes. **Exit:** M5.1, M5.2 and M5.3 pass.
+- [x] **Phase complete.** **Entry:** Phase 4 passes. **Exit:** M5.1, M5.2 and M5.3 pass. [Evidence](docs/phase-5.md) recorded 2026-10-04.
+
+K-means is the current clustering method. Spectral, agglomerative, DBSCAN and
+HDBSCAN remain future additions; this phase introduces no public registry or
+workspace persistence schema.
 
 ### M5.1 — Shared analysis flow, PCA, and k-means
 
@@ -192,9 +199,9 @@ milestones remain unchecked.
 
 ### M5.3 — 3D views and final exploration acceptance
 
-- [ ] **Deliverables:** raw XYZ and three-component embedding plots, column/cluster colors, linked projected picking/brushing and camera gestures.
-- [ ] **Exit gate:** 3D source identity, renderer/gesture checks and final inspection/analysis resource gates pass; evidence recorded.
-- [ ] **Verification evidence:** 3D correctness/GUI checks, full regression suite, large/wide live frame/memory measurements and final workflow checks.
+- [x] **Deliverables:** raw XYZ and three-component embedding plots, column/cluster colors, linked projected picking/brushing and camera gestures.
+- [x] **Exit gate:** 3D source identity, renderer/gesture checks and final inspection/analysis resource gates pass; evidence recorded.
+- [x] **Verification evidence:** [M5.3 evidence](docs/phase-5.md#m53--3d-and-final-live-acceptance): 271 tests, Pyrefly/Ruff/lock checks, live 3D gestures and explicit three-component workflows, visible-marker checks, large/wide GUI frame/memory gates, live combined worker budgets and recorded cancellation timing pass.
 
 ## Phase 6 — Workspaces and customization
 

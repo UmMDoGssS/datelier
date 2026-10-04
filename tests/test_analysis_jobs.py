@@ -121,3 +121,18 @@ def test_actual_tsne_cancellation_has_no_publication() -> None:
         assert not jobs.results and "stopped" in jobs.message
     finally:
         jobs.close()
+
+
+def test_cancel_completed_worker_before_publication() -> None:
+    data = dataset()
+    jobs = AnalysisJobs(fake_result)
+    try:
+        jobs.request(data, AnalysisRequest(("x", "y")))
+        assert jobs._future is not None
+        jobs._future.result(timeout=10)
+        jobs.cancel()
+        jobs.poll(data.revision)
+        assert not jobs.busy and not jobs.results
+        assert "stopped" in jobs.message
+    finally:
+        jobs.close()

@@ -16,15 +16,26 @@ def predict_clusters(
         raise ValueError(
             "Cluster colors require current revision and at most 10,000 displayed rows"
         )
+    fit = result.fit
+    if fit is None:
+        # A label-only clustering result colors known identities; unseen rows
+        # remain excluded rather than inventing a prediction rule.
+        known = dict(zip(result.row_ids.tolist(), result.labels.tolist(), strict=True))
+        labels = np.array(
+            [known.get(int(i), -1) for i in dataset.row_ids.gather(positions)],
+            dtype=np.int64,
+        )
+        labels.flags.writeable = False
+        return labels
     # Resolve literal names as Series, never as regex expressions.
     raw = pl.DataFrame(
         {
             f"f{i}": dataset.table.get_column(name).gather(positions).cast(pl.Float64)
-            for i, name in enumerate(result.model.features)
+            for i, name in enumerate(fit.model.features)
         }
     ).to_numpy()
-    values, eligible = result.model.transform(raw)
-    if not result.model.settings.impute:
+    values, eligible = fit.model.transform(raw)
+    if not fit.model.settings.impute:
         original_valid = np.ones(len(positions), dtype=bool)
         for name in result.provenance.input.removed_constants:
             original_valid &= (
@@ -43,8 +54,8 @@ def predict_clusters(
     with np.errstate(over="ignore", invalid="ignore"):
         distances = (
             (values * values).sum(axis=1)[:, None]
-            + (result.centers * result.centers).sum(axis=1)[None, :]
-            - 2 * values @ result.centers.T
+            + (fit.centers * fit.centers).sum(axis=1)[None, :]
+            - 2 * values @ fit.centers.T
         )
     if not np.isfinite(distances).all():
         raise ValueError("Cluster distance overflow; fit with standardization")
@@ -79,7 +90,12 @@ def prepare_cluster_colors(
         rgba,
         (*legend, ("Other clusters", 0xFFBBBBBB), ("Excluded", NEUTRAL)),
         f"Fit on {len(result.row_ids):,} sampled rows; "
-        "displayed labels are nearest-center "
-        f"predictions ({displayed_fit:,} fitting rows shown). "
-        "Original analysis feature space.",
+        + (
+            "displayed labels are nearest-center "
+            f"predictions ({displayed_fit:,} fitting rows shown). "
+            "Original analysis feature space."
+            if result.fit is not None
+            else f"Labels shown for {displayed_fit:,} fitting rows; "
+            "unseen rows have no assignment."
+        ),
     )

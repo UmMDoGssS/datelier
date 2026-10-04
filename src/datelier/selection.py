@@ -11,6 +11,7 @@ from datelier.dataset import DatasetRevision
 from datelier.plotting import Scatter
 
 SELECTION_LIMIT = 10_000
+Coordinates = tuple[NDArray[np.float64], NDArray[np.float64]]
 
 
 @dataclass
@@ -19,20 +20,8 @@ class LinkedSelection:
     row_ids: frozenset[int] = frozenset()
     version: int = 0
     message: str = ""
-    _overlay_points: Scatter | None = None
-    _overlay_version: int = -1
-    _overlay: tuple[NDArray[np.float64], NDArray[np.float64]] = field(
-        default_factory=lambda: (
-            np.array([], dtype=np.float64),
-            np.array([], dtype=np.float64),
-        )
-    )
-
-    _unselected: tuple[NDArray[np.float64], NDArray[np.float64]] = field(
-        default_factory=lambda: (
-            np.array([], dtype=np.float64),
-            np.array([], dtype=np.float64),
-        )
+    _partitions: dict[int, tuple[Scatter, Coordinates, Coordinates]] = field(
+        default_factory=dict
     )
 
     def bind(self, revision: DatasetRevision) -> None:
@@ -40,7 +29,7 @@ class LinkedSelection:
             self.revision = revision
             self.row_ids = frozenset()
             self.version += 1
-            self._overlay_points = None
+            self._partitions.clear()
             self.message = "Selection cleared for the new dataset revision."
 
     def choose(
@@ -60,6 +49,7 @@ class LinkedSelection:
             return False
         self.row_ids = frozenset(chosen)
         self.version += 1
+        self._partitions.clear()
         self.message = f"{len(chosen):,} source rows selected."
         return True
 
@@ -107,19 +97,27 @@ class LinkedSelection:
     def overlay(
         self, points: Scatter
     ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
-        if points is not self._overlay_points or self.version != self._overlay_version:
+        key = id(points)
+        cached = self._partitions.get(key)
+        if cached is None:
             ids = self.row_ids if points.revision == self.revision else frozenset()
-            mask = np.isin(points.row_ids, tuple(ids))
-            self._overlay = (points.x[mask], points.y[mask])
-            self._unselected = (
+            mask = np.fromiter(
+                (int(i) in ids for i in points.row_ids), dtype=bool, count=len(points.x)
+            )
+            overlay = (points.x[mask], points.y[mask])
+            unselected = (
                 (points.x[~mask], points.y[~mask]) if ids else (points.x, points.y)
             )
-            self._overlay_points = points
-            self._overlay_version = self.version
-        return self._overlay
+            # Enough for every bounded grid cell plus raw/reduced plots. Retain
+            # the object with its identity key to prevent Python ID reuse.
+            if len(self._partitions) >= 128:
+                self._partitions.clear()
+            cached = (points, overlay, unselected)
+            self._partitions[key] = cached
+        return cached[1]
 
     def unselected(
         self, points: Scatter
     ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         self.overlay(points)
-        return self._unselected
+        return self._partitions[id(points)][2]

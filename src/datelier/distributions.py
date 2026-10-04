@@ -2,16 +2,23 @@
 
 import math
 from dataclasses import dataclass
+from threading import Lock
 from typing import cast
 
 import numpy as np
 import polars as pl
 from numpy.typing import NDArray
 from scipy.stats import gaussian_kde
+from threadpoolctl import threadpool_limits
 
 from datelier.dataset import Dataset
 from datelier.plotting import numeric_columns
 from datelier.sampling import seeded_sample
+
+# BLAS thread limits are process-wide. Serialize these short density sections
+# so overlapping obsolete/current preparation jobs cannot restore each other's
+# limits midway through an evaluation.
+_DENSITY_LOCK = Lock()
 
 
 @dataclass(frozen=True)
@@ -118,10 +125,11 @@ def prepare_comparison(
         kde_y = np.array([], dtype=np.float64)
         if len(sample) >= 2 and np.ptp(sample) > 0:
             try:
-                estimator = gaussian_kde(sample)
-                estimator.set_bandwidth(estimator.factor * settings.bandwidth)
-                # SciPy's untyped return is isolated at the density boundary.
-                kde_y = cast(NDArray[np.float64], estimator(kde_x))
+                with _DENSITY_LOCK, threadpool_limits(limits=1, user_api="blas"):
+                    estimator = gaussian_kde(sample)
+                    estimator.set_bandwidth(estimator.factor * settings.bandwidth)
+                    # SciPy's untyped return is isolated at the density boundary.
+                    kde_y = cast(NDArray[np.float64], estimator(kde_x))
                 if not np.isfinite(kde_y).all():
                     raise ValueError("Density is nonfinite")
             except ValueError, np.linalg.LinAlgError:
@@ -141,6 +149,8 @@ def prepare_comparison(
             )
             box = (_scalar(inliers.min()), q1, median, q3, _scalar(inliers.max()))
             outliers = sample[(sample < box[0]) | (sample > box[4])][:150]
+        if not len(kde_y):
+            kde_x = np.array([], dtype=np.float64)
         for array in (histogram, unique, ecdf, kde_x, kde_y, outliers):
             array.flags.writeable = False
         distributions.append(
@@ -151,7 +161,7 @@ def prepare_comparison(
                 histogram,
                 unique,
                 ecdf,
-                kde_x if len(kde_y) else np.array([], dtype=np.float64),
+                kde_x,
                 kde_y,
                 box,
                 outliers,

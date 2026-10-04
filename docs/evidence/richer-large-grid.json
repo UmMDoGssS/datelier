@@ -1,0 +1,17 @@
+{
+  "rows": 1000000,
+  "columns": 8,
+  "frames": 154,
+  "first_preview_ms": 136.40954800212057,
+  "frame_p95_ms": 16.656519650132395,
+  "default_prepare_ms": 194.64587300171843,
+  "expanded_prepare_ms": 216.95164000266232,
+  "peak_rss_mib": 686.06640625,
+  "selected_points": 10000,
+  "three_d": false,
+  "markers_visible": null,
+  "view": "grid",
+  "row_identity": true,
+  "source_preserved": true,
+  "max_rendered_rows": 8
+}

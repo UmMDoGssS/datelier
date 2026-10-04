@@ -77,6 +77,25 @@ def test_stale_selection_and_revision_reset() -> None:
     assert not selected.row_ids
 
 
+def test_linked_highlights_across_alternating_sampled_views() -> None:
+    source = data()
+    first = prepare_scatter(source, "x", "y", limit=4)
+    second = prepare_scatter(source, "y", "x", limit=20)
+    selected = LinkedSelection()
+    selected.bind(source.revision)
+    selected.choose(source.revision, [6, 19])
+    for _ in range(3):
+        assert selected.overlay(first)[0].tolist() == [6, 19]
+        assert selected.overlay(second)[0].tolist() == [6, 19]
+        assert len(selected.unselected(first)[0]) == 2
+    selected.choose(source.revision, [2])
+    assert not len(selected.overlay(first)[0])
+    assert selected.overlay(second)[0].tolist() == [2]
+    selected.bind(data().revision)
+    assert not len(selected.overlay(first)[0])
+    assert not len(selected.overlay(second)[0])
+
+
 def test_settings_focus_any_column_and_rebind_after_removed_columns() -> None:
     source = Dataset.from_source(
         pl.DataFrame({f"x{i}": range(5) for i in range(140)}),

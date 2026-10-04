@@ -12,6 +12,7 @@ from datelier.analysis_types import (
     AnalysisResult,
     ClusteringResult,
     EmbeddingResult,
+    KMeansFit,
     KMeansParameters,
     PCAParameters,
     PreparedInput,
@@ -52,10 +53,8 @@ def run_analysis(prepared: PreparedInput) -> AnalysisResult:
             prepared.row_ids,
             labels,
             make_provenance(prepared, started),
-            prepared.model,
-            centers,
             tuple(int(v) for v in np.bincount(labels, minlength=params.clusters)),
-            inertia,
+            KMeansFit(prepared.model, centers, inertia),
         )
     if isinstance(params, TSNEParameters):
         from sklearn.manifold import TSNE

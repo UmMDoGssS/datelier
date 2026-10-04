@@ -106,18 +106,38 @@ class RelationshipView:
             "At most 150 sampled points per cell. Diagonal histograms use "
             "bin indices; open the profile for bin boundaries."
         )
+        dense = n > 4
+        if dense:
+            imgui.text_wrapped(
+                "Feature order: "
+                + " · ".join(f"{i + 1}={name}" for i, name in enumerate(data.names))
+                + ". Hover a cell for its full axes."
+            )
         if implot.begin_subplots("Pair grid", n, n, (-1, max(280, n * 120))):
             for i, y in enumerate(data.names):
                 for j, x in enumerate(data.names):
                     if not implot.begin_plot(
-                        f"{y} / {x}##{i}-{j}", flags=implot.Flags_.no_legend
+                        f"{y} / {x}##{i}-{j}",
+                        flags=implot.Flags_.no_legend
+                        | (implot.Flags_.no_title if dense else 0),
                     ):
                         continue
+                    axis_flags = implot.AxisFlags_.auto_fit | (
+                        implot.AxisFlags_.no_tick_labels if dense else 0
+                    )
                     implot.setup_axes(
-                        x if i != j else "Bin",
-                        y if i != j else "Rows",
-                        implot.AxisFlags_.auto_fit,
-                        implot.AxisFlags_.auto_fit,
+                        (str(j + 1) if i == n - 1 else "")
+                        if dense
+                        else x
+                        if i != j
+                        else "Bin",
+                        (str(i + 1) if j == 0 else "")
+                        if dense
+                        else y
+                        if i != j
+                        else "Rows",
+                        axis_flags,
+                        axis_flags,
                     )
                     points = data.cells[i][j]
                     if points is None:
@@ -126,14 +146,23 @@ class RelationshipView:
                             implot.plot_bars(x, bars.positions, bars.counts, 0.8)
                     else:
                         style = implot.Spec()
+                        style.marker = implot.Marker_.square
                         style.marker_size = 1
+                        style.line_weight = 0
                         xs, ys = selection.unselected(points)
                         implot.plot_scatter("Rows", xs, ys, style)
                         interaction = self.interactions.setdefault(
                             (i, j), ScatterInteraction()
                         )
                         interaction.show(points, selection, table)
-                    if implot.is_plot_hovered() and (
+                    hovered = implot.is_plot_hovered()
+                    if hovered and dense:
+                        imgui.set_tooltip(
+                            f"X: {x} · Y: {y}"
+                            if i != j
+                            else f"{x}: bin index / row count"
+                        )
+                    if hovered and (
                         imgui.is_mouse_double_clicked(imgui.MouseButton_.left)
                         or i == j
                         and imgui.is_mouse_clicked(imgui.MouseButton_.left)

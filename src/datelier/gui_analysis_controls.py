@@ -230,8 +230,8 @@ class AnalysisControls:
                 if isinstance(result, EmbeddingResult):
                     for name, value in result.details:
                         imgui.text_wrapped(f"{name}: {value}")
-                if isinstance(result, ClusteringResult):
-                    imgui.text(f"Inertia: {result.inertia:.6g}")
+                if isinstance(result, ClusteringResult) and result.fit is not None:
+                    imgui.text(f"Inertia: {result.fit.inertia:.6g}")
                     self.center_index = min(self.center_index, len(result.counts) - 1)
                     _, self.center_index = imgui.combo(
                         "Center",
@@ -243,7 +243,7 @@ class AnalysisControls:
                     )
                     imgui.text_wrapped(
                         "Center in fitted feature space: "
-                        + str(result.centers[self.center_index].tolist())
+                        + str(result.fit.centers[self.center_index].tolist())
                     )
                 if (
                     self.features != list(provenance.request.features)

@@ -1,0 +1,10 @@
+{
+  "algorithm": "t-SNE",
+  "rows": 1000000,
+  "sample_limit": 2000,
+  "phase_at_cancel": "Loading libraries / fitting t-SNE",
+  "start_to_cancel_seconds": 0.3213629120000405,
+  "cancel_to_confirmed_exit_seconds": 0.1719694100029301,
+  "published_results": 0,
+  "message": "Analysis cancelled; worker has stopped."
+}

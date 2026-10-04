@@ -1,0 +1,10 @@
+{
+  "algorithm": "PCA",
+  "rows": 1000000,
+  "sample_limit": 10000,
+  "phase_at_cancel": "Loading libraries / fitting PCA",
+  "start_to_cancel_seconds": 0.5190980990009848,
+  "cancel_to_confirmed_exit_seconds": 0.12110817399661755,
+  "published_results": 0,
+  "message": "Analysis cancelled; worker has stopped."
+}

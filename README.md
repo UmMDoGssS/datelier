@@ -1,9 +1,10 @@
 # Datelier
 
 A Linux desktop data inspection workbench for analysts, targeting Python 3.14+.
-Phase 4 provides CSV/TSV, JSON/JSONL, Parquet, and tabular XML import,
+Phases 4–5 provide CSV/TSV, JSON/JSONL, Parquet, and tabular XML import,
 responsive previews, schema/null summaries, reversible transformations,
-explicit CSV/Parquet export, and automatic exploration with linked selections.
+explicit CSV/Parquet export, richer exploration with linked selections,
+and explicit PCA, t-SNE, UMAP and k-means analysis.
 See [ROADMAP.md](ROADMAP.md) for delivery gates and [AGENTS.md](AGENTS.md) for
 contributor conventions.
 
@@ -78,7 +79,7 @@ Source files are read without modification. Loading does not run ML.
 Use `LIBGL_ALWAYS_SOFTWARE=1 uv run datelier` on the reference machine if the
 default renderer stalls; accelerated rendering remains unverified. See
 [Phase 1 evidence](docs/phase-1.md) for verification and performance limits.
-Saved workspaces and on-demand analysis follow in later phases.
+Saved workspaces remain Phase 6; current views and results last for this session.
 
 ## Exploration
 
@@ -89,7 +90,7 @@ quality counts identify null/nonfinite values. Temporal bins use units relative
 to the minimum, with a precise range. Expand **Bin boundaries / category labels**
 to read each bar's interval or category.
 
-Automatic work profiles the first 32 columns, correlates the first eight numeric
+Automatic work profiles the first 32 columns, selects the first six numeric
 columns, and suggests up to three scatter pairs. Correlations use at most 10,000
 evenly spaced input rows with pairwise finite values. Scatter plots show up to
 2,000 evenly spaced eligible points. Categorical counts use at most the first
@@ -97,13 +98,37 @@ evenly spaced input rows with pairwise finite values. Scatter plots show up to
 120 characters. Sampling and exclusions are labeled. Numeric plot coordinates
 use Float64, so very large integers and high-precision decimals may round.
 
-Expand **Plot settings** to change bins, top counts, profile/correlation column
-limits, and scatter point limits. **Profile focus** can choose any column,
-including one beyond the automatic limit. **Choose scatter columns** can choose
-any numeric pair. **Apply plot settings** prepares a new dashboard in the
-background. Bounds are 128 leading profile columns, 100 bins/counts, 16 numeric
-correlation columns (120 pairs), and 10,000 scatter points. **Abandon exploration**
-ignores its result while an executing job may still finish.
+Expand **Plot settings** to change bins, top counts, profile limits and scatter
+point limits. **Profile focus** can choose any column, including one beyond the
+automatic limit. Select up to eight columns under **Numeric comparisons** and
+apply settings, then choose Histogram, KDE, ECDF, Box or Violin in Profiles.
+Histogram/KDE/ECDF curves overlay with selectable legends; boxes/violins appear
+beside one another. Histograms share bins and default to density. Original units
+are the default; optional z-scores use each column's full finite mean/deviation.
+KDE uses Gaussian kernels with Scott bandwidth and a visible multiplier.
+KDE/ECDF/violin use at most 2,000 finite values per column, sampled by source ID
+and seed (default 42). Box quartiles/Tukey whiskers are exact; displayed outliers
+use that sample, capped at 150. Empty/constant inputs have explicit explanations.
+Categorical and temporal profiles remain available under Individual profiles.
+
+Scatter keeps independent X/Y selectors visible; **3D scatter** adds Z.
+Suggested pairs are shortcuts. **Color** selects another column: continuous
+numeric/temporal colors, top-12 categorical colors plus Other, and neutral missing
+values. Selected points retain their highlight. **Update scatter** prepares the
+chosen axes/colors in the background, independently of analysis features.
+
+Under **Relationship features**, choose an ordered numeric list and apply
+settings. Correlations switches between a Pearson heatmap (up to 16 features)
+and scatter/distribution grid (default six, maximum eight). Heatmap colors span
+−1 to +1; gray cells are undefined and hover shows finite-pair counts. Click a
+pair to open raw scatter. Grid diagonals show distributions; mirrored scatter
+cells reuse up to 150 points from the common correlation cohort. Double-click a
+scatter cell to open its axes; click a diagonal to open that column's profile.
+
+**Apply plot settings** prepares a new dashboard in the background. Bounds are
+128 leading profile columns, 100 bins/counts, 16 correlation features (120 pairs),
+and 10,000 displayed scatter points in 2D or 3D. **Abandon exploration** ignores
+its result while an executing preparation job may still finish.
 
 Click a source row in the table or a plotted point to select it; Ctrl-click
 toggles membership. A plot click brings its row into the table view. Shift-drag
@@ -111,7 +136,46 @@ brushes the displayed scatter points. Table rows and matching plot points share
 highlights; selected rows outside the plot sample remain selected. Selections
 are limited to 10,000 rows and clear when the dataset revision changes. Use the
 wheel to zoom, middle-drag to pan, and **Fit scatter** or double-click to fit.
-See [Phase 4 evidence](docs/phase-4.md) for verification and measured limits.
+In 3D, left-drag rotates, right-drag pans, and the wheel zooms. Click picking and
+Shift brushing use projected displayed points; camera gestures are disabled
+during brushing. **Fit scatter** resets the bounds.
+See [Phase 4 evidence](docs/phase-4.md) and
+[richer-inspection evidence](docs/richer-inspection.md) for measured limits.
+
+## On-demand analysis
+
+In the **Analysis** panel, select numeric features separately from raw axes and
+color. Choose preprocessing, dimensions, seed and the algorithm's sample limit,
+then explicitly press **Run PCA**, **Run t-SNE**, **Run UMAP** or **Fit k-means**.
+Defaults drop missing/nonfinite rows and standardize features; optional median
+imputation and no scaling are available. Constant features are removed and
+reported; unusable data or invalid parameter combinations fail without adjusting
+your settings. Analysis uses source-ID/seed sampling before bounded NumPy conversion.
+
+| Algorithm | Default sample / maximum | Initial settings |
+| --- | ---: | --- |
+| PCA | 10,000 / 100,000 | 2 components, randomized solver, no whitening |
+| t-SNE | 2,000 / 10,000 | 2 components, perplexity 30, 1,000 iterations, PCA initialization, automatic learning rate |
+| UMAP | 5,000 / 50,000 | 2 components, 15 neighbors, minimum distance 0.1, Euclidean metric |
+| K-means | 10,000 / 100,000 | 3 clusters, 10 initializations, 300 iterations |
+
+Settings are visible and seed defaults to 42. Embeddings support two or three
+components; viewing a third component requires an explicit three-component run.
+One spawned analysis worker runs at a time. The panel shows preparation/fitting
+phases and elapsed time; **Cancel analysis** reports completion after the worker
+exits. Dataset revisions invalidate results and stale jobs cannot publish.
+These sample limits are bounds, not capacity guarantees.
+
+Choose Raw or a completed embedding in Scatter to switch views without fitting
+again. Changed settings require another command. **K-means colors** uses the
+completed clustering result on raw or reduced plots. Fitting samples and
+nearest-center predictions in the original fitted feature space are disclosed;
+excluded rows receive neutral colors. Provenance records inputs, exclusions,
+sampling, preprocessing, parameters, seed, runtime and library versions.
+Loading data, changing settings and editing never launch ML automatically.
+K-means is the only current clustering algorithm; spectral, agglomerative,
+DBSCAN and HDBSCAN remain future additions.
+See [Phase 5 evidence](docs/phase-5.md) for correctness and resource measurements.
 
 ## Transform and export
 

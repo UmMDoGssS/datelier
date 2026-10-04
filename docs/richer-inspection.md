@@ -148,3 +148,76 @@ inspected: [gestures](evidence/scatter3d-gestures.png) and
 [analysis colors](evidence/analysis-3d-workbench.png). The frame hooks inject
 Dear ImGui mouse/key events and position the backend cursor for the gesture run.
 M5.3/final extension gates remain open pending large/wide resource acceptance.
+
+## Step 8 — Final workflow and resource acceptance
+
+Completed the inspection and analysis gates on 2026-10-04. Final acceptance
+found and corrected three performance/lifecycle issues: overlapping KDE jobs
+now serialize their short BLAS evaluations with one thread; linked selections
+cache bounded partitions per displayed plot instead of rebuilding every grid
+cell each frame; and 3D uses compact filled squares without outline strokes.
+Native item colors remain opaque, because transparent outlines also disabled
+fills in the bundled renderer. The large/wide 3D benchmark now checks visible
+orange marker pixels in addition to selection identity and frame timing.
+
+Comparison histograms now render shared-bin steps, outlier sampling is explicit,
+and counts/sample details expand without pushing the comparison offscreen.
+Dense grids use numbered outer axes with an ordered feature key and full-name
+hover text; their plots remain scrollable. Failed scatter preparation leaves
+axes/colors and completed embeddings accessible for correction. Clustering
+results separate optional k-means fitted artifacts from common labels/identity;
+a label-only result colors known IDs and leaves unseen rows unassigned.
+Cancellation after worker completion but before GUI polling cannot publish.
+
+Final full suite: **271 passed**; batch Pyrefly zero errors, Ruff lint/format,
+locked dependency resolution and diff whitespace pass. New regressions cover
+alternating linked views, selection/revision invalidation, label-only assignments,
+and cancellation at the publication boundary. Final live checks passed 131
+frames of all five profile modes, colored selection and error recovery; 60
+frames of heatmap navigation/grid highlights; 141 frames of 3D picking/brushing,
+rotation, wheel zoom and right pan; and 267/1,349 frames of explicit three-component
+t-SNE/UMAP with linked raw/reduced k-means colors. One injected-cursor rotation
+check missed its gesture; a fresh run passed all gestures. Native analysis-button
+clicks and overlay-legend clicks are not claimed by these frame-hook scripts;
+the native selectable legends rendered and their screenshots were inspected.
+
+Four fresh headless fixtures pass the retained summary/page/inspection budgets:
+
+| Rows × total columns | Default preparation | Numeric comparison | Expanded preparation | Peak RSS |
+| --- | ---: | ---: | ---: | ---: |
+| 10,000 × 8 | 22.42 ms | 53.60 ms | 11.06 ms | 196.33 MiB |
+| 100,000 × 8 | 24.76 ms | 77.71 ms | 19.04 ms | 244.02 MiB |
+| 1,000,000 × 8 | 125.20 ms | 317.98 ms | 60.55 ms | 680.03 MiB |
+| 100,000 × 66 | 54.85 ms | 105.10 ms | 46.29 ms | 517.73 MiB |
+
+Default preparation remains bounded by 2s; expanded/comparison preparation by
+4s. Measured summaries remain below 250ms, pages below 50ms, and bounded linked
+interaction p95 below 2.13ms. The [fresh-process report](evidence/richer-inspection-benchmark.json)
+records CPU, memory, versions, fixture types and exact observations. Its samples
+do not fit or render one million points.
+
+Eight live GUI cases sort/filter the original table, retain source IDs, select
+10,000 sampled rows and render bounded table pages. Grid/comparison configurations
+select up to eight features; wide grids render all 56 off-diagonal cells with
+at most 150 points each. Narrow fixtures contain seven numeric features.
+
+| View | Million-row frame p95 / peak RSS | Wide frame p95 / peak RSS |
+| --- | ---: | ---: |
+| 2D scatter | 21.32 ms / 680.11 MiB | 22.17 ms / 644.43 MiB |
+| 3D scatter | 28.37 ms / 734.32 MiB | 28.07 ms / 645.81 MiB |
+| Pair grid | 16.66 ms / 686.07 MiB | 16.70 ms / 645.22 MiB |
+| KDE comparison | 15.93 ms / 820.21 MiB | 15.95 ms / 657.89 MiB |
+
+All pass **33ms frame p95** and **1GiB inspection RSS**. Reports are
+`evidence/richer-{large,wide}-{2d,3d,grid,comparison}.json`. Final screenshots
+were visually inspected: [comparison](evidence/richer-wide-comparison.png),
+[grid](evidence/richer-wide-grid.png), [2D](evidence/richer-wide-2d.png),
+[3D](evidence/richer-wide-3d.png), and [3D gestures](evidence/scatter3d-gestures.png).
+Initial circular 3D markers exceeded the frame budget (~188ms); final compact
+square rendering passes without reducing the 10,000-point display bound.
+
+The [Phase 5 final evidence](phase-5.md#m53--3d-and-final-live-acceptance)
+records combined live-GUI/worker resources and cancellation timings. M4.3 and
+M5.3 pass; Phase 5 is complete. Verified rendering remains Linux/Mesa software
+OpenGL on this machine. Accelerated rendering and other platforms are unverified;
+sample caps are not capacity guarantees. Workspace persistence remains Phase 6.

@@ -110,16 +110,18 @@ class AnalysisJobs:
             if isinstance(result, EmbeddingResult):
                 arrays.extend((result.values, result.positions))
             else:
-                arrays.extend(
-                    (
-                        result.labels,
-                        result.centers,
-                        result.model.magnitudes,
-                        result.model.medians,
-                        result.model.means,
-                        result.model.deviations,
+                arrays.append(result.labels)
+                if result.fit is not None:
+                    fit = result.fit
+                    arrays.extend(
+                        (
+                            fit.centers,
+                            fit.model.magnitudes,
+                            fit.model.medians,
+                            fit.model.means,
+                            fit.model.deviations,
+                        )
                     )
-                )
             for array in arrays:
                 array.flags.writeable = False
             return result
@@ -165,6 +167,11 @@ class AnalysisJobs:
             return False
         except Exception as error:
             self.message = f"Analysis failed: {error}"
+            return False
+        if self._cancel.is_set():
+            # A cancel can arrive after worker completion but before the GUI
+            # polls the finished future. The joined result must still be ignored.
+            self.message = "Analysis cancelled; worker has stopped."
             return False
         if result.revision != revision:
             self.message = "Dataset changed; obsolete analysis ignored."

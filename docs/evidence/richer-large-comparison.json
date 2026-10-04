@@ -1,0 +1,16 @@
+{
+  "rows": 1000000,
+  "columns": 8,
+  "frames": 264,
+  "first_preview_ms": 159.02362699853256,
+  "frame_p95_ms": 15.93449684769439,
+  "default_prepare_ms": 213.82668400474358,
+  "expanded_prepare_ms": 914.7780390048865,
+  "peak_rss_mib": 820.20703125,
+  "selected_points": 10000,
+  "three_d": false,
+  "view": "comparison",
+  "row_identity": true,
+  "source_preserved": true,
+  "max_rendered_rows": 8
+}

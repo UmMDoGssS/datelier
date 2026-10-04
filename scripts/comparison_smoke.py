@@ -1,6 +1,7 @@
 """Exercise every comparison renderer on a live Linux GUI."""
 
 import json
+from dataclasses import replace
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import cast
@@ -26,7 +27,17 @@ def main() -> None:
             nonlocal stage, ready
             active = session.loader.active
             dashboard = session.explorer.active
-            if active is None or dashboard is None:
+            if active is None:
+                return
+            if stage == 5 and not session.explorer.busy:
+                assert (
+                    dashboard is None and "failed" in session.explorer.message.lower()
+                )
+                # Render the recovery controls before requesting corrected axes.
+                if evidence.frames > ready + 10:
+                    session.explorer.request(active.dataset, session.plots.settings())
+                    stage = 6
+            if dashboard is None:
                 return
             if stage == 0:
                 session.plots.compare_columns = ["x", "y"]
@@ -52,16 +63,27 @@ def main() -> None:
                 stage, ready = 4, evidence.frames
             elif stage == 4 and evidence.frames > ready + 10:
                 assert session.exploration.interaction.selected_points == 1
+                session.explorer.request(
+                    active.dataset,
+                    replace(session.plots.settings(), scatter_pair=("x", "x")),
+                )
+                stage, ready = 5, evidence.frames
+            elif stage == 6:
                 hello_imgui.get_runner_params().app_shall_exit = True
 
         evidence = run_gui(source, smoke_frames=10000, on_frame=frame)
         assert modes == list(range(5))
+        assert stage == 6
         pixels = cast(NDArray[np.uint8], hello_imgui.final_app_window_screenshot())
         h, w = pixels.shape[:2]
         Path("/tmp/datelier-comparison.ppm").write_bytes(
             f"P6\n{w} {h}\n255\n".encode() + pixels[:, :, :3].tobytes()
         )
-        print(json.dumps({"frames": evidence.frames, "modes": modes}))
+        print(
+            json.dumps(
+                {"frames": evidence.frames, "modes": modes, "error_recovery": True}
+            )
+        )
 
 
 if __name__ == "__main__":

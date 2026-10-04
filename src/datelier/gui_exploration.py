@@ -49,6 +49,12 @@ class ExplorationView:
         imgui.text_wrapped(explorer.message)
         dashboard = explorer.active
         if dashboard is None:
+            if plots is not None and dataset is not None:
+                plots.show_axes(explorer, dataset)
+                if analysis is not None:
+                    points = analysis.scatter_controls(dataset, plots)
+                    if points is not None:
+                        self.show_scatter(None, selection, table, points, plots)
             return
         profiles = dashboard.profiles
         imgui.text(f"{profiles.row_count:,} rows · {profiles.total_columns} columns")
@@ -204,19 +210,20 @@ class ExplorationView:
 
     def show_scatter(
         self,
-        dashboard: Dashboard,
+        dashboard: Dashboard | None,
         selection: LinkedSelection,
         table: TableView,
         override: Scatter | None = None,
         plots: PlotControls | None = None,
     ) -> None:
-        if override is None and not dashboard.scatters:
+        if override is None and (dashboard is None or not dashboard.scatters):
             imgui.text_wrapped(
                 "No suitable automatic scatter: requires two numeric columns "
                 "with finite, nonconstant pairs."
             )
             return
         if override is None:
+            assert dashboard is not None
             names = [f"{p.x_name} / {p.y_name}" for p in dashboard.scatters]
             self.scatter_index = min(self.scatter_index, len(names) - 1)
             changed, self.scatter_index = imgui.combo(
@@ -253,7 +260,7 @@ class ExplorationView:
                 imgui.new_line()
         imgui.text_wrapped(selection.message)
         if imgui.button("Clear selection"):
-            selection.choose(dashboard.revision, ())
+            selection.choose(points.revision, ())
         imgui.same_line()
         if imgui.button("Fit scatter"):
             self.fit = True

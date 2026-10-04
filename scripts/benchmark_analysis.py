@@ -31,6 +31,7 @@ def main() -> None:
     parser.add_argument("--rows", type=int, default=1_000_000)
     parser.add_argument("--columns", type=int, default=6)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--cancel", action="store_true")
     args = parser.parse_args()
     dataset = Dataset.from_source(
         make_table(args.rows, args.columns), SourceReference(Path("synthetic"), 0, 0)
@@ -46,6 +47,11 @@ def main() -> None:
         parameters,
         row_limit=DEFAULT_LIMITS[parameters.algorithm],
     )
+    if args.cancel:
+        report = measure_cancellation(dataset, request)
+        args.output.write_text(json.dumps(report, indent=2) + "\n")
+        print(json.dumps(report))
+        return
     cache = TemporaryDirectory(prefix="datelier-analysis-numba-")
     os.environ["NUMBA_CACHE_DIR"] = cache.name
     jobs = AnalysisJobs()
@@ -90,6 +96,40 @@ def main() -> None:
     finally:
         jobs.close()
         cache.cleanup()
+
+
+def measure_cancellation(
+    dataset: Dataset, request: AnalysisRequest
+) -> dict[str, object]:
+    jobs = AnalysisJobs()
+    try:
+        started = perf_counter()
+        jobs.request(dataset, request)
+        while "fitting" not in jobs.phase and perf_counter() - started < 30:
+            sleep(0.01)
+        assert "fitting" in jobs.phase
+        # Allow the worker to enter imports/fitting, without relying on an
+        # estimator-specific progress callback that these libraries don't offer.
+        sleep(0.25)
+        phase = jobs.phase
+        cancel_started = perf_counter()
+        jobs.cancel()
+        while jobs.busy and perf_counter() - cancel_started < 10:
+            jobs.poll(dataset.revision)
+            sleep(0.01)
+        assert not jobs.busy and not jobs.results and "stopped" in jobs.message
+        return {
+            "algorithm": str(request.algorithm),
+            "rows": dataset.table.height,
+            "sample_limit": request.row_limit,
+            "phase_at_cancel": phase,
+            "start_to_cancel_seconds": cancel_started - started,
+            "cancel_to_confirmed_exit_seconds": perf_counter() - cancel_started,
+            "published_results": len(jobs.results),
+            "message": jobs.message,
+        }
+    finally:
+        jobs.close()
 
 
 if __name__ == "__main__":

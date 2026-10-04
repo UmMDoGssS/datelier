@@ -18,6 +18,7 @@ import polars as pl
 from imgui_bundle import hello_imgui
 from numpy.typing import NDArray
 
+from datelier.distributions import DistributionSettings, prepare_comparison
 from datelier.exploration import PlotSettings, prepare_dashboard
 from datelier.feasibility.fixtures import make_table
 from datelier.gui import GuiSession, InspectionEvidence, run_gui
@@ -53,6 +54,15 @@ def measure(rows: int, columns: int) -> dict[str, object]:
         started = perf_counter()
         dashboard = prepare_dashboard(imported.dataset)
         default_ms = (perf_counter() - started) * 1000
+        compare_names = tuple(f"feature_{i}" for i in range(min(columns, 8)))
+        start_comparison = perf_counter()
+        comparison = prepare_comparison(
+            imported.dataset,
+            DistributionSettings(compare_names, standardize=True),
+            bins=100,
+        )
+        comparison_ms = (perf_counter() - start_comparison) * 1000
+        assert all(len(c.ecdf_x) <= 2_000 for c in comparison.series)
         pipeline = (
             Pipeline.start(imported.dataset)
             .apply(Sort(("row_id",), descending=True))
@@ -97,6 +107,7 @@ def measure(rows: int, columns: int) -> dict[str, object]:
             interactions.append((perf_counter() - start) * 1000)
         p95 = float(np.percentile(interactions, 95))
         peak = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
+        assert comparison_ms <= EXPANDED_PREPARE_MS
         after = source.stat()
         assert (original.st_size, original.st_mtime_ns) == (
             after.st_size,
@@ -117,6 +128,7 @@ def measure(rows: int, columns: int) -> dict[str, object]:
             "page_ms": page_ms,
             "profiles_ms": profile_ms,
             "default_prepare_ms": default_ms,
+            "comparison_prepare_ms": comparison_ms,
             "expanded_prepare_ms": expanded_ms,
             "interaction_p95_ms": p95,
             "interaction_repetitions": 50,
@@ -127,7 +139,13 @@ def measure(rows: int, columns: int) -> dict[str, object]:
         }
 
 
-def gui_measure(rows: int, columns: int, output: Path) -> None:
+def gui_measure(
+    rows: int,
+    columns: int,
+    output: Path,
+    three_d: bool = False,
+    view: str = "scatter",
+) -> None:
     stage, ready_frame = 0, 0
     prepare_started, default_ms, expanded_ms = 0.0, 0.0, 0.0
     with TemporaryDirectory(prefix="datelier-explore-gui-") as directory:
@@ -151,8 +169,17 @@ def gui_measure(rows: int, columns: int, output: Path) -> None:
                 session.plots.profile_columns = 128
                 session.plots.correlation_columns = 16
                 session.plots.point_limit = 10_000
+                session.plots.three_d = three_d
+                session.plots.z_index = 1
                 session.plots.custom_scatter = True
                 session.plots.x_index, session.plots.y_index = 0, columns
+                if view == "grid":
+                    session.plots.relationship_features = list(
+                        session.plots.numeric[:8]
+                    )
+                elif view == "comparison":
+                    session.plots.compare_columns = list(session.plots.numeric[:8])
+                    session.plots.standardize = True
                 session.explorer.request(active.dataset, session.plots.settings())
                 prepare_started = perf_counter()
                 stage = 2
@@ -181,10 +208,31 @@ def gui_measure(rows: int, columns: int, output: Path) -> None:
                 )
                 if columns > 16:
                     session.table.column_start = 48
-                session.exploration.tab = "Scatter"
+                session.exploration.tab = {
+                    "scatter": "Scatter",
+                    "grid": "Correlations",
+                    "comparison": "Profiles",
+                }[view]
+                session.exploration.relationships.mode = 1
+                session.exploration.comparison_mode = 1
                 stage, ready_frame = 5, evidence.frames
             elif stage == 5 and evidence.frames > ready_frame + 90:
-                assert session.exploration.interaction.selected_points == 10_000
+                selected_points = (
+                    session.exploration.scatter3d.selected_points
+                    if three_d
+                    else session.exploration.interaction.selected_points
+                )
+                if view == "scatter":
+                    assert selected_points == 10_000
+                elif view == "grid":
+                    interactions = session.exploration.relationships.interactions
+                    assert any(
+                        interaction.selected_points > 0
+                        for interaction in interactions.values()
+                    )
+                else:
+                    assert dashboard.comparison is not None
+                    assert len(dashboard.comparison.series) == min(8, columns + 1)
                 assert session.table.selected_visible_rows > 0
                 assert (
                     session.table.prepared_visible_rows
@@ -205,6 +253,14 @@ def gui_measure(rows: int, columns: int, output: Path) -> None:
             after.st_mtime_ns,
         )
         pixels = cast(NDArray[np.uint8], hello_imgui.final_app_window_screenshot())
+        if three_d:
+            orange = (
+                (pixels[:, :, 0] > 220)
+                & (pixels[:, :, 1] > 140)
+                & (pixels[:, :, 1] < 210)
+                & (pixels[:, :, 2] < 100)
+            )
+            assert int(orange.sum()) > 100, "Selected 3D markers must visibly render"
         height, width = pixels.shape[:2]
         output.write_bytes(
             f"P6\n{width} {height}\n255\n".encode() + pixels[:, :, :3].tobytes()
@@ -219,6 +275,9 @@ def gui_measure(rows: int, columns: int, output: Path) -> None:
             "expanded_prepare_ms": expanded_ms,
             "peak_rss_mib": peak,
             "selected_points": 10_000,
+            "three_d": three_d,
+            "markers_visible": True if three_d else None,
+            "view": view,
             "row_identity": True,
             "source_preserved": True,
             "max_rendered_rows": evidence.max_rendered_rows,
@@ -234,12 +293,16 @@ def main() -> None:
     parser.add_argument(
         "--output", type=Path, default=Path("/tmp/datelier-exploration-benchmark.json")
     )
+    parser.add_argument("--three-d", action="store_true")
+    parser.add_argument(
+        "--view", choices=["scatter", "grid", "comparison"], default="scatter"
+    )
     args = parser.parse_args()
     if args.worker:
         print(json.dumps(measure(*args.worker)))
         return
     if args.gui:
-        gui_measure(args.gui[0], args.gui[1], args.output)
+        gui_measure(args.gui[0], args.gui[1], args.output, args.three_d, args.view)
         return
     measurements = []
     for rows, columns in CASES:
