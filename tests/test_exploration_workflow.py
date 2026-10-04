@@ -3,6 +3,16 @@ from pathlib import Path
 import polars as pl
 import pytest
 
+from datelier.analysis import run_analysis
+from datelier.analysis_input import prepare_input
+from datelier.analysis_plots import prepare_embedding_plot
+from datelier.analysis_types import (
+    AnalysisRequest,
+    ClusteringResult,
+    EmbeddingResult,
+    KMeansParameters,
+)
+from datelier.clustering import predict_clusters
 from datelier.exploration import PlotSettings, prepare_dashboard
 from datelier.importing import load_file
 from datelier.operations import Comparison, Filter, Sort
@@ -57,4 +67,18 @@ def test_format_to_profile_transform_sample_selection(
     selection.bind(restored.revision)
     assert not selection.row_ids
     assert prepare_dashboard(restored).scatters[0].row_ids.tolist() == [0, 1, 2]
+    embedding = run_analysis(
+        prepare_input(pipeline.current, AnalysisRequest(("x", "y")))
+    )
+    assert isinstance(embedding, EmbeddingResult)
+    plotted = prepare_embedding_plot(pipeline.current, embedding, 2, None)
+    assert plotted.row_ids.tolist() == [0, 2]
+    cluster = run_analysis(
+        prepare_input(
+            pipeline.current, AnalysisRequest(("x", "y"), KMeansParameters(clusters=2))
+        )
+    )
+    assert isinstance(cluster, ClusteringResult)
+    labels = predict_clusters(pipeline.current, plotted.positions, cluster)
+    assert len(set(labels)) == 2
     assert path.read_bytes() == original

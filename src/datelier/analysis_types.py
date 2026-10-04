@@ -142,6 +142,8 @@ class AnalysisRequest:
             raise ValueError(
                 "Cluster count, initializations and iterations must be positive"
             )
+        if isinstance(params, KMeansParameters) and params.clusters > 256:
+            raise ValueError("Cluster count is capped at 256 for bounded coloring")
 
 
 @dataclass(frozen=True)

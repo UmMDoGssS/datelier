@@ -1,0 +1,85 @@
+"""K-means predictions for bounded displayed rows, outside GUI callbacks."""
+
+import numpy as np
+import polars as pl
+from numpy.typing import NDArray
+
+from datelier.analysis_types import ClusteringResult
+from datelier.coloring import NEUTRAL, PALETTE, PointColors
+from datelier.dataset import Dataset
+
+
+def predict_clusters(
+    dataset: Dataset, positions: NDArray[np.uint64], result: ClusteringResult
+) -> NDArray[np.int64]:
+    if dataset.revision != result.revision or len(positions) > 10_000:
+        raise ValueError(
+            "Cluster colors require current revision and at most 10,000 displayed rows"
+        )
+    # Resolve literal names as Series, never as regex expressions.
+    raw = pl.DataFrame(
+        {
+            f"f{i}": dataset.table.get_column(name).gather(positions).cast(pl.Float64)
+            for i, name in enumerate(result.model.features)
+        }
+    ).to_numpy()
+    values, eligible = result.model.transform(raw)
+    if not result.model.settings.impute:
+        original_valid = np.ones(len(positions), dtype=bool)
+        for name in result.provenance.input.removed_constants:
+            original_valid &= (
+                dataset.table.get_column(name)
+                .gather(positions)
+                .cast(pl.Float64)
+                .is_finite()
+                .fill_null(False)
+                .to_numpy()
+            )
+        keep = original_valid[eligible]
+        values = values[keep]
+        eligible &= original_valid
+    labels = np.full(len(positions), -1, dtype=np.int64)
+    # Bounded n×k distances rather than n×k×features temporary copies.
+    with np.errstate(over="ignore", invalid="ignore"):
+        distances = (
+            (values * values).sum(axis=1)[:, None]
+            + (result.centers * result.centers).sum(axis=1)[None, :]
+            - 2 * values @ result.centers.T
+        )
+    if not np.isfinite(distances).all():
+        raise ValueError("Cluster distance overflow; fit with standardization")
+    labels[eligible] = np.argmin(distances, axis=1)
+    labels.flags.writeable = False
+    return labels
+
+
+def prepare_cluster_colors(
+    dataset: Dataset, positions: NDArray[np.uint64], result: ClusteringResult
+) -> PointColors:
+    labels = predict_clusters(dataset, positions, result)
+    leading = sorted(range(len(result.counts)), key=lambda i: (-result.counts[i], i))[
+        :12
+    ]
+    palette = {label: PALETTE[i] for i, label in enumerate(leading)}
+    rgba = np.array(
+        [
+            NEUTRAL if label < 0 else palette.get(int(label), 0xFFBBBBBB)
+            for label in labels
+        ],
+        dtype=np.uint32,
+    )
+    rgba.flags.writeable = False
+    fitted_ids = set(int(i) for i in result.row_ids)
+    displayed_fit = sum(int(i) in fitted_ids for i in dataset.row_ids.gather(positions))
+    legend = tuple(
+        (f"Cluster {i} (fit {result.counts[i]:,})", palette[i]) for i in leading
+    )
+    return PointColors(
+        str(result.provenance.request.algorithm),
+        rgba,
+        (*legend, ("Other clusters", 0xFFBBBBBB), ("Excluded", NEUTRAL)),
+        f"Fit on {len(result.row_ids):,} sampled rows; "
+        "displayed labels are nearest-center "
+        f"predictions ({displayed_fit:,} fitting rows shown). "
+        "Original analysis feature space.",
+    )

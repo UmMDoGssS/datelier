@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 
 from imgui_bundle import imgui
 
+from datelier.analysis_types import ClusteringResult
 from datelier.dataset import Dataset
 from datelier.distributions import DistributionSettings
 from datelier.exploration import Explorer, PlotSettings
@@ -33,8 +34,12 @@ class PlotControls:
     color_index: int = 0
     color_columns: tuple[str, ...] = ()
     relationship_features: list[str] | None = None
+    cluster_color: bool = False
+    cluster_result: ClusteringResult | None = None
 
     def bind(self, dataset: Dataset) -> None:
+        self.cluster_result = None
+        self.cluster_color = False
         previous_x = self.numeric[self.x_index] if self.numeric else ""
         previous_y = self.numeric[self.y_index] if self.numeric else ""
         previous_profile = (
@@ -105,6 +110,7 @@ class PlotControls:
             ),
             self.color_columns[self.color_index - 1] if self.color_index else None,
             tuple(self.relationship_features or ()),
+            self.cluster_result if self.cluster_color else None,
         )
 
     def show(self, explorer: Explorer, dataset: Dataset | None) -> None:
@@ -193,6 +199,9 @@ class PlotControls:
         _, self.color_index = imgui.combo(
             "Color column", self.color_index, ["Uniform", *self.color_columns]
         )
+        if self.cluster_result is not None:
+            imgui.same_line()
+            _, self.cluster_color = imgui.checkbox("K-means colors", self.cluster_color)
         imgui.same_line()
         if imgui.button("Update raw scatter"):
             self.custom_scatter = True

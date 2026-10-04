@@ -1,0 +1,50 @@
+{
+  "algorithm": "PCA",
+  "rows": 10000,
+  "features": 6,
+  "sample": {
+    "total_rows": 10000,
+    "eligible_rows": 9411,
+    "excluded_rows": 589,
+    "sampled_rows": 9411,
+    "imputed_cells": 0,
+    "removed_constants": [],
+    "used_features": [
+      "feature_0",
+      "feature_1",
+      "feature_2",
+      "feature_3",
+      "feature_4",
+      "feature_5"
+    ]
+  },
+  "versions": [
+    [
+      "numpy",
+      "2.5.3"
+    ],
+    [
+      "polars",
+      "1.44.2"
+    ],
+    [
+      "scikit-learn",
+      "1.9.1"
+    ]
+  ],
+  "cold_then_warmed_spawn": [
+    {
+      "wall_seconds": 0.678396781993797,
+      "fit_seconds": 0.4114904239977477
+    },
+    {
+      "wall_seconds": 0.6862785029952647,
+      "fit_seconds": 0.42266768099943874
+    }
+  ],
+  "parent_peak_mib": 88.21484375,
+  "worker_peak_mib": 157.8125,
+  "combined_peak_upper_bound_mib": 246.02734375,
+  "memory_budget_mib": 2048,
+  "memory_passed": true
+}

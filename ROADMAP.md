@@ -176,11 +176,11 @@ milestones remain unchecked.
 
 ### M5.1 — Shared analysis flow, PCA, and k-means
 
-- [ ] **Deliverables:** explicit feature/preprocessing controls, analysis job/result state, PCA and k-means, parameters/seeds and input provenance.
-- [ ] **Entry gate:** background jobs, revision invalidation, and linked selections pass; algorithm dependencies passed M0.2.
-- [ ] **Exit gate:** only an explicit command starts analysis; unsuitable inputs have diagnostics; results record preprocessing/settings and align with included source rows.
-- [ ] **Verification evidence:** known PCA structure and separable-cluster fixtures, repeatability checks where supported, preprocessing/excluded-row alignment tests, and command-to-result GUI checks.
-- [ ] **Suggested step commits:** `feat: configure analysis inputs` → `feat: run pca analysis` → `feat: run k-means clustering` → `feat: inspect analysis provenance`.
+- [x] **Deliverables:** explicit feature/preprocessing controls, analysis job/result state, PCA and k-means, parameters/seeds and input provenance.
+- [x] **Entry gate:** background jobs, revision invalidation, and linked selections pass; algorithm dependencies passed M0.2.
+- [x] **Exit gate:** only an explicit command starts analysis; unsuitable inputs have diagnostics; results record preprocessing/settings and align with included source rows.
+- [x] **Verification evidence:** [M5.1 evidence](docs/phase-5.md): 264 full-suite tests, zero Pyrefly errors, Ruff, all-format analysis workflows, live raw/reduced cluster-color checks, and eight bounded fresh-parent/worker resource runs pass.
+- [x] **Suggested step commits:** `feat: configure analysis inputs` → `feat: run pca analysis` → `feat: run k-means clustering` → `feat: inspect analysis provenance`.
 
 ### M5.2 — t-SNE, UMAP, and bounded jobs
 

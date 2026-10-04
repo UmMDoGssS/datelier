@@ -82,3 +82,16 @@ alignment pass. Pyrefly zero errors; Ruff lint/format and diff checks passed.
 The live PCA workbench smoke passed 109 frames before the final label adjustment;
 its final rerun passed and the embedding/linked-table screenshot was inspected.
 M5.1 remains open until k-means and resource/workflow acceptance pass.
+
+## Step 5b — K-means and M5.1 acceptance
+
+K-means results retain labels/IDs, fitted preprocessing, centers, counts and
+inertia. Bounded display predictions color raw and reduced scatters independently
+of their axes. Legends distinguish fitting cohorts, predictions, Other and
+excluded rows. The GUI exposes settings/centers and preserves raw-axis choices.
+Suggested-pair navigation now synchronizes those independent selectors.
+
+Full suite: 264 passed; Pyrefly/Ruff/diff checks pass; 211-frame live workflow
+plus final layout rerun pass. Eight resource runs pass the 2 GiB combined budget,
+including million-row and 64-feature inputs with a 10,000-row fit cap.
+[M5.1 evidence](phase-5.md) records measurements and limitations. M5.1 passes.

@@ -46,10 +46,23 @@ def main() -> None:
             elif stage == 2 and age > 20:
                 assert session.exploration.interaction.selected_points == 1
                 assert source.read_bytes() == original
+                analysis.controls.kmeans_limit = 30
+                analysis.controls.start(analysis.jobs, active.dataset, Algorithm.KMEANS)
+                stage, entered = 3, evidence.frames
+            elif stage == 3 and age > 20 and analysis.plots.active is not None:
+                colors = analysis.plots.active.colors
+                if colors is not None and colors.name == "K-means":
+                    assert "30 sampled" in colors.note
+                    analysis.source = None
+                    stage, entered = 4, evidence.frames
+            elif stage == 4 and age > 20:
+                assert dashboard.scatters[0].colors is not None
+                assert dashboard.scatters[0].colors.name == "K-means"
+                assert session.exploration.interaction.selected_points == 1
                 hello_imgui.get_runner_params().app_shall_exit = True
 
         evidence = run_gui(source, smoke_frames=10000, on_frame=frame)
-        assert stage == 2
+        assert stage == 4
         pixels = cast(NDArray[np.uint8], hello_imgui.final_app_window_screenshot())
         h, w = pixels.shape[:2]
         Path("/tmp/datelier-analysis-workbench.ppm").write_bytes(
@@ -60,6 +73,7 @@ def main() -> None:
                 {
                     "frames": evidence.frames,
                     "explicit_PCA": True,
+                    "kmeans_raw_and_embedding_colors": True,
                     "linked_embedding": True,
                     "source_preserved": True,
                 }

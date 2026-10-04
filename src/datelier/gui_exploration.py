@@ -30,6 +30,7 @@ class ExplorationView:
     tab: str = "Profiles"
     interaction: ScatterInteraction = field(default_factory=ScatterInteraction)
     fit: bool = False
+    _dashboard: Dashboard | None = None
     _scatter_key: tuple[DatasetRevision, str, str] | None = None
     _profile_key: tuple[DatasetRevision, str, int, int] | None = None
 
@@ -173,6 +174,13 @@ class ExplorationView:
         dataset: Dataset | None,
         analysis: AnalysisSession | None,
     ) -> None:
+        if dashboard is not self._dashboard:
+            self._dashboard = dashboard
+            self.scatter_index = 0
+            if plots is not None and dashboard.scatters:
+                first = dashboard.scatters[0]
+                plots.x_index = plots.numeric.index(first.x_name)
+                plots.y_index = plots.numeric.index(first.y_name)
         if plots is not None and dataset is not None:
             plots.show_axes(explorer, dataset)
         points = None
@@ -180,7 +188,7 @@ class ExplorationView:
             points = analysis.scatter_controls(dataset, plots)
             if analysis.source is not None and points is None:
                 return
-        self.show_scatter(dashboard, selection, table, points)
+        self.show_scatter(dashboard, selection, table, points, plots)
 
     def show_scatter(
         self,
@@ -188,6 +196,7 @@ class ExplorationView:
         selection: LinkedSelection,
         table: TableView,
         override: Scatter | None = None,
+        plots: PlotControls | None = None,
     ) -> None:
         if override is None and not dashboard.scatters:
             imgui.text_wrapped(
@@ -198,10 +207,14 @@ class ExplorationView:
         if override is None:
             names = [f"{p.x_name} / {p.y_name}" for p in dashboard.scatters]
             self.scatter_index = min(self.scatter_index, len(names) - 1)
-            _, self.scatter_index = imgui.combo(
+            changed, self.scatter_index = imgui.combo(
                 "Suggested scatter", self.scatter_index, names
             )
             points = dashboard.scatters[self.scatter_index]
+            if changed and plots is not None:
+                plots.x_index = plots.numeric.index(points.x_name)
+                plots.y_index = plots.numeric.index(points.y_name)
+                plots.custom_scatter = True
         else:
             points = override
         imgui.text_wrapped(

@@ -1,8 +1,9 @@
 """Automatic dashboard preparation and revision-aware background publication."""
 
 from concurrent.futures import Future, ThreadPoolExecutor
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
+from datelier.analysis_types import ClusteringResult
 from datelier.dataset import Dataset, DatasetRevision
 from datelier.distributions import Comparison, DistributionSettings, prepare_comparison
 from datelier.plotting import (
@@ -30,6 +31,7 @@ class PlotSettings:
     comparison: DistributionSettings = DistributionSettings()
     color_column: str | None = None
     relationship_features: tuple[str, ...] = ()
+    clusters: ClusteringResult | None = field(default=None, compare=False, repr=False)
 
     def validate(self) -> None:
         self.comparison.validate()
@@ -86,7 +88,11 @@ def prepare_dashboard(
         ][:3]
     scatters = tuple(
         prepare_scatter(
-            dataset, *pair, limit=settings.point_limit, color=settings.color_column
+            dataset,
+            *pair,
+            limit=settings.point_limit,
+            color=settings.color_column,
+            clusters=settings.clusters,
         )
         for pair in pairs
     )

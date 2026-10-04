@@ -48,7 +48,9 @@ and explicit CSV/Parquet export gates; [docs/phase-3.md](docs/phase-3.md) record
 correctness, GUI, and resource evidence. Phase 4 has passed automatic
 profiles/plots and configurable linked-selection gates;
 [docs/phase-4.md](docs/phase-4.md) records correctness, GUI, and resource
-evidence. On-demand unsupervised analysis begins in Phase 5 of
+evidence. Phase 5 M5.1 has passed shared analysis, PCA and k-means gates;
+[docs/phase-5.md](docs/phase-5.md) records correctness, GUI and resource evidence.
+t-SNE/UMAP and 3D/final inspection-extension gates remain open in
 [ROADMAP.md](ROADMAP.md).
 
 Use this file for durable conventions and `ROADMAP.md` for sequencing,

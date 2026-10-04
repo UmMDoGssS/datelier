@@ -2,14 +2,19 @@
 
 from concurrent.futures import Future, ThreadPoolExecutor
 
-from datelier.analysis_types import EmbeddingResult
+from datelier.analysis_types import ClusteringResult, EmbeddingResult
+from datelier.clustering import prepare_cluster_colors
 from datelier.coloring import prepare_colors
 from datelier.dataset import Dataset, DatasetRevision
 from datelier.plotting import Scatter, sample_indices
 
 
 def prepare_embedding_plot(
-    dataset: Dataset, result: EmbeddingResult, limit: int, color: str | None
+    dataset: Dataset,
+    result: EmbeddingResult,
+    limit: int,
+    color: str | None,
+    clusters: ClusteringResult | None = None,
 ) -> Scatter:
     if dataset.revision != result.revision:
         raise ValueError("Embedding belongs to an obsolete dataset revision")
@@ -33,7 +38,11 @@ def prepare_embedding_plot(
         positions,
         len(result.row_ids),
         dataset.table.height,
-        prepare_colors(dataset, positions, color) if color else None,
+        prepare_cluster_colors(dataset, positions, clusters)
+        if clusters is not None
+        else prepare_colors(dataset, positions, color)
+        if color
+        else None,
     )
 
 
@@ -45,12 +54,17 @@ class AnalysisPlots:
             max_workers=1, thread_name_prefix="embedding"
         )
         self._future: Future[Scatter] | None = None
-        self._key: tuple[DatasetRevision, int, int, str | None] | None = None
+        self._key: tuple[DatasetRevision, int, int, str | None, int] | None = None
 
     def ensure(
-        self, dataset: Dataset, result: EmbeddingResult, limit: int, color: str | None
+        self,
+        dataset: Dataset,
+        result: EmbeddingResult,
+        limit: int,
+        color: str | None,
+        clusters: ClusteringResult | None = None,
     ) -> None:
-        key = (dataset.revision, id(result), limit, color)
+        key = (dataset.revision, id(result), limit, color, id(clusters))
         if key == self._key:
             return
         if self._future is not None:
@@ -58,7 +72,7 @@ class AnalysisPlots:
         self._key = key
         self.active = None
         self._future = self._executor.submit(
-            prepare_embedding_plot, dataset, result, limit, color
+            prepare_embedding_plot, dataset, result, limit, color, clusters
         )
         self.message = "Preparing embedding plot…"
 

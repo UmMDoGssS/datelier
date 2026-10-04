@@ -9,7 +9,9 @@ from datelier.analysis_plots import AnalysisPlots
 from datelier.analysis_types import (
     Algorithm,
     AnalysisRequest,
+    ClusteringResult,
     EmbeddingResult,
+    KMeansParameters,
     PCAParameters,
     Preprocessing,
 )
@@ -30,20 +32,35 @@ class AnalysisControls:
     pca_solver: int = 0
     pca_whiten: bool = False
     error: str = ""
+    kmeans_limit: int = 10_000
+    clusters: int = 3
+    initializations: int = 10
+    kmeans_iterations: int = 300
+    center_index: int = 0
 
     def bind(self, dataset: Dataset) -> None:
         self.numeric = numeric_columns(dataset)
         self.features = [n for n in self.features if n in self.numeric]
 
     def request(self, algorithm: Algorithm) -> AnalysisRequest:
-        if algorithm != Algorithm.PCA:
+        if algorithm == Algorithm.PCA:
+            params = PCAParameters(
+                ["randomized", "full"][self.pca_solver], self.pca_whiten
+            )
+            limit = self.pca_limit
+        elif algorithm == Algorithm.KMEANS:
+            params = KMeansParameters(
+                self.clusters, self.initializations, self.kmeans_iterations
+            )
+            limit = self.kmeans_limit
+        else:
             raise ValueError("This algorithm is not implemented yet")
         return AnalysisRequest(
             tuple(self.features),
-            PCAParameters(["randomized", "full"][self.pca_solver], self.pca_whiten),
+            params,
             Preprocessing(self.standardize, self.impute),
             self.seed,
-            self.pca_limit,
+            limit,
             self.dimensions,
         )
 
@@ -95,6 +112,20 @@ class AnalysisControls:
         _, self.pca_whiten = imgui.checkbox("PCA whitening", self.pca_whiten)
         if imgui.button("Run PCA"):
             self.start(jobs, dataset, Algorithm.PCA)
+        if imgui.tree_node("K-means settings"):
+            _, self.kmeans_limit = imgui.input_int(
+                "K-means rows (max 100k)", self.kmeans_limit
+            )
+            _, self.clusters = imgui.input_int("Clusters (max 256)", self.clusters)
+            _, self.initializations = imgui.input_int(
+                "Initializations", self.initializations
+            )
+            _, self.kmeans_iterations = imgui.input_int(
+                "Iterations", self.kmeans_iterations
+            )
+            imgui.tree_pop()
+        if imgui.button("Fit k-means"):
+            self.start(jobs, dataset, Algorithm.KMEANS)
         imgui.end_disabled()
         imgui.pop_item_width()
         if self.error:
@@ -143,6 +174,21 @@ class AnalysisControls:
                 if isinstance(result, EmbeddingResult):
                     for name, value in result.details:
                         imgui.text_wrapped(f"{name}: {value}")
+                if isinstance(result, ClusteringResult):
+                    imgui.text(f"Inertia: {result.inertia:.6g}")
+                    self.center_index = min(self.center_index, len(result.counts) - 1)
+                    _, self.center_index = imgui.combo(
+                        "Center",
+                        self.center_index,
+                        [f"Cluster {i}" for i in range(len(result.counts))],
+                    )
+                    imgui.text(
+                        f"Fitting rows in cluster: {result.counts[self.center_index]:,}"
+                    )
+                    imgui.text_wrapped(
+                        "Center in fitted feature space: "
+                        + str(result.centers[self.center_index].tolist())
+                    )
                 if (
                     self.features != list(provenance.request.features)
                     or self.request(algorithm) != provenance.request
@@ -205,7 +251,13 @@ class AnalysisSession:
         color = (
             plots.color_columns[plots.color_index - 1] if plots.color_index else None
         )
-        self.plots.ensure(dataset, result, plots.point_limit, color)
+        self.plots.ensure(
+            dataset,
+            result,
+            plots.point_limit,
+            color,
+            plots.cluster_result if plots.cluster_color else None,
+        )
         imgui.text_wrapped(self.plots.message)
         summary = result.provenance.input
         imgui.text_wrapped(

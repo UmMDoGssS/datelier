@@ -8,6 +8,8 @@ import numpy as np
 import polars as pl
 from numpy.typing import NDArray
 
+from datelier.analysis_types import ClusteringResult
+from datelier.clustering import prepare_cluster_colors
 from datelier.coloring import PointColors, prepare_colors
 from datelier.dataset import Dataset, DatasetRevision
 from datelier.profiling import ColumnProfile
@@ -68,7 +70,13 @@ def numeric_columns(dataset: Dataset) -> tuple[str, ...]:
 
 
 def prepare_scatter(
-    dataset: Dataset, x: str, y: str, *, limit: int = 2_000, color: str | None = None
+    dataset: Dataset,
+    x: str,
+    y: str,
+    *,
+    limit: int = 2_000,
+    color: str | None = None,
+    clusters: ClusteringResult | None = None,
 ) -> Scatter:
     if not 1 <= limit <= 10_000 or x == y:
         raise ValueError(
@@ -109,7 +117,11 @@ def prepare_scatter(
         positions,
         eligible.height,
         table.height,
-        prepare_colors(dataset, positions, color) if color else None,
+        prepare_cluster_colors(dataset, positions, clusters)
+        if clusters is not None
+        else prepare_colors(dataset, positions, color)
+        if color
+        else None,
     )
 
 

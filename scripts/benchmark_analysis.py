@@ -1,0 +1,79 @@
+"""Fresh parent + spawned worker resource evidence for bounded analysis."""
+
+import argparse
+import json
+import resource
+from dataclasses import asdict
+from pathlib import Path
+from time import perf_counter, sleep
+
+from datelier.analysis_jobs import AnalysisJobs
+from datelier.analysis_types import (
+    AnalysisRequest,
+    ClusteringResult,
+    KMeansParameters,
+    PCAParameters,
+)
+from datelier.dataset import Dataset, SourceReference
+from datelier.feasibility.fixtures import make_table
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--algorithm", choices=["pca", "kmeans"], required=True)
+    parser.add_argument("--rows", type=int, default=1_000_000)
+    parser.add_argument("--columns", type=int, default=6)
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+    dataset = Dataset.from_source(
+        make_table(args.rows, args.columns), SourceReference(Path("synthetic"), 0, 0)
+    )
+    parameters = PCAParameters() if args.algorithm == "pca" else KMeansParameters()
+    request = AnalysisRequest(
+        tuple(f"feature_{i}" for i in range(args.columns)), parameters
+    )
+    jobs = AnalysisJobs()
+    timings: list[dict[str, float]] = []
+    try:
+        for _ in range(2):
+            started = perf_counter()
+            jobs.request(dataset, request)
+            while jobs.busy and perf_counter() - started < 300:
+                jobs.poll(dataset.revision)
+                sleep(0.01)
+            if jobs.busy or jobs.latest is None or "failed" in jobs.message:
+                raise RuntimeError(jobs.message)
+            timings.append(
+                {
+                    "wall_seconds": perf_counter() - started,
+                    "fit_seconds": jobs.latest.provenance.runtime_seconds,
+                }
+            )
+        result = jobs.latest
+        assert result is not None
+        if isinstance(result, ClusteringResult):
+            assert sum(result.counts) == result.provenance.input.sampled_rows
+        parent = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
+        child = resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss / 1024
+        report = {
+            "algorithm": str(request.algorithm),
+            "rows": args.rows,
+            "features": args.columns,
+            "sample": asdict(result.provenance.input),
+            "versions": result.provenance.versions,
+            "cold_then_warmed_spawn": timings,
+            "parent_peak_mib": parent,
+            "worker_peak_mib": child,
+            "combined_peak_upper_bound_mib": parent + child,
+            "memory_budget_mib": 2048,
+            "memory_passed": parent + child <= 2048,
+        }
+        args.output.write_text(json.dumps(report, indent=2) + "\n")
+        print(json.dumps(report))
+        assert report["memory_passed"]
+    finally:
+        jobs.close()
+
+
+if __name__ == "__main__":
+    main()
