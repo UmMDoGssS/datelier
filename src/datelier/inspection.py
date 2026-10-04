@@ -30,6 +30,7 @@ class PreviewPage:
 @dataclass(frozen=True)
 class Inspection:
     imported: CsvImport
+    row_count: int
     schema: tuple[ColumnSummary, ...]
     first_page: PreviewPage
 
@@ -67,6 +68,7 @@ def prepare_inspection(imported: CsvImport) -> Inspection:
     nulls = table.null_count().row(0)
     return Inspection(
         imported,
+        table.height,
         tuple(
             ColumnSummary(name, str(dtype), int(count))
             for (name, dtype), count in zip(table.schema.items(), nulls, strict=True)

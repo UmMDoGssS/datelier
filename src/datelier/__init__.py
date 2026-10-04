@@ -1,8 +1,12 @@
 import argparse
+from pathlib import Path
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Datelier data inspection workbench")
+    parser.add_argument(
+        "csv", nargs="?", type=Path, help="open a CSV in the desktop workbench"
+    )
     parser.add_argument(
         "--feasibility",
         action="store_true",
@@ -12,11 +16,13 @@ def main() -> None:
         "--smoke-frames",
         type=int,
         default=0,
-        help="exit the probe after this many frames",
+        help="exit the GUI after this many frames (smoke verification)",
     )
     args = parser.parse_args()
-    if args.smoke_frames < 0 or (args.smoke_frames and not args.feasibility):
-        parser.error("--smoke-frames requires --feasibility and a nonnegative count")
+    if args.smoke_frames < 0:
+        parser.error("--smoke-frames requires a nonnegative count")
+    if args.csv and args.feasibility:
+        parser.error("Choose a CSV or --feasibility")
     if args.feasibility:
         from datelier.feasibility.fixtures import make_table
         from datelier.feasibility.gui import run_gui
@@ -24,4 +30,8 @@ def main() -> None:
         evidence = run_gui(make_table(256), smoke_frames=args.smoke_frames)
         print(f"Rendered {evidence.frames} frames; {evidence.plot_frames} plot frames.")
     else:
-        parser.print_help()
+        from datelier.gui import run_gui
+
+        evidence = run_gui(args.csv, smoke_frames=args.smoke_frames)
+        if args.smoke_frames:
+            print(f"Rendered {evidence.frames} frames.")
