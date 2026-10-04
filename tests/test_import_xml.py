@@ -245,7 +245,7 @@ def test_xml_declaration_scan_handles_source_chunk_boundaries(tmp_path: Path) ->
     path = xml_file(
         tmp_path, prefix + padding + literal + rest + "]]></text></row></rows>"
     )
-    assert load_file(path).dataset.table.item().startswith("<!DOCTYPE text>")
+    assert load_file(path).dataset.table.item() == "<!DOCTYPE text>" + rest
     path = xml_file(
         tmp_path, " " * (chunk - 4) + "<!DOCTYPE rows><rows><row><x>1</x></row></rows>"
     )

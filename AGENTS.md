@@ -37,11 +37,13 @@ Phase 0 has passed its clean-install, docking/plot, tiny-analysis, and synthetic
 benchmark gates; evidence and acceptance budgets are in
 [docs/phase-0.md](docs/phase-0.md). Phase 1 has passed CSV import/state and
 responsive preview/job gates;
-[docs/phase-1.md](docs/phase-1.md) records evidence. The CLI opens the CSV
-workbench by default and retains the synthetic feasibility window. Linux GUI
-rendering is verified with Mesa software OpenGL on the reference machine;
-accelerated rendering remains unverified. Additional format
-coverage begins in Phase 2 of [ROADMAP.md](ROADMAP.md).
+[docs/phase-1.md](docs/phase-1.md) records evidence. Phase 2 has passed format
+coverage and tabular XML/nested-input gates;
+[docs/phase-2.md](docs/phase-2.md) records correctness, GUI, and memory evidence.
+The CLI opens the tabular workbench by default and retains the synthetic
+feasibility window. Linux GUI rendering is verified with Mesa software OpenGL
+on the reference machine; accelerated rendering remains unverified.
+Reversible transformations begin in Phase 3 of [ROADMAP.md](ROADMAP.md).
 
 Use this file for durable conventions and `ROADMAP.md` for sequencing,
 deliverables, and acceptance gates. Inspect actual code and configuration

@@ -21,7 +21,9 @@ a synthetic docking/plot CLI probe, tiny analysis runs, and benchmark fixtures.
 limitations, including the verified Mesa software renderer. Phase 1 now provides
 CSV import, dataset identity/revisions, and a responsive
 inspection workbench; [Phase 1 evidence](docs/phase-1.md) records its passed
-gates. Phase 2 and later milestones remain unchecked.
+gates. Phase 2 provides TSV, JSON/JSONL, Parquet, and configurable tabular XML
+with explicit nested-input diagnostics; [Phase 2 evidence](docs/phase-2.md)
+records its passed gates. Phase 3 and later milestones remain unchecked.
 
 ## Gate and evidence rules
 
@@ -100,7 +102,7 @@ gates. Phase 2 and later milestones remain unchecked.
 
 ## Phase 2 — Format coverage
 
-- [ ] **Phase complete.** **In progress:** M2.1 passes; XML extraction and M2.2 gates remain open. **Entry:** Phase 1 passes. **Exit:** M2.1 and M2.2 pass.
+- [x] **Phase complete.** **Entry:** Phase 1 passes. **Exit:** M2.1 and M2.2 pass. [Evidence](docs/phase-2.md) recorded 2026-10-04.
 
 ### M2.1 — TSV, JSON/JSONL, and Parquet
 
@@ -112,11 +114,11 @@ gates. Phase 2 and later milestones remain unchecked.
 
 ### M2.2 — Tabular XML and nested-input handling
 
-- [ ] **Deliverables:** XML adapter, configurable record extraction, explicit nested-data handling, parse/type diagnostics.
-- [ ] **Entry gate:** M2.1 passes and format options/errors use the shared importer interface.
-- [ ] **Exit gate:** repeated XML records become a correct table; extraction settings are visible; nested XML/JSON is explicitly mapped or clearly rejected rather than silently losing data.
-- [ ] **Verification evidence:** XML fixtures covering missing fields, attributes, namespaces, nesting, malformed input, and deterministic extraction; matching diagnostics smoke checks.
-- [ ] **Suggested step commits:** `feat: extract tabular xml records` → `feat: expose xml import options` → `fix: clarify nested input diagnostics`.
+- [x] **Deliverables:** XML adapter, configurable record extraction, explicit nested-data handling, parse/type diagnostics.
+- [x] **Entry gate:** M2.1 passes and format options/errors use the shared importer interface.
+- [x] **Exit gate:** repeated XML records become a correct table; extraction settings are visible; nested XML/JSON is explicitly mapped or clearly rejected rather than silently losing data.
+- [x] **Verification evidence:** [M2.2 and final phase evidence](docs/phase-2.md#m22-tabular-xml-and-nested-input-handling): 151 tests, XML extraction/type/nesting fixtures, all-format state/source preservation, seven diagnostic/settings GUI runs, ten large/wide live GUI gates, and 20 fresh-process format measurements pass. Pyrefly/Ruff and lock checks pass.
+- [x] **Step commits:** `81d8a0d` XML/extraction controls → `f7fbf34` input/state safety → `4ee9023` parser memory → `589f5bb` live responsiveness → `130c320` format-neutral guidance → `1eb6737` XML literals → `e54c431` literal column names → `7a811b6` temporal preview precision; final acceptance evidence follows in the Phase 2 gate commit.
 
 ## Phase 3 — Reversible transformations
 
