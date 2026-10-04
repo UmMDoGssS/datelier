@@ -104,6 +104,7 @@ def test_batches_preserve_empty_rows_late_fields_and_type_changes(
     import datelier.json_records as arrays
 
     monkeypatch.setattr(batches, "BATCH_RECORDS", 2)
+    monkeypatch.setattr(batches, "BLOCK_BATCHES", 2)
     monkeypatch.setattr(arrays, "CHUNK_CHARACTERS", 7)
     rows = [
         {},

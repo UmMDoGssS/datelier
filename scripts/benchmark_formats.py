@@ -70,6 +70,10 @@ def measure(
             source_stat.st_size,
             source_stat.st_mtime_ns,
         )
+        peak = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
+        assert peak <= 1024, f"Peak RSS exceeded fixture budget: {peak}"
+        assert (prepared - read) * 1000 <= 250, "Summary budget exceeded"
+        assert (paged - prepared) * 1000 <= 50, "Page budget exceeded"
         return {
             "format": str(format),
             "rows": rows,
@@ -79,7 +83,7 @@ def measure(
             "inspection_ms": (prepared - read) * 1000,
             "to_prepared_ms": (prepared - started) * 1000,
             "last_page_ms": (paged - prepared) * 1000,
-            "peak_rss_mib": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024,
+            "peak_rss_mib": peak,
         }
 
 
@@ -139,6 +143,11 @@ def main() -> None:
             "UInt64 row_id, Float64 features, String category; "
             "null every 17 rows in last feature"
         ),
+        "component_budgets": {
+            "peak_rss_mib": 1024,
+            "inspection_ms": 250,
+            "last_page_ms": 50,
+        },
         "repeats": 1,
         "measurements": measurements,
     }

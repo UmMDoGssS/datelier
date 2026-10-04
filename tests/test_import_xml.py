@@ -168,6 +168,7 @@ def test_xml_batches_preserve_order_late_types_and_empty_records(
     import datelier.import_records as batches
 
     monkeypatch.setattr(batches, "BATCH_RECORDS", 2)
+    monkeypatch.setattr(batches, "BLOCK_BATCHES", 2)
     path = xml_file(
         tmp_path,
         "<rows><row/><row/><row><x>1</x></row><row/>"
