@@ -69,3 +69,29 @@ def test_kmeans_fit_sample_and_displayed_prediction_alignment() -> None:
     repeat = run_analysis(prepare_input(dataset, request))
     assert isinstance(repeat, ClusteringResult)
     np.testing.assert_array_equal(result.labels, repeat.labels)
+
+
+def test_tsne_finite_dimensions_seed_and_explicit_settings() -> None:
+    from datelier.analysis_types import TSNEParameters
+
+    rng = np.random.default_rng(5)
+    dataset = Dataset.from_source(
+        pl.DataFrame(rng.normal(size=(40, 3)), schema=["x", "y", "z"]),
+        SourceReference(Path("unused"), 0, 0),
+    )
+    for dimensions in (2, 3):
+        request = AnalysisRequest(
+            ("x", "y", "z"),
+            TSNEParameters(perplexity=5, iterations=300),
+            dimensions=dimensions,
+        )
+        prepared = prepare_input(dataset, request)
+        first, second = run_analysis(prepared), run_analysis(prepared)
+        assert isinstance(first, EmbeddingResult) and isinstance(
+            second, EmbeddingResult
+        )
+        assert (
+            first.values.shape == (40, dimensions) and np.isfinite(first.values).all()
+        )
+        np.testing.assert_array_equal(first.values, second.values)
+        assert first.provenance.request == request

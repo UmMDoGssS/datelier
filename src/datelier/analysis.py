@@ -15,10 +15,18 @@ from datelier.analysis_types import (
     PCAParameters,
     PreparedInput,
     Provenance,
+    TSNEParameters,
 )
 
 
 def run_analysis(prepared: PreparedInput) -> AnalysisResult:
+    from threadpoolctl import threadpool_limits
+
+    with threadpool_limits(limits=1):
+        return _run_analysis(prepared)
+
+
+def _run_analysis(prepared: PreparedInput) -> AnalysisResult:
     started = perf_counter()
     request = prepared.request
     params = request.parameters
@@ -51,6 +59,36 @@ def run_analysis(prepared: PreparedInput) -> AnalysisResult:
             tuple(int(v) for v in np.bincount(labels, minlength=params.clusters)),
             inertia,
         )
+    if isinstance(params, TSNEParameters):
+        from sklearn.manifold import TSNE
+
+        tsne = TSNE(
+            n_components=request.dimensions,
+            perplexity=params.perplexity,
+            max_iter=params.iterations,
+            learning_rate="auto"
+            if params.learning_rate == "auto"
+            else float(params.learning_rate),
+            init="pca" if params.initialization == "pca" else "random",
+            metric="euclidean",
+            method="barnes_hut",
+            random_state=request.seed,
+            n_jobs=1,
+        )
+        coordinates = cast(
+            NDArray[np.float64], tsne.fit_transform(prepared.values)
+        ).astype(np.float64)
+        return embedding_result(
+            prepared,
+            coordinates,
+            started,
+            (
+                ("KL divergence", f"{tsne.kl_divergence_:.6g}"),
+                ("Completed iterations", str(tsne.n_iter_)),
+                ("Distance", "Euclidean"),
+                ("Method", "Barnes-Hut"),
+            ),
+        )
     if not isinstance(params, PCAParameters):
         raise NotImplementedError(f"{request.algorithm} runner is not implemented yet")
     # Estimator imports stay inside the owned worker (never GUI import/startup).
@@ -66,25 +104,34 @@ def run_analysis(prepared: PreparedInput) -> AnalysisResult:
     coordinates = cast(NDArray[np.float64], pca.fit_transform(prepared.values)).astype(
         np.float64
     )
+    return embedding_result(
+        prepared,
+        coordinates,
+        started,
+        (("Explained variance ratio", str(pca.explained_variance_ratio_.tolist())),),
+    )
+
+
+def embedding_result(
+    prepared: PreparedInput,
+    coordinates: NDArray[np.float64],
+    started: float,
+    details: tuple[tuple[str, str], ...],
+    libraries: tuple[str, ...] = ("numpy", "polars", "scikit-learn"),
+) -> EmbeddingResult:
     if (
-        coordinates.shape != (len(prepared.row_ids), request.dimensions)
+        coordinates.shape != (len(prepared.row_ids), prepared.request.dimensions)
         or not np.isfinite(coordinates).all()
     ):
         raise ValueError("Analysis produced invalid coordinates")
     coordinates.flags.writeable = False
-    provenance = make_provenance(prepared, started)
     return EmbeddingResult(
         prepared.revision,
         prepared.row_ids,
         prepared.positions,
         coordinates,
-        provenance,
-        (
-            (
-                "Explained variance ratio",
-                str(pca.explained_variance_ratio_.tolist()),
-            ),
-        ),
+        make_provenance(prepared, started, libraries),
+        details,
     )
 
 

@@ -95,3 +95,19 @@ Full suite: 264 passed; Pyrefly/Ruff/diff checks pass; 211-frame live workflow
 plus final layout rerun pass. Eight resource runs pass the 2 GiB combined budget,
 including million-row and 64-feature inputs with a 10,000-row fit cap.
 [M5.1 evidence](phase-5.md) records measurements and limitations. M5.1 passes.
+
+## Step 6a — t-SNE
+
+t-SNE now exposes perplexity, iteration count, auto/explicit learning rate,
+PCA/random initialization, dimensions, seed, preprocessing and capped samples.
+It runs only by command in the owned worker; results record KL divergence,
+completed iterations and fixed Euclidean/Barnes-Hut settings. Estimator/BLAS
+thread pools are explicitly limited to one using the newly direct locked
+threadpoolctl dependency. Controls and result-view integration were separated
+when the combined GUI module approached the contributor review threshold.
+
+Verification: 15 focused preparation/job/algorithm tests pass, including finite
+2/3-dimensional t-SNE and same-seed repeatability; Pyrefly zero errors;
+Ruff lint/format and diff checks pass. The live `--reduction tsne` workflow
+runs t-SNE explicitly, selects linked rows and applies k-means colors to raw
+and reduced points. Final M5.2 resource/acceptance gates remain open.
