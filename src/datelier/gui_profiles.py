@@ -1,14 +1,16 @@
 """Render prepared profiles in value space or with explicit category names."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import numpy as np
 from imgui_bundle import imgui, implot
 
-from datelier.dataset import Dataset, DatasetRevision
+from datelier.dataset import Dataset
 from datelier.distributions import DistributionSettings
-from datelier.exploration import Dashboard, Explorer, PlotSettings
+from datelier.exploration import Dashboard, Explorer
+from datelier.gui_axes import AxisControls
 from datelier.gui_distributions import MODES, show_comparison
+from datelier.gui_plot_area import PlotArea
 from datelier.plotting import Bars
 from datelier.profiling import COUNT_ROW_LIMIT, ColumnProfile, ProfileKind
 
@@ -30,7 +32,7 @@ def profile_summary(profile: ColumnProfile, rows: int) -> str:
 class ProfileView:
     index: int = 0
     mode: int = 0
-    _key: tuple[DatasetRevision, str, int, PlotSettings] | None = None
+    area: PlotArea = field(default_factory=PlotArea)
 
     def show(
         self, explorer: Explorer, dashboard: Dashboard, dataset: Dataset | None
@@ -88,21 +90,40 @@ class ProfileView:
                 dashboard.settings.bins,
             )
             if explorer.distribution.active is not None:
-                shown = show_comparison(
-                    explorer.distribution.active,
-                    self.mode,
-                    key != self._key,
-                    title=profile.name,
-                    details=False,
+                prepared = explorer.distribution.active
+                shown = self.area.show(
+                    "Profile plot",
+                    key,
+                    lambda height, fit, axes: show_comparison(
+                        prepared,
+                        self.mode,
+                        fit,
+                        title=profile.name,
+                        details=False,
+                        height=height,
+                        axes=axes,
+                    ),
+                    numeric_axes=(False, True) if self.mode in (3, 4) else (True, True),
                 )
             else:
                 imgui.text_wrapped(explorer.distribution.message)
         else:
-            if key != self._key:
-                implot.set_next_axes_to_fit()
-            shown = draw_profile(profile, dashboard.bars[self.index])
-        if shown:
-            self._key = key
+            shown = self.area.show(
+                "Profile plot",
+                key,
+                lambda height, fit, axes: draw_profile(
+                    profile,
+                    dashboard.bars[self.index],
+                    height,
+                    axes,
+                    fit,
+                ),
+                numeric_axes=(True, False)
+                if profile.kind == ProfileKind.CATEGORICAL
+                else (False, True)
+                if profile.kind == ProfileKind.TEMPORAL
+                else (True, True),
+            )
         if imgui.collapsing_header("Details##profile"):
             imgui.text(f"{profile.kind} · {profile.dtype}")
             if profile.minimum:
@@ -147,10 +168,18 @@ def draw_histogram(name: str, bars: Bars) -> None:
     )
 
 
-def draw_profile(profile: ColumnProfile, bars: Bars, height: float = 170) -> bool:
+def draw_profile(
+    profile: ColumnProfile,
+    bars: Bars,
+    height: float,
+    axes: AxisControls | None = None,
+    fit: bool = False,
+) -> bool:
     if not len(bars.counts):
         return False
     categories = profile.kind == ProfileKind.CATEGORICAL
+    if fit:
+        implot.set_next_axes_to_fit()
     implot.push_style_var(implot.StyleVar_.fit_padding, imgui.ImVec2(0.1, 0.05))
     opened = implot.begin_plot(profile.name, (-1, height), implot.Flags_.no_legend)
     if not opened:
@@ -161,6 +190,8 @@ def draw_profile(profile: ColumnProfile, bars: Bars, height: float = 170) -> boo
         implot.setup_axis_ticks(
             implot.ImAxis_.y1, bars.positions.tolist(), list(bars.labels)
         )
+        if axes is not None:
+            axes.apply()
         style = implot.Spec()
         style.flags = implot.BarsFlags_.horizontal
         implot.plot_bars("Rows", bars.counts, bars.positions, 0.8, style)
@@ -181,7 +212,11 @@ def draw_profile(profile: ColumnProfile, bars: Bars, height: float = 170) -> boo
                 [float(bars.edges[i]) for i in indices],
                 [bars.tick_labels[i] for i in indices],
             )
+        if axes is not None:
+            axes.apply()
         draw_histogram("Rows", bars)
+    if axes is not None:
+        axes.observe()
     implot.end_plot()
     implot.pop_style_var()
     return True

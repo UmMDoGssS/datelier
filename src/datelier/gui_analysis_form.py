@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from datelier.gui_analysis_controls import AnalysisControls
 
 
-def show_inputs(controls: AnalysisControls) -> None:
+def show_inputs(controls: AnalysisControls, *, dimensions: bool = True) -> None:
     if imgui.button(f"Features ({len(controls.features)})"):
         imgui.open_popup("Analysis features")
     if imgui.begin_popup("Analysis features"):
@@ -43,13 +43,16 @@ def show_inputs(controls: AnalysisControls) -> None:
     _, controls.impute = imgui.checkbox(
         "Fill missing values with median", controls.impute
     )
-    if imgui.begin_table("Analysis dimensions and seed", 2):
+    if imgui.begin_table("Analysis dimensions and seed", 2 if dimensions else 1):
         imgui.table_next_row()
         imgui.table_set_column_index(0)
-        changed, dims = combo("Output dimensions", controls.dimensions - 2, ["2", "3"])
-        if changed:
-            controls.dimensions = dims + 2
-        imgui.table_set_column_index(1)
+        if dimensions:
+            changed, dims = combo(
+                "Output dimensions", controls.dimensions - 2, ["2", "3"]
+            )
+            if changed:
+                controls.dimensions = dims + 2
+            imgui.table_set_column_index(1)
         _, controls.seed = imgui.input_int(field("Random seed"), controls.seed)
         imgui.end_table()
 

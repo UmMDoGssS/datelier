@@ -33,10 +33,10 @@ def main() -> None:
             labels.add(label)
         return original_combo(label, index, choices)
 
-    def record_button(label: str) -> bool:
+    def record_button(label: str, size: tuple[float, float] = (0, 0)) -> bool:
         if imgui.internal.get_current_window().name == "Explore":
             labels.add(label)
-        return original_button(label)
+        return original_button(label, size)
 
     with TemporaryDirectory(prefix="datelier-modes-") as folder:
         source = args.source or Path(folder) / "data.parquet"
@@ -104,6 +104,8 @@ def main() -> None:
             elif stage == 9 and age > 10:
                 assert {"##X", "##Y"} <= labels
                 analysis.source = Algorithm.PCA if args.embedding else None
+                io.mouse_pos = imgui.ImVec2(2, 2)
+                io.want_set_mouse_pos = True
                 stage, entered = 10, evidence.frames
             elif stage == 10 and age > 15:
                 hello_imgui.get_runner_params().app_shall_exit = True

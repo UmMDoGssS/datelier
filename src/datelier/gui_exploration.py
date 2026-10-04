@@ -4,14 +4,15 @@ from dataclasses import dataclass, field
 
 from imgui_bundle import imgui
 
-from datelier.dataset import Dataset, DatasetRevision
+from datelier.dataset import Dataset
 from datelier.exploration import Dashboard, Explorer
 from datelier.gui_analysis import AnalysisSession
 from datelier.gui_distributions import MODES, show_comparison
+from datelier.gui_plot_area import PlotArea
 from datelier.gui_plot_controls import PlotControls
 from datelier.gui_profiles import ProfileView
 from datelier.gui_relationships import RelationshipView
-from datelier.gui_scatter import draw_scatter
+from datelier.gui_scatter import ScatterView
 from datelier.gui_scatter3d import Scatter3DView
 from datelier.gui_selection import ScatterInteraction
 from datelier.gui_table import TableView
@@ -22,21 +23,38 @@ from datelier.selection import LinkedSelection
 @dataclass
 class ExplorationView:
     profile: ProfileView = field(default_factory=ProfileView)
+    comparison_area: PlotArea = field(default_factory=PlotArea)
+    scatter: ScatterView = field(default_factory=ScatterView)
     comparison_mode: int = 0
     relationships: RelationshipView = field(default_factory=RelationshipView)
-    _comparison_key: tuple[DatasetRevision, int, object] | None = None
     scatter_index: int = 0
     plot_frames: int = 0
     scatter_frames: int = 0
-    scatter3d: Scatter3DView = field(default_factory=Scatter3DView)
     dock_id: int = 0
     tab: str = "Profiles"
     active_tab: str = "Profiles"
     saved_scatter_index: int | None = None
-    interaction: ScatterInteraction = field(default_factory=ScatterInteraction)
-    fit: bool = False
     _dashboard: Dashboard | None = None
-    _scatter_key: tuple[DatasetRevision, str, str, str, bool] | None = None
+
+    @property
+    def scatter_area(self) -> PlotArea:
+        return self.scatter.area
+
+    @property
+    def scatter3d(self) -> Scatter3DView:
+        return self.scatter.scatter3d
+
+    @property
+    def interaction(self) -> ScatterInteraction:
+        return self.scatter.interaction
+
+    @property
+    def fit(self) -> bool:
+        return self.scatter.fit
+
+    @fit.setter
+    def fit(self, value: bool) -> None:
+        self.scatter.fit = value
 
     @property
     def profile_index(self) -> int:
@@ -64,9 +82,9 @@ class ExplorationView:
         analysis: AnalysisSession | None = None,
     ) -> None:
         self.dock_id = imgui.get_window_dock_id()
-        imgui.text_wrapped(explorer.message)
         dashboard = explorer.active
         if dashboard is None:
+            imgui.text_wrapped(explorer.message)
             if plots is not None and dataset is not None:
                 if analysis is not None:
                     points = analysis.scatter_controls(dataset, plots)
@@ -120,13 +138,22 @@ class ExplorationView:
             )
             if self.comparison_mode < 5:
                 key = (dashboard.revision, self.comparison_mode, dashboard.settings)
-                if show_comparison(
-                    dashboard.comparison,
-                    self.comparison_mode,
-                    key != self._comparison_key,
+                comparison = dashboard.comparison
+                if self.comparison_area.show(
+                    "Comparison plot",
+                    key,
+                    lambda height, fit, axes: show_comparison(
+                        comparison,
+                        self.comparison_mode,
+                        fit,
+                        height=height,
+                        axes=axes,
+                    ),
+                    numeric_axes=(False, True)
+                    if self.comparison_mode in (3, 4)
+                    else (True, True),
                 ):
                     self.plot_frames += 1
-                self._comparison_key = key
                 if not imgui.collapsing_header("Individual column details"):
                     return
         if self.profile.show(explorer, dashboard, dataset):
@@ -230,67 +257,13 @@ class ExplorationView:
                 plots.custom_scatter = True
         else:
             points = override
-        imgui.text_wrapped(
-            f"{len(points.x):,} displayed / {points.eligible_rows:,} fitted"
-            if override is not None
-            else f"{len(points.x):,} displayed / {points.eligible_rows:,} eligible · "
-            f"{points.total_rows - points.eligible_rows:,} excluded"
-        )
-        if points.colors is not None:
-            if imgui.collapsing_header("Color legend"):
-                imgui.text_wrapped(points.colors.note)
-                for label, rgba in points.colors.legend:
-                    color = imgui.ImVec4(
-                        (rgba & 255) / 255,
-                        ((rgba >> 8) & 255) / 255,
-                        ((rgba >> 16) & 255) / 255,
-                        1,
-                    )
-                    imgui.text_colored(color, label)
-                    imgui.same_line()
-                imgui.new_line()
-        if selection.row_ids:
-            imgui.text(f"{len(selection.row_ids):,} selected")
-        if imgui.button("Clear selection"):
-            selection.choose(points.revision, ())
-        imgui.same_line()
-        if imgui.button("Fit scatter"):
-            self.fit = True
         three_d = (
             points.z is not None
             if override is not None
-            else plots.three_d
-            if plots is not None
-            else False
+            else bool(plots and plots.three_d)
         )
-        key = (
-            points.revision,
-            points.x_name,
-            points.y_name,
-            points.z_name,
-            three_d,
-        )
-        if key != self._scatter_key:
-            self.fit = True
-            self._scatter_key = key
-        shown = (
-            self.scatter3d.show(points, selection, table, self.fit)
-            if three_d
-            else draw_scatter(points, selection, table, self.interaction, self.fit)
-        )
-        if shown:
-            self.fit = False
+        if self.scatter.show(
+            points, selection, table, three_d, embedding=override is not None
+        ):
             self.plot_frames += 1
             self.scatter_frames += 1
-        if imgui.collapsing_header("Details##scatter"):
-            if three_d:
-                imgui.text_wrapped(
-                    "3D: left-drag rotates, right-drag pans, wheel zooms. "
-                    "Click selects; Ctrl-click toggles; "
-                    "Shift-drag brushes projected displayed points."
-                )
-            imgui.text_wrapped(
-                "2D wheel: zoom · middle-drag: pan · double-click: fit. "
-                "Click: select · Ctrl-click: toggle · "
-                "Shift-drag: brush displayed points."
-            )

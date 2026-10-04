@@ -241,7 +241,8 @@ See [Phase 4 evidence](docs/phase-4.md) and
 In Scatter, choose PCA, t-SNE, or UMAP under **Coordinates**, then select
 features under **Inputs and settings**. Choose preprocessing, dimensions,
 seed and the algorithm's sample limit, then explicitly press its **Run** button.
-The **Analysis** panel also provides these controls and **Run K-means**.
+The **Analysis** panel follows the selected method; in Columns mode it provides
+K-means controls for cluster colors. K-means omits output-dimension controls.
 Defaults drop missing/nonfinite rows and standardize features; optional median
 imputation and no scaling are available. Constant features are removed and
 reported; unusable data or invalid parameter combinations fail without adjusting
@@ -268,6 +269,21 @@ completed clustering result on raw or reduced plots. Fitting samples and
 nearest-center predictions in the original fitted feature space are disclosed;
 excluded rows receive neutral colors. Provenance records inputs, exclusions,
 sampling, preprocessing, parameters, seed, runtime and library versions.
+
+## Chart space and axes
+
+Charts fill the available panel height. Drag the **Plot height** divider below
+the chart, or drag/type its **Height** value above it, to choose a taller region.
+**Auto** restores adaptive height. **Expand** opens the same chart in a larger
+window; **Restore** returns it with its current zoom, selection, and 3D camera.
+Manual chart heights are saved in workspaces and preferences.
+
+For numeric 2D axes, **Axes** exposes minimum/maximum and Linear or Symmetric log
+scales. Log 10 appears for a positive range. **Apply ranges** validates both axes
+before changing the view, and subsequent wheel zoom and pan remain available.
+**Fit axes** fits the displayed data. Category coordinates and formatted temporal
+coordinates omit numeric editing; heatmaps keep their feature axes. Axis edits
+are session state and reset when the plotted columns or chart type change.
 Loading data, changing settings and editing never launch ML automatically.
 K-means is the only current clustering algorithm; spectral, agglomerative,
 DBSCAN and HDBSCAN remain future additions.

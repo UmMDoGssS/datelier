@@ -192,23 +192,7 @@ class PlotControls:
         if len(self.numeric) < 2:
             imgui.text("Scatter requires at least two numeric columns.")
             return
-        changed, dimensions = combo(
-            "Dimensions",
-            int(self.three_d and len(self.numeric) >= 3),
-            ["2D", "3D"] if len(self.numeric) >= 3 else ["2D"],
-        )
-        self.three_d = dimensions == 1
-        if (
-            changed
-            and self.three_d
-            and len(self.numeric) >= 3
-            and self.z_index in (self.x_index, self.y_index)
-        ):
-            self.z_index = next(
-                i
-                for i in range(len(self.numeric))
-                if i not in (self.x_index, self.y_index)
-            )
+        changed = self.scatter_dirty
         axes = ["x_index", "y_index"] + (["z_index"] if self.three_d else [])
         if imgui.begin_table(
             "Scatter axes", len(axes), imgui.TableFlags_.sizing_stretch_same
@@ -226,7 +210,6 @@ class PlotControls:
                     self.choose_axis(attr, index)
                     changed = True
             imgui.end_table()
-        changed = self.show_color() or changed or self.scatter_dirty
         if changed:
             self.scatter_dirty = False
             self.custom_scatter = True
@@ -244,6 +227,27 @@ class PlotControls:
                 self.error = str(error)
         if self.error:
             imgui.text_wrapped(self.error)
+
+    def show_dimensions(self) -> None:
+        changed, dimensions = combo(
+            "Dimensions",
+            int(self.three_d and len(self.numeric) >= 3),
+            ["2D", "3D"] if len(self.numeric) >= 3 else ["2D"],
+        )
+        self.three_d = dimensions == 1
+        if (
+            changed
+            and self.three_d
+            and len(self.numeric) >= 3
+            and self.z_index in (self.x_index, self.y_index)
+        ):
+            self.z_index = next(
+                i
+                for i in range(len(self.numeric))
+                if i not in (self.x_index, self.y_index)
+            )
+        if changed:
+            self.scatter_dirty = True
 
     def show_color(self) -> bool:
         choices = ["Uniform", *self.color_columns]

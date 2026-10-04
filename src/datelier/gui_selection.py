@@ -1,12 +1,13 @@
 """Scatter input and overlays; all interaction work is bounded by displayed points."""
 
-import math
 from dataclasses import dataclass
 
+import numpy as np
 from imgui_bundle import imgui, implot
 
 from datelier.gui_table import TableView
 from datelier.plotting import Scatter
+from datelier.projection import projected_nearest
 from datelier.selection import LinkedSelection
 
 
@@ -42,23 +43,36 @@ class ScatterInteraction:
             if imgui.get_io().key_shift:
                 self.brush_start = (mouse.x, mouse.y)
             else:
-                x_span, y_span = bounds.x.size(), bounds.y.size()
-                if (
-                    x_span > 0
-                    and y_span > 0
-                    and math.isfinite(x_span)
-                    and math.isfinite(y_span)
+                pixels = np.array(
+                    [
+                        (p.x, p.y)
+                        for p in (
+                            implot.plot_to_pixels(float(x), float(y))
+                            for x, y in zip(points.x, points.y, strict=True)
+                        )
+                    ],
+                    dtype=np.float64,
+                ).reshape(-1, 2)
+                visible = (
+                    (pixels[:, 0] >= pos.x)
+                    & (pixels[:, 0] <= pos.x + size.x)
+                    & (pixels[:, 1] >= pos.y)
+                    & (pixels[:, 1] <= pos.y + size.y)
+                )
+                pixels[~visible] = np.nan
+                screen = imgui.get_io().mouse_pos
+                index = projected_nearest(
+                    pixels, np.zeros(len(pixels)), (screen.x, screen.y)
+                )
+                if index is not None and selection.choose(
+                    points.revision,
+                    (int(points.row_ids[index]),),
+                    toggle=imgui.get_io().key_ctrl,
                 ):
-                    row = selection.nearest(
-                        points,
-                        mouse.x,
-                        mouse.y,
-                        size.x / x_span,
-                        size.y / y_span,
-                        toggle=imgui.get_io().key_ctrl,
+                    table.target_row, table.jump = (
+                        int(points.positions[index]) + 1,
+                        True,
                     )
-                    if row is not None:
-                        table.target_row, table.jump = row + 1, True
         if self.brush_start is not None:
             start = implot.plot_to_pixels(*self.brush_start)
             end = implot.plot_to_pixels(mouse.x, mouse.y)

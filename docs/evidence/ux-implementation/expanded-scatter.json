@@ -1,0 +1,13 @@
+{
+  "frames": 130,
+  "view": "Scatter",
+  "size": [
+    1280,
+    800
+  ],
+  "drag_resize": true,
+  "expanded_view": true,
+  "view_preserved": true,
+  "axis_ranges_and_scales": true,
+  "source_preserved": true
+}

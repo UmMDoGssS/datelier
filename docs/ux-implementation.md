@@ -154,3 +154,60 @@ Verification:
 These are the requested contextual-control repairs within review step 3. The
 broader shared-column context, input preview, and default dock-layout redesign
 remain open. Fixed/capped plot heights are addressed in the next slice.
+
+## Follow-up — Chart sizing and visible axes (complete)
+
+Profiles, comparisons, 2D/3D scatter, heatmaps, and pair grids now share adaptive
+chart space. **Height** supports dragging or typed values; the visible **Plot
+height** divider supports vertical dragging. **Auto** restores adaptive height.
+**Expand/Restore** retains native plot identity, including 2D axis ranges and
+the 3D camera. Minimum readable heights remain, with scrolling for larger grids;
+there is no fixed upper chart-height cap. Manual heights for the four chart
+contexts round-trip through old-compatible workspace and preference recipes.
+
+**Axes** exposes numeric 2D ranges and Linear/Symmetric log scales, plus Log 10
+for positive ranges. Edits validate together and apply for one frame, allowing
+continued native pan/zoom. Category coordinates and formatted temporal
+coordinates omit numeric editing; heatmaps keep feature axes. Axis edits reset
+when the plotted columns/chart type change and are not saved as workspace data.
+Point picking now uses actual screen coordinates, retaining correct row links
+under nonlinear scales. Grid cells fit on view changes rather than every frame.
+
+Scatter source/color/dimensions controls share a compact row with captions
+above. The Analysis panel follows the chosen decomposition, or shows K-means
+in Columns mode; K-means omits unrelated output dimensions. This removes the
+remaining competing decomposition controls from the manual-coordinate view.
+
+Verification:
+
+- Full suite: **365 passed**; batch Pyrefly reports zero errors; Ruff lint,
+  format, and diff whitespace checks pass.
+- `plot_area_smoke.py`: real drag/expand events pass independently for Profile,
+  Comparison, Scatter, Scatter3D, Heatmap, and Grid. Grid checks inspect actual
+  cell ranges; 3D checks inspect native camera rotation and coordinate ranges.
+- Titanic Scatter passes at **1024×768, 1280×800, and 1600×1000**. Expanded plots
+  exceed 340 px height. Actual Axes/Apply ranges clicks pass, with subsequent
+  wheel zoom and preserved ranges on return.
+- `selection_smoke.py --nonlinear` passes sorted/filtered/sampled identity,
+  plot/table links, wheel zoom, pan, and brushing under Log 10/Symmetric log.
+- `workspace_smoke.py` passes all four saved heights, unfitted coordinate
+  source, missing-source relink, history/selection, and no implicit ML runs.
+- Final analysis navigation, exclusive-mode, 3D PCA/k-means/linked selection,
+  and correlation drill-down regressions pass. `relationship_smoke.py --wide`
+  verifies that a twelve-feature view offers Heatmap only.
+- Titanic SHA-256 remains
+  `ae179070a631b75d2c3fc7439d624c7fb5e0c8859919dc1d4f96d4d3ed6e854b`.
+
+[PCA controls](evidence/ux-implementation/contextual-pca.png),
+[correlation controls](evidence/ux-implementation/contextual-heatmap.png), and
+[expanded numeric scatter](evidence/ux-implementation/expanded-scatter.png)
+record the new surfaces. JSON records retain the input-event gates and source
+checks. GUI verification remains Linux/Mesa software OpenGL, using Dear ImGui
+input events and scripted frame hooks. Numeric setup follows the installed
+bindings and [ImPlot's setup contract](https://github.com/epezent/implot/blob/master/implot.h).
+
+The user's reported crash, conflicting coordinate controls, and missing sizing/
+axis controls are repaired. The review's broader Table focus action, shared
+column context, pre-fit input preview, full layout/hierarchy redesign, and
+pointer-only usability timings remain open; these functional checks do not
+claim completion of every original UX acceptance target.

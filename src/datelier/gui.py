@@ -154,7 +154,9 @@ def run_gui(
             "Table preview": show_table,
             "Schema and nulls": schema,
             "Analysis": lambda: analysis.controls.show(
-                analysis.jobs, loader.active.dataset if loader.active else None
+                analysis.jobs,
+                loader.active.dataset if loader.active else None,
+                analysis.source or Algorithm.KMEANS,
             ),
             "Transform and history": lambda: operations.show(
                 editor,

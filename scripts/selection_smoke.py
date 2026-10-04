@@ -19,11 +19,13 @@ def main() -> None:
     parser.add_argument(
         "--output", type=Path, default=Path("/tmp/datelier-selection.ppm")
     )
+    parser.add_argument("--nonlinear", action="store_true")
     args = parser.parse_args()
     stage, entered = 0, 0
     baseline = (0.0, 0.0, 0.0, 0.0)
     mouse_target = (0.0, 0.0)
     table_id: int | None = None
+    axes_changed = False
     with TemporaryDirectory(prefix="datelier-selection-") as directory:
         source = Path(directory) / "source.csv"
         source.write_text("x,y\n" + "".join(f"{i},{i}\n" for i in range(20)))
@@ -31,6 +33,7 @@ def main() -> None:
 
         def frame(session: GuiSession, evidence: InspectionEvidence) -> None:
             nonlocal stage, entered, baseline, mouse_target, table_id
+            nonlocal axes_changed
             active, dashboard = session.loader.active, session.explorer.active
             if active is None or dashboard is None or session.editor.busy:
                 return
@@ -49,6 +52,13 @@ def main() -> None:
                 session.exploration.tab = "Scatter"
                 stage, entered = 3, evidence.frames
             elif stage == 3 and age > 10:
+                if args.nonlinear and not axes_changed:
+                    axes = session.exploration.scatter_area.axes
+                    axes.draft = [[1, 20], [1, 20]]
+                    axes.draft_scales = [2, 1]
+                    axes.accept()
+                    axes_changed, entered = True, evidence.frames
+                    return
                 assert dashboard.scatters[0].row_ids.tolist() == [19, 15, 10, 5]
                 mouse_target = interaction.point_pixel
                 io.mouse_pos = imgui.ImVec2(*mouse_target)
@@ -151,6 +161,7 @@ def main() -> None:
             "shift_brush": True,
             "source_preserved": True,
             "input": "Dear ImGui mouse/key events and backend cursor positioning",
+            "nonlinear_axes": args.nonlinear,
         }
         args.output.with_suffix(".json").write_text(json.dumps(report, indent=2) + "\n")
         print(json.dumps(report))

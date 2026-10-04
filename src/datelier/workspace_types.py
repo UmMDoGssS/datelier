@@ -1,5 +1,6 @@
 """Version-one referenced workspace recipes; no data or fitted ML artifacts."""
 
+import math
 from dataclasses import dataclass, replace
 
 from datelier.analysis_types import Algorithm, AnalysisRequest
@@ -34,6 +35,10 @@ class WorkspaceViews:
     target_row: int = 1
     profile_mode: int = 0
     coordinate_source: Algorithm | None = None
+    profile_height: float = 0
+    comparison_height: float = 0
+    scatter_height: float = 0
+    relationship_height: float = 0
 
     def validate(self) -> None:
         if self.tab not in ("Profiles", "Scatter", "Correlations"):
@@ -48,6 +53,18 @@ class WorkspaceViews:
             raise ValueError("Unknown profile chart type")
         if self.coordinate_source == Algorithm.KMEANS:
             raise ValueError("Clustering does not supply scatter coordinates")
+        if any(
+            not math.isfinite(h) or h != 0 and h < 170
+            for h in (
+                self.profile_height,
+                self.comparison_height,
+                self.scatter_height,
+                self.relationship_height,
+            )
+        ):
+            raise ValueError(
+                "Plot heights must be finite and at least 170, or 0 for auto"
+            )
 
 
 @dataclass(frozen=True)

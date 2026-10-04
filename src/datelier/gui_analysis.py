@@ -38,14 +38,27 @@ class AnalysisSession:
     def scatter_controls(self, dataset: Dataset, plots: PlotControls) -> Scatter | None:
         algorithms = [Algorithm.PCA, Algorithm.TSNE, Algorithm.UMAP]
         index = algorithms.index(self.source) + 1 if self.source in algorithms else 0
-        changed, index = combo("Coordinates", index, ["Columns", *map(str, algorithms)])
-        pos, size = imgui.get_item_rect_min(), imgui.get_item_rect_size()
-        self.coordinates_pixel = (pos.x + size.x / 2, pos.y + size.y / 2)
-        if changed:
-            self.source = algorithms[index - 1] if index else None
+        columns = 3 if self.source is None else 2
+        if imgui.begin_table(
+            "Scatter source", columns, imgui.TableFlags_.sizing_stretch_same
+        ):
+            imgui.table_next_row()
+            imgui.table_set_column_index(0)
+            changed, index = combo(
+                "Coordinates", index, ["Columns", *map(str, algorithms)]
+            )
+            pos, size = imgui.get_item_rect_min(), imgui.get_item_rect_size()
+            self.coordinates_pixel = (pos.x + size.x / 2, pos.y + size.y / 2)
+            if changed:
+                self.source = algorithms[index - 1] if index else None
+            imgui.table_set_column_index(1)
+            plots.show_color()
+            if columns == 3 and self.source is None:
+                imgui.table_set_column_index(2)
+                plots.show_dimensions()
+            imgui.end_table()
         if self.source is None:
             return None
-        plots.show_color()
         result = self.jobs.results.get(self.source)
         state = "setup" if result is None else "fitted"
         if imgui.collapsing_header(

@@ -90,8 +90,22 @@ class AnalysisControls:
             self.dimensions,
         )
 
-    def show(self, jobs: AnalysisJobs, dataset: Dataset | None) -> None:
-        imgui.text_wrapped(jobs.message)
+    def show(
+        self,
+        jobs: AnalysisJobs,
+        dataset: Dataset | None,
+        selected: Algorithm | None = None,
+    ) -> None:
+        if selected is not None:
+            imgui.separator_text(str(selected))
+        if (
+            jobs.busy
+            or selected is None
+            or jobs.latest is not None
+            and jobs.latest.provenance.request.algorithm == selected
+            or jobs.message.startswith(("Analysis failed", "Analysis cancelled"))
+        ):
+            imgui.text_wrapped(jobs.message)
         if jobs.busy:
             imgui.text_wrapped(f"{jobs.phase} · {jobs.elapsed:.1f}s elapsed")
             if imgui.button("Cancel analysis"):
@@ -99,8 +113,8 @@ class AnalysisControls:
         if dataset is None:
             return
         imgui.begin_disabled(jobs.busy)
-        show_inputs(self)
-        for algorithm in Algorithm:
+        show_inputs(self, dimensions=selected != Algorithm.KMEANS)
+        for algorithm in (selected,) if selected is not None else Algorithm:
             if imgui.tree_node(f"{algorithm} settings"):
                 imgui.push_id(str(algorithm))
                 show_parameters(self, algorithm)
@@ -114,6 +128,8 @@ class AnalysisControls:
         if self.error:
             imgui.text_wrapped(self.error)
         for algorithm, result in jobs.results.items():
+            if selected is not None and algorithm != selected:
+                continue
             if imgui.collapsing_header(f"{algorithm} result and provenance"):
                 provenance = result.provenance
                 request, summary = provenance.request, provenance.input

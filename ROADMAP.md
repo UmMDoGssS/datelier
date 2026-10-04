@@ -39,7 +39,8 @@ A concrete post-v1 usability need is recorded in the
 [Titanic UX review and proposed repair plan](docs/ux-titanic-review.md): readable
 plot axes and sizes, unified inspection/analysis controls, and more direct
 workflows. [Implementation evidence](docs/ux-implementation.md) records the
-passed single-column chart step and its separately verified slices. Remaining
+passed single-column chart step, contextual coordinate controls, and chart
+sizing/axis repairs, with separately verified slices. Remaining
 steps and user usability validation remain open. Existing feature gates are
 unchanged.
 

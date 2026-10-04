@@ -48,6 +48,10 @@ def main() -> None:
                 session.exploration.tab = "Correlations"
                 session.exploration.relationships.mode = 1
                 session.exploration.profile_mode = 2
+                session.exploration.profile.area.height = 230
+                session.exploration.comparison_area.height = 240
+                session.exploration.scatter_area.height = 250
+                session.exploration.relationships.area.height = 260
                 session.explorer.request(active.dataset, session.plots.settings())
                 ready, stage = evidence.frames, 3
             elif (
@@ -117,6 +121,10 @@ def main() -> None:
                 assert session.exploration.active_tab == "Correlations"
                 assert session.exploration.profile_mode == 2
                 assert session.analysis.source == Algorithm.TSNE
+                assert session.exploration.profile.area.height == 230
+                assert session.exploration.comparison_area.height == 240
+                assert session.exploration.scatter_area.height == 250
+                assert session.exploration.relationships.area.height == 260
                 session.editor.request(HistoryAction.REDO)
                 stage = 3
             elif stage == 3 and not session.editor.busy and not session.explorer.busy:
@@ -150,6 +158,7 @@ def main() -> None:
                     "implicit_ml_runs": 0,
                     "profile_chart_type_restored": True,
                     "unfitted_coordinate_source_restored": True,
+                    "plot_heights_restored": True,
                     "source_preserved": True,
                 }
             )

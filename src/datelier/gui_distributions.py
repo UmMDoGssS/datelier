@@ -4,6 +4,7 @@ import numpy as np
 from imgui_bundle import imgui, implot
 
 from datelier.distributions import Comparison, NumericDistribution
+from datelier.gui_axes import AxisControls
 
 MODES = ["Histogram", "KDE", "ECDF", "Box", "Violin"]
 
@@ -51,7 +52,10 @@ def show_comparison(
     *,
     title: str = "Column comparison",
     details: bool = True,
+    height: float = 220,
+    axes: AxisControls | None = None,
 ) -> bool:
+    start_y = imgui.get_cursor_screen_pos().y
     settings = comparison.settings
     if not comparison.series:
         imgui.text_wrapped("Select numeric comparison columns in Plot settings.")
@@ -87,13 +91,14 @@ def show_comparison(
             return False
     if fit:
         implot.set_next_axes_to_fit()
+    height = max(170, height - (imgui.get_cursor_screen_pos().y - start_y))
     horizontal_boxes = mode in (3, 4)
     implot.push_style_var(
         implot.StyleVar_.fit_padding,
         imgui.ImVec2(0.08, 0.05 if horizontal_boxes else 0),
     )
     flags = implot.Flags_.no_legend if len(comparison.series) == 1 else 0
-    if not implot.begin_plot(title, (-1, 220), flags):
+    if not implot.begin_plot(title, (-1, height), flags):
         implot.pop_style_var()
         return False
     ylabel = (
@@ -112,6 +117,8 @@ def show_comparison(
             [float(i) for i in range(len(comparison.series))],
             [s.name for s in comparison.series],
         )
+    if axes is not None:
+        axes.apply()
     for i, series in enumerate(comparison.series):
         if mode == 0:
             hist_style = implot.Spec()
@@ -132,6 +139,8 @@ def show_comparison(
             implot.plot_stairs(series.name, xs, ys)
         elif horizontal_boxes and (mode == 3 or len(series.kde_y)):
             _box(series, i, mode == 4)
+    if axes is not None:
+        axes.observe()
     implot.end_plot()
     implot.pop_style_var()
     return True

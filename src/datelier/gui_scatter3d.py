@@ -34,7 +34,12 @@ class Scatter3DView:
     _colors: NDArray[np.uint32] | None = None
 
     def show(
-        self, points: Scatter, selection: LinkedSelection, table: TableView, fit: bool
+        self,
+        points: Scatter,
+        selection: LinkedSelection,
+        table: TableView,
+        fit: bool,
+        height: float,
     ) -> bool:
         z = points.z
         if z is None:
@@ -67,7 +72,6 @@ class Scatter3DView:
                 | implot3d.Flags_.no_pan
                 | implot3d.Flags_.no_zoom
             )
-        height = max(120, min(300, imgui.get_content_region_avail().y - 5))
         if not implot3d.begin_plot("Scatter 3D", (-1, height), flags):
             return False
         implot3d.setup_axes(points.x_name, points.y_name, points.z_name)

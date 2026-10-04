@@ -1,4 +1,4 @@
-"""Pure bounded screen-space selection geometry for 3D plots."""
+"""Pure bounded screen-space selection geometry for plotted points."""
 
 import numpy as np
 from numpy.typing import NDArray

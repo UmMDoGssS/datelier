@@ -8,7 +8,9 @@ from imgui_bundle import imgui, implot
 
 from datelier.dataset import Dataset
 from datelier.exploration import Explorer
+from datelier.gui_axes import AxisControls
 from datelier.gui_fields import combo
+from datelier.gui_plot_area import PlotArea
 from datelier.gui_plot_controls import PlotControls
 from datelier.gui_profiles import draw_histogram
 from datelier.gui_selection import ScatterInteraction
@@ -20,6 +22,7 @@ from datelier.selection import LinkedSelection
 @dataclass
 class RelationshipView:
     mode: int = 0
+    area: PlotArea = field(default_factory=PlotArea)
     frames: int = 0
     pair_pixel: tuple[float, float] = (0, 0)
     interactions: dict[tuple[int, int], ScatterInteraction] = field(
@@ -75,16 +78,33 @@ class RelationshipView:
         if not data.names:
             imgui.text("Choose numeric features to compare.")
             return None
-        return (
-            self._heatmap(data)
-            if self.mode == 0
-            else self._grid(data, selection, table)
-        )
+        action = None
 
-    def _heatmap(self, data: Relationships) -> tuple[str, str | None] | None:
+        def draw(height: float, fit: bool, _axes: AxisControls) -> bool:
+            nonlocal action
+            before = self.frames
+            action = (
+                self._heatmap(data, height)
+                if self.mode == 0
+                else self._grid(data, selection, table, height, fit)
+            )
+            return self.frames > before
+
+        self.area.show(
+            "Relationship plot",
+            (selection.revision, data.names, self.mode),
+            draw,
+            numeric_axes=(False, False),
+            minimum_height=max(170, len(data.names) * 100) if self.mode else 170,
+        )
+        return action
+
+    def _heatmap(
+        self, data: Relationships, height: float
+    ) -> tuple[str, str | None] | None:
         n = len(data.names)
         action = None
-        if implot.begin_plot("Pearson heatmap", (-1, 280), implot.Flags_.no_legend):
+        if implot.begin_plot("Pearson heatmap", (-1, height), implot.Flags_.no_legend):
             implot.setup_axes("Feature X", "Feature Y")
             implot.setup_axes_limits(0, n, 0, n, imgui.Cond_.always)
             ticks = [i + 0.5 for i in range(n)]
@@ -113,6 +133,7 @@ class RelationshipView:
                     0xFF777777,
                 )
             implot.pop_plot_clip_rect()
+            self.area.axes.observe()
             pixel = implot.plot_to_pixels(min(1.5, n - 0.5), 0.5)
             self.pair_pixel = (pixel.x, pixel.y)
             if implot.is_plot_hovered():
@@ -133,7 +154,12 @@ class RelationshipView:
         return action
 
     def _grid(
-        self, data: Relationships, selection: LinkedSelection, table: TableView
+        self,
+        data: Relationships,
+        selection: LinkedSelection,
+        table: TableView,
+        height: float,
+        fit: bool,
     ) -> tuple[str, str | None] | None:
         n = len(data.names)
         if n > 8:
@@ -149,18 +175,18 @@ class RelationshipView:
                 + " · ".join(f"{i + 1}={name}" for i, name in enumerate(data.names))
                 + ". Hover a cell for its full axes."
             )
-        if implot.begin_subplots("Pair grid", n, n, (-1, max(280, n * 120))):
+        if implot.begin_subplots("Pair grid", n, n, (-1, height)):
             for i, y in enumerate(data.names):
                 for j, x in enumerate(data.names):
+                    if fit:
+                        implot.set_next_axes_to_fit()
                     if not implot.begin_plot(
                         f"{y} / {x}##{i}-{j}",
                         flags=implot.Flags_.no_legend
                         | (implot.Flags_.no_title if dense else 0),
                     ):
                         continue
-                    axis_flags = implot.AxisFlags_.auto_fit | (
-                        implot.AxisFlags_.no_tick_labels if dense else 0
-                    )
+                    axis_flags = implot.AxisFlags_.no_tick_labels if dense else 0
                     implot.setup_axes(
                         (str(j + 1) if i == n - 1 else "")
                         if dense
