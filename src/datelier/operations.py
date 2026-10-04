@@ -64,6 +64,21 @@ def require_columns(table: pl.DataFrame, columns: tuple[str, ...]) -> None:
 
 def filter_mask(series: pl.Series, operation: Filter) -> pl.Series:
     value = operation.value
+    if operation.comparison not in (Comparison.IS_NULL, Comparison.NOT_NULL):
+        if value is None:
+            raise OperationFailure(
+                "Use is null or is not null to filter missing values"
+            )
+        if isinstance(value, str) and series.dtype == pl.Date:
+            value = pl.Series("value", [value]).str.to_date("%Y-%m-%d").item()
+        elif isinstance(value, str) and isinstance(series.dtype, pl.Datetime):
+            value = (
+                pl.Series("value", [value])
+                .str.to_datetime(
+                    time_unit=series.dtype.time_unit, time_zone=series.dtype.time_zone
+                )
+                .item()
+            )
     match operation.comparison:
         case Comparison.IS_NULL:
             return series.is_null()

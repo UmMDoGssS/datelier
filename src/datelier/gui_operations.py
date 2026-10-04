@@ -98,7 +98,8 @@ class OperationControls:
                             self.derived_name, self.expression, self.replace_existing
                         )
                     )
-            self.error = ""
+            if editor.busy:
+                self.error = ""
         except ValueError as error:
             self.error = str(error)
         finally:

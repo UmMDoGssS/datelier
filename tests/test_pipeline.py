@@ -74,3 +74,47 @@ def test_empty_filter_and_identity_name_collision() -> None:
     assert empty.current.table.shape == (0, 3)
     assert empty.current.row_ids.dtype == pl.UInt64
     assert empty.undo().current.table.equals(dataset.table)
+
+
+@pytest.mark.parametrize(
+    "comparison,expected",
+    [
+        (Comparison.EQ, [2, 3]),
+        (Comparison.NE, [0]),
+        (Comparison.LT, []),
+        (Comparison.LE, [2, 3]),
+        (Comparison.GT, [0]),
+        (Comparison.GE, [0, 2, 3]),
+        (Comparison.IS_NULL, [1]),
+        (Comparison.NOT_NULL, [0, 2, 3]),
+    ],
+)
+def test_comparison_semantics(comparison: Comparison, expected: list[int]) -> None:
+    result = Pipeline.start(source()).apply(Filter("^v$", comparison, 1))
+    assert result.current.row_ids.to_list() == expected
+
+
+def test_null_comparison_requires_explicit_predicate() -> None:
+    with pytest.raises(OperationFailure, match="Use is null"):
+        Pipeline.start(source()).apply(Filter("^v$", Comparison.EQ, None))
+
+
+def test_temporal_filter_and_invalid_values() -> None:
+    from datetime import date, datetime
+
+    table = pl.DataFrame(
+        {
+            "date": [date(2026, 1, 1), date(2026, 1, 2)],
+            "stamp": [datetime(2026, 1, 1, 12), datetime(2026, 1, 2, 12)],
+        }
+    )
+    pipeline = Pipeline.start(Dataset.from_source(table, source().source))
+    assert pipeline.apply(
+        Filter("date", Comparison.EQ, "2026-01-02")
+    ).current.row_ids.to_list() == [1]
+    assert pipeline.apply(
+        Filter("stamp", Comparison.GT, "2026-01-01T13:00:00")
+    ).current.row_ids.to_list() == [1]
+    with pytest.raises(OperationFailure):
+        pipeline.apply(Filter("date", Comparison.EQ, "invalid"))
+    assert not pipeline.history
