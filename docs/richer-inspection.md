@@ -127,3 +127,24 @@ raw/reduced cluster colors. A t-SNE GUI rerun without OMP/BLAS environment
 settings verifies runtime thread limits. All eight t-SNE/UMAP resource runs
 pass the 2 GiB combined budget. [M5.2 evidence](phase-5.md#m52--t-sne-umap-and-bounded-jobs)
 records first/warmed worker timings. M5.2 passes; 3D/final inspection gates remain open.
+
+## Step 7 — Raw and reduced 3D plots
+
+ImPlot3D is enabled in the workbench. Raw XYZ eligibility excludes invalid values
+across all three axes; reduced plots use an explicitly fitted third component.
+A two-component result cannot silently refit when 3D is selected. Column and
+cluster colors use the same prepared identity-aligned arrays. Projected picking
+uses an eight-pixel radius and frontmost ray-depth ties; Shift brushing selects
+projected displayed rows and locks camera gestures during the brush. Camera
+rotation drags do not become point selections. Active-item hover handling was
+corrected after the first live input check caught missed clicks.
+
+Verification: 16 focused 3D/algorithm/selection/relationship/exploration tests
+passed; Pyrefly zero errors; Ruff lint/format and diff checks passed. Final live
+runs passed **141 frames** of sorted-source picking, Shift brushing, rotation,
+wheel zoom and right pan, and **208 frames** of explicit three-component PCA,
+linked selection and raw/reduced k-means colors. Screenshots were visually
+inspected: [gestures](evidence/scatter3d-gestures.png) and
+[analysis colors](evidence/analysis-3d-workbench.png). The frame hooks inject
+Dear ImGui mouse/key events and position the backend cursor for the gesture run.
+M5.3/final extension gates remain open pending large/wide resource acceptance.

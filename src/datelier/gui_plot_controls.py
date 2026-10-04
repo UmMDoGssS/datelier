@@ -36,12 +36,19 @@ class PlotControls:
     relationship_features: list[str] | None = None
     cluster_color: bool = False
     cluster_result: ClusteringResult | None = None
+    three_d: bool = False
+    z_index: int = 2
 
     def bind(self, dataset: Dataset) -> None:
         self.cluster_result = None
         self.cluster_color = False
         previous_x = self.numeric[self.x_index] if self.numeric else ""
         previous_y = self.numeric[self.y_index] if self.numeric else ""
+        previous_z = (
+            self.numeric[min(self.z_index, len(self.numeric) - 1)]
+            if self.numeric
+            else ""
+        )
         previous_profile = (
             self.columns[self.profile_index - 1] if self.profile_index else ""
         )
@@ -74,6 +81,11 @@ class PlotControls:
             if previous_y in self.numeric
             else max(0, min(1, len(self.numeric) - 1))
         )
+        self.z_index = (
+            self.numeric.index(previous_z)
+            if previous_z in self.numeric
+            else max(0, min(2, len(self.numeric) - 1))
+        )
         self.profile_index = (
             self.columns.index(previous_profile) + 1
             if previous_profile in self.columns
@@ -90,7 +102,7 @@ class PlotControls:
     def settings(self) -> PlotSettings:
         pair = (
             (self.numeric[self.x_index], self.numeric[self.y_index])
-            if self.custom_scatter
+            if self.custom_scatter or self.three_d and len(self.numeric) >= 3
             else None
         )
         return PlotSettings(
@@ -111,6 +123,9 @@ class PlotControls:
             self.color_columns[self.color_index - 1] if self.color_index else None,
             tuple(self.relationship_features or ()),
             self.cluster_result if self.cluster_color else None,
+            self.numeric[self.z_index]
+            if self.three_d and len(self.numeric) >= 3
+            else None,
         )
 
     def show(self, explorer: Explorer, dataset: Dataset | None) -> None:
@@ -190,11 +205,28 @@ class PlotControls:
         if len(self.numeric) < 2:
             imgui.text("Scatter requires at least two numeric columns.")
             return
-        imgui.set_next_item_width(160)
+        changed, self.three_d = imgui.checkbox("3D scatter", self.three_d)
+        if (
+            changed
+            and self.three_d
+            and len(self.numeric) >= 3
+            and self.z_index in (self.x_index, self.y_index)
+        ):
+            self.z_index = next(
+                i
+                for i in range(len(self.numeric))
+                if i not in (self.x_index, self.y_index)
+            )
+        imgui.same_line()
+        imgui.set_next_item_width(100 if self.three_d else 160)
         _, self.x_index = imgui.combo("Raw X", self.x_index, list(self.numeric))
         imgui.same_line()
-        imgui.set_next_item_width(160)
+        imgui.set_next_item_width(100 if self.three_d else 160)
         _, self.y_index = imgui.combo("Raw Y", self.y_index, list(self.numeric))
+        if self.three_d:
+            imgui.same_line()
+            imgui.set_next_item_width(100)
+            _, self.z_index = imgui.combo("Raw Z", self.z_index, list(self.numeric))
         imgui.set_next_item_width(160)
         _, self.color_index = imgui.combo(
             "Color column", self.color_index, ["Uniform", *self.color_columns]
@@ -208,6 +240,11 @@ class PlotControls:
             try:
                 if self.x_index == self.y_index:
                     raise ValueError("Choose distinct raw axes")
+                if self.three_d and (
+                    len(self.numeric) < 3
+                    or self.z_index in (self.x_index, self.y_index)
+                ):
+                    raise ValueError("Choose three distinct numeric raw axes")
                 explorer.request(dataset, self.settings())
                 self.error = ""
             except ValueError as error:

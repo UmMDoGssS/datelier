@@ -18,6 +18,7 @@ from datelier.gui import GuiSession, InspectionEvidence, run_gui
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--reduction", choices=["pca", "tsne", "umap"], default="pca")
+    parser.add_argument("--dimensions", type=int, choices=[2, 3], default=2)
     args = parser.parse_args()
     algorithm = {"pca": Algorithm.PCA, "tsne": Algorithm.TSNE, "umap": Algorithm.UMAP}[
         args.reduction
@@ -40,6 +41,7 @@ def main() -> None:
             if stage == 0:
                 assert not analysis.jobs.busy and not analysis.jobs.results
                 analysis.controls.features = ["x", "y", "z"]
+                analysis.controls.dimensions = args.dimensions
                 session.exploration.tab = "Scatter"
                 analysis.controls.start(analysis.jobs, active.dataset, algorithm)
                 stage, entered = 1, evidence.frames
@@ -53,7 +55,11 @@ def main() -> None:
                 session.selection.choose(active.dataset.revision, (0,))
                 stage, entered = 2, evidence.frames
             elif stage == 2 and age > 20:
-                assert session.exploration.interaction.selected_points == 1
+                assert (
+                    session.exploration.scatter3d.selected_points
+                    if args.dimensions == 3
+                    else session.exploration.interaction.selected_points
+                ) == 1
                 assert source.read_bytes() == original
                 analysis.controls.kmeans_limit = 30
                 analysis.controls.start(analysis.jobs, active.dataset, Algorithm.KMEANS)
@@ -67,7 +73,11 @@ def main() -> None:
             elif stage == 4 and age > 20:
                 assert dashboard.scatters[0].colors is not None
                 assert dashboard.scatters[0].colors.name == "K-means"
-                assert session.exploration.interaction.selected_points == 1
+                assert (
+                    session.exploration.scatter3d.selected_points
+                    if args.dimensions == 3
+                    else session.exploration.interaction.selected_points
+                ) == 1
                 hello_imgui.get_runner_params().app_shall_exit = True
 
         evidence = run_gui(source, smoke_frames=10000, on_frame=frame)

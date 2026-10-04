@@ -32,6 +32,7 @@ class PlotSettings:
     color_column: str | None = None
     relationship_features: tuple[str, ...] = ()
     clusters: ClusteringResult | None = field(default=None, compare=False, repr=False)
+    scatter_z: str | None = None
 
     def validate(self) -> None:
         self.comparison.validate()
@@ -86,6 +87,8 @@ def prepare_dashboard(
             settings.scatter_pair,
             *[p for p in pairs if p != settings.scatter_pair],
         ][:3]
+    if settings.scatter_z is not None:
+        pairs = [p for p in pairs if settings.scatter_z not in p]
     scatters = tuple(
         prepare_scatter(
             dataset,
@@ -93,6 +96,7 @@ def prepare_dashboard(
             limit=settings.point_limit,
             color=settings.color_column,
             clusters=settings.clusters,
+            z=settings.scatter_z,
         )
         for pair in pairs
     )

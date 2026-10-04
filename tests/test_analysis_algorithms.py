@@ -42,6 +42,9 @@ def test_pca_subspace_repeatability_and_linked_plot() -> None:
         )
     )
     assert isinstance(full, EmbeddingResult) and full.values.shape == (60, 3)
+    plotted = prepare_embedding_plot(dataset, full, 10, None)
+    assert plotted.z is not None and plotted.z_name == "PCA 3"
+    np.testing.assert_array_equal(plotted.z, full.values[plotted.positions, 2])
 
 
 def test_kmeans_fit_sample_and_displayed_prediction_alignment() -> None:

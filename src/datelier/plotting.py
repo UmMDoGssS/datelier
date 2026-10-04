@@ -57,6 +57,8 @@ class Scatter:
     eligible_rows: int
     total_rows: int
     colors: PointColors | None = None
+    z: NDArray[np.float64] | None = None
+    z_name: str = ""
 
 
 def sample_indices(rows: int, limit: int) -> NDArray[np.int64]:
@@ -77,11 +79,14 @@ def prepare_scatter(
     limit: int = 2_000,
     color: str | None = None,
     clusters: ClusteringResult | None = None,
+    z: str | None = None,
 ) -> Scatter:
     if not 1 <= limit <= 10_000 or x == y:
         raise ValueError(
             "Scatter requires distinct numeric columns and 1–10,000 points"
         )
+    if z is not None and (z not in numeric_columns(dataset) or z in (x, y)):
+        raise ValueError("3D scatter requires three distinct existing numeric columns")
     table = dataset.table
     if x not in numeric_columns(dataset) or y not in numeric_columns(dataset):
         raise ValueError("Scatter coordinates must be existing numeric columns")
@@ -90,6 +95,9 @@ def prepare_scatter(
     xv = table.get_column(x).rename("x").cast(pl.Float64)
     yv = table.get_column(y).rename("y").cast(pl.Float64)
     mask = xv.is_finite() & yv.is_finite()
+    zv = table.get_column(z).rename("z").cast(pl.Float64) if z is not None else None
+    if zv is not None:
+        mask = mask & zv.is_finite()
     eligible = pl.DataFrame(
         {
             "x": xv.filter(mask),
@@ -100,11 +108,21 @@ def prepare_scatter(
             ).filter(mask),
         }
     )
+    if zv is not None:
+        eligible = eligible.with_columns(zv.filter(mask))
     selected = eligible[sample_indices(eligible.height, limit)]
     xs = selected.get_column("x").to_numpy()
     ys = selected.get_column("y").to_numpy()
     ids = selected.get_column("id").to_numpy()
     positions = selected.get_column("position").to_numpy()
+    zs = selected.get_column("z").to_numpy() if zv is not None else None
+    if zs is not None:
+        for axis in (xs, ys, zs):
+            if len(axis) and not math.isfinite(float(axis.max()) - float(axis.min())):
+                raise ValueError(
+                    "3D coordinate range overflows; use standardized analysis features"
+                )
+        zs.flags.writeable = False
     for array in (xs, ys, ids, positions):
         array.flags.writeable = False
     return Scatter(
@@ -122,6 +140,8 @@ def prepare_scatter(
         else prepare_colors(dataset, positions, color)
         if color
         else None,
+        zs,
+        z or "",
     )
 
 

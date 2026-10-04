@@ -74,7 +74,8 @@ class AnalysisSession:
             color,
             plots.cluster_result if plots.cluster_color else None,
         )
-        imgui.text_wrapped(self.plots.message)
+        if self.plots.active is None:
+            imgui.text_wrapped(self.plots.message)
         summary = result.provenance.input
         imgui.text_wrapped(
             f"Embedding: {summary.sampled_rows:,} sampled "

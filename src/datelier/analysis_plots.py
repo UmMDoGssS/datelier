@@ -28,6 +28,9 @@ def prepare_embedding_plot(
     for array in (x, y, positions, ids):
         array.flags.writeable = False
     name = result.provenance.request.algorithm
+    z = coordinates[:, 2].copy() if coordinates.shape[1] == 3 else None
+    if z is not None:
+        z.flags.writeable = False
     return Scatter(
         result.revision,
         f"{name} 1",
@@ -43,6 +46,8 @@ def prepare_embedding_plot(
         else prepare_colors(dataset, positions, color)
         if color
         else None,
+        z,
+        f"{name} 3" if z is not None else "",
     )
 
 
