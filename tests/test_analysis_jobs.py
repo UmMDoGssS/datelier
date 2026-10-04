@@ -155,7 +155,7 @@ def test_abrupt_worker_exit_retains_result_and_allows_retry() -> None:
         assert previous is not None
         jobs.request(data, AnalysisRequest(("x", "y"), seed=17))
         wait(jobs, data)
-        assert "failed" in jobs.message.lower()
+        assert "worker exited" in jobs.message.lower() and "(7)" in jobs.message
         assert jobs.latest is previous and len(jobs.results) == 1
         jobs.request(data, AnalysisRequest(("x", "y"), seed=18))
         wait(jobs, data)

@@ -92,7 +92,13 @@ class AnalysisJobs:
                     raise CancelledError()
                 if not process.is_alive():
                     raise RuntimeError(f"Analysis worker exited ({process.exitcode})")
-            result = receiving.recv()
+            try:
+                result = receiving.recv()
+            except EOFError as error:
+                process.join(0.1)
+                raise RuntimeError(
+                    f"Analysis worker exited without a result ({process.exitcode})"
+                ) from error
             if cancel.is_set():
                 raise CancelledError()
             if not isinstance(result, (EmbeddingResult, ClusteringResult)):
