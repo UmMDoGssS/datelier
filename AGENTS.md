@@ -50,7 +50,7 @@ profiles/plots and configurable linked-selection gates;
 [docs/phase-4.md](docs/phase-4.md) records correctness, GUI, and resource
 evidence. Phase 5 M5.1 has passed shared analysis, PCA and k-means gates;
 [docs/phase-5.md](docs/phase-5.md) records correctness, GUI and resource evidence.
-t-SNE/UMAP and 3D/final inspection-extension gates remain open in
+M5.2 t-SNE/UMAP has also passed; 3D/final inspection-extension gates remain open in
 [ROADMAP.md](ROADMAP.md).
 
 Use this file for durable conventions and `ROADMAP.md` for sequencing,

@@ -3,6 +3,7 @@
 from importlib.metadata import version
 from time import perf_counter
 from typing import cast
+from warnings import catch_warnings
 
 import numpy as np
 from numpy.typing import NDArray
@@ -16,17 +17,13 @@ from datelier.analysis_types import (
     PreparedInput,
     Provenance,
     TSNEParameters,
+    UMAPParameters,
 )
 
 
 def run_analysis(prepared: PreparedInput) -> AnalysisResult:
     from threadpoolctl import threadpool_limits
 
-    with threadpool_limits(limits=1):
-        return _run_analysis(prepared)
-
-
-def _run_analysis(prepared: PreparedInput) -> AnalysisResult:
     started = perf_counter()
     request = prepared.request
     params = request.parameters
@@ -39,9 +36,10 @@ def _run_analysis(prepared: PreparedInput) -> AnalysisResult:
             max_iter=params.iterations,
             random_state=request.seed,
         )
-        labels = cast(NDArray[np.int64], estimator.fit_predict(prepared.values)).astype(
-            np.int64
-        )
+        with threadpool_limits(limits=1):
+            labels = cast(
+                NDArray[np.int64], estimator.fit_predict(prepared.values)
+            ).astype(np.int64)
         centers = cast(NDArray[np.float64], estimator.cluster_centers_).astype(
             np.float64
         )
@@ -75,9 +73,10 @@ def _run_analysis(prepared: PreparedInput) -> AnalysisResult:
             random_state=request.seed,
             n_jobs=1,
         )
-        coordinates = cast(
-            NDArray[np.float64], tsne.fit_transform(prepared.values)
-        ).astype(np.float64)
+        with threadpool_limits(limits=1):
+            coordinates = cast(
+                NDArray[np.float64], tsne.fit_transform(prepared.values)
+            ).astype(np.float64)
         return embedding_result(
             prepared,
             coordinates,
@@ -88,6 +87,39 @@ def _run_analysis(prepared: PreparedInput) -> AnalysisResult:
                 ("Distance", "Euclidean"),
                 ("Method", "Barnes-Hut"),
             ),
+        )
+    if isinstance(params, UMAPParameters):
+        from numba import set_num_threads
+        from umap import UMAP
+
+        set_num_threads(1)
+        reducer = UMAP(
+            n_components=request.dimensions,
+            n_neighbors=params.neighbors,
+            min_dist=params.min_distance,
+            metric=params.metric,
+            init="spectral",
+            random_state=request.seed,
+            transform_seed=request.seed,
+            n_jobs=1,
+            low_memory=True,
+        )
+        with catch_warnings(record=True) as captured, threadpool_limits(limits=1):
+            coordinates = cast(
+                NDArray[np.float64], reducer.fit_transform(prepared.values)
+            ).astype(np.float64)
+        warnings = tuple(("Fit warning", str(item.message)) for item in captured)
+        return embedding_result(
+            prepared,
+            coordinates,
+            started,
+            (
+                ("Distance", params.metric),
+                ("Initialization", "spectral"),
+                ("Threads", "1"),
+                *warnings,
+            ),
+            ("numpy", "polars", "scikit-learn", "umap-learn", "numba", "threadpoolctl"),
         )
     if not isinstance(params, PCAParameters):
         raise NotImplementedError(f"{request.algorithm} runner is not implemented yet")
@@ -101,9 +133,10 @@ def _run_analysis(prepared: PreparedInput) -> AnalysisResult:
         random_state=request.seed,
     )
     # Narrow cast at scikit-learn's dynamic estimator-array boundary.
-    coordinates = cast(NDArray[np.float64], pca.fit_transform(prepared.values)).astype(
-        np.float64
-    )
+    with threadpool_limits(limits=1):
+        coordinates = cast(
+            NDArray[np.float64], pca.fit_transform(prepared.values)
+        ).astype(np.float64)
     return embedding_result(
         prepared,
         coordinates,
@@ -117,7 +150,7 @@ def embedding_result(
     coordinates: NDArray[np.float64],
     started: float,
     details: tuple[tuple[str, str], ...],
-    libraries: tuple[str, ...] = ("numpy", "polars", "scikit-learn"),
+    libraries: tuple[str, ...] = ("numpy", "polars", "scikit-learn", "threadpoolctl"),
 ) -> EmbeddingResult:
     if (
         coordinates.shape != (len(prepared.row_ids), prepared.request.dimensions)
@@ -138,7 +171,7 @@ def embedding_result(
 def make_provenance(
     prepared: PreparedInput,
     started: float,
-    libraries: tuple[str, ...] = ("numpy", "polars", "scikit-learn"),
+    libraries: tuple[str, ...] = ("numpy", "polars", "scikit-learn", "threadpoolctl"),
 ) -> Provenance:
     return Provenance(
         prepared.request,

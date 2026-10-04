@@ -172,7 +172,7 @@ milestones remain unchecked.
 
 ## Phase 5 — On-demand unsupervised analysis
 
-- [ ] **Phase complete.** **Entry:** Phase 4 passes. **Exit:** M5.1 and M5.2 pass.
+- [ ] **Phase complete.** **Entry:** Phase 4 passes. **Exit:** M5.1, M5.2 and M5.3 pass.
 
 ### M5.1 — Shared analysis flow, PCA, and k-means
 
@@ -184,11 +184,17 @@ milestones remain unchecked.
 
 ### M5.2 — t-SNE, UMAP, and bounded jobs
 
-- [ ] **Deliverables:** t-SNE/UMAP controls and plots, parameter validation, progress where available, cancellation/safe abandonment, explicit resource limits.
-- [ ] **Entry gate:** M5.1 passes and the common analysis flow handles preprocessing, identity, provenance, and failure.
-- [ ] **Exit gate:** both algorithms run on eligible data by command; invalid parameters are rejected; abandoned/stale jobs cannot publish results; large inputs use visible limits or sampling.
-- [ ] **Verification evidence:** finite embedding/shape and parameter tests, recorded seed behavior, job failure/abandonment/stale-result tests, resource measurements, and GUI lifecycle checks.
-- [ ] **Suggested step commits:** `feat: add t-sne analysis` → `feat: add umap analysis` → `feat: bound and abandon analysis jobs`.
+- [x] **Deliverables:** t-SNE/UMAP controls and plots, parameter validation, progress where available, cancellation/safe abandonment, explicit resource limits.
+- [x] **Entry gate:** M5.1 passes and the common analysis flow handles preprocessing, identity, provenance, and failure.
+- [x] **Exit gate:** both algorithms run on eligible data by command; invalid parameters are rejected; abandoned/stale jobs cannot publish results; large inputs use visible limits or sampling.
+- [x] **Verification evidence:** [M5.2 evidence](docs/phase-5.md#m52--t-sne-umap-and-bounded-jobs): 267 full-suite tests, Pyrefly/Ruff, finite aligned 2/3D embeddings, seed behavior, actual worker cancellation, live t-SNE/UMAP linked-color workflows, and eight resource cases pass.
+- [x] **Suggested step commits:** `feat: add t-sne analysis` → `feat: add umap analysis` → `feat: bound and abandon analysis jobs`.
+
+### M5.3 — 3D views and final exploration acceptance
+
+- [ ] **Deliverables:** raw XYZ and three-component embedding plots, column/cluster colors, linked projected picking/brushing and camera gestures.
+- [ ] **Exit gate:** 3D source identity, renderer/gesture checks and final inspection/analysis resource gates pass; evidence recorded.
+- [ ] **Verification evidence:** 3D correctness/GUI checks, full regression suite, large/wide live frame/memory measurements and final workflow checks.
 
 ## Phase 6 — Workspaces and customization
 

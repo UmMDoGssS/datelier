@@ -17,9 +17,11 @@ from datelier.gui import GuiSession, InspectionEvidence, run_gui
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--reduction", choices=["pca", "tsne"], default="pca")
+    parser.add_argument("--reduction", choices=["pca", "tsne", "umap"], default="pca")
     args = parser.parse_args()
-    algorithm = Algorithm.PCA if args.reduction == "pca" else Algorithm.TSNE
+    algorithm = {"pca": Algorithm.PCA, "tsne": Algorithm.TSNE, "umap": Algorithm.UMAP}[
+        args.reduction
+    ]
     stage, entered = 0, 0
     with TemporaryDirectory(prefix="datelier-analysis-") as folder:
         source = Path(folder) / "data.parquet"

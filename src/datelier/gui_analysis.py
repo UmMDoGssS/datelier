@@ -46,7 +46,7 @@ class AnalysisSession:
         if changed:
             self.source = algorithms[index - 1] if index else None
         imgui.same_line()
-        if imgui.button("Analysis settings"):
+        if imgui.button("Analysis inputs"):
             imgui.set_window_focus("Analysis")
         imgui.same_line()
         imgui.begin_disabled(self.jobs.busy)
@@ -55,6 +55,9 @@ class AnalysisSession:
         imgui.same_line()
         if imgui.button("t-SNE"):
             self.controls.start(self.jobs, dataset, Algorithm.TSNE)
+        imgui.same_line()
+        if imgui.button("UMAP"):
+            self.controls.start(self.jobs, dataset, Algorithm.UMAP)
         imgui.end_disabled()
         if self.source is None:
             return None

@@ -111,3 +111,19 @@ Verification: 15 focused preparation/job/algorithm tests pass, including finite
 Ruff lint/format and diff checks pass. The live `--reduction tsne` workflow
 runs t-SNE explicitly, selects linked rows and applies k-means colors to raw
 and reduced points. Final M5.2 resource/acceptance gates remain open.
+
+## Step 6b — UMAP and M5.2 acceptance
+
+UMAP exposes neighbors, minimum distance and Euclidean/cosine metric in addition
+to common features/preprocessing/dimensions/seed/sample limits. It uses recorded
+spectral initialization, low-memory mode and one estimator/Numba thread.
+Library warnings are retained in result provenance. Estimator thread bounds
+are applied after imports so newly loaded OpenMP/BLAS libraries are covered.
+
+Full suite: 267 passed in 12.16s; final thread-bound adjustment passed eight
+focused algorithm/job regressions; Pyrefly/Ruff/diff checks pass. The live UMAP
+workflow passed 1,224 frames with explicit execution, linked embedding and
+raw/reduced cluster colors. A t-SNE GUI rerun without OMP/BLAS environment
+settings verifies runtime thread limits. All eight t-SNE/UMAP resource runs
+pass the 2 GiB combined budget. [M5.2 evidence](phase-5.md#m52--t-sne-umap-and-bounded-jobs)
+records first/warmed worker timings. M5.2 passes; 3D/final inspection gates remain open.

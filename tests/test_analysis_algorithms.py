@@ -95,3 +95,31 @@ def test_tsne_finite_dimensions_seed_and_explicit_settings() -> None:
         )
         np.testing.assert_array_equal(first.values, second.values)
         assert first.provenance.request == request
+
+
+def test_umap_finite_dimensions_seed_and_metric() -> None:
+    from datelier.analysis_types import UMAPParameters
+
+    rng = np.random.default_rng(9)
+    dataset = Dataset.from_source(
+        pl.DataFrame(rng.normal(size=(35, 3)), schema=["x", "y", "z"]),
+        SourceReference(Path("unused"), 0, 0),
+    )
+    for dimensions, metric in ((2, "euclidean"), (3, "cosine")):
+        request = AnalysisRequest(
+            ("x", "y", "z"),
+            UMAPParameters(neighbors=5, metric=metric),
+            row_limit=35,
+            dimensions=dimensions,
+        )
+        prepared = prepare_input(dataset, request)
+        first, second = run_analysis(prepared), run_analysis(prepared)
+        assert isinstance(first, EmbeddingResult) and isinstance(
+            second, EmbeddingResult
+        )
+        assert (
+            first.values.shape == (35, dimensions) and np.isfinite(first.values).all()
+        )
+        np.testing.assert_array_equal(first.values, second.values)
+        assert first.provenance.request == request
+        assert "umap-learn" in dict(first.provenance.versions)

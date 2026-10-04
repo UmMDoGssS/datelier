@@ -52,3 +52,44 @@ filesystem/library caches, not a retained estimator process. Thread settings:
 M5.1 passes. M5.2, 3D acceptance and final richer-inspection resource gates
 remain open. No full-million-row ML fit or unverified rendering/platform
 support is claimed.
+
+## M5.2 — t-SNE, UMAP and bounded jobs
+
+t-SNE and UMAP use the verified shared input/job lifecycle. Controls expose
+algorithm parameters and resource caps: t-SNE defaults to 2,000 sampled rows
+(max 10,000), UMAP to 5,000 (max 50,000). Invalid perplexity, neighbor count,
+PCA initialization dimensions, cosine zero vectors, missing inputs and excessive
+limits have explicit errors. No import, transform, plotting or setting-change
+path implicitly runs an estimator. Worker cancellation and revision invalidation
+retain successful current results and prevent abandoned jobs from publishing.
+
+Full suite **267 passed in 12.16s**, Pyrefly zero errors, Ruff lint/format and
+diff checks pass. Algorithm fixtures produce finite aligned 2/3-dimensional
+embeddings, record exact settings/versions and repeat identically with a fixed
+seed on the reference environment. A real t-SNE request is cancelled during
+its worker phase with no publication. Failed requests retain previous results.
+Live t-SNE and UMAP workbench workflows passed 240 and 1,224 frames respectively,
+including linked selection and k-means colors on raw/reduced plots. Runtime
+thread limits were also checked without user OMP/BLAS settings. Thread bounds
+are applied after estimator imports; the final adjustment passed eight focused
+algorithm/job regressions and a fresh GUI check.
+
+Eight fresh-parent cases run each estimator twice in separate workers. Each
+case uses a fresh temporary Numba cache for first/warmed-run comparisons.
+
+| Input rows × features | t-SNE combined upper bound | UMAP combined upper bound |
+| --- | ---: | ---: |
+| 10,000 × 6 | 255.43 MiB | 664.57 MiB |
+| 100,000 × 6 | 282.05 MiB | 690.79 MiB |
+| 1,000,000 × 6 | 753.02 MiB | 951.81 MiB |
+| 100,000 × 64 | 504.45 MiB | 843.94 MiB |
+
+t-SNE wall times were 5.806–8.784s for the 2,000-row sample and 1,000 iterations.
+UMAP first runs were 22.44–23.28s and warmed runs 18.65–19.75s for 5,000 rows.
+Every combined upper bound passes **2 GiB**. Reports are
+`docs/evidence/analysis-{tsne,umap}-{rows}-{features}.json`. These timings include
+owned-process startup, library initialization and fitting; they do not promise
+interactive fit latency or capacity for full-million-row analysis. First/warmed
+fits run in distinct workers, preserving cancellation isolation.
+
+M5.2 passes. Added M5.3 3D and final richer-inspection gates remain open.

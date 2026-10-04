@@ -2,17 +2,22 @@
 
 import argparse
 import json
+import os
 import resource
 from dataclasses import asdict
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from time import perf_counter, sleep
 
 from datelier.analysis_jobs import AnalysisJobs
 from datelier.analysis_types import (
+    DEFAULT_LIMITS,
     AnalysisRequest,
     ClusteringResult,
     KMeansParameters,
     PCAParameters,
+    TSNEParameters,
+    UMAPParameters,
 )
 from datelier.dataset import Dataset, SourceReference
 from datelier.feasibility.fixtures import make_table
@@ -20,7 +25,9 @@ from datelier.feasibility.fixtures import make_table
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--algorithm", choices=["pca", "kmeans"], required=True)
+    parser.add_argument(
+        "--algorithm", choices=["pca", "kmeans", "tsne", "umap"], required=True
+    )
     parser.add_argument("--rows", type=int, default=1_000_000)
     parser.add_argument("--columns", type=int, default=6)
     parser.add_argument("--output", type=Path, required=True)
@@ -28,10 +35,19 @@ def main() -> None:
     dataset = Dataset.from_source(
         make_table(args.rows, args.columns), SourceReference(Path("synthetic"), 0, 0)
     )
-    parameters = PCAParameters() if args.algorithm == "pca" else KMeansParameters()
+    parameters = {
+        "pca": PCAParameters(),
+        "kmeans": KMeansParameters(),
+        "tsne": TSNEParameters(),
+        "umap": UMAPParameters(),
+    }[args.algorithm]
     request = AnalysisRequest(
-        tuple(f"feature_{i}" for i in range(args.columns)), parameters
+        tuple(f"feature_{i}" for i in range(args.columns)),
+        parameters,
+        row_limit=DEFAULT_LIMITS[parameters.algorithm],
     )
+    cache = TemporaryDirectory(prefix="datelier-analysis-numba-")
+    os.environ["NUMBA_CACHE_DIR"] = cache.name
     jobs = AnalysisJobs()
     timings: list[dict[str, float]] = []
     try:
@@ -73,6 +89,7 @@ def main() -> None:
         assert report["memory_passed"]
     finally:
         jobs.close()
+        cache.cleanup()
 
 
 if __name__ == "__main__":

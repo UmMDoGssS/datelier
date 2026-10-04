@@ -59,6 +59,12 @@ def test_spawn_publication_and_revision_invalidation() -> None:
             jobs.request(data, AnalysisRequest(("x", "y")))
         wait(jobs, data)
         assert len(jobs.results) == 1
+        previous = jobs.latest
+        assert previous is not None and not previous.row_ids.flags.writeable
+        jobs.request(data, AnalysisRequest(("missing",)))
+        wait(jobs, data)
+        assert jobs.latest is previous and len(jobs.results) == 1
+        assert "failed" in jobs.message
         jobs.poll(dataset().revision)
         assert not jobs.results
     finally:
@@ -96,5 +102,22 @@ def test_preparation_and_worker_errors_are_visible() -> None:
         jobs.request(data, AnalysisRequest(("x", "y")))
         wait(jobs, data)
         assert "deliberate worker error" in jobs.message
+    finally:
+        jobs.close()
+
+
+def test_actual_tsne_cancellation_has_no_publication() -> None:
+    from datelier.analysis_types import TSNEParameters
+
+    data = dataset()
+    jobs = AnalysisJobs()
+    try:
+        jobs.request(data, AnalysisRequest(("x", "y"), TSNEParameters(perplexity=5)))
+        deadline = monotonic() + 5
+        while "fitting" not in jobs.phase and monotonic() < deadline:
+            sleep(0.01)
+        jobs.cancel()
+        wait(jobs, data)
+        assert not jobs.results and "stopped" in jobs.message
     finally:
         jobs.close()

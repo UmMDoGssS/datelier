@@ -1,0 +1,54 @@
+{
+  "algorithm": "t-SNE",
+  "rows": 100000,
+  "features": 6,
+  "sample": {
+    "total_rows": 100000,
+    "eligible_rows": 94117,
+    "excluded_rows": 5883,
+    "sampled_rows": 2000,
+    "imputed_cells": 0,
+    "removed_constants": [],
+    "used_features": [
+      "feature_0",
+      "feature_1",
+      "feature_2",
+      "feature_3",
+      "feature_4",
+      "feature_5"
+    ]
+  },
+  "versions": [
+    [
+      "numpy",
+      "2.5.3"
+    ],
+    [
+      "polars",
+      "1.44.2"
+    ],
+    [
+      "scikit-learn",
+      "1.9.1"
+    ],
+    [
+      "threadpoolctl",
+      "3.7.0"
+    ]
+  ],
+  "cold_then_warmed_spawn": [
+    {
+      "wall_seconds": 5.938840659000562,
+      "fit_seconds": 5.66758028500044
+    },
+    {
+      "wall_seconds": 5.866439395998896,
+      "fit_seconds": 5.59784605599998
+    }
+  ],
+  "parent_peak_mib": 114.63671875,
+  "worker_peak_mib": 167.41015625,
+  "combined_peak_upper_bound_mib": 282.046875,
+  "memory_budget_mib": 2048,
+  "memory_passed": true
+}

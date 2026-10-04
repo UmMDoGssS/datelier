@@ -14,6 +14,7 @@ from datelier.analysis_types import (
     PCAParameters,
     Preprocessing,
     TSNEParameters,
+    UMAPParameters,
 )
 from datelier.dataset import Dataset
 from datelier.plotting import numeric_columns
@@ -42,6 +43,10 @@ class AnalysisControls:
     tsne_auto_rate: bool = True
     tsne_rate: float = 200
     tsne_init: int = 0
+    umap_limit: int = 5_000
+    neighbors: int = 15
+    min_distance: float = 0.1
+    umap_metric: int = 0
 
     def bind(self, dataset: Dataset) -> None:
         self.numeric = numeric_columns(dataset)
@@ -66,6 +71,13 @@ class AnalysisControls:
                 ["pca", "random"][self.tsne_init],
             )
             limit = self.tsne_limit
+        elif algorithm == Algorithm.UMAP:
+            params = UMAPParameters(
+                self.neighbors,
+                self.min_distance,
+                ["euclidean", "cosine"][self.umap_metric],
+            )
+            limit = self.umap_limit
         else:
             raise ValueError("This algorithm is not implemented yet")
         return AnalysisRequest(
@@ -144,6 +156,18 @@ class AnalysisControls:
             imgui.tree_pop()
         if imgui.button("Run t-SNE"):
             self.start(jobs, dataset, Algorithm.TSNE)
+        if imgui.tree_node("UMAP settings"):
+            _, self.umap_limit = imgui.input_int("UMAP rows (max 50k)", self.umap_limit)
+            _, self.neighbors = imgui.input_int("Neighbors", self.neighbors)
+            _, self.min_distance = imgui.slider_float(
+                "Minimum distance", self.min_distance, 0, 1
+            )
+            _, self.umap_metric = imgui.combo(
+                "Metric", self.umap_metric, ["euclidean", "cosine"]
+            )
+            imgui.tree_pop()
+        if imgui.button("Run UMAP"):
+            self.start(jobs, dataset, Algorithm.UMAP)
         if imgui.tree_node("K-means settings"):
             _, self.kmeans_limit = imgui.input_int(
                 "K-means rows (max 100k)", self.kmeans_limit
