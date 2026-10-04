@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from time import monotonic, sleep
 
@@ -31,6 +32,12 @@ def failed_result(prepared: PreparedInput) -> EmbeddingResult:
 
 def slow_result(prepared: PreparedInput) -> EmbeddingResult:
     sleep(10)
+    return fake_result(prepared)
+
+
+def crashing_result(prepared: PreparedInput) -> EmbeddingResult:
+    if prepared.request.seed == 17:
+        os._exit(7)
     return fake_result(prepared)
 
 
@@ -134,5 +141,25 @@ def test_cancel_completed_worker_before_publication() -> None:
         jobs.poll(data.revision)
         assert not jobs.busy and not jobs.results
         assert "stopped" in jobs.message
+    finally:
+        jobs.close()
+
+
+def test_abrupt_worker_exit_retains_result_and_allows_retry() -> None:
+    data = dataset()
+    jobs = AnalysisJobs(crashing_result)
+    try:
+        jobs.request(data, AnalysisRequest(("x", "y")))
+        wait(jobs, data)
+        previous = jobs.latest
+        assert previous is not None
+        jobs.request(data, AnalysisRequest(("x", "y"), seed=17))
+        wait(jobs, data)
+        assert "failed" in jobs.message.lower()
+        assert jobs.latest is previous and len(jobs.results) == 1
+        jobs.request(data, AnalysisRequest(("x", "y"), seed=18))
+        wait(jobs, data)
+        assert jobs.latest is not None and jobs.latest is not previous
+        assert jobs.latest.provenance.request.seed == 18
     finally:
         jobs.close()
