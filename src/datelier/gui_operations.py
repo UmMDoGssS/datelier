@@ -1,33 +1,25 @@
 """Explicit table edits and history controls; all computation runs in workers."""
 
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from imgui_bundle import imgui
 
 from datelier.editing import DatasetEditor, HistoryAction
+from datelier.gui_transforms import TransformControls
+from datelier.gui_values import scalar_input
 from datelier.operations import (
     Comparison,
     Filter,
-    Scalar,
     SelectColumns,
     Sort,
     describe_operation,
 )
 
 
-def scalar_input(text: str) -> Scalar:
-    try:
-        value = json.loads(text)
-    except ValueError:
-        return text
-    if value is None or isinstance(value, (str, int, float, bool)):
-        return value
-    raise ValueError("Use a number, boolean, null, or text value")
-
-
 @dataclass
 class OperationControls:
+    transforms: TransformControls = field(default_factory=TransformControls)
     column: str = ""
     descending: bool = False
     comparison: int = 0
@@ -84,6 +76,7 @@ class OperationControls:
                 ):
                     raise ValueError("Enter a JSON list of column names")
                 editor.request(SelectColumns(tuple(names)))
+            self.transforms.show(editor, self.column)
             self.error = ""
         except ValueError as error:
             self.error = str(error)

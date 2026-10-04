@@ -6,6 +6,14 @@ from enum import StrEnum
 import polars as pl
 
 from datelier.dataset import Dataset
+from datelier.scalars import Scalar
+from datelier.transform_types import (
+    CastColumn,
+    DropMissing,
+    FillMissing,
+    Lookup,
+    Transform,
+)
 
 
 class OperationFailure(ValueError):
@@ -21,9 +29,6 @@ class Comparison(StrEnum):
     GE = ">="
     IS_NULL = "is null"
     NOT_NULL = "is not null"
-
-
-type Scalar = str | int | float | bool | None
 
 
 @dataclass(frozen=True)
@@ -45,7 +50,7 @@ class SelectColumns:
     columns: tuple[str, ...]
 
 
-type Operation = Sort | Filter | SelectColumns
+type Operation = Sort | Filter | SelectColumns | Transform
 
 
 def require_columns(table: pl.DataFrame, columns: tuple[str, ...]) -> None:
@@ -105,6 +110,10 @@ def apply_operation(dataset: Dataset, operation: Operation) -> Dataset:
             case SelectColumns(columns):
                 require_columns(table, columns)
                 table = pl.DataFrame([table.get_column(name) for name in columns])
+            case CastColumn() | FillMissing() | DropMissing() | Lookup():
+                from datelier.transforms import apply_transform
+
+                table, ids = apply_transform(table, ids, operation)
         return dataset.with_rows(table, ids)
     except OperationFailure:
         raise
@@ -123,3 +132,20 @@ def describe_operation(operation: Operation) -> str:
             return f"Filter {column} {comparison.value} {value!r}"
         case SelectColumns(columns):
             return f"Keep {', '.join(columns)}"
+        case CastColumn(column, dtype, strict):
+            return f"Cast {column} to {dtype.value}" + (
+                " (invalid values become null)" if not strict else ""
+            )
+        case FillMissing(column, value, nonfinite):
+            return f"Fill missing {column} with {value!r}" + (
+                " including nonfinite" if nonfinite else ""
+            )
+        case DropMissing(columns, nonfinite):
+            return f"Drop rows missing {', '.join(columns)}" + (
+                " including nonfinite" if nonfinite else ""
+            )
+        case Lookup(column, entries, dtype, unmatched):
+            return (
+                f"Map {column}: {len(entries)} entries to {dtype.value}; "
+                f"{unmatched.value}"
+            )
