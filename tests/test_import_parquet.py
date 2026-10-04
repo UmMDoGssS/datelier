@@ -89,3 +89,24 @@ def test_corrupt_parquet_has_actionable_diagnostic(
 def test_invalid_parquet_column_options(columns: tuple[str, ...]) -> None:
     with pytest.raises(ValueError, match="nonempty and unique"):
         ParquetOptions(columns=columns)
+
+
+def test_parquet_preview_preserves_temporal_nanoseconds(tmp_path: Path) -> None:
+    path = tmp_path / "temporal.parquet"
+    integers = pl.Series([7, None, 123456789], dtype=pl.Int64)
+    table = pl.DataFrame(
+        {
+            "timestamp": integers.cast(pl.Datetime("ns")),
+            "time": integers.cast(pl.Time),
+            "duration": integers.cast(pl.Duration("ns")),
+        }
+    )
+    table.write_parquet(path)
+    imported = load_file(path)
+    assert_frame_equal(imported.dataset.table, table)
+    inspection = prepare_inspection(imported)
+    assert inspection.first_page.rows == (
+        ("1970-01-01 00:00:00.000000007", "00:00:00.000000007", "7 ns"),
+        ("NULL", "NULL", "NULL"),
+        ("1970-01-01 00:00:00.123456789", "00:00:00.123456789", "123456789 ns"),
+    )

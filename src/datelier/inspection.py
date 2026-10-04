@@ -41,6 +41,19 @@ class Inspection:
         return self.imported.dataset
 
 
+def _display_series(series: pl.Series) -> pl.Series:
+    # Python temporal objects lose sub-microsecond precision. Format only the
+    # bounded visible slice with Polars before converting cells to Python.
+    dtype = series.dtype
+    if isinstance(dtype, pl.Datetime):
+        return series.cast(pl.String)
+    if dtype == pl.Time:
+        return series.dt.to_string("%H:%M:%S%.9f")
+    if isinstance(dtype, pl.Duration):
+        return series.cast(pl.Int64).cast(pl.String) + f" {dtype.time_unit}"
+    return series
+
+
 def prepare_page(
     dataset: Dataset, row_start: int, column_start: int = 0
 ) -> PreviewPage:
@@ -51,7 +64,10 @@ def prepare_page(
     # Names are data: select expressions would interpret ^...$
     # as regex selectors. Literal Series access also keeps the page bounded.
     visible = pl.DataFrame(
-        [table.get_column(name).slice(row_start, PAGE_ROWS) for name in columns]
+        [
+            _display_series(table.get_column(name).slice(row_start, PAGE_ROWS))
+            for name in columns
+        ]
     )
 
     def cell(value: object) -> str:
