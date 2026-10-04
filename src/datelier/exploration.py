@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 
 from datelier.analysis_types import ClusteringResult
 from datelier.dataset import Dataset, DatasetRevision
+from datelier.distribution_preview import DistributionPreview
 from datelier.distributions import Comparison, DistributionSettings, prepare_comparison
 from datelier.plotting import (
     Bars,
@@ -122,6 +123,7 @@ def prepare_dashboard(
 
 class Explorer:
     def __init__(self) -> None:
+        self.distribution = DistributionPreview()
         self.active: Dashboard | None = None
         self.message = "Open a dataset for automatic exploration."
         self._executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="explore")
@@ -145,6 +147,7 @@ class Explorer:
         self.message = "Preparing profiles and plots…"
 
     def poll(self, revision: DatasetRevision | None) -> bool:
+        self.distribution.poll(revision)
         if self.active is not None and self.active.revision != revision:
             self.active = None
         future = self._future
@@ -164,6 +167,7 @@ class Explorer:
         return True
 
     def abandon(self) -> None:
+        self.distribution.clear()
         if self._future is not None:
             self._future.cancel()
             self._future = None
@@ -171,6 +175,7 @@ class Explorer:
         self.message = "Exploration abandoned; an executing job may still finish."
 
     def close(self) -> None:
+        self.distribution.close()
         self.abandon()
         self._closed = True
         self._executor.shutdown(wait=False, cancel_futures=True)

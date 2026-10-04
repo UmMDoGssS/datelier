@@ -2,14 +2,14 @@
 
 from dataclasses import dataclass, field
 
-from imgui_bundle import imgui, implot
+from imgui_bundle import imgui
 
 from datelier.dataset import Dataset, DatasetRevision
 from datelier.exploration import Dashboard, Explorer
 from datelier.gui_analysis import AnalysisSession
 from datelier.gui_distributions import MODES, show_comparison
 from datelier.gui_plot_controls import PlotControls
-from datelier.gui_profiles import draw_profile
+from datelier.gui_profiles import ProfileView
 from datelier.gui_relationships import RelationshipView
 from datelier.gui_scatter import draw_scatter
 from datelier.gui_scatter3d import Scatter3DView
@@ -21,7 +21,7 @@ from datelier.selection import LinkedSelection
 
 @dataclass
 class ExplorationView:
-    profile_index: int = 0
+    profile: ProfileView = field(default_factory=ProfileView)
     comparison_mode: int = 0
     relationships: RelationshipView = field(default_factory=RelationshipView)
     _comparison_key: tuple[DatasetRevision, int, object] | None = None
@@ -37,7 +37,22 @@ class ExplorationView:
     fit: bool = False
     _dashboard: Dashboard | None = None
     _scatter_key: tuple[DatasetRevision, str, str, str, bool] | None = None
-    _profile_key: tuple[DatasetRevision, str, int, int] | None = None
+
+    @property
+    def profile_index(self) -> int:
+        return self.profile.index
+
+    @profile_index.setter
+    def profile_index(self, value: int) -> None:
+        self.profile.index = value
+
+    @property
+    def profile_mode(self) -> int:
+        return self.profile.mode
+
+    @profile_mode.setter
+    def profile_mode(self, value: int) -> None:
+        self.profile.mode = value
 
     def show(
         self,
@@ -64,7 +79,10 @@ class ExplorationView:
         requested_tab, self.tab = self.tab, ""
         if imgui.begin_tab_bar("Exploration views"):
             for label, callback in (
-                ("Profiles", self.show_profile),
+                (
+                    "Profiles",
+                    lambda dashboard: self.show_profile(explorer, dashboard, dataset),
+                ),
                 (
                     "Scatter",
                     lambda dashboard: self.show_scatter_controls(
@@ -88,8 +106,9 @@ class ExplorationView:
                     imgui.end_tab_item()
             imgui.end_tab_bar()
 
-    def show_profile(self, dashboard: Dashboard) -> None:
-        profiles = dashboard.profiles
+    def show_profile(
+        self, explorer: Explorer, dashboard: Dashboard, dataset: Dataset | None
+    ) -> None:
         if dashboard.comparison is not None:
             _, self.comparison_mode = imgui.combo(
                 "Numeric comparison",
@@ -107,48 +126,8 @@ class ExplorationView:
                 self._comparison_key = key
                 if not imgui.collapsing_header("Individual column details"):
                     return
-        imgui.text_wrapped(
-            f"Profile focus: {dashboard.settings.profile_column}"
-            if dashboard.settings.profile_column
-            else (
-                f"Profiles: first {len(profiles.columns)} "
-                f"of {profiles.total_columns} columns."
-            )
-        )
-        if not profiles.columns:
-            return
-        names = [p.name for p in profiles.columns]
-        self.profile_index = min(self.profile_index, len(names) - 1)
-        _, self.profile_index = imgui.combo("Profile column", self.profile_index, names)
-        profile = profiles.columns[self.profile_index]
-        bars = dashboard.bars[self.profile_index]
-        imgui.text(f"{profile.kind} · {profile.dtype}")
-        imgui.text(
-            f"Nulls: {profile.null_count:,} · Nonfinite: {profile.nonfinite_count:,}"
-        )
-        if profile.minimum:
-            imgui.text_wrapped(f"Range: {profile.minimum} to {profile.maximum}")
-        if profile.mean is not None:
-            imgui.text(f"Mean: {profile.mean:.6g}")
-        if profile.distinct_count is not None:
-            imgui.text(f"Distinct counted values: {profile.distinct_count:,}")
-        imgui.text_wrapped(profile.note)
-        key = (
-            dashboard.revision,
-            profile.name,
-            dashboard.settings.bins,
-            dashboard.settings.top_counts,
-        )
-        if key != self._profile_key:
-            implot.set_next_axes_to_fit()
-            self._profile_key = key
-        if draw_profile(profile, bars):
+        if self.profile.show(explorer, dashboard, dataset):
             self.plot_frames += 1
-        if imgui.collapsing_header("Bin boundaries / category labels"):
-            for i, (label, count) in enumerate(
-                zip(bars.labels, bars.counts, strict=True)
-            ):
-                imgui.text_wrapped(f"{i}: {label} — {int(count):,}")
 
     def show_correlations(
         self,

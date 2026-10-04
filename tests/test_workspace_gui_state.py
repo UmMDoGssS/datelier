@@ -13,9 +13,12 @@ from datelier.distributions import DistributionSettings
 from datelier.exploration import PlotSettings
 from datelier.gui_analysis_controls import AnalysisControls
 from datelier.gui_plot_controls import PlotControls
+from datelier.gui_profiles import profile_summary
 from datelier.gui_workspace_state import restore_analysis, restore_plots
 from datelier.importing import load_file
-from datelier.workspace_types import Workspace
+from datelier.profiling import prepare_profiles
+from datelier.recipe_codec import decode_record, encode
+from datelier.workspace_types import Workspace, WorkspaceViews
 from datelier.workspaces import reference_source
 
 
@@ -102,3 +105,24 @@ def test_analysis_controls_round_trip_without_launching_jobs(tmp_path: Path) -> 
     )
     restore_analysis(after, workspace, imported.dataset)
     assert after.features == ["x"]
+
+
+def test_profile_chart_type_recipes_remain_backward_compatible() -> None:
+    old = decode_record(WorkspaceViews, {"kind": "WorkspaceViews", "profile_index": 4})
+    assert old.profile_mode == 0
+    saved = WorkspaceViews(profile_mode=2, profile_index=4)
+    assert decode_record(WorkspaceViews, encode(saved)) == saved
+    saved.validate()
+
+
+def test_profile_summary_accounts_for_missing_and_nonfinite(tmp_path: Path) -> None:
+    import polars as pl
+
+    from datelier.dataset import Dataset, SourceReference
+
+    data = Dataset.from_source(
+        pl.DataFrame({"x": [1.0, 2.0, None, float("inf")]}),
+        SourceReference(tmp_path / "unused", 0, 0),
+    )
+    profile = prepare_profiles(data).columns[0]
+    assert profile_summary(profile, 4) == "2 included · 1 missing (25.0%) · 1 nonfinite"

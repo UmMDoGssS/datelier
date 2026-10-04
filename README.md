@@ -185,8 +185,15 @@ use Float64, so very large integers and high-precision decimals may round.
 
 Expand **Plot settings** to change bins, top counts, profile limits and scatter
 point limits. **Profile focus** can choose any column, including one beyond the
-automatic limit. Select up to eight columns under **Numeric comparisons** and
-apply settings, then choose Histogram, KDE, ECDF, Box or Violin in Profiles.
+automatic limit. In **Profiles**, select a column and use **Chart type** to
+switch directly between Histogram, KDE, ECDF, Box, and Violin for numeric
+columns. Categories have named count bars; temporal histograms use formatted
+date/time ticks. The included/missing summary stays visible, while **Details**
+contains statistics and sampling settings. Single-column curves are prepared
+on demand in the background; their chart type is saved with the workspace.
+
+For multi-column comparisons, select up to eight columns under **Numeric
+comparisons**, apply settings, and choose the comparison chart type in Profiles.
 Histogram/KDE/ECDF curves overlay with selectable legends; boxes/violins appear
 beside one another. Histograms share bins and default to density. Original units
 are the default; optional z-scores use each column's full finite mean/deviation.

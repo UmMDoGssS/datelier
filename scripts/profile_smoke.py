@@ -14,12 +14,18 @@ from imgui_bundle import hello_imgui
 from numpy.typing import NDArray
 
 from datelier.gui import GuiSession, InspectionEvidence, run_gui
+from datelier.profiling import ProfileKind
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source", type=Path)
     parser.add_argument("--column", default="category")
+    parser.add_argument(
+        "--mode",
+        choices=("Histogram", "KDE", "ECDF", "Box", "Violin"),
+        default="Histogram",
+    )
     parser.add_argument(
         "--output", type=Path, default=Path("/tmp/datelier-profile.ppm")
     )
@@ -32,6 +38,8 @@ def main() -> None:
                     "value": [1.0, 2.0, 2.0, 5.0, None],
                     "category": ["female", "male", "male", "female", None],
                     "day": [date(2024, 1, i) for i in (1, 2, 2, 4, 5)],
+                    "constant": [5.0] * 5,
+                    "empty": pl.Series([None] * 5, dtype=pl.Float64),
                 }
             ).write_parquet(source)
         original = hashlib.sha256(source.read_bytes()).hexdigest()
@@ -45,10 +53,24 @@ def main() -> None:
                 return
             index = [p.name for p in dashboard.profiles.columns].index(args.column)
             session.exploration.profile_index = index
+            session.exploration.profile_mode = [
+                "Histogram",
+                "KDE",
+                "ECDF",
+                "Box",
+                "Violin",
+            ].index(args.mode)
             if not ready:
                 ready = evidence.frames
             if evidence.frames > ready + 25:
                 profile, bars = dashboard.profiles.columns[index], dashboard.bars[index]
+                if (
+                    args.mode != "Histogram"
+                    and profile.kind == ProfileKind.NUMERIC
+                    and profile.counted_rows
+                    and session.explorer.distribution.active is None
+                ):
+                    return
                 assert sum(bars.counts) == profile.counted_rows
                 observed.update(
                     column=profile.name,
@@ -59,6 +81,7 @@ def main() -> None:
                     edges=bars.edges.tolist(),
                     temporal_ticks=bars.tick_labels,
                     plots_rendered=session.exploration.plot_frames,
+                    chart_type=args.mode,
                 )
                 hello_imgui.get_runner_params().app_shall_exit = True
 

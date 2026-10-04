@@ -32,6 +32,7 @@ class WorkspaceViews:
     scatter_index: int = 0
     column_start: int = 0
     target_row: int = 1
+    profile_mode: int = 0
 
     def validate(self) -> None:
         if self.tab not in ("Profiles", "Scatter", "Correlations"):
@@ -42,6 +43,8 @@ class WorkspaceViews:
             raise ValueError("View offsets must be nonnegative")
         if self.target_row < 1:
             raise ValueError("Target row must be positive")
+        if not 0 <= self.profile_mode < 5:
+            raise ValueError("Unknown profile chart type")
 
 
 @dataclass(frozen=True)

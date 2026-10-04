@@ -84,6 +84,7 @@ def test_extreme_finite_values_keep_counts_and_mean() -> None:
     ).columns[0]
     assert sum(profile.distribution.counts) == 3
     assert profile.mean == 0 and "divided by" in profile.note
+    assert profile.histogram_scale == 1e308
     constant = prepare_profiles(dataset(pl.DataFrame({"x": [1e308, 1e308]}))).columns[0]
     assert (
         constant.mean == pytest.approx(1e308) and sum(constant.distribution.counts) == 2

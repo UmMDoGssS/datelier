@@ -42,6 +42,7 @@ class ColumnProfile:
     distinct_count: int | None = None
     other_count: int = 0
     note: str = ""
+    histogram_scale: float = 1.0
 
 
 @dataclass(frozen=True)
@@ -198,6 +199,7 @@ def _range_profile(series: pl.Series, kind: ProfileKind, bins: int) -> ColumnPro
         ),
         count,
         note=note,
+        histogram_scale=scale if scaled_histogram else 1.0,
     )
 
 

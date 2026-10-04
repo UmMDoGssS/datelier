@@ -44,18 +44,33 @@ def _box(series: NumericDistribution, index: int, violin: bool) -> None:
         )
 
 
-def show_comparison(comparison: Comparison, mode: int, fit: bool) -> bool:
+def show_comparison(
+    comparison: Comparison,
+    mode: int,
+    fit: bool,
+    *,
+    title: str = "Column comparison",
+    details: bool = True,
+) -> bool:
     settings = comparison.settings
     if not comparison.series:
         imgui.text_wrapped("Select numeric comparison columns in Plot settings.")
         return False
-    imgui.text_wrapped(
-        f"{'Z-score' if settings.standardize else 'Original'} units · seed "
-        f"{settings.seed} · KDE/ECDF/violin sample at most 2,000 finite values "
-        "per column. Histogram and box statistics use all finite values. "
-        "Outlier points use that sample, capped at 150 per column."
-    )
-    if imgui.collapsing_header("Counts and sample details"):
+    if details:
+        imgui.text(f"{'Z-score' if settings.standardize else 'Original'} units")
+    for series in comparison.series:
+        if mode in (1, 2, 4) and series.sample_count < series.count:
+            imgui.text(
+                f"{series.name}: {series.sample_count:,} sampled / "
+                f"{series.count:,} included"
+            )
+    if details and imgui.collapsing_header("Counts and sample details"):
+        imgui.text_wrapped(
+            f"Seed {settings.seed} · KDE bandwidth {settings.bandwidth:g}. "
+            "KDE/ECDF/violin use at most 2,000 finite values per column. "
+            "Histogram and box statistics use all finite values; displayed "
+            "outliers use the sample, capped at 150 per column."
+        )
         for series in comparison.series:
             imgui.text_wrapped(
                 f"{series.name}: {series.count:,} finite, "
@@ -64,12 +79,23 @@ def show_comparison(comparison: Comparison, mode: int, fit: bool) -> bool:
     if mode in (1, 4):
         for series in comparison.series:
             if not len(series.kde_y):
-                imgui.text_wrapped(series.name + ": " + series.note)
+                imgui.text_wrapped(
+                    f"{series.name}: density unavailable for these values. "
+                    "Try Histogram or ECDF."
+                )
+        if not any(len(series.kde_y) for series in comparison.series):
+            return False
     if fit:
         implot.set_next_axes_to_fit()
-    if not implot.begin_plot("Column comparison", (-1, 220)):
-        return False
     horizontal_boxes = mode in (3, 4)
+    implot.push_style_var(
+        implot.StyleVar_.fit_padding,
+        imgui.ImVec2(0.08, 0.05 if horizontal_boxes else 0),
+    )
+    flags = implot.Flags_.no_legend if len(comparison.series) == 1 else 0
+    if not implot.begin_plot(title, (-1, 220), flags):
+        implot.pop_style_var()
+        return False
     ylabel = (
         "Value"
         if horizontal_boxes
@@ -104,7 +130,8 @@ def show_comparison(comparison: Comparison, mode: int, fit: bool) -> bool:
             xs = np.concatenate(([series.ecdf_x[0]], series.ecdf_x))
             ys = np.concatenate(([0.0], series.ecdf_y))
             implot.plot_stairs(series.name, xs, ys)
-        elif horizontal_boxes:
+        elif horizontal_boxes and (mode == 3 or len(series.kde_y)):
             _box(series, i, mode == 4)
     implot.end_plot()
+    implot.pop_style_var()
     return True
