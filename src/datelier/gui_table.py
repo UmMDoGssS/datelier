@@ -26,7 +26,7 @@ class TableView:
 
     def show(self, inspection: Inspection | None, pages: PreviewCache) -> None:
         if inspection is None:
-            imgui.text("Open a CSV to preview its rows.")
+            imgui.text("Open a dataset to preview its rows.")
             return
         count = len(inspection.schema)
         if imgui.button("Previous columns"):
