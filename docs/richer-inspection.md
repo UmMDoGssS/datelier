@@ -49,3 +49,19 @@ Verification: 13 focused relationship/exploration/all-format workflow tests
 passed; Pyrefly zero errors; Ruff lint/format and diff checks passed. The live
 relationship smoke passed 60 frames, including injected mouse navigation from
 a heatmap cell and linked grid highlights. Final grid screenshot inspected.
+
+## Step 4 — Shared analysis foundation
+
+Typed requests cover explicit features, algorithm parameters, preprocessing,
+seed and bounded samples. Polars handles full-column eligibility; only the
+bounded matrix becomes NumPy. Stable source-ID hashing preserves cohorts after
+reordering. Preprocessing reports exclusions, imputed cells, constant features
+and retained inputs, with overflow-resistant standardization and fitted state.
+A background coordinator prepares inputs and owns one spawned worker. Cancellation
+waits for preparation or terminates/joins that worker; revision checks reject
+obsolete results and errors cannot overwrite successful results.
+
+Verification: 12 focused preparation and actual spawned-process lifecycle tests
+passed; Pyrefly zero errors; Ruff lint/format and diff checks passed. No GUI
+behavior changes in this foundation step. Algorithm runners and milestone
+acceptance remain open until their subsequent verified steps.

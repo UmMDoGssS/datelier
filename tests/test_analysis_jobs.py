@@ -1,0 +1,96 @@
+from pathlib import Path
+from time import monotonic, sleep
+
+import numpy as np
+import polars as pl
+import pytest
+
+from datelier.analysis_jobs import AnalysisJobs
+from datelier.analysis_types import (
+    AnalysisRequest,
+    EmbeddingResult,
+    PreparedInput,
+    Provenance,
+)
+from datelier.dataset import Dataset, SourceReference
+
+
+def fake_result(prepared: PreparedInput) -> EmbeddingResult:
+    return EmbeddingResult(
+        prepared.revision,
+        prepared.row_ids,
+        prepared.positions,
+        prepared.values[:, :2],
+        Provenance(prepared.request, prepared.summary, (), 0),
+    )
+
+
+def slow_result(prepared: PreparedInput) -> EmbeddingResult:
+    sleep(10)
+    return fake_result(prepared)
+
+
+def dataset() -> Dataset:
+    return Dataset.from_source(
+        pl.DataFrame({"x": range(30), "y": np.sin(np.arange(30))}),
+        SourceReference(Path("unused"), 0, 0),
+    )
+
+
+def wait(jobs: AnalysisJobs, data: Dataset) -> None:
+    deadline = monotonic() + 10
+    while jobs.busy and monotonic() < deadline:
+        jobs.poll(data.revision)
+        sleep(0.01)
+    assert not jobs.busy
+
+
+def test_spawn_publication_and_revision_invalidation() -> None:
+    data = dataset()
+    jobs = AnalysisJobs(fake_result)
+    try:
+        assert not jobs.busy and not jobs.results
+        jobs.request(data, AnalysisRequest(("x", "y")))
+        with pytest.raises(ValueError):
+            jobs.request(data, AnalysisRequest(("x", "y")))
+        wait(jobs, data)
+        assert len(jobs.results) == 1
+        jobs.poll(dataset().revision)
+        assert not jobs.results
+    finally:
+        jobs.close()
+
+
+def test_cancel_worker_and_reject_stale() -> None:
+    data = dataset()
+    jobs = AnalysisJobs(slow_result)
+    try:
+        jobs.request(data, AnalysisRequest(("x", "y")))
+        deadline = monotonic() + 5
+        while "fitting" not in jobs.phase and monotonic() < deadline:
+            sleep(0.01)
+        assert jobs.busy
+        jobs.cancel()
+        assert "requested" in jobs.message
+        wait(jobs, data)
+        assert "stopped" in jobs.message and not jobs.results
+        jobs.request(data, AnalysisRequest(("x", "y")))
+        jobs.poll(dataset().revision)
+        wait(jobs, data)
+        assert not jobs.results
+    finally:
+        jobs.close()
+
+
+def test_preparation_and_worker_errors_are_visible() -> None:
+    data = dataset()
+    jobs = AnalysisJobs()
+    try:
+        jobs.request(data, AnalysisRequest(("missing",)))
+        wait(jobs, data)
+        assert "failed" in jobs.message
+        jobs.request(data, AnalysisRequest(("x", "y")))
+        wait(jobs, data)
+        assert "not implemented" in jobs.message
+    finally:
+        jobs.close()
