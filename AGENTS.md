@@ -43,7 +43,10 @@ coverage and tabular XML/nested-input gates;
 The CLI opens the tabular workbench by default and retains the synthetic
 feasibility window. Linux GUI rendering is verified with Mesa software OpenGL
 on the reference machine; accelerated rendering remains unverified.
-Reversible transformations begin in Phase 3 of [ROADMAP.md](ROADMAP.md).
+Phase 3 has passed reversible-operation/history, typed-transform/expression,
+and explicit CSV/Parquet export gates; [docs/phase-3.md](docs/phase-3.md) records
+correctness, GUI, and resource evidence. Automatic and interactive exploration
+begins in Phase 4 of [ROADMAP.md](ROADMAP.md).
 
 Use this file for durable conventions and `ROADMAP.md` for sequencing,
 deliverables, and acceptance gates. Inspect actual code and configuration

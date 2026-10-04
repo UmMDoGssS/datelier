@@ -1,0 +1,9 @@
+{
+  "frames": 66,
+  "checks": [
+    "CSV roundtrip",
+    "Parquet roundtrip",
+    "Source replacement rejected"
+  ],
+  "source_preserved": true
+}

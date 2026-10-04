@@ -23,7 +23,9 @@ CSV import, dataset identity/revisions, and a responsive
 inspection workbench; [Phase 1 evidence](docs/phase-1.md) records its passed
 gates. Phase 2 provides TSV, JSON/JSONL, Parquet, and configurable tabular XML
 with explicit nested-input diagnostics; [Phase 2 evidence](docs/phase-2.md)
-records its passed gates. Phase 3 and later milestones remain unchecked.
+records its passed gates. Phase 3 provides reversible transformations and explicit
+export; [Phase 3 evidence](docs/phase-3.md) records its passed gates. Phase 4
+and later milestones remain unchecked.
 
 ## Gate and evidence rules
 
@@ -122,7 +124,7 @@ records its passed gates. Phase 3 and later milestones remain unchecked.
 
 ## Phase 3 — Reversible transformations
 
-- [ ] **Phase complete.** **Entry:** Phase 2 passes. **Exit:** M3.1 and M3.2 pass.
+- [x] **Phase complete.** **Entry:** Phase 2 passes. **Exit:** M3.1 and M3.2 pass. [Evidence](docs/phase-3.md) recorded 2026-10-04.
 
 ### M3.1 — Ordered operations and undo/redo
 
@@ -134,11 +136,11 @@ records its passed gates. Phase 3 and later milestones remain unchecked.
 
 ### M3.2 — Mapping, derived columns, and export
 
-- [ ] **Deliverables:** casts, missing-value operations, lookup mappings, constrained expressions, derived columns, explicit CSV/Parquet export.
-- [ ] **Entry gate:** M3.1 passes with deterministic replay and tested operation failure behavior.
-- [ ] **Exit gate:** transformations replay correctly with type/null diagnostics; expressions cannot execute arbitrary Python; exported tables match the active result and source files remain unchanged.
-- [ ] **Verification evidence:** expression/transform success and rejection cases, failed-cast behavior, undo/replay tests, export round trips, and source-preservation checks.
-- [ ] **Suggested step commits:** `feat: add typed data transforms` → `feat: add constrained derived expressions` → `feat: export transformed tables`.
+- [x] **Deliverables:** casts, missing-value operations, lookup mappings, constrained expressions, derived columns, explicit CSV/Parquet export.
+- [x] **Entry gate:** M3.1 passes with deterministic replay and tested operation failure behavior.
+- [x] **Exit gate:** transformations replay correctly with type/null diagnostics; expressions cannot execute arbitrary Python; exported tables match the active result and source files remain unchanged.
+- [x] **Verification evidence:** [M3.2 and final evidence](docs/phase-3.md#m32-mapping-derived-columns-and-export): 222 tests, all-format transformation/replay/export workflows, strict expression rejection, source/identity invariants, GUI transform/export gates, and four fresh-process plus two live large/wide benchmarks pass. Pyrefly/Ruff/lock checks pass.
+- [x] **Step commits:** `e00940a` typed transforms → `7f99783` constrained expressions → `1a9f991` atomic export → `9a62fcd` diagnostics/temporal filters → `bc76f68` completed nanosecond fix → `a411d22` workflow/resource acceptance.
 
 ## Phase 4 — Automatic and interactive exploration
 
