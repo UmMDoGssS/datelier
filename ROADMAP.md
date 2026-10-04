@@ -126,11 +126,11 @@ records its passed gates. Phase 3 and later milestones remain unchecked.
 
 ### M3.1 — Ordered operations and undo/redo
 
-- [ ] **Deliverables:** replayable pipeline, sorting, filtering, column selection, undo/redo controls, revision changes.
-- [ ] **Entry gate:** stable row identity and revision-aware dataset/job state are established.
-- [ ] **Exit gate:** operation order is respected; undo/redo restores expected tables; new edits handle redo history consistently; failures leave the active pipeline intact.
-- [ ] **Verification evidence:** known-result pipeline/replay tests, selection identity checks through sorting/filtering, revision invalidation tests, and GUI history smoke checks.
-- [ ] **Suggested step commits:** `feat: add operation pipeline` → `feat: add sorting filtering and selection` → `feat: add undo and redo`.
+- [x] **Deliverables:** replayable pipeline, sorting, filtering, column selection, undo/redo controls, revision changes.
+- [x] **Entry gate:** stable row identity and revision-aware dataset/job state are established.
+- [x] **Exit gate:** operation order is respected; undo/redo restores expected tables; new edits handle redo history consistently; failures leave the active pipeline intact.
+- [x] **Verification evidence:** [M3.1 evidence](docs/phase-3.md#m31-ordered-operations-and-undoredo): 159 full-suite tests, Pyrefly/Ruff, and eight live GUI history/identity/preview checks pass.
+- [x] **Step commits:** `eb62f92` replayable operations/history → `49a3051` background editing and GUI undo/redo.
 
 ### M3.2 — Mapping, derived columns, and export
 
