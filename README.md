@@ -1,10 +1,11 @@
 # Datelier
 
 A Linux desktop data inspection workbench for analysts, targeting Python 3.14+.
-Phases 4–5 provide CSV/TSV, JSON/JSONL, Parquet, and tabular XML import,
+Phases 1–6 provide CSV/TSV, JSON/JSONL, Parquet, and tabular XML import,
 responsive previews, schema/null summaries, reversible transformations,
 explicit CSV/Parquet export, richer exploration with linked selections,
-and explicit PCA, t-SNE, UMAP and k-means analysis.
+explicit PCA, t-SNE, UMAP and k-means analysis, referenced workspaces,
+and saved layouts/themes/plot preferences.
 See [ROADMAP.md](ROADMAP.md) for delivery gates and [AGENTS.md](AGENTS.md) for
 contributor conventions.
 
@@ -102,8 +103,18 @@ choose **Relink / retry source**. Content changes require **Accept changed sourc
 content** before replaying against the new data. Relative sources may move
 alongside their workspace. Available column views/settings restore; unavailable
 plot columns reset. Restoring never launches ML; use an explicit Run command.
-Selections and fitted results last for the session. See
-[Phase 6 evidence](docs/phase-6.md).
+Selections and fitted results last for the session.
+
+The **Preferences** menu offers Dark, Light and Classic themes, **Save
+preferences**, **Restore saved layout**, **Reset layout** and **Reset plot
+defaults**. Preferences also save on exit, including docking, panel visibility,
+plot defaults and views. Use **View** to reopen closed panels. Layout reset
+restores all panels without changing your dataset or history. Settings live in
+`$XDG_CONFIG_HOME/datelier/preferences.json`, or
+`~/.config/datelier/preferences.json` by default. Missing/outdated/invalid settings
+recover with defaults and a status message. Global plot defaults apply on dataset
+import; workspace settings take precedence when reopening. Zoom/pan and 3D
+camera position last for the session. See [Phase 6 evidence](docs/phase-6.md).
 
 ## Exploration
 

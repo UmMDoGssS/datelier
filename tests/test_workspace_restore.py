@@ -227,3 +227,65 @@ def test_newer_restore_bypasses_abandoned_work(
     finally:
         release.set()
         jobs.close()
+
+
+@pytest.mark.parametrize("format", list(ImportFormat))
+def test_each_import_format_reopens_with_exact_options_and_replay(
+    tmp_path: Path, format: ImportFormat
+) -> None:
+    import polars as pl
+
+    from datelier.import_types import (
+        CsvOptions,
+        JsonOptions,
+        ParquetOptions,
+        XmlOptions,
+    )
+    from datelier.transform_types import DerivedColumn
+
+    table = pl.DataFrame({"x": [3, 1, 2], "y": [9, 5, 7]})
+    source = tmp_path / "source.data"  # saved format overrides extension
+    options: ImportOptions
+    if format in (ImportFormat.CSV, ImportFormat.TSV):
+        separator = ";" if format == ImportFormat.CSV else "\t"
+        table.write_csv(source, separator=separator)
+        options = CsvOptions(separator=separator, infer_schema_length=None)
+    elif format == ImportFormat.PARQUET:
+        table.with_columns(pl.lit("unused").alias("extra")).write_parquet(source)
+        options = ParquetOptions(("y", "x"))
+    elif format in (ImportFormat.JSON, ImportFormat.JSONL):
+        if format == ImportFormat.JSON:
+            table.write_json(source)
+        else:
+            table.write_ndjson(source)
+        options = JsonOptions(read_as_text=True)
+    else:
+        source.write_text(
+            '<root xmlns:n="urn:rows">'
+            "<n:r><x>3</x><y>9</y></n:r>"
+            "<n:r><x>1</x><y>5</y></n:r>"
+            "<n:r><x>2</x><y>7</y></n:r></root>"
+        )
+        options = XmlOptions("./n:r", (("n", "urn:rows"),), include_attributes=False)
+    before = source.read_bytes()
+    imported = load_file(source, options, format=format)
+    pipeline = (
+        Pipeline.start(imported.dataset)
+        .apply(Sort(("x",)))
+        .apply(DerivedColumn("copy", 'col("y")'))
+    )
+    workspace = Workspace(
+        reference_source(imported.dataset.source),
+        format,
+        options,
+        pipeline.history,
+        pipeline.cursor,
+    )
+    path = tmp_path / "session.datelier"
+    save_workspace(path, workspace)
+    restored = restore_workspace(path)
+    assert restored.pipeline.current.table.equals(pipeline.current.table)
+    assert restored.pipeline.current.row_ids.to_list() == [1, 2, 0]
+    assert restored.inspection.imported.options == options
+    assert restored.inspection.imported.format == format
+    assert source.read_bytes() == before

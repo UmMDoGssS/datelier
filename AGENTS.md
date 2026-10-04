@@ -54,7 +54,10 @@ independent axes/colors and relationship heatmap/grid gates;
 Phase 5 has passed explicit PCA/k-means/t-SNE/UMAP, worker lifecycle, provenance,
 3D linked interaction and final resource gates;
 [docs/phase-5.md](docs/phase-5.md) records correctness, GUI and resource evidence.
-Workspace persistence begins in Phase 6 of [ROADMAP.md](ROADMAP.md).
+Phase 6 has passed referenced-workspace restore/relink, saved-layout/theme/plot
+preference and recovery gates; [docs/phase-6.md](docs/phase-6.md) records
+correctness and fresh-process GUI evidence. V1 hardening and release readiness
+begin in Phase 7 of [ROADMAP.md](ROADMAP.md).
 
 Use this file for durable conventions and `ROADMAP.md` for sequencing,
 deliverables, and acceptance gates. Inspect actual code and configuration

@@ -1,5 +1,6 @@
 """Tabular inspection workbench; frames consume prepared state only."""
 
+import sys
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -15,12 +16,19 @@ from datelier.gui_analysis import AnalysisSession
 from datelier.gui_controls import ImportControls, show_schema
 from datelier.gui_exploration import ExplorationView
 from datelier.gui_export import ExportControls
+from datelier.gui_layout import configure_layout
 from datelier.gui_operations import OperationControls
 from datelier.gui_plot_controls import PlotControls
+from datelier.gui_preferences import PreferenceControls
 from datelier.gui_table import TableView
 from datelier.gui_workspace import WorkspaceControls
-from datelier.gui_workspace_state import restore_views
+from datelier.gui_workspace_state import (
+    restore_plots,
+    restore_view_settings,
+    restore_views,
+)
 from datelier.loading import DatasetLoader, LoadPhase, LoadStatus
+from datelier.preferences import preference_path
 from datelier.preview import PreviewCache
 from datelier.selection import LinkedSelection
 
@@ -41,6 +49,7 @@ class GuiSession:
     selection: LinkedSelection
     analysis: AnalysisSession
     workspace: WorkspaceControls
+    preferences: PreferenceControls
 
 
 @dataclass
@@ -62,6 +71,7 @@ def run_gui(
     on_frame: Callable[[GuiSession, InspectionEvidence], None] | None = None,
     dataset_loader: DatasetLoader | None = None,
     initial_workspace: Path | None = None,
+    preferences_path: Path | None = None,
 ) -> InspectionEvidence:
     if smoke_frames < 0:
         raise ValueError("Smoke frame count must be nonnegative")
@@ -81,6 +91,11 @@ def run_gui(
     workspace = WorkspaceControls(
         path=str(initial_workspace) if initial_workspace else ""
     )
+    preferences = PreferenceControls(
+        preferences_path
+        if preferences_path is not None
+        else (preference_path() if not smoke_frames else None)
+    )
     session = GuiSession(
         loader,
         pages,
@@ -96,6 +111,7 @@ def run_gui(
         selection,
         analysis,
         workspace,
+        preferences,
     )
     evidence = InspectionEvidence()
     params = hello_imgui.RunnerParams()
@@ -129,72 +145,43 @@ def run_gui(
             analysis,
         )
 
-    left = hello_imgui.DockingSplit()
-    left.initial_dock = "MainDockSpace"
-    left.new_dock = "ImportSpace"
-    left.direction = imgui.Dir.left
-    left.ratio = 0.3
-    lower = hello_imgui.DockingSplit()
-    lower.initial_dock = "ImportSpace"
-    lower.new_dock = "SchemaSpace"
-    lower.direction = imgui.Dir.down
-    lower.ratio = 0.55
-    edits = hello_imgui.DockingSplit()
-    edits.initial_dock = "MainDockSpace"
-    edits.new_dock = "EditSpace"
-    edits.direction = imgui.Dir.right
-    edits.ratio = 0.32
-    plots = hello_imgui.DockingSplit()
-    plots.initial_dock = "MainDockSpace"
-    plots.new_dock = "PlotSpace"
-    plots.direction = imgui.Dir.down
-    plots.ratio = 0.58
-    analysis_split = hello_imgui.DockingSplit()
-    analysis_split.initial_dock = "EditSpace"
-    analysis_split.new_dock = "AnalysisSpace"
-    analysis_split.direction = imgui.Dir.down
-    analysis_split.ratio = 0.65
-    params.docking_params.docking_splits = [left, lower, edits, plots, analysis_split]
-    windows = []
-    for label, space, callback in (
-        ("Explore", "PlotSpace", explore),
-        ("Open dataset", "ImportSpace", lambda: controls.show(loader)),
-        ("Workspace", "ImportSpace", lambda: workspace.show(session)),
-        ("Table preview", "MainDockSpace", show_table),
-        ("Schema and nulls", "SchemaSpace", schema),
-        (
-            "Analysis",
-            "AnalysisSpace",
-            lambda: analysis.controls.show(
+    configure_layout(
+        params,
+        {
+            "Explore": explore,
+            "Open dataset": lambda: controls.show(loader),
+            "Workspace": lambda: workspace.show(session),
+            "Table preview": show_table,
+            "Schema and nulls": schema,
+            "Analysis": lambda: analysis.controls.show(
                 analysis.jobs, loader.active.dataset if loader.active else None
             ),
-        ),
-        (
-            "Transform and history",
-            "EditSpace",
-            lambda: operations.show(
+            "Transform and history": lambda: operations.show(
                 editor,
                 loading=loader.status.phase == LoadPhase.LOADING
                 or exporter.busy
                 or workspace.jobs.busy,
             ),
-        ),
-        (
-            "Export table",
-            "EditSpace",
-            lambda: exports.show(
+            "Export table": lambda: exports.show(
                 editor,
                 exporter,
                 loading=loader.status.phase == LoadPhase.LOADING or workspace.jobs.busy,
             ),
-        ),
-    ):
-        window = hello_imgui.DockableWindow()
-        window.label = label
-        window.dock_space_name = space
-        window.gui_function = callback
-        windows.append(window)
-    params.docking_params.dockable_windows = windows
+        },
+    )
+    # Configure this before runner initialization: the default builder otherwise
+    # replaces saved docking even when ini settings are loaded before a frame.
+    if preferences.value.layout:
+        params.docking_params.layout_condition = (
+            hello_imgui.DockingLayoutCondition.never
+        )
+    params.imgui_window_params.show_menu_bar = True
+    params.imgui_window_params.show_menu_view_themes = False
+    params.callbacks.setup_imgui_style = preferences.apply_theme
+    params.callbacks.post_init = lambda: preferences.before_frame(params)
+    params.callbacks.pre_new_frame = lambda: preferences.before_frame(params)
+    params.callbacks.show_menus = lambda: preferences.show_menu(session, params)
+    params.callbacks.before_exit = lambda: preferences.save(session, params)
     load_started = perf_counter()
     previous_frame = load_started
     if initial_workspace:
@@ -215,7 +202,8 @@ def run_gui(
             pages.bind(loader.active)
             view.reset()
             analysis.controls.bind(loader.active.dataset)
-            plot_controls.bind(loader.active.dataset)
+            restore_plots(plot_controls, loader.active.dataset, preferences.value.plots)
+            restore_view_settings(session, preferences.value.views)
             selection.bind(loader.active.dataset.revision)
             explorer.request(loader.active.dataset, plot_controls.settings())
         if loader.status.phase == LoadPhase.LOADING:
@@ -272,6 +260,7 @@ def run_gui(
                 explorer.request(loader.active.dataset, plot_controls.settings())
         explorer.poll(loader.revision)
         exporter.poll()
+        preferences.poll()
         pages.poll()
         if loader.status.phase == LoadPhase.LOADING:
             evidence.loading_frames += 1
@@ -296,4 +285,7 @@ def run_gui(
         explorer.close()
         analysis.close()
         workspace.jobs.close()
+        preferences.close()
+        if preferences.message.startswith("Preferences failed:"):
+            print(preferences.message, file=sys.stderr)
     return evidence

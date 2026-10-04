@@ -29,8 +29,9 @@ provides automatic exploration and linked selections;
 [Phase 4 evidence](docs/phase-4.md) records its baseline gates, and
 [richer-inspection evidence](docs/richer-inspection.md) records passed comparison,
 color and matrix extensions. Phase 5 provides explicit analysis and linked 3D
-views; [Phase 5 evidence](docs/phase-5.md) records its passed gates. Phase 6 workspace persistence passes M6.1; customization is in progress.
-Later milestones remain unchecked.
+views; [Phase 5 evidence](docs/phase-5.md) records its passed gates. Phase 6 provides referenced workspaces, saved layouts, themes and plot preferences;
+[Phase 6 evidence](docs/phase-6.md) records its passed gates. Phase 7 and later
+milestones remain unchecked.
 
 ## Gate and evidence rules
 
@@ -205,7 +206,7 @@ workspace persistence schema.
 
 ## Phase 6 — Workspaces and customization
 
-- [ ] **Phase complete.** **Entry:** Phase 5 passes. **Exit:** M6.1 and M6.2 pass.
+- [x] **Phase complete.** **Entry:** Phase 5 passes. **Exit:** M6.1 and M6.2 pass. [Evidence](docs/phase-6.md) recorded 2026-10-04.
 
 ### M6.1 — Referenced-source workspace persistence
 
@@ -213,15 +214,15 @@ workspace persistence schema.
 - [x] **Entry gate:** operations, plot configuration, and analysis settings have typed representations and reproducible behavior.
 - [x] **Exit gate:** save/reopen restores the intended workspace; missing/changed sources are detected; relinking works; loading settings does not automatically rerun ML.
 - [x] **Verification evidence:** [M6.1 evidence](docs/phase-6.md#m61-referenced-source-workspace-persistence): 312 full-suite tests, Pyrefly/Ruff, strict recipe/source/replay/job tests and live save/restart/relink/redo/selection checks pass; no implicit ML.
-- [x] **Step commits:** `3e5464c` versioned recipes → `7d9d494` background restore/relink → GUI controls, CLI and M6.1 acceptance evidence in the gate commit.
+- [x] **Step commits:** `3e5464c` versioned recipes → `7d9d494` background restore/relink → `2b513b4` GUI controls, CLI and M6.1 acceptance evidence.
 
 ### M6.2 — Saved layouts, themes, and plot preferences
 
-- [ ] **Deliverables:** dock layout persistence, configurable themes, saved plot preferences, usable restoration controls.
-- [ ] **Entry gate:** M6.1 passes and docking/plot controls are already functional.
-- [ ] **Exit gate:** layout/theme/preferences persist across restart; workspace restoration preserves valid views; unusable layouts can be reset without losing dataset recipes.
-- [ ] **Verification evidence:** settings round trips, missing/outdated preference handling, GUI rearrange/restart/reset checks, and linked-selection behavior after restore.
-- [ ] **Suggested step commits:** `feat: persist dock layouts` → `feat: customize and save themes` → `feat: restore plot preferences`.
+- [x] **Deliverables:** dock layout persistence, configurable themes, saved plot preferences, usable restoration controls.
+- [x] **Entry gate:** M6.1 passes and docking/plot controls are already functional.
+- [x] **Exit gate:** layout/theme/preferences persist across restart; workspace restoration preserves valid views; unusable layouts can be reset without losing dataset recipes.
+- [x] **Verification evidence:** [M6.2 evidence](docs/phase-6.md#m62-saved-layouts-themes-and-plot-preferences): 333 full-suite tests, Pyrefly/Ruff, independent preference recovery, three fresh-process rearrange/restart/default/reset/restore GUI checks and linked-selection/gesture regressions pass.
+- [x] **Step commit:** dock layout module, versioned preference storage, theme/menu/default restoration, fresh-process GUI gate and final evidence form one verified customization step.
 
 ## Phase 7 — V1 hardening and release
 

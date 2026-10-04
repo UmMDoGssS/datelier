@@ -131,7 +131,14 @@ def restore_views(session: GuiSession, workspace: Workspace) -> bool:
     dataset = session.loader.active.dataset
     adjusted = restore_plots(session.plots, dataset, workspace.plots)
     restore_analysis(session.analysis.controls, workspace, dataset)
-    saved, view = workspace.views, session.exploration
+    restore_view_settings(session, workspace.views)
+    return adjusted
+
+
+def restore_view_settings(session: GuiSession, saved: WorkspaceViews) -> None:
+    assert session.loader.active is not None
+    dataset = session.loader.active.dataset
+    view = session.exploration
     view.tab = view.active_tab = saved.tab
     view.comparison_mode, view.relationships.mode = (
         saved.comparison_mode,
@@ -142,4 +149,3 @@ def restore_views(session: GuiSession, workspace: Workspace) -> bool:
     session.table.column_start = min(saved.column_start, dataset.table.width - 1)
     session.table.target_row = min(saved.target_row, max(1, dataset.table.height))
     session.table.jump = True
-    return adjusted
