@@ -11,6 +11,16 @@ from datelier.plotting import Scatter
 from datelier.projection import projected_nearest, projected_rectangle
 from datelier.selection import LinkedSelection
 
+FACE_VIEWS: dict[str, tuple[float, float]] = {
+    "Isometric": (30, -45),
+    "Top (XY)": (90, 0),
+    "Bottom (XY)": (-90, 0),
+    "Front (XZ)": (0, 0),
+    "Back (XZ)": (0, 180),
+    "Left (YZ)": (0, -90),
+    "Right (YZ)": (0, 90),
+}
+
 
 @dataclass
 class Scatter3DView:
@@ -20,6 +30,7 @@ class Scatter3DView:
     center_pixel: tuple[float, float] = (0, 0)
     press_start: tuple[float, float] | None = None
     brush_start: tuple[float, float] | None = None
+    _pending_face: tuple[float, float] | None = None
     _points: Scatter | None = None
     _version: int = -1
     _selected: NDArray[np.bool_] = field(
@@ -49,6 +60,16 @@ class Scatter3DView:
                 "with three output dimensions."
             )
             return False
+        start_y = imgui.get_cursor_pos_y()
+        if imgui.button("View face"):
+            imgui.open_popup("3D viewing face")
+        if imgui.begin_popup("3D viewing face"):
+            for label, angles in FACE_VIEWS.items():
+                if imgui.selectable(label, False)[0]:
+                    self._pending_face = angles
+                    self.press_start = self.brush_start = None
+            imgui.end_popup()
+        height -= imgui.get_cursor_pos_y() - start_y
         if points is not self._points or selection.version != self._version:
             if points is not self._points:
                 self.press_start = self.brush_start = None
@@ -66,6 +87,11 @@ class Scatter3DView:
             )
             self.selected_points = int(mask.sum())
         flags = implot3d.Flags_.no_legend
+        changing_face = self._pending_face is not None
+        if changing_face:
+            # A popup item can close on mouse-down over the plot. Consume that
+            # gesture so choosing a face cannot also pick or move source rows.
+            flags |= implot3d.Flags_.no_inputs
         if imgui.get_io().key_shift or self.brush_start is not None:
             flags |= (
                 implot3d.Flags_.no_rotate
@@ -75,6 +101,11 @@ class Scatter3DView:
         if not implot3d.begin_plot("Scatter 3D", (-1, height), flags):
             return False
         implot3d.setup_axes(points.x_name, points.y_name, points.z_name)
+        if self._pending_face is not None:
+            # Always updates an existing camera; clearing the request lets the
+            # native renderer release its rotation lock on the next frame.
+            implot3d.setup_box_rotation(*self._pending_face, cond=implot3d.Cond_.always)
+            self._pending_face = None
         if fit and len(z):
             bounds = []
             for array in (points.x, points.y, z):
@@ -105,7 +136,8 @@ class Scatter3DView:
             implot3d.plot_scatter(
                 "Selected source rows", *self._selected_coordinates, highlight
             )
-        self._interact(points, selection, table)
+        if not changing_face:
+            self._interact(points, selection, table)
         implot3d.end_plot()
         self.frames += 1
         return True

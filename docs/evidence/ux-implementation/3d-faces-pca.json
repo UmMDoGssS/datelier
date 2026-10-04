@@ -1,0 +1,19 @@
+{
+  "frames": 386,
+  "face_clicks": [
+    "Isometric",
+    "Top (XY)",
+    "Bottom (XY)",
+    "Front (XZ)",
+    "Back (XZ)",
+    "Left (YZ)",
+    "Right (YZ)",
+    "Top (XY)"
+  ],
+  "projected_planes": true,
+  "free_rotation_after_preset": true,
+  "expanded_face_menu": true,
+  "ranges_and_selection_preserved": true,
+  "embedding": true,
+  "source_sha256": "584a32c40859a18e2fa5b5c277a4363dd44d504dd8da7ea098cd85d440f067b2"
+}

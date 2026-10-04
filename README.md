@@ -230,9 +230,11 @@ brushes the displayed scatter points. Table rows and matching plot points share
 highlights; selected rows outside the plot sample remain selected. Selections
 are limited to 10,000 rows and clear when the dataset revision changes. Use the
 wheel to zoom, middle-drag to pan, and **Fit scatter** or double-click to fit.
-In 3D, left-drag rotates, right-drag pans, and the wheel zooms. Click picking and
+In 3D, right-drag rotates, left-drag pans, and the wheel zooms. Click picking and
 Shift brushing use projected displayed points; camera gestures are disabled
-during brushing. **Fit scatter** resets the bounds.
+during brushing. **View face** offers Top/Bottom (XY), Front/Back (XZ), Left/Right
+(YZ), and Isometric. Choosing a face preserves zoom and selection and permits
+further free rotation. **Fit axes** resets the bounds.
 See [Phase 4 evidence](docs/phase-4.md) and
 [richer-inspection evidence](docs/richer-inspection.md) for measured limits.
 

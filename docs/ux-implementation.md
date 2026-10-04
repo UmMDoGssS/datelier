@@ -211,3 +211,41 @@ axis controls are repaired. The review's broader Table focus action, shared
 column context, pre-fit input preview, full layout/hierarchy redesign, and
 pointer-only usability timings remain open; these functional checks do not
 claim completion of every original UX acceptance target.
+
+## Follow-up — 3D faces and relationship readability (in progress)
+
+Three bounded slices follow the user's next inspection request:
+
+1. Add six face presets and an isometric view to raw and reduced 3D scatter.
+   Apply orientation once, preserving ranges, linked selections, and subsequent
+   camera gestures. Verify real menu clicks, face geometry, and expand/restore.
+2. Annotate heatmap cells, including undefined values, and replace the scale
+   subtitle with a matching Pearson color bar. Verify cell ordering, navigation,
+   undefined rendering, and narrow/expanded layouts.
+3. Replace dense pair-grid feature indices with names on the outer axes.
+   Verify five-to-eight-feature labels and existing linked selection/navigation.
+
+Each slice requires focused tests, batch Pyrefly, Ruff, GUI verification, and
+a separate commit. The final slice also requires the full test suite.
+
+### 3D viewing faces (complete)
+
+Raw and reduced 3D scatters expose **View face** with six named faces and an
+isometric orientation. Presets preserve ranges and linked selection, including
+expanded views. The camera updates for one frame; subsequent rotation is free.
+Face-menu clicks are consumed before plot picking/gestures. Camera orientation
+remains session state, consistent with existing native camera gestures.
+
+The installed renderer uses **right-drag to rotate, left-drag to pan**. Previous
+UI text had these reversed; it is corrected. The older smoke's point-position
+checks did not distinguish rotation from pan. It now verifies actual native
+quaternions and ranges as well as projected picking/brushing.
+
+Verification: eleven focused plot-data/selection/3D tests pass; Pyrefly reports
+zero errors; Ruff lint/format and diff whitespace pass. Real face-menu clicks
+pass on Titanic (321 frames) and explicit 3D PCA (386 frames), testing all seven
+presets, expected projected planes, free rotation, expanded-menu use, stable
+ranges, selection, and source hashes. The strengthened 3D gesture smoke passes
+(141 frames). Checks use Linux/Mesa software OpenGL. API behavior was checked
+against installed bindings and [ImPlot3D's rotation setup contract](https://github.com/brenocq/implot3d/blob/main/implot3d.cpp).
+The remaining two relationship-readability slices are open.

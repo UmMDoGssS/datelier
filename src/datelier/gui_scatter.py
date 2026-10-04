@@ -122,7 +122,7 @@ class ScatterView:
         if imgui.collapsing_header("Details##scatter"):
             if three_d:
                 imgui.text_wrapped(
-                    "3D: left-drag rotates, right-drag pans, wheel zooms. "
+                    "3D: right-drag rotates, left-drag pans, wheel zooms. "
                     "Click selects; Ctrl-click toggles; "
                     "Shift-drag brushes projected displayed points."
                 )
