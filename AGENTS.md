@@ -45,8 +45,11 @@ feasibility window. Linux GUI rendering is verified with Mesa software OpenGL
 on the reference machine; accelerated rendering remains unverified.
 Phase 3 has passed reversible-operation/history, typed-transform/expression,
 and explicit CSV/Parquet export gates; [docs/phase-3.md](docs/phase-3.md) records
-correctness, GUI, and resource evidence. Automatic and interactive exploration
-begins in Phase 4 of [ROADMAP.md](ROADMAP.md).
+correctness, GUI, and resource evidence. Phase 4 has passed automatic
+profiles/plots and configurable linked-selection gates;
+[docs/phase-4.md](docs/phase-4.md) records correctness, GUI, and resource
+evidence. On-demand unsupervised analysis begins in Phase 5 of
+[ROADMAP.md](ROADMAP.md).
 
 Use this file for durable conventions and `ROADMAP.md` for sequencing,
 deliverables, and acceptance gates. Inspect actual code and configuration

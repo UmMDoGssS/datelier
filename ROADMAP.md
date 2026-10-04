@@ -25,7 +25,9 @@ gates. Phase 2 provides TSV, JSON/JSONL, Parquet, and configurable tabular XML
 with explicit nested-input diagnostics; [Phase 2 evidence](docs/phase-2.md)
 records its passed gates. Phase 3 provides reversible transformations and explicit
 export; [Phase 3 evidence](docs/phase-3.md) records its passed gates. Phase 4
-and later milestones remain unchecked.
+provides automatic exploration and linked selections;
+[Phase 4 evidence](docs/phase-4.md) records its passed gates. Phase 5 and later
+milestones remain unchecked.
 
 ## Gate and evidence rules
 
@@ -144,7 +146,7 @@ and later milestones remain unchecked.
 
 ## Phase 4 — Automatic and interactive exploration
 
-- [ ] **Phase complete.** **Entry:** Phase 3 passes. **Exit:** M4.1 and M4.2 pass.
+- [x] **Phase complete.** **Entry:** Phase 3 passes. **Exit:** M4.1 and M4.2 pass. [Evidence](docs/phase-4.md) recorded 2026-10-04.
 
 ### M4.1 — Type-aware profiles and automatic plots
 
@@ -156,11 +158,11 @@ and later milestones remain unchecked.
 
 ### M4.2 — Plot controls and linked selection
 
-- [ ] **Deliverables:** column/plot controls, zoom/pan, linked table/plot selection, sampling labels, configurable bounded expansion.
-- [ ] **Entry gate:** M4.1 passes and plot data carries correct row identity and revision metadata.
-- [ ] **Exit gate:** interactions select the correct rows after sort/filter/sample operations; sampling/truncation is visible; wide tables and interaction timings meet recorded limits.
-- [ ] **Verification evidence:** row-alignment/selection tests, stale-plot tests, GUI zoom/pan/selection smoke checks, and benchmark results against interaction budgets.
-- [ ] **Suggested step commits:** `feat: configure interactive plots` → `feat: link plot and table selections` → `perf: bound interactive plotting work`.
+- [x] **Deliverables:** column/plot controls, zoom/pan, linked table/plot selection, sampling labels, configurable bounded expansion.
+- [x] **Entry gate:** M4.1 passes and plot data carries correct row identity and revision metadata.
+- [x] **Exit gate:** interactions select the correct rows after sort/filter/sample operations; sampling/truncation is visible; wide tables and interaction timings meet recorded limits.
+- [x] **Verification evidence:** [M4.2 and final evidence](docs/phase-4.md#m42-plot-controls-and-linked-selection): 242 tests, Pyrefly/Ruff, all-format exploration/selection workflows, stale-result checks, live gesture/settings checks, four fresh-process benchmarks, and large/wide live GUI gates pass. Frame p95 is 17.51/17.73 ms; peak RSS is 679.21/622.70 MiB.
+- [x] **Step commits:** `8f9df0a` configurable plots and linked selections → `7cfb81f` bounded rendering, precision fixes, and workflow/resource acceptance.
 
 ## Phase 5 — On-demand unsupervised analysis
 

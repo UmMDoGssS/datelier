@@ -1,9 +1,9 @@
 # Datelier
 
 A Linux desktop data inspection workbench for analysts, targeting Python 3.14+.
-Phase 3 provides CSV/TSV, JSON/JSONL, Parquet, and tabular XML import,
-responsive previews, schema/null summaries, reversible transformations, and
-explicit CSV/Parquet export.
+Phase 4 provides CSV/TSV, JSON/JSONL, Parquet, and tabular XML import,
+responsive previews, schema/null summaries, reversible transformations,
+explicit CSV/Parquet export, and automatic exploration with linked selections.
 See [ROADMAP.md](ROADMAP.md) for delivery gates and [AGENTS.md](AGENTS.md) for
 contributor conventions.
 
@@ -78,7 +78,40 @@ Source files are read without modification. Loading does not run ML.
 Use `LIBGL_ALWAYS_SOFTWARE=1 uv run datelier` on the reference machine if the
 default renderer stalls; accelerated rendering remains unverified. See
 [Phase 1 evidence](docs/phase-1.md) for verification and performance limits.
-Saved workspaces and automatic exploration follow in later phases.
+Saved workspaces and on-demand analysis follow in later phases.
+
+## Exploration
+
+The **Explore** panel automatically prepares numeric, categorical, and temporal
+profiles after import and successful edits. Choose **Profiles**, **Scatter**, or
+**Correlations**. Numeric profiles show finite ranges, means, and distributions;
+quality counts identify null/nonfinite values. Temporal bins use units relative
+to the minimum, with a precise range. Expand **Bin boundaries / category labels**
+to read each bar's interval or category.
+
+Automatic work profiles the first 32 columns, correlates the first eight numeric
+columns, and suggests up to three scatter pairs. Correlations use at most 10,000
+evenly spaced input rows with pairwise finite values. Scatter plots show up to
+2,000 evenly spaced eligible points. Categorical counts use at most the first
+100,000 input rows, show the top 12 values and Other, and truncate labels after
+120 characters. Sampling and exclusions are labeled. Numeric plot coordinates
+use Float64, so very large integers and high-precision decimals may round.
+
+Expand **Plot settings** to change bins, top counts, profile/correlation column
+limits, and scatter point limits. **Profile focus** can choose any column,
+including one beyond the automatic limit. **Choose scatter columns** can choose
+any numeric pair. **Apply plot settings** prepares a new dashboard in the
+background. Bounds are 128 leading profile columns, 100 bins/counts, 16 numeric
+correlation columns (120 pairs), and 10,000 scatter points. **Abandon exploration**
+ignores its result while an executing job may still finish.
+
+Click a source row in the table or a plotted point to select it; Ctrl-click
+toggles membership. A plot click brings its row into the table view. Shift-drag
+brushes the displayed scatter points. Table rows and matching plot points share
+highlights; selected rows outside the plot sample remain selected. Selections
+are limited to 10,000 rows and clear when the dataset revision changes. Use the
+wheel to zoom, middle-drag to pan, and **Fit scatter** or double-click to fit.
+See [Phase 4 evidence](docs/phase-4.md) for verification and measured limits.
 
 ## Transform and export
 
