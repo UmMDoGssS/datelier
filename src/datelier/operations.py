@@ -70,7 +70,7 @@ def filter_mask(series: pl.Series, operation: Filter) -> pl.Series:
                 "Use is null or is not null to filter missing values"
             )
         if isinstance(value, str) and series.dtype == pl.Date:
-            value = pl.Series("value", [value]).str.to_date("%Y-%m-%d").item()
+            value = pl.Series("value", [value]).str.to_date("%Y-%m-%d")
         elif isinstance(value, str) and isinstance(series.dtype, pl.Datetime):
             value = (
                 pl.Series("value", [value])

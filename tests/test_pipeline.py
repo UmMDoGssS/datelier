@@ -118,3 +118,18 @@ def test_temporal_filter_and_invalid_values() -> None:
     with pytest.raises(OperationFailure):
         pipeline.apply(Filter("date", Comparison.EQ, "invalid"))
     assert not pipeline.history
+
+
+def test_temporal_filter_preserves_nanosecond_precision() -> None:
+    stamps = pl.Series(
+        "stamp", ["2026-01-01T00:00:00.000000123", "2026-01-01T00:00:00.000000124"]
+    ).str.to_datetime(time_unit="ns")
+    pipeline = Pipeline.start(Dataset.from_source(stamps.to_frame(), source().source))
+    result = pipeline.apply(
+        Filter("stamp", Comparison.EQ, "2026-01-01T00:00:00.000000124")
+    )
+    assert result.current.row_ids.to_list() == [1]
+    assert (
+        result.current.table["stamp"].cast(pl.Int64).to_list()
+        == stamps.cast(pl.Int64).to_list()[1:]
+    )
