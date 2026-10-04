@@ -105,3 +105,16 @@ uv run scripts/workspace_smoke.py
 Plot sizing, unified analysis, styling, roles/grouping, direct table actions, and
 file dialogs remain subsequent steps in the review plan. Step 1's functional and
 rendering gate has passed; the broader UX repair sequence remains open.
+
+## Follow-up — Analysis navigation crash (complete)
+
+A real Dear ImGui click on **Analysis inputs**, with no fitted results and the
+Analysis panel hidden, reproduced exit 139. Replacing `imgui.set_window_focus`
+with Hello ImGui's dock-aware focus API fixes that path and reveals the panel.
+This is a panel-navigation failure; a missing fit is a supported state.
+
+`analysis_navigation_smoke.py` passes with both default and hidden Analysis
+panels (42 frames each), with no ML started. Sixteen focused analysis-job,
+workspace-view, and exploration tests pass; Pyrefly reports zero errors and
+Ruff lint/format plus diff whitespace checks pass. Scatter mode separation and
+chart sizing remain the next verified slices.

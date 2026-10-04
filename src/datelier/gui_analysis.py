@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass, field
 
-from imgui_bundle import imgui
+from imgui_bundle import hello_imgui, imgui
 
 from datelier.analysis_jobs import AnalysisJobs
 from datelier.analysis_plots import AnalysisPlots
@@ -19,6 +19,7 @@ class AnalysisSession:
     jobs: AnalysisJobs = field(default_factory=AnalysisJobs)
     plots: AnalysisPlots = field(default_factory=AnalysisPlots)
     source: Algorithm | None = None
+    inputs_pixel: tuple[float, float] = (0, 0)
 
     def poll(self, dataset: Dataset | None) -> bool:
         revision = dataset.revision if dataset is not None else None
@@ -46,8 +47,13 @@ class AnalysisSession:
         if changed:
             self.source = algorithms[index - 1] if index else None
         imgui.same_line()
-        if imgui.button("Analysis inputs"):
-            imgui.set_window_focus("Analysis")
+        open_inputs = imgui.button("Analysis inputs")
+        pos, size = imgui.get_item_rect_min(), imgui.get_item_rect_size()
+        self.inputs_pixel = (pos.x + size.x / 2, pos.y + size.y / 2)
+        if open_inputs:
+            hello_imgui.get_runner_params().docking_params.focus_dockable_window(
+                "Analysis"
+            )
         imgui.same_line()
         imgui.begin_disabled(self.jobs.busy)
         if imgui.button("PCA"):
