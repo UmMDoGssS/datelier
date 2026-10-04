@@ -42,7 +42,9 @@ def main() -> None:
             table.write_ndjson(path)
         bad = root / ("bad." + format.lower())
         bad.write_text(
-            '{"payload":{"hidden":1}}'
+            'a\n"unterminated\n'
+            if format in (ImportFormat.CSV, ImportFormat.TSV)
+            else '{"payload":{"hidden":1}}'
             if format == ImportFormat.JSONL
             else '[{"payload":{"hidden":1}}]'
         )

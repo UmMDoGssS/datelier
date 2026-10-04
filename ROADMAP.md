@@ -100,15 +100,15 @@ gates. Phase 2 and later milestones remain unchecked.
 
 ## Phase 2 — Format coverage
 
-- [ ] **Phase complete.** **Entry:** Phase 1 passes. **Exit:** M2.1 and M2.2 pass.
+- [ ] **Phase complete.** **In progress:** M2.1 passes; XML extraction and M2.2 gates remain open. **Entry:** Phase 1 passes. **Exit:** M2.1 and M2.2 pass.
 
 ### M2.1 — TSV, JSON/JSONL, and Parquet
 
-- [ ] **Deliverables:** adapters/options for remaining straightforward formats, sharing dataset state, preview, and diagnostics.
-- [ ] **Entry gate:** the CSV inspection slice and importer contract pass their gates.
-- [ ] **Exit gate:** each format loads equivalent tabular fixtures with appropriate types; malformed/unsupported structures produce actionable diagnostics without corrupting active state.
-- [ ] **Verification evidence:** per-format and cross-format schema/value tests, null/type cases, failure tests, and import-to-preview smoke checks.
-- [ ] **Suggested step commits:** `feat: support tsv imports` → `feat: support json and jsonl imports` → `feat: support parquet imports`.
+- [x] **Deliverables:** adapters/options for remaining straightforward formats, sharing dataset state, preview, and diagnostics.
+- [x] **Entry gate:** the CSV inspection slice and importer contract pass their gates.
+- [x] **Exit gate:** each format loads equivalent tabular fixtures with appropriate types; malformed/unsupported structures produce actionable diagnostics without corrupting active state.
+- [x] **Verification evidence:** [M2.1 evidence](docs/phase-2.md#m21-tsv-jsonjsonl-and-parquet): 92 full-suite tests, cross-format schemas/values/nulls/identity, strict failure cases, Pyrefly/Ruff, and five import-to-preview/diagnostic GUI checks pass.
+- [x] **Step commits:** `5e566c6` shared contract/TSV → `a012e2c` JSON/JSONL → `4bc824b` Parquet; acceptance evidence follows in the M2.1 gate commit.
 
 ### M2.2 — Tabular XML and nested-input handling
 

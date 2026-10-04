@@ -51,3 +51,31 @@ def test_malformed_tsv_has_format_diagnostic(tmp_path: Path, content: str) -> No
     with pytest.raises(ImportFailure, match="TSV"):
         load_tsv(path)
     assert path.read_text() == content
+
+
+@pytest.mark.parametrize("suffix", ["csv", "tsv", "json", "jsonl", "parquet"])
+def test_cross_format_schema_values_and_prepared_preview(
+    tmp_path: Path, suffix: str
+) -> None:
+    import polars as pl
+
+    expected = pl.DataFrame(
+        {"id": [1, 2], "value": [1.5, None], "label": ["café", "last"]}
+    )
+    path = tmp_path / ("equivalent." + suffix)
+    if suffix in ("csv", "tsv"):
+        expected.write_csv(path, separator="\t" if suffix == "tsv" else ",")
+    elif suffix == "json":
+        expected.write_json(path)
+    elif suffix == "jsonl":
+        expected.write_ndjson(path)
+    else:
+        expected.write_parquet(path)
+    content = path.read_bytes()
+    imported = load_file(path)
+    assert_frame_equal(imported.dataset.table, expected)
+    inspection = prepare_inspection(imported)
+    assert inspection.first_page.row_ids == (0, 1)
+    assert inspection.first_page.rows == (("1", "1.5", "café"), ("2", "NULL", "last"))
+    assert [s.null_count for s in inspection.schema] == [0, 1, 0]
+    assert path.read_bytes() == content
