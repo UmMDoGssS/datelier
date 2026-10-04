@@ -4,7 +4,8 @@ from time import monotonic, sleep
 
 import pytest
 
-from datelier.import_csv import CsvImport, CsvOptions, load_csv
+from datelier.import_csv import CsvImport, load_csv
+from datelier.import_types import CsvOptions, ImportOptions
 from datelier.inspection import CELL_CHARACTERS, prepare_inspection, prepare_page
 from datelier.loading import DatasetLoader, LoadPhase
 
@@ -42,10 +43,11 @@ def test_newer_load_wins_even_when_old_parser_finishes_later(tmp_path: Path) -> 
     new.write_text("v\n2\n")
     started, release = Event(), Event()
 
-    def importer(path: Path, options: CsvOptions | None) -> CsvImport:
+    def importer(path: Path, options: ImportOptions | None) -> CsvImport:
         if path == old:
             started.set()
             assert release.wait(3)
+        assert options is None or isinstance(options, CsvOptions)
         return load_csv(path, options)
 
     loader = DatasetLoader(importer)
@@ -117,12 +119,13 @@ def test_rapid_requests_cancel_obsolete_queued_work(tmp_path: Path) -> None:
     first_started, second_started, release = Event(), Event(), Event()
     seen: list[str] = []
 
-    def importer(source: Path, options: CsvOptions | None) -> CsvImport:
+    def importer(source: Path, options: ImportOptions | None) -> CsvImport:
         seen.append(source.name)
         if source.name in ("first.csv", "second.csv"):
             (first_started if source.name == "first.csv" else second_started).set()
             assert release.wait(3)
             raise RuntimeError("An obsolete parser failed")
+        assert options is None or isinstance(options, CsvOptions)
         return load_csv(source, options)
 
     loader = DatasetLoader(importer)

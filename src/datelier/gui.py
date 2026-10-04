@@ -18,6 +18,7 @@ class GuiSession:
     loader: DatasetLoader
     pages: PreviewCache
     table: TableView
+    controls: ImportControls
 
 
 @dataclass
@@ -44,8 +45,8 @@ def run_gui(
     loader = dataset_loader if dataset_loader is not None else DatasetLoader()
     pages = PreviewCache()
     view = TableView()
-    session = GuiSession(loader, pages, view)
     controls = ImportControls(path=str(initial_path) if initial_path else "")
+    session = GuiSession(loader, pages, view, controls)
     evidence = InspectionEvidence()
     params = hello_imgui.RunnerParams()
     params.app_window_params.window_title = "Datelier — data inspection"

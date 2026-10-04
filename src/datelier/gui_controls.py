@@ -6,7 +6,7 @@ from pathlib import Path
 from imgui_bundle import imgui
 
 from datelier.import_csv import CsvOptions, ImportFailure
-from datelier.import_types import ImportFormat
+from datelier.import_types import ImportFormat, ImportOptions, JsonOptions
 from datelier.importing import detect_format
 from datelier.loading import DatasetLoader, LoadPhase
 
@@ -25,51 +25,71 @@ class ImportControls:
     null_tokens: str = ""
     error: str = ""
 
+    def selected_format(self) -> ImportFormat:
+        return (
+            detect_format(Path(self.path))
+            if self.format_index == 0
+            else list(ImportFormat)[self.format_index - 1]
+        )
+
+    def options(self, selected: ImportFormat) -> ImportOptions:
+        if selected in (ImportFormat.JSON, ImportFormat.JSONL):
+            return JsonOptions(read_as_text=self.text_only)
+        return CsvOptions(
+            separator=self.separator.replace("\\t", "\t")
+            or ("\t" if selected == ImportFormat.TSV else ","),
+            has_header=self.header,
+            quote_char=self.quote or None,
+            infer_types=not self.text_only,
+            try_parse_dates=self.dates,
+            infer_schema_length=None if self.infer_rows == 0 else self.infer_rows,
+            skip_rows=self.skip_rows,
+            null_values=tuple(self.null_tokens.split("|")) if self.null_tokens else (),
+        )
+
+    def show_options(self, selected: ImportFormat | None) -> None:
+        if selected is None:
+            imgui.text_wrapped("Choose a format or enter a supported file extension.")
+            return
+        _, self.text_only = imgui.checkbox("Read columns as text", self.text_only)
+        if selected in (ImportFormat.JSON, ImportFormat.JSONL):
+            imgui.text_wrapped(
+                "Flat record objects only. Types use all records; "
+                "missing fields become null. "
+                "Nested objects/arrays are rejected with a field diagnostic."
+            )
+            return
+        _, self.separator = imgui.input_text(
+            "Delimiter (empty = default, \\t = tab)", self.separator
+        )
+        _, self.quote = imgui.input_text("Quote (empty to disable)", self.quote)
+        _, self.header = imgui.checkbox("First record is a header", self.header)
+        _, self.dates = imgui.checkbox("Parse dates", self.dates)
+        _, self.infer_rows = imgui.input_int("Infer rows (0 = all)", self.infer_rows)
+        _, self.skip_rows = imgui.input_int("Skip records", self.skip_rows)
+        _, self.null_tokens = imgui.input_text(
+            "Null tokens (separate with |)", self.null_tokens
+        )
+
     def show(self, loader: DatasetLoader) -> None:
         _, self.path = imgui.input_text("Dataset path", self.path)
         _, self.format_index = imgui.combo(
-            "Format", self.format_index, ["Auto", "CSV", "TSV"]
+            "Format",
+            self.format_index,
+            ["Auto", *[str(value) for value in ImportFormat]],
         )
-        if imgui.collapsing_header("Import options"):
-            _, self.separator = imgui.input_text(
-                "Delimiter (empty = format default, \\t = tab)", self.separator
-            )
-            _, self.quote = imgui.input_text("Quote (empty to disable)", self.quote)
-            _, self.header = imgui.checkbox("First record is a header", self.header)
-            _, self.text_only = imgui.checkbox("Read columns as text", self.text_only)
-            _, self.dates = imgui.checkbox("Parse dates", self.dates)
-            _, self.infer_rows = imgui.input_int(
-                "Infer rows (0 = all)", self.infer_rows
-            )
-            _, self.skip_rows = imgui.input_int("Skip records", self.skip_rows)
-            _, self.null_tokens = imgui.input_text(
-                "Null tokens (separate with |)", self.null_tokens
-            )
+        try:
+            selected = self.selected_format()
+        except ImportFailure:
+            selected = None
+        if imgui.collapsing_header("Import options", imgui.TreeNodeFlags_.default_open):
+            self.show_options(selected)
         if imgui.button("Open dataset"):
             try:
                 if not self.path.strip():
                     raise ValueError("Enter a dataset path.")
-                selected = (
-                    detect_format(Path(self.path))
-                    if self.format_index == 0
-                    else list(ImportFormat)[self.format_index - 1]
-                )
-                options = CsvOptions(
-                    separator=self.separator.replace("\\t", "\t")
-                    or ("\t" if selected == ImportFormat.TSV else ","),
-                    has_header=self.header,
-                    quote_char=self.quote or None,
-                    infer_types=not self.text_only,
-                    try_parse_dates=self.dates,
-                    infer_schema_length=None
-                    if self.infer_rows == 0
-                    else self.infer_rows,
-                    skip_rows=self.skip_rows,
-                    null_values=tuple(self.null_tokens.split("|"))
-                    if self.null_tokens
-                    else (),
-                )
-                loader.request(Path(self.path), options, format=selected)
+                selected = self.selected_format()
+                loader.request(Path(self.path), self.options(selected), format=selected)
                 self.error = ""
             except (ValueError, ImportFailure) as error:
                 self.error = str(error)

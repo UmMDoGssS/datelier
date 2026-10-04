@@ -17,7 +17,8 @@ from numpy.typing import NDArray
 from datelier.dataset import DatasetRevision
 from datelier.feasibility.fixtures import make_table
 from datelier.gui import GuiSession, InspectionEvidence, run_gui
-from datelier.import_csv import CsvImport, CsvOptions, load_csv
+from datelier.import_csv import CsvImport, load_csv
+from datelier.import_types import CsvOptions, ImportOptions
 from datelier.loading import DatasetLoader, LoadPhase
 
 
@@ -52,11 +53,13 @@ def main() -> None:
         newer = root / "newer.csv"
         newer.write_text("id,label,value\n99,newest,1.5\n12,second,\n")
 
-        def importer(source: Path, options: CsvOptions | None) -> CsvImport:
+        def importer(source: Path, options: ImportOptions | None) -> CsvImport:
             if source == path and args.scenario == "switch-failure":
                 started.set()
                 if not release.wait(30):
                     raise TimeoutError("Smoke parser was not released")
+            assert options is None or isinstance(options, CsvOptions)
+
             return load_csv(source, options)
 
         loader = DatasetLoader(importer)

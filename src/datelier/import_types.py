@@ -10,6 +10,8 @@ from datelier.dataset import Dataset
 class ImportFormat(StrEnum):
     CSV = "CSV"
     TSV = "TSV"
+    JSON = "JSON"
+    JSONL = "JSONL"
 
 
 @dataclass(frozen=True)
@@ -35,7 +37,12 @@ class CsvOptions:
             raise ValueError("Skipped rows must be nonnegative")
 
 
-type ImportOptions = CsvOptions
+@dataclass(frozen=True)
+class JsonOptions:
+    read_as_text: bool = False
+
+
+type ImportOptions = CsvOptions | JsonOptions
 
 
 class ImportFailure(Exception):
