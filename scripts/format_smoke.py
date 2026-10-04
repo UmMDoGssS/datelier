@@ -36,6 +36,8 @@ def main() -> None:
             table.write_csv(path, separator="\t" if format == ImportFormat.TSV else ",")
         elif format == ImportFormat.JSON:
             table.write_json(path)
+        elif format == ImportFormat.PARQUET:
+            table.write_parquet(path)
         else:
             table.write_ndjson(path)
         bad = root / ("bad." + format.lower())

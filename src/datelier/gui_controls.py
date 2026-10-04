@@ -6,7 +6,12 @@ from pathlib import Path
 from imgui_bundle import imgui
 
 from datelier.import_csv import CsvOptions, ImportFailure
-from datelier.import_types import ImportFormat, ImportOptions, JsonOptions
+from datelier.import_types import (
+    ImportFormat,
+    ImportOptions,
+    JsonOptions,
+    ParquetOptions,
+)
 from datelier.importing import detect_format
 from datelier.loading import DatasetLoader, LoadPhase
 
@@ -23,6 +28,7 @@ class ImportControls:
     infer_rows: int = 100
     skip_rows: int = 0
     null_tokens: str = ""
+    parquet_columns: str = ""
     error: str = ""
 
     def selected_format(self) -> ImportFormat:
@@ -33,6 +39,12 @@ class ImportControls:
         )
 
     def options(self, selected: ImportFormat) -> ImportOptions:
+        if selected == ImportFormat.PARQUET:
+            return ParquetOptions(
+                columns=tuple(self.parquet_columns.split("|"))
+                if self.parquet_columns
+                else None
+            )
         if selected in (ImportFormat.JSON, ImportFormat.JSONL):
             return JsonOptions(read_as_text=self.text_only)
         return CsvOptions(
@@ -50,6 +62,15 @@ class ImportControls:
     def show_options(self, selected: ImportFormat | None) -> None:
         if selected is None:
             imgui.text_wrapped("Choose a format or enter a supported file extension.")
+            return
+        if selected == ImportFormat.PARQUET:
+            imgui.text_wrapped(
+                "Stored types are preserved. Nested columns must be excluded "
+                "or flattened before import."
+            )
+            _, self.parquet_columns = imgui.input_text(
+                "Columns (|, empty = all)", self.parquet_columns
+            )
             return
         _, self.text_only = imgui.checkbox("Read columns as text", self.text_only)
         if selected in (ImportFormat.JSON, ImportFormat.JSONL):

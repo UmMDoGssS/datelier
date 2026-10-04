@@ -12,6 +12,7 @@ class ImportFormat(StrEnum):
     TSV = "TSV"
     JSON = "JSON"
     JSONL = "JSONL"
+    PARQUET = "Parquet"
 
 
 @dataclass(frozen=True)
@@ -42,7 +43,20 @@ class JsonOptions:
     read_as_text: bool = False
 
 
-type ImportOptions = CsvOptions | JsonOptions
+@dataclass(frozen=True)
+class ParquetOptions:
+    columns: tuple[str, ...] | None = None
+
+    def __post_init__(self) -> None:
+        if self.columns is not None and (
+            not self.columns
+            or len(set(self.columns)) != len(self.columns)
+            or any(not name for name in self.columns)
+        ):
+            raise ValueError("Selected Parquet columns must be nonempty and unique")
+
+
+type ImportOptions = CsvOptions | JsonOptions | ParquetOptions
 
 
 class ImportFailure(Exception):

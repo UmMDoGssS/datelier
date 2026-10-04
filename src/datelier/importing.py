@@ -4,6 +4,7 @@ from pathlib import Path
 
 from datelier.import_csv import load_csv, load_tsv
 from datelier.import_json import load_json
+from datelier.import_parquet import load_parquet
 from datelier.import_types import (
     CsvOptions,
     ImportFailure,
@@ -11,6 +12,7 @@ from datelier.import_types import (
     ImportOptions,
     ImportResult,
     JsonOptions,
+    ParquetOptions,
 )
 
 
@@ -21,6 +23,8 @@ def detect_format(path: Path) -> ImportFormat:
         ".json": ImportFormat.JSON,
         ".jsonl": ImportFormat.JSONL,
         ".ndjson": ImportFormat.JSONL,
+        ".parquet": ImportFormat.PARQUET,
+        ".pq": ImportFormat.PARQUET,
     }
     try:
         return formats[path.suffix.lower()]
@@ -37,6 +41,10 @@ def load_file(
     format: ImportFormat | None = None,
 ) -> ImportResult:
     selected = format if format is not None else detect_format(path)
+    if selected == ImportFormat.PARQUET:
+        if options is not None and not isinstance(options, ParquetOptions):
+            raise ImportFailure(path, "Parquet requires Parquet import options.")
+        return load_parquet(path, options)
     if selected in (ImportFormat.JSON, ImportFormat.JSONL):
         if options is not None and not isinstance(options, JsonOptions):
             raise ImportFailure(path, "JSON/JSONL requires JSON import options.")
