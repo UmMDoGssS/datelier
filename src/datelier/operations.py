@@ -1,0 +1,114 @@
+"""Immutable, replayable table operations with independent source-row identity."""
+
+from dataclasses import dataclass
+from enum import StrEnum
+
+import polars as pl
+
+from datelier.dataset import Dataset
+
+
+class OperationFailure(ValueError):
+    """A rejected edit; callers retain the previously published pipeline."""
+
+
+class Comparison(StrEnum):
+    EQ = "=="
+    NE = "!="
+    LT = "<"
+    LE = "<="
+    GT = ">"
+    GE = ">="
+    IS_NULL = "is null"
+    NOT_NULL = "is not null"
+
+
+type Scalar = str | int | float | bool | None
+
+
+@dataclass(frozen=True)
+class Sort:
+    columns: tuple[str, ...]
+    descending: bool = False
+    nulls_last: bool = True
+
+
+@dataclass(frozen=True)
+class Filter:
+    column: str
+    comparison: Comparison
+    value: Scalar = None
+
+
+@dataclass(frozen=True)
+class SelectColumns:
+    columns: tuple[str, ...]
+
+
+type Operation = Sort | Filter | SelectColumns
+
+
+def require_columns(table: pl.DataFrame, columns: tuple[str, ...]) -> None:
+    if not columns or len(set(columns)) != len(columns):
+        raise OperationFailure("Choose one or more distinct columns")
+    for name in columns:
+        if name not in table.columns:
+            raise OperationFailure(f"Unknown column: {name!r}")
+
+
+def filter_mask(series: pl.Series, operation: Filter) -> pl.Series:
+    value = operation.value
+    match operation.comparison:
+        case Comparison.IS_NULL:
+            return series.is_null()
+        case Comparison.NOT_NULL:
+            return series.is_not_null()
+        case Comparison.EQ:
+            return series == value
+        case Comparison.NE:
+            return series != value
+        case Comparison.LT:
+            return series < value
+        case Comparison.LE:
+            return series <= value
+        case Comparison.GT:
+            return series > value
+        case Comparison.GE:
+            return series >= value
+
+
+def apply_operation(dataset: Dataset, operation: Operation) -> Dataset:
+    table, ids = dataset.table, dataset.row_ids
+    try:
+        match operation:
+            case Sort(columns, descending, nulls_last):
+                require_columns(table, columns)
+                # A collision-free internal column travels with rows, never exposed.
+                name = "__datelier_identity"
+                while name in table.columns:
+                    name += "_"
+                joined = table.with_columns(ids.alias(name))
+                result = joined.sort(
+                    [joined.get_column(column) for column in columns],
+                    descending=descending,
+                    nulls_last=nulls_last,
+                    maintain_order=True,
+                )
+                ids = result.drop_in_place(name)
+                table = result
+            case Filter(column, _, _):
+                require_columns(table, (column,))
+                mask = filter_mask(
+                    table.get_column(column).alias("value"), operation
+                ).fill_null(False)
+                table, ids = table.filter(mask), ids.filter(mask)
+            case SelectColumns(columns):
+                require_columns(table, columns)
+                table = pl.DataFrame([table.get_column(name) for name in columns])
+        return dataset.with_rows(table, ids)
+    except OperationFailure:
+        raise
+    except Exception as error:
+        raise OperationFailure(
+            f"Could not apply {type(operation).__name__}: {error}"
+        ) from error
