@@ -222,7 +222,7 @@ workspace persistence schema.
 - [x] **Entry gate:** M6.1 passes and docking/plot controls are already functional.
 - [x] **Exit gate:** layout/theme/preferences persist across restart; workspace restoration preserves valid views; unusable layouts can be reset without losing dataset recipes.
 - [x] **Verification evidence:** [M6.2 evidence](docs/phase-6.md#m62-saved-layouts-themes-and-plot-preferences): 333 full-suite tests, Pyrefly/Ruff, independent preference recovery, three fresh-process rearrange/restart/default/reset/restore GUI checks and linked-selection/gesture regressions pass.
-- [x] **Step commit:** dock layout module, versioned preference storage, theme/menu/default restoration, fresh-process GUI gate and final evidence form one verified customization step.
+- [x] **Step commit:** `29ce51e` — dock layout module, versioned preference storage, theme/menu/default restoration, fresh-process GUI gate and final evidence form one verified customization step.
 
 ## Phase 7 — V1 hardening and release
 

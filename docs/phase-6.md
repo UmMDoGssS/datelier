@@ -133,3 +133,6 @@ claimed. The existing gesture smoke uses injected ImGui/backend input. Linux
 with Mesa software OpenGL remains the verified platform/renderer. Accelerated
 rendering and other platforms remain unverified. M6.1, M6.2 and Phase 6 pass;
 Phase 7 end-to-end hardening and release readiness are the next gates.
+
+Completed implementation steps: `3e5464c` (recipes), `7d9d494` (restore/relink),
+`2b513b4` (workspace GUI/M6.1), and `29ce51e` (customization/M6.2).
