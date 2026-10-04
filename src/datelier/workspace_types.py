@@ -1,6 +1,6 @@
 """Version-one referenced workspace recipes; no data or fitted ML artifacts."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from datelier.analysis_types import AnalysisRequest
 from datelier.exploration import PlotSettings
@@ -86,9 +86,17 @@ class Workspace:
             raise ValueError("Save at most one setting recipe per analysis algorithm")
         for request in self.analysis:
             # Empty features are valid saved controls, but cannot launch analysis.
-            from dataclasses import replace
-
             replace(request, features=request.features or ("unselected",)).validate()
+        if self.analysis:
+            first = self.analysis[0]
+            if any(
+                (r.features, r.preprocessing, r.seed, r.dimensions)
+                != (first.features, first.preprocessing, first.seed, first.dimensions)
+                for r in self.analysis
+            ):
+                raise ValueError(
+                    "Analysis recipes must share the workbench input settings"
+                )
         if self.plots.clusters is not None:
             raise ValueError("Workspaces save ML settings, not fitted results")
         self.plots.validate()

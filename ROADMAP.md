@@ -29,8 +29,8 @@ provides automatic exploration and linked selections;
 [Phase 4 evidence](docs/phase-4.md) records its baseline gates, and
 [richer-inspection evidence](docs/richer-inspection.md) records passed comparison,
 color and matrix extensions. Phase 5 provides explicit analysis and linked 3D
-views; [Phase 5 evidence](docs/phase-5.md) records its passed gates. Phase 6 and
-later milestones remain unchecked.
+views; [Phase 5 evidence](docs/phase-5.md) records its passed gates. Phase 6 workspace persistence passes M6.1; customization is in progress.
+Later milestones remain unchecked.
 
 ## Gate and evidence rules
 
@@ -209,11 +209,11 @@ workspace persistence schema.
 
 ### M6.1 — Referenced-source workspace persistence
 
-- [ ] **Deliverables:** versioned workspace files with source references, import options, operation recipes, analysis settings, and views; source detection/relinking.
-- [ ] **Entry gate:** operations, plot configuration, and analysis settings have typed representations and reproducible behavior.
-- [ ] **Exit gate:** save/reopen restores the intended workspace; missing/changed sources are detected; relinking works; loading settings does not automatically rerun ML.
-- [ ] **Verification evidence:** save/load/replay round trips, malformed/unsupported workspace handling, moved/changed source fixtures, failed-load state preservation, and reopen GUI checks.
-- [ ] **Suggested step commits:** `feat: save workspace recipes` → `feat: restore referenced workspaces` → `feat: detect and relink workspace sources`.
+- [x] **Deliverables:** versioned workspace files with source references, import options, operation recipes, analysis settings, and views; source detection/relinking.
+- [x] **Entry gate:** operations, plot configuration, and analysis settings have typed representations and reproducible behavior.
+- [x] **Exit gate:** save/reopen restores the intended workspace; missing/changed sources are detected; relinking works; loading settings does not automatically rerun ML.
+- [x] **Verification evidence:** [M6.1 evidence](docs/phase-6.md#m61-referenced-source-workspace-persistence): 312 full-suite tests, Pyrefly/Ruff, strict recipe/source/replay/job tests and live save/restart/relink/redo/selection checks pass; no implicit ML.
+- [x] **Step commits:** `3e5464c` versioned recipes → `7d9d494` background restore/relink → GUI controls, CLI and M6.1 acceptance evidence in the gate commit.
 
 ### M6.2 — Saved layouts, themes, and plot preferences
 

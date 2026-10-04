@@ -30,6 +30,8 @@ class ExplorationView:
     scatter3d: Scatter3DView = field(default_factory=Scatter3DView)
     dock_id: int = 0
     tab: str = "Profiles"
+    active_tab: str = "Profiles"
+    saved_scatter_index: int | None = None
     interaction: ScatterInteraction = field(default_factory=ScatterInteraction)
     fit: bool = False
     _dashboard: Dashboard | None = None
@@ -80,6 +82,7 @@ class ExplorationView:
                 )
                 opened, _ = imgui.begin_tab_item(label, flags=flags)
                 if opened:
+                    self.active_tab = label
                     callback(dashboard)
                     imgui.end_tab_item()
             imgui.end_tab_bar()
@@ -194,9 +197,12 @@ class ExplorationView:
     ) -> None:
         if dashboard is not self._dashboard:
             self._dashboard = dashboard
-            self.scatter_index = 0
+            self.scatter_index = min(
+                self.saved_scatter_index or 0, max(0, len(dashboard.scatters) - 1)
+            )
+            self.saved_scatter_index = None
             if plots is not None and dashboard.scatters:
-                first = dashboard.scatters[0]
+                first = dashboard.scatters[self.scatter_index]
                 plots.x_index = plots.numeric.index(first.x_name)
                 plots.y_index = plots.numeric.index(first.y_name)
         if plots is not None and dataset is not None:

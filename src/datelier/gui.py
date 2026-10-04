@@ -18,7 +18,9 @@ from datelier.gui_export import ExportControls
 from datelier.gui_operations import OperationControls
 from datelier.gui_plot_controls import PlotControls
 from datelier.gui_table import TableView
-from datelier.loading import DatasetLoader, LoadPhase
+from datelier.gui_workspace import WorkspaceControls
+from datelier.gui_workspace_state import restore_views
+from datelier.loading import DatasetLoader, LoadPhase, LoadStatus
 from datelier.preview import PreviewCache
 from datelier.selection import LinkedSelection
 
@@ -38,6 +40,7 @@ class GuiSession:
     plots: PlotControls
     selection: LinkedSelection
     analysis: AnalysisSession
+    workspace: WorkspaceControls
 
 
 @dataclass
@@ -58,6 +61,7 @@ def run_gui(
     smoke_frames: int = 0,
     on_frame: Callable[[GuiSession, InspectionEvidence], None] | None = None,
     dataset_loader: DatasetLoader | None = None,
+    initial_workspace: Path | None = None,
 ) -> InspectionEvidence:
     if smoke_frames < 0:
         raise ValueError("Smoke frame count must be nonnegative")
@@ -74,6 +78,9 @@ def run_gui(
     plot_controls = PlotControls()
     selection = LinkedSelection()
     analysis = AnalysisSession()
+    workspace = WorkspaceControls(
+        path=str(initial_workspace) if initial_workspace else ""
+    )
     session = GuiSession(
         loader,
         pages,
@@ -88,6 +95,7 @@ def run_gui(
         plot_controls,
         selection,
         analysis,
+        workspace,
     )
     evidence = InspectionEvidence()
     params = hello_imgui.RunnerParams()
@@ -151,6 +159,7 @@ def run_gui(
     for label, space, callback in (
         ("Explore", "PlotSpace", explore),
         ("Open dataset", "ImportSpace", lambda: controls.show(loader)),
+        ("Workspace", "ImportSpace", lambda: workspace.show(session)),
         ("Table preview", "MainDockSpace", show_table),
         ("Schema and nulls", "SchemaSpace", schema),
         (
@@ -165,14 +174,18 @@ def run_gui(
             "EditSpace",
             lambda: operations.show(
                 editor,
-                loading=loader.status.phase == LoadPhase.LOADING or exporter.busy,
+                loading=loader.status.phase == LoadPhase.LOADING
+                or exporter.busy
+                or workspace.jobs.busy,
             ),
         ),
         (
             "Export table",
             "EditSpace",
             lambda: exports.show(
-                editor, exporter, loading=loader.status.phase == LoadPhase.LOADING
+                editor,
+                exporter,
+                loading=loader.status.phase == LoadPhase.LOADING or workspace.jobs.busy,
             ),
         ),
     ):
@@ -184,7 +197,9 @@ def run_gui(
     params.docking_params.dockable_windows = windows
     load_started = perf_counter()
     previous_frame = load_started
-    if initial_path:
+    if initial_workspace:
+        workspace.open(session)
+    elif initial_path:
         loader.request(initial_path)
 
     def frame() -> None:
@@ -205,6 +220,22 @@ def run_gui(
             explorer.request(loader.active.dataset, plot_controls.settings())
         if loader.status.phase == LoadPhase.LOADING:
             editor.abandon()
+            workspace.jobs.abandon()
+        restored = workspace.jobs.poll(loader.revision)
+        if restored is not None:
+            loader.active = restored.inspection
+            loader.status = LoadStatus(
+                LoadPhase.READY, restored.pipeline.source.source.path
+            )
+            editor.bind(restored.inspection)
+            editor.pipeline = restored.pipeline
+            pages.bind(restored.inspection)
+            view.reset()
+            adjusted = restore_views(session, restored.workspace)
+            if adjusted:
+                workspace.jobs.message += " Unavailable plot columns were reset."
+            selection.bind(restored.inspection.dataset.revision)
+            explorer.request(restored.inspection.dataset, plot_controls.settings())
         edited = editor.poll(loader.revision)
         if edited is not None:
             loader.active = edited
@@ -264,4 +295,5 @@ def run_gui(
         exporter.close()
         explorer.close()
         analysis.close()
+        workspace.jobs.close()
     return evidence

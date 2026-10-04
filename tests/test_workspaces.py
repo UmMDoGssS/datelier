@@ -212,3 +212,21 @@ def test_changed_source_cannot_be_saved_as_the_imported_recipe(tmp_path: Path) -
     Path(workspace.source.path).write_text("x\n99\n")
     with pytest.raises(ValueError, match="changed since import"):
         reference_source(imported.dataset.source)
+
+
+def test_incompatible_shared_analysis_inputs_are_rejected(tmp_path: Path) -> None:
+    workspace = replace(
+        recipe(tmp_path),
+        analysis=(AnalysisRequest(("x",)), AnalysisRequest(("y",), KMeansParameters())),
+    )
+    with pytest.raises(ValueError, match="share"):
+        save_workspace(tmp_path / "project.datelier", workspace)
+
+
+def test_oversized_recipe_is_rejected_before_json_parsing(tmp_path: Path) -> None:
+    from datelier.workspaces import MAX_WORKSPACE_BYTES
+
+    path = tmp_path / "large.datelier"
+    path.write_bytes(b" " * (MAX_WORKSPACE_BYTES + 1))
+    with pytest.raises(ValueError, match="2 MiB"):
+        read_workspace(path)

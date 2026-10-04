@@ -79,7 +79,31 @@ Source files are read without modification. Loading does not run ML.
 Use `LIBGL_ALWAYS_SOFTWARE=1 uv run datelier` on the reference machine if the
 default renderer stalls; accelerated rendering remains unverified. See
 [Phase 1 evidence](docs/phase-1.md) for verification and performance limits.
-Saved workspaces remain Phase 6; current views and results last for this session.
+Referenced workspace recipes are available; fitted results remain session-only.
+
+## Workspaces
+
+Open the **Workspace** tab next to Open dataset. Enter a destination path such
+as `/path/to/session.datelier`, then choose **Save workspace**. Existing files
+require **Replace existing workspace**. Save records the source reference and
+fingerprint, import options, undo/redo history, analysis settings and views.
+It does not bundle source data or fitted results. Sources must still match the
+imported size/mtime when saving.
+
+Use **Open workspace**, or launch directly:
+
+```sh
+uv run datelier --workspace /path/to/session.datelier
+```
+
+Restore checks the source and replays recipes in the background. Failures keep
+the active data/history. If a source moved, enter **Replacement source** and
+choose **Relink / retry source**. Content changes require **Accept changed source
+content** before replaying against the new data. Relative sources may move
+alongside their workspace. Available column views/settings restore; unavailable
+plot columns reset. Restoring never launches ML; use an explicit Run command.
+Selections and fitted results last for the session. See
+[Phase 6 evidence](docs/phase-6.md).
 
 ## Exploration
 
@@ -202,7 +226,7 @@ Edits run in the background. **Undo** and **Redo** restore replayed results;
 a successful new edit after undo discards redo history. Failed edits retain the
 active table and history. **Abandon edit** ignores an executing result; it may
 still finish. Opening a new dataset starts new history. Source files stay
-unchanged. History is currently kept for the running session.
+unchanged. Workspace files preserve the full history and undo/redo cursor.
 
 Use **Export table**, choose CSV or Parquet and a destination, then select
 **Export active table**. Replacing an existing destination requires its checkbox;
