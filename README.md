@@ -1,13 +1,63 @@
 # Datelier
 
-A Linux desktop data inspection workbench for analysts, targeting Python 3.14+.
-Phases 1–6 provide CSV/TSV, JSON/JSONL, Parquet, and tabular XML import,
+A simple personal Linux desktop tool for inspecting data, targeting Python 3.14+.
+The verified v1 scope provides CSV/TSV, JSON/JSONL, Parquet, and tabular XML import,
 responsive previews, schema/null summaries, reversible transformations,
 explicit CSV/Parquet export, richer exploration with linked selections,
 explicit PCA, t-SNE, UMAP and k-means analysis, referenced workspaces,
 and saved layouts/themes/plot preferences.
 See [ROADMAP.md](ROADMAP.md) for delivery gates and [AGENTS.md](AGENTS.md) for
 contributor conventions.
+
+## Personal setup
+
+Use a Linux graphical session with OpenGL and Python 3.14+. Install
+[uv](https://docs.astral.sh/uv/), then run from this checkout:
+
+```sh
+uv sync --locked --no-dev
+uv run --no-dev datelier /path/to/data.csv
+```
+
+The tested environment is Linux x86_64, Python 3.14.7 and Mesa software OpenGL.
+If the default renderer stalls, use
+`LIBGL_ALWAYS_SOFTWARE=1 uv run --no-dev datelier /path/to/data.csv`.
+Tables must fit in memory; sampling bounds plots/analysis, not source loading.
+See [Phase 7 evidence](docs/phase-7.md) for the measured fixtures and limitations.
+
+For a separate local install, build a wheel and install the locked runtime first:
+
+```sh
+uv build
+UV_PROJECT_ENVIRONMENT=/tmp/datelier-install uv sync --locked --no-dev --no-install-project
+uv pip install --python /tmp/datelier-install/bin/python --no-deps dist/datelier-0.1.0-py3-none-any.whl
+uv pip check --python /tmp/datelier-install/bin/python
+/tmp/datelier-install/bin/datelier /path/to/data.csv
+```
+
+Choose your own environment directory if you want to keep this installation;
+`/tmp` is just an example. The source archive is also in `dist/`. Package version
+0.1.0 identifies this personal-use build. Public publishing is not needed.
+
+## First session
+
+Try a CSV with at least two varying numeric columns (for example `x` and `y`):
+
+1. Open the file and inspect **Table preview**, **Schema and nulls** and **Explore**.
+2. In **Transform and history**, sort `x`, then derive `score` with
+   `col("x") * 2 + col("y")`. Try **Undo** and **Redo**.
+3. In **Explore → Scatter**, choose `x` and `score`, then **Update raw scatter**.
+   Click a row or point to see the matching highlight.
+4. In **Analysis**, choose `x` and `y`, then **Run PCA**. Analysis is optional and
+   always requires an explicit command; the other algorithms have sample settings.
+5. In **Workspace**, enter a new `.datelier` path and **Save workspace**. Close
+   and reopen with `datelier --workspace /path/to/session.datelier` (prefix with
+   `uv run --no-dev` when using the checkout).
+6. Check the restored table/history/settings. Fitted analysis results are
+   session-only; rerun explicitly if needed. Keep the source file available,
+   or use the workspace's relink controls if it moved.
+7. In **Export table**, choose a new destination and CSV or Parquet, then
+   **Export active table**. The source file stays unchanged.
 
 ## Development
 
