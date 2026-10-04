@@ -9,6 +9,7 @@ from datelier.dataset import Dataset
 from datelier.scalars import Scalar
 from datelier.transform_types import (
     CastColumn,
+    DerivedColumn,
     DropMissing,
     FillMissing,
     Lookup,
@@ -110,7 +111,13 @@ def apply_operation(dataset: Dataset, operation: Operation) -> Dataset:
             case SelectColumns(columns):
                 require_columns(table, columns)
                 table = pl.DataFrame([table.get_column(name) for name in columns])
-            case CastColumn() | FillMissing() | DropMissing() | Lookup():
+            case (
+                CastColumn()
+                | FillMissing()
+                | DropMissing()
+                | Lookup()
+                | DerivedColumn()
+            ):
                 from datelier.transforms import apply_transform
 
                 table, ids = apply_transform(table, ids, operation)
@@ -144,6 +151,8 @@ def describe_operation(operation: Operation) -> str:
             return f"Drop rows missing {', '.join(columns)}" + (
                 " including nonfinite" if nonfinite else ""
             )
+        case DerivedColumn(name, expression, _):
+            return f"Derive {name} = {expression}"
         case Lookup(column, entries, dtype, unmatched):
             return (
                 f"Map {column}: {len(entries)} entries to {dtype.value}; "

@@ -6,6 +6,7 @@ from datelier.operations import OperationFailure, require_columns
 from datelier.scalars import Scalar
 from datelier.transform_types import (
     CastColumn,
+    DerivedColumn,
     DropMissing,
     FillMissing,
     Lookup,
@@ -44,6 +45,12 @@ def missing_mask(series: pl.Series, nonfinite: bool) -> pl.Series:
 def apply_transform(
     table: pl.DataFrame, ids: pl.Series, operation: Transform
 ) -> tuple[pl.DataFrame, pl.Series]:
+    if isinstance(operation, DerivedColumn):
+        from datelier.expressions import derive_column
+
+        return derive_column(
+            table, operation.name, operation.expression, operation.replace
+        ), ids
     if isinstance(operation, DropMissing):
         require_columns(table, operation.columns)
         mask = pl.Series("missing", [False] * table.height)

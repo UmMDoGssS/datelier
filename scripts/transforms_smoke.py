@@ -15,6 +15,7 @@ from datelier.gui import GuiSession, InspectionEvidence, run_gui
 from datelier.operations import Operation, describe_operation
 from datelier.transform_types import (
     CastColumn,
+    DerivedColumn,
     DropMissing,
     FillMissing,
     Lookup,
@@ -38,6 +39,8 @@ def main() -> None:
         Lookup(
             "label", (("a", "first"), ("c", "last")), TargetType.TEXT, Unmatched.ERROR
         ),
+        DerivedColumn("score", 'col("v") * 2 + 1'),
+        DerivedColumn("bad", '__import__("os").getcwd()'),
     ]
     expected = [
         (("1", "a"), ("bad", "b"), ("3", "c")),
@@ -46,6 +49,8 @@ def main() -> None:
         (("1", "a"), ("NULL", "b"), ("3", "c")),
         (("1", "a"), ("3", "c")),
         (("1", "first"), ("3", "last")),
+        (("1", "first", "3"), ("3", "last", "7")),
+        (("1", "first", "3"), ("3", "last", "7")),
     ]
     index, pending, completed = 0, False, 0
     observed: list[str] = []
@@ -57,7 +62,10 @@ def main() -> None:
         def frame(session: GuiSession, evidence: InspectionEvidence) -> None:
             nonlocal index, pending, completed
             session.operations.column = "v"
-            session.operations.transforms.expanded = True
+            session.operations.transforms.expanded = False
+            session.operations.derived_expanded = True
+            session.operations.derived_name = "score"
+            session.operations.expression = 'col("v") * 2 + 1'
             session.operations.transforms.dtype = 0
             active = session.loader.active
             if active is None or session.editor.busy or evidence.frames < 15:
@@ -71,6 +79,12 @@ def main() -> None:
                     assert (
                         session.editor.pipeline is not None
                         and not session.editor.pipeline.history
+                    )
+                elif index == 7:
+                    assert "Unsupported" in session.editor.message
+                    assert (
+                        session.editor.pipeline is not None
+                        and session.editor.pipeline.cursor == 4
                     )
                 else:
                     assert active.schema[0].dtype == "Int64"

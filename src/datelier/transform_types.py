@@ -50,4 +50,11 @@ class Lookup:
     unmatched: Unmatched = Unmatched.KEEP
 
 
-type Transform = CastColumn | FillMissing | DropMissing | Lookup
+@dataclass(frozen=True)
+class DerivedColumn:
+    name: str
+    expression: str
+    replace: bool = False
+
+
+type Transform = CastColumn | FillMissing | DropMissing | Lookup | DerivedColumn

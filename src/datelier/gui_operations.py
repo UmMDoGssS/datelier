@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from imgui_bundle import imgui
 
 from datelier.editing import DatasetEditor, HistoryAction
+from datelier.expressions import HELP
 from datelier.gui_transforms import TransformControls
 from datelier.gui_values import scalar_input
 from datelier.operations import (
@@ -15,6 +16,7 @@ from datelier.operations import (
     Sort,
     describe_operation,
 )
+from datelier.transform_types import DerivedColumn
 
 
 @dataclass
@@ -25,6 +27,10 @@ class OperationControls:
     comparison: int = 0
     value: str = ""
     selected: str = ""
+    derived_expanded: bool = False
+    derived_name: str = ""
+    expression: str = ""
+    replace_existing: bool = False
     error: str = ""
 
     def show(self, editor: DatasetEditor, *, loading: bool) -> None:
@@ -77,6 +83,21 @@ class OperationControls:
                     raise ValueError("Enter a JSON list of column names")
                 editor.request(SelectColumns(tuple(names)))
             self.transforms.show(editor, self.column)
+            imgui.set_next_item_open(self.derived_expanded, imgui.Cond_.once)
+            self.derived_expanded = imgui.collapsing_header("Derived columns")
+            if self.derived_expanded:
+                imgui.text_wrapped(HELP)
+                _, self.derived_name = imgui.input_text("New column", self.derived_name)
+                _, self.expression = imgui.input_text("Expression", self.expression)
+                _, self.replace_existing = imgui.checkbox(
+                    "Replace existing column", self.replace_existing
+                )
+                if imgui.button("Derive column"):
+                    editor.request(
+                        DerivedColumn(
+                            self.derived_name, self.expression, self.replace_existing
+                        )
+                    )
             self.error = ""
         except ValueError as error:
             self.error = str(error)
