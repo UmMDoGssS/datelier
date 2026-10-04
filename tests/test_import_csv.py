@@ -71,7 +71,15 @@ def test_header_only_and_duplicate_headers(tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize(
-    "content", [b"", b"a,b\n1,2,3\n", b'a\n"unterminated\n', b"a\n\xff\n"]
+    "content",
+    [
+        b"",
+        b"a,b\n1,2,3\n",
+        b'a\n"unterminated\n',
+        b"a\n\xff\n",
+        b"bad\xff\n1\n",
+        b"bad\xff",
+    ],
 )
 def test_invalid_csv_fails_without_modifying_source(
     tmp_path: Path, content: bytes

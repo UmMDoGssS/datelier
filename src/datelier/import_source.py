@@ -1,5 +1,6 @@
 """Read-only local source guard shared by format adapters."""
 
+import codecs
 from collections.abc import Callable
 from pathlib import Path
 from typing import BinaryIO
@@ -61,3 +62,12 @@ def read_source(
         diagnostics,
         format,
     )
+
+
+def validate_utf8(source: BinaryIO) -> None:
+    """Validate headers as well as values before a native parser can replace bytes."""
+    decoder = codecs.getincrementaldecoder("utf-8")()
+    while chunk := source.read(1024 * 1024):
+        decoder.decode(chunk)
+    decoder.decode(b"", final=True)
+    source.seek(0)

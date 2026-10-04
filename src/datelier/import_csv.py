@@ -5,7 +5,7 @@ from typing import BinaryIO
 
 import polars as pl
 
-from datelier.import_source import read_source
+from datelier.import_source import read_source, validate_utf8
 from datelier.import_types import CsvOptions as CsvOptions
 from datelier.import_types import ImportFailure as ImportFailure
 from datelier.import_types import ImportFormat
@@ -31,6 +31,7 @@ def load_tsv(path: Path, options: CsvOptions | None = None) -> CsvImport:
 
 def _load_delimited(path: Path, options: CsvOptions, format: ImportFormat) -> CsvImport:
     def read(source: BinaryIO) -> tuple[pl.DataFrame, tuple[str, ...]]:
+        validate_utf8(source)
         table = pl.read_csv(
             source,
             separator=options.separator,

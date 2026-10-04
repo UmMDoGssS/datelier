@@ -79,3 +79,98 @@ def test_cross_format_schema_values_and_prepared_preview(
     assert inspection.first_page.rows == (("1", "1.5", "café"), ("2", "NULL", "last"))
     assert [s.null_count for s in inspection.schema] == [0, 1, 0]
     assert path.read_bytes() == content
+
+
+def test_xml_matches_common_tabular_fixture(tmp_path: Path) -> None:
+    import polars as pl
+
+    path = tmp_path / "equivalent.xml"
+    path.write_text(
+        "<rows><row><id>1</id><value>1.5</value><label>café</label></row>"
+        "<row><id>2</id><value/><label>last</label></row></rows>"
+    )
+    expected = pl.DataFrame(
+        {"id": [1, 2], "value": [1.5, None], "label": ["café", "last"]}
+    )
+    assert_frame_equal(load_file(path).dataset.table, expected)
+
+
+@pytest.mark.parametrize("suffix", ["csv", "tsv", "json", "jsonl", "parquet", "xml"])
+def test_each_format_failure_preserves_active_inspection(
+    tmp_path: Path, suffix: str
+) -> None:
+    from time import monotonic, sleep
+
+    from datelier.loading import DatasetLoader, LoadPhase
+
+    valid = tmp_path / "valid.csv"
+    valid.write_text("id\n9\n")
+    bad = tmp_path / ("bad." + suffix)
+    bad.write_bytes(b"not valid tabular data\xff")
+    loader = DatasetLoader()
+
+    def wait() -> None:
+        deadline = monotonic() + 3
+        while loader.status.phase == LoadPhase.LOADING and monotonic() < deadline:
+            loader.poll()
+            sleep(0.001)
+        assert loader.status.phase != LoadPhase.LOADING
+
+    try:
+        loader.request(valid)
+        wait()
+        active = loader.active
+        assert active is not None
+        loader.request(bad)
+        wait()
+        assert loader.status.phase == LoadPhase.FAILED
+        assert loader.active is active
+        assert active.dataset.table["id"].to_list() == [9]
+        assert bad.read_bytes() == b"not valid tabular data\xff"
+    finally:
+        loader.close()
+
+
+@pytest.mark.parametrize("suffix", ["tsv", "json", "jsonl", "parquet", "xml"])
+def test_shared_guard_rejects_changed_sources(
+    tmp_path: Path, suffix: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import os
+
+    import polars as pl
+
+    path = tmp_path / ("table." + suffix)
+    table = pl.DataFrame({"id": [1]})
+    if suffix == "tsv":
+        table.write_csv(path, separator="\t")
+    elif suffix == "json":
+        table.write_json(path)
+    elif suffix == "jsonl":
+        table.write_ndjson(path)
+    elif suffix == "parquet":
+        table.write_parquet(path)
+    else:
+        path.write_text("<rows><row><id>1</id></row></rows>")
+    original_stat = Path.stat
+    calls = 0
+
+    def changed_stat(target: Path, *, follow_symlinks: bool = True) -> os.stat_result:
+        nonlocal calls
+        if target == path:
+            calls += 1
+            if calls == 2:
+                path.write_bytes(path.read_bytes() + b" ")
+        return original_stat(target, follow_symlinks=follow_symlinks)
+
+    monkeypatch.setattr(Path, "stat", changed_stat)
+    with pytest.raises(ImportFailure, match="changed during import"):
+        load_file(path)
+
+
+@pytest.mark.parametrize(
+    "format",
+    [ImportFormat.JSON, ImportFormat.JSONL, ImportFormat.PARQUET, ImportFormat.XML],
+)
+def test_wrong_option_family_is_rejected(tmp_path: Path, format: ImportFormat) -> None:
+    with pytest.raises(ImportFailure, match="requires"):
+        load_file(tmp_path / "unused.data", CsvOptions(), format=format)
