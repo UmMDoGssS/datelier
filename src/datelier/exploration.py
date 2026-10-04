@@ -23,6 +23,7 @@ class PlotSettings:
     correlation_columns: int = 8
     point_limit: int = 2_000
     scatter_pair: tuple[str, str] | None = None
+    profile_column: str | None = None
 
     def validate(self) -> None:
         if not (
@@ -57,6 +58,7 @@ def prepare_dashboard(
         column_limit=settings.profile_columns,
         bins=settings.bins,
         top=settings.top_counts,
+        column=settings.profile_column,
     )
     correlations = prepare_correlations(
         dataset, column_limit=settings.correlation_columns

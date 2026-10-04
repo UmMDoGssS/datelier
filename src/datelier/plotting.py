@@ -50,6 +50,7 @@ class Scatter:
     x: NDArray[np.float64]
     y: NDArray[np.float64]
     row_ids: NDArray[np.uint64]
+    positions: NDArray[np.uint64]
     eligible_rows: int
     total_rows: int
 
@@ -78,15 +79,25 @@ def prepare_scatter(dataset: Dataset, x: str, y: str, *, limit: int = 2_000) -> 
     yv = table.get_column(y).rename("y").cast(pl.Float64)
     mask = xv.is_finite() & yv.is_finite()
     eligible = pl.DataFrame(
-        {"x": xv.filter(mask), "y": yv.filter(mask), "id": dataset.row_ids.filter(mask)}
+        {
+            "x": xv.filter(mask),
+            "y": yv.filter(mask),
+            "id": dataset.row_ids.filter(mask),
+            "position": pl.int_range(
+                0, table.height, eager=True, dtype=pl.UInt64
+            ).filter(mask),
+        }
     )
     selected = eligible[sample_indices(eligible.height, limit)]
     xs = selected.get_column("x").to_numpy()
     ys = selected.get_column("y").to_numpy()
     ids = selected.get_column("id").to_numpy()
-    for array in (xs, ys, ids):
+    positions = selected.get_column("position").to_numpy()
+    for array in (xs, ys, ids, positions):
         array.flags.writeable = False
-    return Scatter(dataset.revision, x, y, xs, ys, ids, eligible.height, table.height)
+    return Scatter(
+        dataset.revision, x, y, xs, ys, ids, positions, eligible.height, table.height
+    )
 
 
 def prepare_correlations(

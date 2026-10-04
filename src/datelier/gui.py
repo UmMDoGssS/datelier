@@ -14,9 +14,11 @@ from datelier.gui_controls import ImportControls, show_schema
 from datelier.gui_exploration import ExplorationView
 from datelier.gui_export import ExportControls
 from datelier.gui_operations import OperationControls
+from datelier.gui_plot_controls import PlotControls
 from datelier.gui_table import TableView
 from datelier.loading import DatasetLoader, LoadPhase
 from datelier.preview import PreviewCache
+from datelier.selection import LinkedSelection
 
 
 @dataclass
@@ -31,6 +33,8 @@ class GuiSession:
     exports: ExportControls
     explorer: Explorer
     exploration: ExplorationView
+    plots: PlotControls
+    selection: LinkedSelection
 
 
 @dataclass
@@ -64,6 +68,8 @@ def run_gui(
     exports = ExportControls()
     explorer = Explorer()
     exploration = ExplorationView()
+    plot_controls = PlotControls()
+    selection = LinkedSelection()
     session = GuiSession(
         loader,
         pages,
@@ -75,6 +81,8 @@ def run_gui(
         exports,
         explorer,
         exploration,
+        plot_controls,
+        selection,
     )
     evidence = InspectionEvidence()
     params = hello_imgui.RunnerParams()
@@ -88,7 +96,7 @@ def run_gui(
 
     def show_table() -> None:
         evidence.table_dock_id = imgui.get_window_dock_id()
-        view.show(loader.active, pages)
+        view.show(loader.active, pages, selection)
         evidence.max_rendered_rows = max(evidence.max_rendered_rows, view.rendered_rows)
         if view.prepared_visible_rows and evidence.first_preview_ms is None:
             evidence.first_preview_ms = (perf_counter() - load_started) * 1000
@@ -96,6 +104,10 @@ def run_gui(
     def schema() -> None:
         evidence.schema_dock_id = imgui.get_window_dock_id()
         show_schema(loader)
+
+    def explore() -> None:
+        plot_controls.show(explorer, loader.active.dataset if loader.active else None)
+        exploration.show(explorer, selection, view)
 
     left = hello_imgui.DockingSplit()
     left.initial_dock = "MainDockSpace"
@@ -120,7 +132,7 @@ def run_gui(
     params.docking_params.docking_splits = [left, lower, edits, plots]
     windows = []
     for label, space, callback in (
-        ("Explore", "PlotSpace", lambda: exploration.show(explorer)),
+        ("Explore", "PlotSpace", explore),
         ("Open dataset", "ImportSpace", lambda: controls.show(loader)),
         ("Table preview", "MainDockSpace", show_table),
         ("Schema and nulls", "SchemaSpace", schema),
@@ -163,7 +175,9 @@ def run_gui(
             editor.bind(loader.active)
             pages.bind(loader.active)
             view.reset()
-            explorer.request(loader.active.dataset)
+            plot_controls.bind(loader.active.dataset)
+            selection.bind(loader.active.dataset.revision)
+            explorer.request(loader.active.dataset, plot_controls.settings())
         if loader.status.phase == LoadPhase.LOADING:
             editor.abandon()
         edited = editor.poll(loader.revision)
@@ -171,7 +185,9 @@ def run_gui(
             loader.active = edited
             pages.bind(edited)
             view.reset()
-            explorer.request(edited.dataset)
+            plot_controls.bind(edited.dataset)
+            selection.bind(edited.dataset.revision)
+            explorer.request(edited.dataset, plot_controls.settings())
         explorer.poll(loader.revision)
         exporter.poll()
         pages.poll()

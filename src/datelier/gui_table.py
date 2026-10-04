@@ -1,12 +1,13 @@
 """Virtualized row rendering with bounded, asynchronous column/page preparation."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from math import ceil
 
 from imgui_bundle import imgui
 
 from datelier.inspection import PAGE_COLUMNS, Inspection
 from datelier.preview import PreviewCache
+from datelier.selection import LinkedSelection
 
 
 @dataclass
@@ -18,13 +19,22 @@ class TableView:
     first_visible_row: int = 0
     last_visible_row: int = 0
     prepared_visible_rows: int = 0
+    selected_visible_rows: int = 0
+    first_row_pixel: tuple[float, float] = (0, 0)
+    first_row_id: int | None = None
+    row_pixels: dict[int, tuple[float, float]] = field(default_factory=dict)
 
     def reset(self) -> None:
         self.column_start = 0
         self.target_row = 1
         self.jump = True
 
-    def show(self, inspection: Inspection | None, pages: PreviewCache) -> None:
+    def show(
+        self,
+        inspection: Inspection | None,
+        pages: PreviewCache,
+        selection: LinkedSelection | None = None,
+    ) -> None:
         if inspection is None:
             imgui.text("Open a dataset to preview its rows.")
             return
@@ -43,6 +53,10 @@ class TableView:
             self.jump = True
         self.target_row = max(1, min(self.target_row, inspection.row_count))
         imgui.text("Source row IDs start at 0. Cells truncate after 256 characters.")
+        if selection is not None:
+            imgui.text_wrapped(
+                "Click a source row to select; Ctrl-click toggles. " + selection.message
+            )
         if pages.error:
             imgui.text_wrapped(pages.error)
             if imgui.button("Retry preview"):
@@ -77,6 +91,9 @@ class TableView:
             self.jump = False
         self.rendered_rows = 0
         self.prepared_visible_rows = 0
+        self.selected_visible_rows = 0
+        self.first_row_id = None
+        self.row_pixels.clear()
         clipper = imgui.ListClipper()
         clipper.begin(inspection.row_count, row_height)
         while clipper.step():
@@ -93,8 +110,37 @@ class TableView:
                     self.prepared_visible_rows += 1
                 else:
                     values = ("…",) * (len(columns) + 1)
+                row_id = page.row_ids[offset] if prepared and page else None
+                selected = selection is not None and row_id in selection.row_ids
+                if selected:
+                    self.selected_visible_rows += 1
+                    imgui.table_set_bg_color(
+                        imgui.TableBgTarget_.row_bg0,
+                        imgui.get_color_u32(imgui.ImVec4(0.2, 0.5, 0.8, 0.5)),
+                    )
                 for column, value in enumerate(values):
                     if imgui.table_set_column_index(column):
-                        imgui.text_unformatted(value)
+                        if column == 0 and row_id is not None and selection is not None:
+                            if imgui.selectable(f"{value}##row-{row_id}", selected)[0]:
+                                selection.choose(
+                                    inspection.dataset.revision,
+                                    (row_id,),
+                                    toggle=imgui.get_io().key_ctrl,
+                                )
+                            if imgui.is_item_visible():
+                                lo, hi = (
+                                    imgui.get_item_rect_min(),
+                                    imgui.get_item_rect_max(),
+                                )
+                                pixel = (
+                                    (lo.x + hi.x) / 2,
+                                    (lo.y + hi.y) / 2,
+                                )
+                                self.row_pixels[row_id] = pixel
+                                if self.first_row_id is None:
+                                    self.first_row_pixel = pixel
+                                    self.first_row_id = row_id
+                        else:
+                            imgui.text_unformatted(value)
                 self.rendered_rows += 1
         imgui.end_table()

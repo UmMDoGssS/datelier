@@ -138,7 +138,12 @@ def _counts_profile(series: pl.Series, top: int) -> ColumnProfile:
 
 
 def prepare_profiles(
-    dataset: Dataset, *, column_limit: int = 32, bins: int = 20, top: int = 12
+    dataset: Dataset,
+    *,
+    column_limit: int = 32,
+    bins: int = 20,
+    top: int = 12,
+    column: str | None = None,
 ) -> Profiles:
     if (
         not 1 <= column_limit <= MAX_PROFILE_COLUMNS
@@ -148,7 +153,10 @@ def prepare_profiles(
         raise ValueError("Profile limits: 1–128 columns, 1–100 bins/counts")
     table = dataset.table
     profiles = []
-    for series in table[:, :column_limit]:
+    series_list = (
+        (table.get_column(column),) if column is not None else table[:, :column_limit]
+    )
+    for series in series_list:
         kind = profile_kind(series.dtype)
         if kind in (ProfileKind.NUMERIC, ProfileKind.TEMPORAL):
             profile = _range_profile(series, kind, bins)
