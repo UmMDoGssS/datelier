@@ -174,3 +174,31 @@ def test_shared_guard_rejects_changed_sources(
 def test_wrong_option_family_is_rejected(tmp_path: Path, format: ImportFormat) -> None:
     with pytest.raises(ImportFailure, match="requires"):
         load_file(tmp_path / "unused.data", CsvOptions(), format=format)
+
+
+@pytest.mark.parametrize("suffix", ["csv", "tsv", "json", "jsonl", "parquet"])
+def test_literal_column_names_cannot_select_other_columns(
+    tmp_path: Path, suffix: str
+) -> None:
+    import polars as pl
+
+    from datelier.inspection import prepare_page
+
+    expected = pl.DataFrame(
+        {"^x$": [1, None], "x": [2, 3], "^y.*$": [4, 5], "y.other": [6, 7]}
+    )
+    path = tmp_path / ("names." + suffix)
+    if suffix in ("csv", "tsv"):
+        expected.write_csv(path, separator="\t" if suffix == "tsv" else ",")
+    elif suffix == "json":
+        expected.write_json(path)
+    elif suffix == "jsonl":
+        expected.write_ndjson(path)
+    else:
+        expected.write_parquet(path)
+    imported = load_file(path)
+    assert_frame_equal(imported.dataset.table, expected)
+    inspection = prepare_inspection(imported)
+    assert inspection.first_page.columns == tuple(expected.columns)
+    assert inspection.first_page.rows == (("1", "2", "4", "6"), ("NULL", "3", "5", "7"))
+    assert prepare_page(imported.dataset, 1, 2).rows == (("5", "7"),)

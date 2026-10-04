@@ -2,6 +2,8 @@
 
 from dataclasses import dataclass
 
+import polars as pl
+
 from datelier.dataset import Dataset, DatasetRevision
 from datelier.import_types import ImportResult
 
@@ -46,7 +48,11 @@ def prepare_page(
     if row_start < 0 or column_start < 0 or column_start >= table.width:
         raise ValueError("Preview offsets must refer to valid rows/columns")
     columns = tuple(table.columns[column_start : column_start + PAGE_COLUMNS])
-    visible = table.select(columns).slice(row_start, PAGE_ROWS)
+    # Names are data: select expressions would interpret ^...$
+    # as regex selectors. Literal Series access also keeps the page bounded.
+    visible = pl.DataFrame(
+        [table.get_column(name).slice(row_start, PAGE_ROWS) for name in columns]
+    )
 
     def cell(value: object) -> str:
         text = "NULL" if value is None else str(value)
