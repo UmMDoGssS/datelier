@@ -4,6 +4,7 @@ from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import dataclass
 
 from datelier.dataset import Dataset, DatasetRevision
+from datelier.distributions import Comparison, DistributionSettings, prepare_comparison
 from datelier.plotting import (
     Bars,
     Correlation,
@@ -24,8 +25,10 @@ class PlotSettings:
     point_limit: int = 2_000
     scatter_pair: tuple[str, str] | None = None
     profile_column: str | None = None
+    comparison: DistributionSettings = DistributionSettings()
 
     def validate(self) -> None:
+        self.comparison.validate()
         if not (
             1 <= self.profile_columns <= 128
             and 1 <= self.bins <= 100
@@ -47,6 +50,7 @@ class Dashboard:
     correlations: tuple[Correlation, ...]
     scatters: tuple[Scatter, ...]
     bars: tuple[Bars, ...]
+    comparison: Comparison | None = None
 
 
 def prepare_dashboard(
@@ -83,6 +87,9 @@ def prepare_dashboard(
         correlations,
         scatters,
         tuple(prepare_bars(profile) for profile in profiles.columns),
+        prepare_comparison(dataset, settings.comparison, settings.bins)
+        if settings.comparison.columns
+        else None,
     )
 
 

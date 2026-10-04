@@ -1,10 +1,11 @@
 """Plot settings with explicit bounds and whole-schema column choices."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from imgui_bundle import imgui
 
 from datelier.dataset import Dataset
+from datelier.distributions import DistributionSettings
 from datelier.exploration import Explorer, PlotSettings
 from datelier.plotting import numeric_columns
 
@@ -23,6 +24,11 @@ class PlotControls:
     columns: tuple[str, ...] = ()
     numeric: tuple[str, ...] = ()
     error: str = ""
+    compare_columns: list[str] = field(default_factory=list)
+    standardize: bool = False
+    density: bool = True
+    bandwidth: float = 1.0
+    seed: int = 42
 
     def bind(self, dataset: Dataset) -> None:
         previous_x = self.numeric[self.x_index] if self.numeric else ""
@@ -32,6 +38,7 @@ class PlotControls:
         )
         self.columns = tuple(dataset.table.columns)
         self.numeric = numeric_columns(dataset)
+        self.compare_columns = [n for n in self.compare_columns if n in self.numeric]
         self.x_index = (
             self.numeric.index(previous_x) if previous_x in self.numeric else 0
         )
@@ -67,6 +74,13 @@ class PlotControls:
             self.point_limit,
             pair,
             self.columns[self.profile_index - 1] if self.profile_index else None,
+            DistributionSettings(
+                tuple(self.compare_columns),
+                self.standardize,
+                self.density,
+                self.bandwidth,
+                self.seed,
+            ),
         )
 
     def show(self, explorer: Explorer, dataset: Dataset | None) -> None:
@@ -90,6 +104,24 @@ class PlotControls:
             "Choose any column for a focused profile. Correlations use at most "
             "120 pairs and 10,000 input rows. Counts use at most 100,000 input rows."
         )
+        if imgui.tree_node("Numeric comparisons (up to eight columns)"):
+            for name in self.numeric:
+                chosen = name in self.compare_columns
+                imgui.begin_disabled(not chosen and len(self.compare_columns) >= 8)
+                changed, checked = imgui.checkbox(name + "##comparison", chosen)
+                imgui.end_disabled()
+                if changed:
+                    if checked:
+                        self.compare_columns.append(name)
+                    else:
+                        self.compare_columns.remove(name)
+            _, self.standardize = imgui.checkbox("Z-score comparison", self.standardize)
+            _, self.density = imgui.checkbox("Histogram density", self.density)
+            _, self.bandwidth = imgui.slider_float(
+                "KDE bandwidth", self.bandwidth, 0.1, 5
+            )
+            _, self.seed = imgui.input_int("Comparison seed", self.seed)
+            imgui.tree_pop()
         if len(self.numeric) >= 2:
             _, self.custom_scatter = imgui.checkbox(
                 "Choose scatter columns", self.custom_scatter

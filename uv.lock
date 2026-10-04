@@ -29,6 +29,7 @@ dependencies = [
     { name = "numpy" },
     { name = "polars" },
     { name = "scikit-learn" },
+    { name = "scipy" },
     { name = "umap-learn" },
 ]
 
@@ -45,6 +46,7 @@ requires-dist = [
     { name = "numpy", specifier = ">=2.5.3" },
     { name = "polars", specifier = ">=1.44.2" },
     { name = "scikit-learn", specifier = ">=1.9.1" },
+    { name = "scipy", specifier = ">=1.18.1" },
     { name = "umap-learn", specifier = ">=0.5.12" },
 ]
 

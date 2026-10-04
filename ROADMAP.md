@@ -164,6 +164,12 @@ milestones remain unchecked.
 - [x] **Verification evidence:** [M4.2 and final evidence](docs/phase-4.md#m42-plot-controls-and-linked-selection): 242 tests, Pyrefly/Ruff, all-format exploration/selection workflows, stale-result checks, live gesture/settings checks, four fresh-process benchmarks, and large/wide live GUI gates pass. Frame p95 is 17.51/17.73 ms; peak RSS is 679.21/622.70 MiB.
 - [x] **Step commits:** `8f9df0a` configurable plots and linked selections → `7cfb81f` bounded rendering, precision fixes, and workflow/resource acceptance.
 
+### M4.3 — Richer inspection extension
+
+- [ ] **Deliverables:** multi-column histogram/KDE/ECDF/box/violin comparisons, independent scatter axes and column colors, Pearson heatmap and bounded pair grid.
+- [ ] **Exit gate:** comparison/statistics/identity tests, live mode/navigation/selection checks, and existing inspection resource budgets pass.
+- [ ] **Verification evidence:** [incremental evidence](docs/richer-inspection.md); final extension gates remain open.
+
 ## Phase 5 — On-demand unsupervised analysis
 
 - [ ] **Phase complete.** **Entry:** Phase 4 passes. **Exit:** M5.1 and M5.2 pass.

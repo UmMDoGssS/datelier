@@ -6,6 +6,7 @@ from imgui_bundle import imgui, implot
 
 from datelier.dataset import DatasetRevision
 from datelier.exploration import Dashboard, Explorer
+from datelier.gui_distributions import MODES, show_comparison
 from datelier.gui_selection import ScatterInteraction
 from datelier.gui_table import TableView
 from datelier.plotting import CORRELATION_ROW_LIMIT
@@ -15,6 +16,8 @@ from datelier.selection import LinkedSelection
 @dataclass
 class ExplorationView:
     profile_index: int = 0
+    comparison_mode: int = 0
+    _comparison_key: tuple[DatasetRevision, int, object] | None = None
     scatter_index: int = 0
     plot_frames: int = 0
     scatter_frames: int = 0
@@ -54,6 +57,18 @@ class ExplorationView:
 
     def show_profile(self, dashboard: Dashboard) -> None:
         profiles = dashboard.profiles
+        if dashboard.comparison is not None:
+            _, self.comparison_mode = imgui.combo(
+                "Numeric comparison", self.comparison_mode, MODES
+            )
+            key = (dashboard.revision, self.comparison_mode, dashboard.settings)
+            if show_comparison(
+                dashboard.comparison, self.comparison_mode, key != self._comparison_key
+            ):
+                self.plot_frames += 1
+            self._comparison_key = key
+            if not imgui.collapsing_header("Individual column details"):
+                return
         imgui.text_wrapped(
             f"Profile focus: {dashboard.settings.profile_column}"
             if dashboard.settings.profile_column
