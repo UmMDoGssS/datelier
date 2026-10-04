@@ -9,6 +9,7 @@ from datelier.exploration import Dashboard, Explorer
 from datelier.gui_analysis import AnalysisSession
 from datelier.gui_distributions import MODES, show_comparison
 from datelier.gui_plot_controls import PlotControls
+from datelier.gui_profiles import draw_profile
 from datelier.gui_relationships import RelationshipView
 from datelier.gui_scatter import draw_scatter
 from datelier.gui_scatter3d import Scatter3DView
@@ -141,10 +142,7 @@ class ExplorationView:
         if key != self._profile_key:
             implot.set_next_axes_to_fit()
             self._profile_key = key
-        if len(bars.counts) and implot.begin_plot("Distribution / counts", (-1, 170)):
-            implot.setup_axes("Bin / category index", "Rows")
-            implot.plot_bars("Rows", bars.positions, bars.counts, 0.8)
-            implot.end_plot()
+        if draw_profile(profile, bars):
             self.plot_frames += 1
         if imgui.collapsing_header("Bin boundaries / category labels"):
             for i, (label, count) in enumerate(

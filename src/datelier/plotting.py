@@ -1,7 +1,7 @@
 """Bounded coordinates and correlations with explicit source identity."""
 
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from itertools import combinations
 
 import numpy as np
@@ -22,6 +22,10 @@ class Bars:
     positions: NDArray[np.float64]
     counts: NDArray[np.float64]
     labels: tuple[str, ...]
+    edges: NDArray[np.float64] = field(
+        default_factory=lambda: np.array([], dtype=float)
+    )
+    tick_labels: tuple[str, ...] = ()
 
 
 def prepare_bars(profile: ColumnProfile) -> Bars:
@@ -30,11 +34,16 @@ def prepare_bars(profile: ColumnProfile) -> Bars:
     if profile.other_count:
         counts = (*counts, profile.other_count)
         labels = (*labels, "Other (remaining values)")
-    return Bars(
-        np.arange(len(counts), dtype=np.float64),
-        np.array(counts, dtype=np.float64),
-        labels,
+    edges = np.array(profile.distribution.edges, dtype=np.float64)
+    positions = (
+        edges[:-1] + np.diff(edges) / 2
+        if len(edges)
+        else np.arange(len(counts), dtype=np.float64)
     )
+    values = np.array(counts, dtype=np.float64)
+    for array in (positions, values, edges):
+        array.flags.writeable = False
+    return Bars(positions, values, labels, edges, profile.distribution.tick_labels)
 
 
 @dataclass(frozen=True)

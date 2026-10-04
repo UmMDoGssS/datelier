@@ -1,10 +1,12 @@
 from datetime import date
 from pathlib import Path
 
+import numpy as np
 import polars as pl
 import pytest
 
 from datelier.dataset import Dataset, SourceReference
+from datelier.plotting import prepare_bars
 from datelier.profiling import ProfileKind, prepare_profiles
 
 
@@ -96,3 +98,31 @@ def test_nanosecond_temporal_ranges_and_distributions() -> None:
         assert profile.minimum != profile.maximum
         assert profile.distribution.counts == (2, 1)
         assert "relative to the minimum" in profile.note
+        assert profile.distribution.tick_labels[0] == profile.minimum
+        assert profile.distribution.tick_labels[-1] == profile.maximum
+        assert profile.distribution.edges == (0, 1, 2)
+
+
+@pytest.mark.parametrize(
+    "values", [[1.0, 2.0, 3.0], [5.0, 5.0], [1e308, 1e308], [1e16, 1e16 + 2]]
+)
+def test_value_space_histograms_keep_every_finite_value(values: list[float]) -> None:
+    profile = prepare_profiles(dataset(pl.DataFrame({"x": values})), bins=20).columns[0]
+    bars = prepare_bars(profile)
+    assert len(bars.edges) == len(bars.counts) + 1
+    assert np.all(np.isfinite(bars.edges)) and np.all(np.diff(bars.edges) > 0)
+    assert bars.edges[0] <= min(values) <= max(values) <= bars.edges[-1]
+    assert bars.counts.sum() == len(values)
+    assert np.all(bars.positions >= bars.edges[:-1])
+    assert not bars.edges.flags.writeable and not bars.counts.flags.writeable
+
+
+def test_categories_include_other_with_matching_labels() -> None:
+    profile = prepare_profiles(
+        dataset(pl.DataFrame({"group": ["a", "b", "a", "c", None]})), top=1
+    ).columns[0]
+    bars = prepare_bars(profile)
+    assert bars.labels == ("a", "Other (remaining values)")
+    assert bars.counts.tolist() == [2, 2]
+    assert bars.counts.sum() + profile.null_count == 5
+    assert not len(bars.edges)

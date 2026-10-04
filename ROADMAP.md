@@ -38,8 +38,9 @@ v1 scope is complete. Phase 8 remains optional investigation for concrete needs.
 A concrete post-v1 usability need is recorded in the
 [Titanic UX review and proposed repair plan](docs/ux-titanic-review.md): readable
 plot axes and sizes, unified inspection/analysis controls, and more direct
-workflows. Its steps and acceptance targets are proposals; implementation and
-user usability validation remain open. Existing feature gates are unchanged.
+workflows. [Implementation evidence](docs/ux-implementation.md) records the
+started, separately verified slices. Remaining steps and user usability
+validation remain open. Existing feature gates are unchanged.
 
 This is a simple personal tool. Phase 7 verifies reliability and local setup;
 public publishing, release automation and product infrastructure are not goals.

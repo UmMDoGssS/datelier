@@ -63,6 +63,11 @@ workflow, resource and clean-wheel evidence. The personal-use v1 scope is comple
 Further work should follow a concrete need; Phase 8 of [ROADMAP.md](ROADMAP.md)
 lists optional investigations, not an automatic feature backlog.
 
+The concrete Titanic inspection UX follow-up is authorized and underway;
+[docs/ux-implementation.md](docs/ux-implementation.md) tracks verified slices
+against [docs/ux-titanic-review.md](docs/ux-titanic-review.md). Keep unfinished UX
+gates open; completed v1 capability gates do not imply usability acceptance.
+
 Use this file for durable conventions and `ROADMAP.md` for sequencing,
 deliverables, and acceptance gates. Inspect actual code and configuration
 before relying on either document's description of current implementation.

@@ -23,6 +23,8 @@ class ProfileKind(StrEnum):
 class Distribution:
     labels: tuple[str, ...]
     counts: tuple[int, ...]
+    edges: tuple[float, ...] = ()
+    tick_labels: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -83,9 +85,11 @@ def _temporal_range(series: pl.Series) -> tuple[str, str]:
 
 
 def _range_profile(series: pl.Series, kind: ProfileKind, bins: int) -> ColumnProfile:
+    origin: int | None = None
     if kind == ProfileKind.TEMPORAL:
         physical = series.rename("value").to_physical()
-        origin = physical.min()
+        physical_min = physical.min()
+        origin = physical_min if isinstance(physical_min, int) else None
         # Shift in integer space before Float64 conversion so close timestamps
         # keep nanosecond differences. Int128 avoids overflow across Int64 dates.
         values = (
@@ -121,7 +125,29 @@ def _range_profile(series: pl.Series, kind: ProfileKind, bins: int) -> ColumnPro
     # ranges before histogramming, and compute its mean without overflowing.
     scaled_histogram = not math.isfinite(maximum_value - minimum_value)
     histogram_values = finite / scale if scaled_histogram else finite
-    hist = histogram_values.hist(bin_count=bins)
+    hist_min, hist_max = histogram_values.min(), histogram_values.max()
+    assert isinstance(hist_min, (int, float)) and isinstance(hist_max, (int, float))
+    if hist_min == hist_max:
+        # A fixed 0.5 margin vanishes at large magnitudes. Use a representable
+        # interval around constants so the plot never has zero-width bins.
+        margin = max(0.5, abs(hist_min) * 1e-6)
+        lower, upper = hist_min - margin, hist_max + margin
+        if not math.isfinite(lower) or not math.isfinite(upper):
+            histogram_values = finite / scale
+            scaled_histogram = True
+            lower, upper = float(hist_min / scale) - 0.5, float(hist_max / scale) + 0.5
+    else:
+        lower, upper = float(hist_min), float(hist_max)
+    # Remove boundaries lost to Float64 precision rather than draw zero-width
+    # bars or imply that more distinct intervals exist than can be represented.
+    edges = tuple(
+        dict.fromkeys(
+            edge
+            for i in range(bins)
+            if (edge := lower + (upper - lower) * i / bins) < upper
+        )
+    ) + (upper,)
+    hist = histogram_values.hist(bins=list(edges))
     if sum(hist.get_column("count")) != count:
         raise ValueError(f"Could not account for all finite values in {series.name!r}")
     # Polars supplies explicit interval labels, including its boundary policy.
@@ -146,6 +172,18 @@ def _range_profile(series: pl.Series, kind: ProfileKind, bins: int) -> ColumnPro
     )
     if isinstance(mean, (int, float)):
         mean = max(-1.0, min(1.0, mean)) * scale
+    tick_labels: tuple[str, ...] = ()
+    if kind == ProfileKind.TEMPORAL and isinstance(origin, int):
+        ticks = pl.Series([origin + round(edge) for edge in edges], dtype=pl.Int128)
+        ticks = ticks.cast(series.dtype)
+        if isinstance(series.dtype, pl.Duration):
+            tick_labels = tuple(
+                f"{value} {series.dtype.time_unit}" for value in ticks.cast(pl.Int64)
+            )
+        elif series.dtype == pl.Time:
+            tick_labels = tuple(ticks.dt.to_string("%H:%M:%S%.9f").to_list())
+        else:
+            tick_labels = tuple(ticks.cast(pl.String).to_list())
     return ColumnProfile(
         series.name,
         str(series.dtype),
@@ -155,7 +193,9 @@ def _range_profile(series: pl.Series, kind: ProfileKind, bins: int) -> ColumnPro
         minimum,
         maximum,
         float(mean) if isinstance(mean, (int, float)) and math.isfinite(mean) else None,
-        Distribution(labels, tuple(hist.get_column("count").to_list())),
+        Distribution(
+            labels, tuple(hist.get_column("count").to_list()), edges, tick_labels
+        ),
         count,
         note=note,
     )

@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 import numpy as np
 from imgui_bundle import imgui, implot
 
+from datelier.gui_profiles import draw_histogram
 from datelier.gui_selection import ScatterInteraction
 from datelier.gui_table import TableView
 from datelier.relationships import Relationships
@@ -103,8 +104,8 @@ class RelationshipView:
             return None
         action = None
         imgui.text_wrapped(
-            "At most 150 sampled points per cell. Diagonal histograms use "
-            "bin indices; open the profile for bin boundaries."
+            "At most 150 sampled points per cell. Diagonal histograms use all "
+            "finite values."
         )
         dense = n > 4
         if dense:
@@ -130,7 +131,7 @@ class RelationshipView:
                         if dense
                         else x
                         if i != j
-                        else "Bin",
+                        else x,
                         (str(i + 1) if j == 0 else "")
                         if dense
                         else y
@@ -143,7 +144,7 @@ class RelationshipView:
                     if points is None:
                         bars = data.diagonals[i]
                         if len(bars.counts):
-                            implot.plot_bars(x, bars.positions, bars.counts, 0.8)
+                            draw_histogram(x, bars)
                     else:
                         style = implot.Spec()
                         style.marker = implot.Marker_.square
@@ -158,9 +159,7 @@ class RelationshipView:
                     hovered = implot.is_plot_hovered()
                     if hovered and dense:
                         imgui.set_tooltip(
-                            f"X: {x} · Y: {y}"
-                            if i != j
-                            else f"{x}: bin index / row count"
+                            f"X: {x} · Y: {y}" if i != j else f"{x}: value / row count"
                         )
                     if hovered and (
                         imgui.is_mouse_double_clicked(imgui.MouseButton_.left)
