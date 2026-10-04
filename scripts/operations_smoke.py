@@ -44,6 +44,10 @@ def main() -> None:
 
         def frame(session: GuiSession, evidence: InspectionEvidence) -> None:
             nonlocal index, pending, revision, completed_frame
+            if evidence.frames == 1:
+                hello_imgui.get_runner_params().docking_params.focus_dockable_window(
+                    "Transform and history"
+                )
             active = session.loader.active
             if active is None or session.editor.busy or evidence.frames < 15:
                 return

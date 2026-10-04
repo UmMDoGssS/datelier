@@ -67,6 +67,10 @@ def main() -> None:
             session.operations.derived_name = "score"
             session.operations.expression = 'col("v") * 2 + 1'
             session.operations.transforms.dtype = 0
+            if evidence.frames == 1:
+                hello_imgui.get_runner_params().docking_params.focus_dockable_window(
+                    "Transform and history"
+                )
             active = session.loader.active
             if active is None or session.editor.busy or evidence.frames < 15:
                 return

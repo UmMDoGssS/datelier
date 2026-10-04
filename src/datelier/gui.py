@@ -8,7 +8,9 @@ from time import perf_counter
 from imgui_bundle import hello_imgui, imgui, immapp
 
 from datelier.editing import DatasetEditor
+from datelier.exporting import DatasetExporter
 from datelier.gui_controls import ImportControls, show_schema
+from datelier.gui_export import ExportControls
 from datelier.gui_operations import OperationControls
 from datelier.gui_table import TableView
 from datelier.loading import DatasetLoader, LoadPhase
@@ -23,6 +25,8 @@ class GuiSession:
     controls: ImportControls
     editor: DatasetEditor
     operations: OperationControls
+    exporter: DatasetExporter
+    exports: ExportControls
 
 
 @dataclass
@@ -52,7 +56,11 @@ def run_gui(
     controls = ImportControls(path=str(initial_path) if initial_path else "")
     editor = DatasetEditor()
     operations = OperationControls()
-    session = GuiSession(loader, pages, view, controls, editor, operations)
+    exporter = DatasetExporter()
+    exports = ExportControls()
+    session = GuiSession(
+        loader, pages, view, controls, editor, operations, exporter, exports
+    )
     evidence = InspectionEvidence()
     params = hello_imgui.RunnerParams()
     params.app_window_params.window_title = "Datelier — data inspection"
@@ -99,7 +107,15 @@ def run_gui(
             "Transform and history",
             "EditSpace",
             lambda: operations.show(
-                editor, loading=loader.status.phase == LoadPhase.LOADING
+                editor,
+                loading=loader.status.phase == LoadPhase.LOADING or exporter.busy,
+            ),
+        ),
+        (
+            "Export table",
+            "EditSpace",
+            lambda: exports.show(
+                editor, exporter, loading=loader.status.phase == LoadPhase.LOADING
             ),
         ),
     ):
@@ -133,6 +149,7 @@ def run_gui(
             loader.active = edited
             pages.bind(edited)
             view.reset()
+        exporter.poll()
         pages.poll()
         if loader.status.phase == LoadPhase.LOADING:
             evidence.loading_frames += 1
@@ -150,4 +167,5 @@ def run_gui(
         loader.close()
         pages.close()
         editor.close()
+        exporter.close()
     return evidence
