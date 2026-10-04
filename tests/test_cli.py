@@ -22,7 +22,7 @@ def test_installed_cli_launches() -> None:
     ("arguments", "message"),
     [
         (["--smoke-frames", "-1"], "nonnegative"),
-        (["example.csv", "--feasibility"], "Choose a CSV or --feasibility"),
+        (["example.csv", "--feasibility"], "Choose a dataset or --feasibility"),
     ],
 )
 def test_invalid_cli_arguments_fail_before_gui_launch(

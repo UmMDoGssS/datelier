@@ -42,7 +42,7 @@ def test_newer_load_wins_even_when_old_parser_finishes_later(tmp_path: Path) -> 
     new.write_text("v\n2\n")
     started, release = Event(), Event()
 
-    def importer(path: Path, options: CsvOptions) -> CsvImport:
+    def importer(path: Path, options: CsvOptions | None) -> CsvImport:
         if path == old:
             started.set()
             assert release.wait(3)
@@ -117,7 +117,7 @@ def test_rapid_requests_cancel_obsolete_queued_work(tmp_path: Path) -> None:
     first_started, second_started, release = Event(), Event(), Event()
     seen: list[str] = []
 
-    def importer(source: Path, options: CsvOptions) -> CsvImport:
+    def importer(source: Path, options: CsvOptions | None) -> CsvImport:
         seen.append(source.name)
         if source.name in ("first.csv", "second.csv"):
             (first_started if source.name == "first.csv" else second_started).set()

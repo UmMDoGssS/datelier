@@ -7,13 +7,14 @@ from enum import StrEnum
 from pathlib import Path
 
 from datelier.dataset import DatasetRevision
-from datelier.import_csv import CsvImport, CsvOptions, load_csv
+from datelier.import_types import ImportFormat, ImportOptions, ImportResult
+from datelier.importing import load_file
 from datelier.inspection import Inspection, prepare_inspection
 
 
 class LoadPhase(StrEnum):
-    IDLE = "Ready to open CSV"
-    LOADING = "Loading CSV and preparing preview"
+    IDLE = "Ready to open a dataset"
+    LOADING = "Loading dataset and preparing preview"
     READY = "Import complete"
     FAILED = "Import failed"
     ABANDONED = "Load abandoned"
@@ -42,12 +43,13 @@ class DatasetLoader:
     """
 
     def __init__(
-        self, importer: Callable[[Path, CsvOptions], CsvImport] = load_csv
+        self,
+        importer: Callable[[Path, ImportOptions | None], ImportResult] | None = None,
     ) -> None:
         self.active: Inspection | None = None
         self.status = LoadStatus()
         self._importer = importer
-        self._executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="csv")
+        self._executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="import")
         self._number = 0
         self._request: LoadRequest | None = None
         self._retired: list[Future[Inspection]] = []
@@ -61,15 +63,25 @@ class DatasetLoader:
     def retired_running(self) -> int:
         return sum(not future.done() for future in self._retired)
 
-    def request(self, path: Path, options: CsvOptions | None = None) -> None:
+    def request(
+        self,
+        path: Path,
+        options: ImportOptions | None = None,
+        *,
+        format: ImportFormat | None = None,
+    ) -> None:
         if self._closed:
             raise RuntimeError("Loader is closed")
         self._retire()
         self._number += 1
-        settings = options if options is not None else CsvOptions()
 
         def work() -> Inspection:
-            return prepare_inspection(self._importer(path, settings))
+            imported = (
+                self._importer(path, options)
+                if self._importer is not None
+                else load_file(path, options, format=format)
+            )
+            return prepare_inspection(imported)
 
         self._request = LoadRequest(
             self._number, self.revision, self._executor.submit(work)

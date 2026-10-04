@@ -1,18 +1,21 @@
-"""CSV import and schema controls rendered from prepared application state."""
+"""Dataset import and schema controls rendered from prepared application state."""
 
 from dataclasses import dataclass
 from pathlib import Path
 
 from imgui_bundle import imgui
 
-from datelier.import_csv import CsvOptions
+from datelier.import_csv import CsvOptions, ImportFailure
+from datelier.import_types import ImportFormat
+from datelier.importing import detect_format
 from datelier.loading import DatasetLoader, LoadPhase
 
 
 @dataclass
 class ImportControls:
     path: str = ""
-    separator: str = ","
+    format_index: int = 0
+    separator: str = ""
     quote: str = '"'
     header: bool = True
     text_only: bool = False
@@ -23,10 +26,13 @@ class ImportControls:
     error: str = ""
 
     def show(self, loader: DatasetLoader) -> None:
-        _, self.path = imgui.input_text("CSV path", self.path)
+        _, self.path = imgui.input_text("Dataset path", self.path)
+        _, self.format_index = imgui.combo(
+            "Format", self.format_index, ["Auto", "CSV", "TSV"]
+        )
         if imgui.collapsing_header("Import options"):
             _, self.separator = imgui.input_text(
-                "Delimiter (\\t for tab)", self.separator
+                "Delimiter (empty = format default, \\t = tab)", self.separator
             )
             _, self.quote = imgui.input_text("Quote (empty to disable)", self.quote)
             _, self.header = imgui.checkbox("First record is a header", self.header)
@@ -39,12 +45,18 @@ class ImportControls:
             _, self.null_tokens = imgui.input_text(
                 "Null tokens (separate with |)", self.null_tokens
             )
-        if imgui.button("Open CSV"):
+        if imgui.button("Open dataset"):
             try:
                 if not self.path.strip():
-                    raise ValueError("Enter a CSV path.")
+                    raise ValueError("Enter a dataset path.")
+                selected = (
+                    detect_format(Path(self.path))
+                    if self.format_index == 0
+                    else list(ImportFormat)[self.format_index - 1]
+                )
                 options = CsvOptions(
-                    separator=self.separator.replace("\\t", "\t"),
+                    separator=self.separator.replace("\\t", "\t")
+                    or ("\t" if selected == ImportFormat.TSV else ","),
                     has_header=self.header,
                     quote_char=self.quote or None,
                     infer_types=not self.text_only,
@@ -57,9 +69,9 @@ class ImportControls:
                     if self.null_tokens
                     else (),
                 )
-                loader.request(Path(self.path), options)
+                loader.request(Path(self.path), options, format=selected)
                 self.error = ""
-            except ValueError as error:
+            except (ValueError, ImportFailure) as error:
                 self.error = str(error)
         if loader.status.phase == LoadPhase.LOADING:
             imgui.same_line()
@@ -91,7 +103,7 @@ class ImportControls:
 def show_schema(loader: DatasetLoader) -> None:
     inspection = loader.active
     if inspection is None:
-        imgui.text("Open a CSV to inspect its schema and missing values.")
+        imgui.text("Open a dataset to inspect its schema and missing values.")
         return
     imgui.text("Null counts cover every imported row.")
     flags = (

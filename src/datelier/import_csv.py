@@ -1,49 +1,14 @@
 """Strict, read-only CSV import with an explicit Polars parsing contract."""
 
-from dataclasses import dataclass
 from pathlib import Path
 
 import polars as pl
 
 from datelier.dataset import Dataset, SourceReference
-
-
-@dataclass(frozen=True)
-class CsvOptions:
-    separator: str = ","
-    has_header: bool = True
-    quote_char: str | None = '"'
-    null_values: tuple[str, ...] = ()
-    infer_schema_length: int | None = 100
-    infer_types: bool = True
-    try_parse_dates: bool = False
-    skip_rows: int = 0
-
-    def __post_init__(self) -> None:
-        for name, value in (("Separator", self.separator), ("Quote", self.quote_char)):
-            if value is not None and (
-                len(value.encode("utf8")) != 1 or value in "\r\n\x00"
-            ):
-                raise ValueError(f"{name} must be a single non-newline UTF-8 byte")
-        if self.infer_schema_length is not None and self.infer_schema_length < 1:
-            raise ValueError("Schema inference rows must be positive or all rows")
-        if self.skip_rows < 0:
-            raise ValueError("Skipped rows must be nonnegative")
-
-
-class ImportFailure(Exception):
-    """An actionable failure that callers can display without a traceback."""
-
-    def __init__(self, path: Path, message: str) -> None:
-        self.path = path
-        super().__init__(f"{path.name}: {message}")
-
-
-@dataclass(frozen=True)
-class CsvImport:
-    dataset: Dataset
-    options: CsvOptions
-    diagnostics: tuple[str, ...]
+from datelier.import_types import CsvOptions as CsvOptions
+from datelier.import_types import ImportFailure as ImportFailure
+from datelier.import_types import ImportFormat
+from datelier.import_types import ImportResult as CsvImport
 
 
 def load_csv(path: Path, options: CsvOptions | None = None) -> CsvImport:
@@ -53,7 +18,17 @@ def load_csv(path: Path, options: CsvOptions | None = None) -> CsvImport:
     become null. Mixed columns infer as strings within the inference window;
     conflicting later values fail with advice to widen inference/read strings.
     """
-    options = options if options is not None else CsvOptions()
+    return _load_delimited(path, options or CsvOptions(), ImportFormat.CSV)
+
+
+def load_tsv(path: Path, options: CsvOptions | None = None) -> CsvImport:
+    """Read tab-separated records with the same strict options as CSV."""
+    return _load_delimited(
+        path, options or CsvOptions(separator="\t"), ImportFormat.TSV
+    )
+
+
+def _load_delimited(path: Path, options: CsvOptions, format: ImportFormat) -> CsvImport:
     path = path.expanduser().resolve()
     try:
         before = path.stat()
@@ -75,13 +50,13 @@ def load_csv(path: Path, options: CsvOptions | None = None) -> CsvImport:
         after = path.stat()
     except pl.exceptions.NoDataError as error:
         raise ImportFailure(
-            path, "No CSV data found; supply a header or records."
+            path, f"No {format} data found; supply a header or records."
         ) from error
     except pl.exceptions.PolarsError as error:
         detail = str(error)[:1200]
         raise ImportFailure(
             path,
-            "Could not parse CSV. Check delimiter, quoting and field counts; "
+            f"Could not parse {format}. Check delimiter, quoting and field counts; "
             "for mixed types infer all rows or read columns as text. " + detail,
         ) from error
     except OSError as error:
@@ -94,7 +69,7 @@ def load_csv(path: Path, options: CsvOptions | None = None) -> CsvImport:
         after.st_ino,
     ):
         raise ImportFailure(path, "Source changed during import; reload the file.")
-    diagnostics = ("Header-only CSV: no data rows.",) if table.height == 0 else ()
+    diagnostics = (f"Header-only {format}: no data rows.",) if table.height == 0 else ()
     if not options.infer_types:
         diagnostics += ("Type inference disabled: columns loaded as text.",)
     return CsvImport(
@@ -103,4 +78,5 @@ def load_csv(path: Path, options: CsvOptions | None = None) -> CsvImport:
         ),
         options,
         diagnostics,
+        format,
     )

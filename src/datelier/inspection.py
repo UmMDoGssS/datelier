@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 
 from datelier.dataset import Dataset, DatasetRevision
-from datelier.import_csv import CsvImport
+from datelier.import_types import ImportResult
 
 PAGE_ROWS = 100
 PAGE_COLUMNS = 16
@@ -29,7 +29,7 @@ class PreviewPage:
 
 @dataclass(frozen=True)
 class Inspection:
-    imported: CsvImport
+    imported: ImportResult
     row_count: int
     schema: tuple[ColumnSummary, ...]
     first_page: PreviewPage
@@ -63,7 +63,7 @@ def prepare_page(
     )
 
 
-def prepare_inspection(imported: CsvImport) -> Inspection:
+def prepare_inspection(imported: ImportResult) -> Inspection:
     table = imported.dataset.table
     nulls = table.null_count().row(0)
     return Inspection(

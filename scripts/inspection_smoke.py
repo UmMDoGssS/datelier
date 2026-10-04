@@ -52,7 +52,7 @@ def main() -> None:
         newer = root / "newer.csv"
         newer.write_text("id,label,value\n99,newest,1.5\n12,second,\n")
 
-        def importer(source: Path, options: CsvOptions) -> CsvImport:
+        def importer(source: Path, options: CsvOptions | None) -> CsvImport:
             if source == path and args.scenario == "switch-failure":
                 started.set()
                 if not release.wait(30):

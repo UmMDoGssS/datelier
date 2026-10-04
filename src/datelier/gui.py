@@ -1,4 +1,4 @@
-"""First usable CSV workbench; frames consume prepared state only."""
+"""Tabular inspection workbench; frames consume prepared state only."""
 
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -33,7 +33,7 @@ class InspectionEvidence:
 
 
 def run_gui(
-    initial_csv: Path | None = None,
+    initial_path: Path | None = None,
     *,
     smoke_frames: int = 0,
     on_frame: Callable[[GuiSession, InspectionEvidence], None] | None = None,
@@ -45,10 +45,10 @@ def run_gui(
     pages = PreviewCache()
     view = TableView()
     session = GuiSession(loader, pages, view)
-    controls = ImportControls(path=str(initial_csv) if initial_csv else "")
+    controls = ImportControls(path=str(initial_path) if initial_path else "")
     evidence = InspectionEvidence()
     params = hello_imgui.RunnerParams()
-    params.app_window_params.window_title = "Datelier — CSV inspection"
+    params.app_window_params.window_title = "Datelier — data inspection"
     params.app_window_params.window_geometry.size = (1280, 800)
     params.ini_disable = True
     params.fps_idling.enable_idling = False
@@ -92,8 +92,8 @@ def run_gui(
     params.docking_params.dockable_windows = windows
     load_started = perf_counter()
     previous_frame = load_started
-    if initial_csv:
-        loader.request(initial_csv)
+    if initial_path:
+        loader.request(initial_path)
 
     def frame() -> None:
         nonlocal previous_frame
