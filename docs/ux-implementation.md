@@ -283,7 +283,7 @@ common chart Height controls resize the viewport while cells retain readable
 minimum space.
 
 Verification: eleven focused relationship/exploration/selection tests pass.
-The final **full suite passes all 365 tests** (13.48 s); Pyrefly reports zero
+The pair-grid slice's **full suite passes all 365 tests** (13.48 s); Pyrefly reports zero
 errors; Ruff lint/format (158 files) and diff whitespace pass. Titanic's five
 features pass actual native-axis label checks, wheel zoom, expand/restore ranges,
 linked highlighting, and source preservation (75 frames). An eight-feature
@@ -298,3 +298,19 @@ use Linux/Mesa software OpenGL.
 capture the final layout. The three changes requested in this follow-up are
 complete, committed as separate verified slices. Titanic's source SHA-256 is
 unchanged. The broader original review's remaining usability gates stay open.
+
+### Final camera-side direction check (complete)
+
+The plane-projection checks distinguish XY/XZ/YZ but do not distinguish opposite
+sides. A final check of the installed renderer's inverse camera rotation found
+Left/Right swapped. The presets are corrected. Six headless named-side geometry
+tests now check the eye direction, and the GUI smoke checks the actual plot ray
+in normalized box coordinates, accounting for different source-column units.
+
+All eight focused 3D tests pass. Final face-menu checks pass on Titanic
+(320 frames) and explicit 3D PCA (387 frames), including both named-side ray
+directions and the existing plane/selection/range/gesture/expanded-view gates.
+The final full suite passes **371 tests** (14.48 s); Pyrefly reports zero errors;
+Ruff lint/format and diff whitespace pass. Updated face evidence records retain
+the side-direction gate. All requested behavior is verified; the source file is
+unchanged.

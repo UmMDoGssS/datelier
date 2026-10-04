@@ -1,5 +1,5 @@
 {
-  "frames": 386,
+  "frames": 387,
   "face_clicks": [
     "Isometric",
     "Top (XY)",
@@ -11,6 +11,7 @@
     "Top (XY)"
   ],
   "projected_planes": true,
+  "camera_side_directions": true,
   "free_rotation_after_preset": true,
   "expanded_face_menu": true,
   "ranges_and_selection_preserved": true,

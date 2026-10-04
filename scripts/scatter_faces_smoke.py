@@ -3,7 +3,7 @@
 import argparse
 import json
 from hashlib import sha256
-from math import radians
+from math import radians, sqrt
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import cast
@@ -38,6 +38,7 @@ def main() -> None:
     baseline_ranges: tuple[float, ...] = ()
     baseline_rotation: tuple[float, ...] = ()
     axis_pixels: list[tuple[float, float]] = []
+    ray_direction: tuple[float, float, float] = (0, 0, 0)
     unlocked = False
     faces = list(FACE_VIEWS)
     button, selectable, interact = (
@@ -71,13 +72,21 @@ def main() -> None:
         selection: LinkedSelection,
         table: TableView,
     ) -> None:
-        nonlocal rotation, ranges, axis_pixels, unlocked
+        nonlocal rotation, ranges, axis_pixels, unlocked, ray_direction
         interact(self, points, selection, table)
         plot = implot3d.internal.get_current_plot()
         q, lo, hi = plot.rotation, plot.range_min(), plot.range_max()
         rotation = (q.x, q.y, q.z, q.w)
         ranges = (lo.x, lo.y, lo.z, hi.x, hi.y, hi.z)
         unlocked = not plot.rotation_cond
+        ray = implot3d.pixels_to_plot_ray(*self.center_pixel)
+        # Compare in normalized plot-box space; source columns have different
+        # units/ranges, which amplify native angle rounding in data-space rays.
+        dx = ray.direction.x / (hi.x - lo.x)
+        dy = ray.direction.y / (hi.y - lo.y)
+        dz = ray.direction.z / (hi.z - lo.z)
+        length = sqrt(dx * dx + dy * dy + dz * dz)
+        ray_direction = (dx / length, dy / length, dz / length)
         middle = [(a + b) / 2 for a, b in zip(ranges[:3], ranges[3:], strict=True)]
         vectors = [middle.copy() for _ in range(4)]
         for i in range(3):
@@ -193,6 +202,15 @@ def main() -> None:
                     if normal is not None:
                         assert lengths[normal] < 1e-4, (face, lengths)
                         assert all(lengths[i] > 5 for i in range(3) if i != normal)
+                        direction = {
+                            "Top (XY)": (0, 0, -1),
+                            "Bottom (XY)": (0, 0, 1),
+                            "Front (XZ)": (0, 1, 0),
+                            "Back (XZ)": (0, -1, 0),
+                            "Left (YZ)": (1, 0, 0),
+                            "Right (YZ)": (-1, 0, 0),
+                        }[face]
+                        np.testing.assert_allclose(ray_direction, direction, atol=1e-6)
                     face_index += 1
                     if face_index < len(faces):
                         move(menu_pixel)
@@ -250,6 +268,7 @@ def main() -> None:
             "frames": evidence.frames,
             "face_clicks": faces,
             "projected_planes": True,
+            "camera_side_directions": True,
             "free_rotation_after_preset": True,
             "expanded_face_menu": True,
             "ranges_and_selection_preserved": True,

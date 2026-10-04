@@ -1,12 +1,36 @@
+from math import radians
 from pathlib import Path
 
 import numpy as np
 import polars as pl
 import pytest
+from imgui_bundle import implot3d
 
 from datelier.dataset import Dataset, SourceReference
+from datelier.gui_scatter3d import FACE_VIEWS
 from datelier.plotting import prepare_scatter
 from datelier.projection import projected_nearest, projected_rectangle
+
+
+@pytest.mark.parametrize(
+    ("face", "eye_direction"),
+    [
+        ("Top (XY)", (0, 0, 1)),
+        ("Bottom (XY)", (0, 0, -1)),
+        ("Front (XZ)", (0, -1, 0)),
+        ("Back (XZ)", (0, 1, 0)),
+        ("Left (YZ)", (-1, 0, 0)),
+        ("Right (YZ)", (1, 0, 0)),
+    ],
+)
+def test_viewing_faces_look_from_the_named_side(
+    face: str, eye_direction: tuple[int, int, int]
+) -> None:
+    # The native orthographic camera sits on positive viewing Z. Its inverse
+    # rotation locates that eye relative to the dataset's X/Y/Z coordinates.
+    q = implot3d.Quat.from_el_az(*map(radians, FACE_VIEWS[face]))
+    eye = q.inverse() * implot3d.Point(0, 0, 1)
+    np.testing.assert_allclose((eye.x, eye.y, eye.z), eye_direction, atol=1e-6)
 
 
 def test_three_axis_finite_filter_and_source_positions() -> None:

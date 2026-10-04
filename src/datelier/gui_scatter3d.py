@@ -17,8 +17,8 @@ FACE_VIEWS: dict[str, tuple[float, float]] = {
     "Bottom (XY)": (-90, 0),
     "Front (XZ)": (0, 0),
     "Back (XZ)": (0, 180),
-    "Left (YZ)": (0, -90),
-    "Right (YZ)": (0, 90),
+    "Left (YZ)": (0, 90),
+    "Right (YZ)": (0, -90),
 }
 
 
