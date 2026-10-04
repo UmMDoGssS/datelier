@@ -18,8 +18,10 @@ The repository has a Python 3.14+ `uv`-managed `src/` package, configured
 Pyrefly/pytest/Ruff, and a locked application stack. Phase 0 is verified with
 a synthetic docking/plot CLI probe, tiny analysis runs, and benchmark fixtures.
 [Phase 0 evidence](docs/phase-0.md) records versions, commands, budgets, and
-limitations, including the verified Mesa software renderer. Dataset import
-and application state remain Phase 1 work; later milestones are unchecked.
+limitations, including the verified Mesa software renderer. Phase 1 now provides
+CSV import, dataset identity/revisions, and a responsive
+inspection workbench; [Phase 1 evidence](docs/phase-1.md) records its passed
+gates. Phase 2 and later milestones remain unchecked.
 
 ## Gate and evidence rules
 
@@ -78,7 +80,7 @@ and application state remain Phase 1 work; later milestones are unchecked.
 
 ## Phase 1 — First usable inspection slice
 
-- [ ] **Phase complete.** **Entry:** Phase 0 passes. **Exit:** M1.1 and M1.2 pass.
+- [x] **Phase complete.** **Entry:** Phase 0 passes. **Exit:** M1.1 and M1.2 pass. [Evidence](docs/phase-1.md) recorded 2026-10-04.
 
 ### M1.1 — CSV import and dataset state
 
@@ -90,11 +92,11 @@ and application state remain Phase 1 work; later milestones are unchecked.
 
 ### M1.2 — Responsive preview and job lifecycle
 
-- [ ] **Deliverables:** virtualized table, schema/null summaries, background loading, visible job status, revision-aware completion handling.
-- [ ] **Entry gate:** M1.1 passes and the import contract supplies data, metadata, and errors without GUI dependencies.
-- [ ] **Exit gate:** loading does not block rendering; the preview shows correct rows/types; failures surface; changing datasets prevents an older job from replacing active state.
-- [ ] **Verification evidence:** job-state and stale-result tests, rapid-switch and failure GUI smoke checks, large-table preview timings against recorded budgets.
-- [ ] **Suggested step commits:** `feat: add background dataset loading` → `feat: render virtualized previews` → `feat: show schema and job status`.
+- [x] **Deliverables:** virtualized table, schema/null summaries, background loading, visible job status, revision-aware completion handling.
+- [x] **Entry gate:** M1.1 passes and the import contract supplies data, metadata, and errors without GUI dependencies.
+- [x] **Exit gate:** loading does not block rendering; the preview shows correct rows/types; failures surface; changing datasets prevents an older job from replacing active state.
+- [x] **Verification evidence:** [M1.2 evidence](docs/phase-1.md#m12-responsive-preview-and-job-lifecycle): 48 full-suite tests, Pyrefly/Ruff, live-reload/rapid-switch/failure/wheel GUI checks, and 12 fresh-process measurements pass. Large/wide frame p95 is 12.41/12.98 ms; recorded loading and memory budgets pass.
+- [x] **Step commits:** `c717b5c` background loading/preparation → `2609a9e` virtualized preview/schema/status → `31bdccd` lifecycle and performance acceptance evidence.
 
 ## Phase 2 — Format coverage
 

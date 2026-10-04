@@ -35,10 +35,13 @@ The repository has a Python 3.14+ `uv`-managed `src/` package, configured Pyrefl
 pytest, and Ruff, and a locked Polars/ImGui Bundle/analysis dependency set.
 Phase 0 has passed its clean-install, docking/plot, tiny-analysis, and synthetic
 benchmark gates; evidence and acceptance budgets are in
-[docs/phase-0.md](docs/phase-0.md). The CLI exposes a synthetic feasibility
-window. Linux GUI rendering is verified with Mesa software OpenGL on the
-reference machine; accelerated rendering remains unverified. Dataset import
-and the application state model begin in Phase 1 of [ROADMAP.md](ROADMAP.md).
+[docs/phase-0.md](docs/phase-0.md). Phase 1 has passed CSV import/state and
+responsive preview/job gates;
+[docs/phase-1.md](docs/phase-1.md) records evidence. The CLI opens the CSV
+workbench by default and retains the synthetic feasibility window. Linux GUI
+rendering is verified with Mesa software OpenGL on the reference machine;
+accelerated rendering remains unverified. Additional format
+coverage begins in Phase 2 of [ROADMAP.md](ROADMAP.md).
 
 Use this file for durable conventions and `ROADMAP.md` for sequencing,
 deliverables, and acceptance gates. Inspect actual code and configuration
