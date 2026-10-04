@@ -1,0 +1,100 @@
+"""Explicit table edits and history controls; all computation runs in workers."""
+
+import json
+from dataclasses import dataclass
+
+from imgui_bundle import imgui
+
+from datelier.editing import DatasetEditor, HistoryAction
+from datelier.operations import (
+    Comparison,
+    Filter,
+    Scalar,
+    SelectColumns,
+    Sort,
+    describe_operation,
+)
+
+
+def scalar_input(text: str) -> Scalar:
+    try:
+        value = json.loads(text)
+    except ValueError:
+        return text
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    raise ValueError("Use a number, boolean, null, or text value")
+
+
+@dataclass
+class OperationControls:
+    column: str = ""
+    descending: bool = False
+    comparison: int = 0
+    value: str = ""
+    selected: str = ""
+    error: str = ""
+
+    def show(self, editor: DatasetEditor, *, loading: bool) -> None:
+        imgui.push_item_width(135)
+        pipeline = editor.pipeline
+        imgui.text_wrapped(editor.message)
+        if self.error:
+            imgui.text_wrapped(self.error)
+        if editor.busy and imgui.button("Abandon edit"):
+            editor.abandon()
+        imgui.begin_disabled(editor.busy or loading or pipeline is None)
+        try:
+            imgui.begin_disabled(pipeline is None or not pipeline.can_undo)
+            if imgui.button("Undo"):
+                editor.request(HistoryAction.UNDO)
+            imgui.end_disabled()
+            imgui.same_line()
+            imgui.begin_disabled(pipeline is None or not pipeline.can_redo)
+            if imgui.button("Redo"):
+                editor.request(HistoryAction.REDO)
+            imgui.end_disabled()
+            _, self.column = imgui.input_text("Column", self.column)
+            _, self.descending = imgui.checkbox("Descending", self.descending)
+            if imgui.button("Sort column"):
+                editor.request(Sort((self.column,), self.descending))
+            _, self.comparison = imgui.combo(
+                "Comparison", self.comparison, [item.value for item in Comparison]
+            )
+            _, self.value = imgui.input_text("Filter value", self.value)
+            imgui.text_wrapped(
+                'Values accept numbers, true/false, or text. Quote text like "1".'
+            )
+            if imgui.button("Filter rows"):
+                editor.request(
+                    Filter(
+                        self.column,
+                        list(Comparison)[self.comparison],
+                        scalar_input(self.value),
+                    )
+                )
+            _, self.selected = imgui.input_text("Columns to keep", self.selected)
+            imgui.text_wrapped(
+                'Column selection is a JSON list, e.g. ["name", "value"].'
+            )
+            if imgui.button("Keep columns"):
+                names = json.loads(self.selected)
+                if not isinstance(names, list) or not all(
+                    isinstance(n, str) for n in names
+                ):
+                    raise ValueError("Enter a JSON list of column names")
+                editor.request(SelectColumns(tuple(names)))
+            self.error = ""
+        except ValueError as error:
+            self.error = str(error)
+        finally:
+            imgui.end_disabled()
+        if pipeline:
+            imgui.separator()
+            imgui.text(f"History: {pipeline.cursor} of {len(pipeline.history)} applied")
+            for index, operation in enumerate(pipeline.history):
+                suffix = " (undone)" if index >= pipeline.cursor else ""
+                imgui.text_wrapped(
+                    f"{index + 1}. {describe_operation(operation)}{suffix}"
+                )
+        imgui.pop_item_width()

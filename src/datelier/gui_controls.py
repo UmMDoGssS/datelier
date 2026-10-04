@@ -196,7 +196,7 @@ def show_schema(loader: DatasetLoader) -> None:
     if inspection is None:
         imgui.text("Open a dataset to inspect its schema and missing values.")
         return
-    imgui.text("Null counts cover every imported row.")
+    imgui.text("Null counts cover every active row.")
     flags = (
         imgui.TableFlags_.borders
         | imgui.TableFlags_.scroll_y

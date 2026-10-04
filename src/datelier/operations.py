@@ -112,3 +112,14 @@ def apply_operation(dataset: Dataset, operation: Operation) -> Dataset:
         raise OperationFailure(
             f"Could not apply {type(operation).__name__}: {error}"
         ) from error
+
+
+def describe_operation(operation: Operation) -> str:
+    match operation:
+        case Sort(columns, descending, _):
+            direction = "descending" if descending else "ascending"
+            return f"Sort {', '.join(columns)} {direction}"
+        case Filter(column, comparison, value):
+            return f"Filter {column} {comparison.value} {value!r}"
+        case SelectColumns(columns):
+            return f"Keep {', '.join(columns)}"

@@ -7,7 +7,9 @@ from time import perf_counter
 
 from imgui_bundle import hello_imgui, imgui, immapp
 
+from datelier.editing import DatasetEditor
 from datelier.gui_controls import ImportControls, show_schema
+from datelier.gui_operations import OperationControls
 from datelier.gui_table import TableView
 from datelier.loading import DatasetLoader, LoadPhase
 from datelier.preview import PreviewCache
@@ -19,6 +21,8 @@ class GuiSession:
     pages: PreviewCache
     table: TableView
     controls: ImportControls
+    editor: DatasetEditor
+    operations: OperationControls
 
 
 @dataclass
@@ -46,7 +50,9 @@ def run_gui(
     pages = PreviewCache()
     view = TableView()
     controls = ImportControls(path=str(initial_path) if initial_path else "")
-    session = GuiSession(loader, pages, view, controls)
+    editor = DatasetEditor()
+    operations = OperationControls()
+    session = GuiSession(loader, pages, view, controls, editor, operations)
     evidence = InspectionEvidence()
     params = hello_imgui.RunnerParams()
     params.app_window_params.window_title = "Datelier — data inspection"
@@ -78,12 +84,24 @@ def run_gui(
     lower.new_dock = "SchemaSpace"
     lower.direction = imgui.Dir.down
     lower.ratio = 0.55
-    params.docking_params.docking_splits = [left, lower]
+    edits = hello_imgui.DockingSplit()
+    edits.initial_dock = "MainDockSpace"
+    edits.new_dock = "EditSpace"
+    edits.direction = imgui.Dir.right
+    edits.ratio = 0.32
+    params.docking_params.docking_splits = [left, lower, edits]
     windows = []
     for label, space, callback in (
         ("Open dataset", "ImportSpace", lambda: controls.show(loader)),
         ("Table preview", "MainDockSpace", show_table),
         ("Schema and nulls", "SchemaSpace", schema),
+        (
+            "Transform and history",
+            "EditSpace",
+            lambda: operations.show(
+                editor, loading=loader.status.phase == LoadPhase.LOADING
+            ),
+        ),
     ):
         window = hello_imgui.DockableWindow()
         window.label = label
@@ -105,7 +123,15 @@ def run_gui(
         evidence.frames += 1
         if loader.poll():
             assert loader.active is not None
+            editor.bind(loader.active)
             pages.bind(loader.active)
+            view.reset()
+        if loader.status.phase == LoadPhase.LOADING:
+            editor.abandon()
+        edited = editor.poll(loader.revision)
+        if edited is not None:
+            loader.active = edited
+            pages.bind(edited)
             view.reset()
         pages.poll()
         if loader.status.phase == LoadPhase.LOADING:
@@ -123,4 +149,5 @@ def run_gui(
     finally:
         loader.close()
         pages.close()
+        editor.close()
     return evidence
