@@ -1,8 +1,10 @@
 # Datelier contributor guide
 
-## Purpose and product direction
+## Purpose and direction
 
-Datelier is a local desktop data inspection workbench for analysts. Start with
+Datelier is a simple personal desktop data inspection workbench. Keep changes
+practical; public release infrastructure and decorative polish are not goals.
+Start with
 tabular data; image and text inspection are later directions. Prioritize useful
 inspection, responsive interactions, and customization over decorative UI.
 
@@ -56,8 +58,9 @@ Phase 5 has passed explicit PCA/k-means/t-SNE/UMAP, worker lifecycle, provenance
 [docs/phase-5.md](docs/phase-5.md) records correctness, GUI and resource evidence.
 Phase 6 has passed referenced-workspace restore/relink, saved-layout/theme/plot
 preference and recovery gates; [docs/phase-6.md](docs/phase-6.md) records
-correctness and fresh-process GUI evidence. V1 hardening and release readiness
-begin in Phase 7 of [ROADMAP.md](ROADMAP.md).
+correctness and fresh-process GUI evidence. Phase 7 end-to-end hardening has
+passed M7.1; [docs/phase-7.md](docs/phase-7.md) records workflow and resource
+evidence. Local Linux installation is the remaining gate in [ROADMAP.md](ROADMAP.md).
 
 Use this file for durable conventions and `ROADMAP.md` for sequencing,
 deliverables, and acceptance gates. Inspect actual code and configuration

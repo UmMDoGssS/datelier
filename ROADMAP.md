@@ -30,8 +30,12 @@ provides automatic exploration and linked selections;
 [richer-inspection evidence](docs/richer-inspection.md) records passed comparison,
 color and matrix extensions. Phase 5 provides explicit analysis and linked 3D
 views; [Phase 5 evidence](docs/phase-5.md) records its passed gates. Phase 6 provides referenced workspaces, saved layouts, themes and plot preferences;
-[Phase 6 evidence](docs/phase-6.md) records its passed gates. Phase 7 and later
-milestones remain unchecked.
+[Phase 6 evidence](docs/phase-6.md) records its passed gates. Phase 7 hardening
+passes M7.1; [Phase 7 evidence](docs/phase-7.md) records workflow/resource checks.
+Local installation (M7.2) and later investigations remain unchecked.
+
+This is a simple personal tool. Phase 7 verifies reliability and local setup;
+public publishing, release automation and product infrastructure are not goals.
 
 ## Gate and evidence rules
 
@@ -47,7 +51,7 @@ milestones remain unchecked.
   check a phase complete only after all its milestone exit gates pass.
 - Phase entry requires the previous phase's exit plus milestone-specific
   prerequisites. Phase exit requires every milestone in that phase to pass.
-  Phase 8 investigations are independent; each requires the v1 release gate.
+  Phase 8 investigations are independent; each requires the local v1 install gate.
 - Each code step requires Pyrefly, relevant tests, Ruff checks once established,
   and applicable GUI smoke checks. Each implementation milestone exit also
   requires the full test suite and its listed verification. Documentation-only
@@ -224,25 +228,25 @@ workspace persistence schema.
 - [x] **Verification evidence:** [M6.2 evidence](docs/phase-6.md#m62-saved-layouts-themes-and-plot-preferences): 333 full-suite tests, Pyrefly/Ruff, independent preference recovery, three fresh-process rearrange/restart/default/reset/restore GUI checks and linked-selection/gesture regressions pass.
 - [x] **Step commit:** `29ce51e` — dock layout module, versioned preference storage, theme/menu/default restoration, fresh-process GUI gate and final evidence form one verified customization step.
 
-## Phase 7 — V1 hardening and release
+## Phase 7 — Personal-use hardening and installation
 
 - [ ] **Phase complete.** **Entry:** Phases 0–6 pass. **Exit:** M7.1 and M7.2 pass.
 
 ### M7.1 — End-to-end correctness and performance
 
-- [ ] **Deliverables:** complete workflow coverage, pathological-input regression cases, measured performance against documented budgets.
-- [ ] **Entry gate:** every v1 capability has passed its milestone; benchmark environment, fixtures, budgets, and algorithm limits are recorded.
-- [ ] **Exit gate:** import → inspect → transform → plot → analyze → save/reopen → export workflows pass; pathological data and job failures are handled; measured budgets pass.
-- [ ] **Verification evidence:** full automated checks, representative end-to-end GUI runs, per-format workflows, source/identity invariants, wall-time/peak-memory reports, and resolved regression results.
-- [ ] **Suggested step commits:** `test: cover complete analysis workflows` → focused `fix:` commits for discovered failures → measured `perf:` commits where needed → `docs: record acceptance evidence`.
+- [x] **Deliverables:** complete workflow coverage, pathological-input regression cases, measured performance against documented budgets.
+- [x] **Entry gate:** every v1 capability has passed its milestone; benchmark environment, fixtures, budgets, and algorithm limits are recorded.
+- [x] **Exit gate:** import → inspect → transform → plot → analyze → save/reopen → export workflows pass; pathological data and job failures are handled; measured budgets pass.
+- [x] **Verification evidence:** [M7.1 evidence](docs/phase-7.md#m71--complete-workflows-and-reliability): 344 tests, Pyrefly/Ruff, six format GUI regressions, fresh save/reopen workflow, 40 headless resource runs and large/wide live analysis pass. Abrupt worker exits now report their exit code and allow retry.
+- [x] **Step commits:** `3e946d1` complete workflow tests → `1ff0298` worker-exit error detail → verified fresh-process GUI walkthrough and recorded acceptance evidence.
 
-### M7.2 — Linux release readiness
+### M7.2 — Local Linux installation
 
-- [ ] **Deliverables:** installable build artifacts, working CLI launch, setup/usage documentation, complete v1 release checklist.
-- [ ] **Entry gate:** M7.1 passes and no required v1 gate remains open.
-- [ ] **Exit gate:** a clean Linux environment can install and launch the built package and complete a representative workflow using the documentation; release version/metadata and checklist are consistent.
-- [ ] **Verification evidence:** build/install commands, clean-environment launch and workflow observations, README walkthrough, full check outcomes, and checklist with no unresolved required items.
-- [ ] **Suggested step commits:** `build: prepare linux distribution` → `docs: document installation and workbench usage` → `chore: finalize v1 release readiness`.
+- [ ] **Deliverables:** locally installable wheel/source archive, working CLI launch, concise setup/usage documentation and personal-use checklist.
+- [ ] **Entry gate:** M7.1 passes and no earlier required v1 gate remains open.
+- [ ] **Exit gate:** a clean Linux environment can install and launch the built package and complete a representative workflow using the documentation; package version/metadata and checklist are consistent.
+- [ ] **Verification evidence:** build/install commands, clean-environment launch and workflow observations, README walkthrough, full check outcomes and a completed local-use checklist.
+- [ ] **Suggested step commits:** `docs: document personal installation and usage` → `chore: verify local Linux package readiness`.
 
 ## Phase 8 — Post-v1 investigations
 

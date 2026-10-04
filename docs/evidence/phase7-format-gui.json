@@ -1,0 +1,54 @@
+[
+  {
+    "format": "CSV",
+    "frames": 90,
+    "observed": {
+      "prepared_preview": true,
+      "failure_visible": true
+    }
+  },
+  {
+    "format": "TSV",
+    "frames": 90,
+    "observed": {
+      "prepared_preview": true,
+      "failure_visible": true
+    }
+  },
+  {
+    "format": "JSON",
+    "frames": 90,
+    "observed": {
+      "prepared_preview": true,
+      "failure_visible": true,
+      "nested_diagnostic": true
+    }
+  },
+  {
+    "format": "JSONL",
+    "frames": 90,
+    "observed": {
+      "prepared_preview": true,
+      "failure_visible": true,
+      "nested_diagnostic": true
+    }
+  },
+  {
+    "format": "Parquet",
+    "frames": 90,
+    "observed": {
+      "prepared_preview": true,
+      "failure_visible": true
+    }
+  },
+  {
+    "format": "XML",
+    "frames": 90,
+    "observed": {
+      "extraction_controls": true,
+      "prepared_preview": true,
+      "failure_visible": true,
+      "nested_diagnostic": true
+    }
+  }
+]
