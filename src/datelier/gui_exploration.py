@@ -9,9 +9,9 @@ from datelier.dataset import Dataset, DatasetRevision
 from datelier.exploration import Dashboard, Explorer
 from datelier.gui_distributions import MODES, show_comparison
 from datelier.gui_plot_controls import PlotControls
+from datelier.gui_relationships import RelationshipView
 from datelier.gui_selection import ScatterInteraction
 from datelier.gui_table import TableView
-from datelier.plotting import CORRELATION_ROW_LIMIT
 from datelier.selection import LinkedSelection
 
 
@@ -19,6 +19,7 @@ from datelier.selection import LinkedSelection
 class ExplorationView:
     profile_index: int = 0
     comparison_mode: int = 0
+    relationships: RelationshipView = field(default_factory=RelationshipView)
     _comparison_key: tuple[DatasetRevision, int, object] | None = None
     scatter_index: int = 0
     plot_frames: int = 0
@@ -45,6 +46,7 @@ class ExplorationView:
             return
         profiles = dashboard.profiles
         imgui.text(f"{profiles.row_count:,} rows · {profiles.total_columns} columns")
+        requested_tab, self.tab = self.tab, ""
         if imgui.begin_tab_bar("Exploration views"):
             for label, callback in (
                 ("Profiles", self.show_profile),
@@ -54,15 +56,21 @@ class ExplorationView:
                         explorer, dashboard, selection, table, plots, dataset
                     ),
                 ),
-                ("Correlations", self.show_correlations),
+                (
+                    "Correlations",
+                    lambda dashboard: self.show_correlations(
+                        explorer, dashboard, selection, table, plots, dataset
+                    ),
+                ),
             ):
-                flags = imgui.TabItemFlags_.set_selected if self.tab == label else 0
+                flags = (
+                    imgui.TabItemFlags_.set_selected if requested_tab == label else 0
+                )
                 opened, _ = imgui.begin_tab_item(label, flags=flags)
                 if opened:
                     callback(dashboard)
                     imgui.end_tab_item()
             imgui.end_tab_bar()
-        self.tab = ""  # One-shot selection; subsequent mouse tab choices persist.
 
     def show_profile(self, dashboard: Dashboard) -> None:
         profiles = dashboard.profiles
@@ -124,24 +132,33 @@ class ExplorationView:
             ):
                 imgui.text_wrapped(f"{i}: {label} — {int(count):,}")
 
-    def show_correlations(self, dashboard: Dashboard) -> None:
-        imgui.text_wrapped(
-            f"Pearson correlations: first {dashboard.settings.correlation_columns} "
-            f"numeric columns, at most {CORRELATION_ROW_LIMIT:,} evenly spaced rows; "
-            "pairwise finite values. Constant / insufficient pairs are undefined."
-        )
-        if not dashboard.correlations:
-            imgui.text("At least two numeric columns are required.")
-        for correlation in dashboard.correlations:
-            value = (
-                f"{correlation.value:.4f}"
-                if correlation.value is not None
-                else "undefined"
-            )
-            imgui.text_wrapped(
-                f"{correlation.x_name} / {correlation.y_name}: {value} "
-                f"· {correlation.finite_pairs:,} finite pairs"
-            )
+    def show_correlations(
+        self,
+        explorer: Explorer,
+        dashboard: Dashboard,
+        selection: LinkedSelection,
+        table: TableView,
+        plots: PlotControls | None,
+        dataset: Dataset | None,
+    ) -> None:
+        if dashboard.relationships is None:
+            return
+        action = self.relationships.show(dashboard.relationships, selection, table)
+        if action is not None and plots is not None and dataset is not None:
+            x, y = action
+            if y is None:
+                plots.profile_index = plots.columns.index(x) + 1
+                self.profile_index = 0
+                self.tab = "Profiles"
+            else:
+                plots.custom_scatter = True
+                plots.x_index, plots.y_index = (
+                    plots.numeric.index(x),
+                    plots.numeric.index(y),
+                )
+                self.scatter_index = 0
+                self.tab = "Scatter"
+            explorer.request(dataset, plots.settings())
 
     def show_scatter_controls(
         self,

@@ -32,6 +32,7 @@ class PlotControls:
     seed: int = 42
     color_index: int = 0
     color_columns: tuple[str, ...] = ()
+    relationship_features: list[str] | None = None
 
     def bind(self, dataset: Dataset) -> None:
         previous_x = self.numeric[self.x_index] if self.numeric else ""
@@ -54,6 +55,11 @@ class PlotControls:
             else 0
         )
         self.numeric = numeric_columns(dataset)
+        self.relationship_features = (
+            list(self.numeric[:6])
+            if self.relationship_features is None
+            else [n for n in self.relationship_features if n in self.numeric]
+        )
         self.compare_columns = [n for n in self.compare_columns if n in self.numeric]
         self.x_index = (
             self.numeric.index(previous_x) if previous_x in self.numeric else 0
@@ -98,6 +104,7 @@ class PlotControls:
                 self.seed,
             ),
             self.color_columns[self.color_index - 1] if self.color_index else None,
+            tuple(self.relationship_features or ()),
         )
 
     def show(self, explorer: Explorer, dataset: Dataset | None) -> None:
@@ -138,6 +145,22 @@ class PlotControls:
                 "KDE bandwidth", self.bandwidth, 0.1, 5
             )
             _, self.seed = imgui.input_int("Comparison seed", self.seed)
+            imgui.tree_pop()
+        if imgui.tree_node(
+            "Relationship features (grid up to eight, heatmap up to 16)"
+        ):
+            features = self.relationship_features or []
+            for name in self.numeric:
+                chosen = name in features
+                imgui.begin_disabled(not chosen and len(features) >= 16)
+                changed, checked = imgui.checkbox(name + "##relationship", chosen)
+                imgui.end_disabled()
+                if changed:
+                    if checked:
+                        features.append(name)
+                    else:
+                        features.remove(name)
+            self.relationship_features = features
             imgui.tree_pop()
         if imgui.button("Apply plot settings"):
             try:

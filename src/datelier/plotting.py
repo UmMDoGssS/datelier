@@ -114,10 +114,17 @@ def prepare_scatter(
 
 
 def prepare_correlations(
-    dataset: Dataset, *, column_limit: int = 8
+    dataset: Dataset, *, column_limit: int = 8, features: tuple[str, ...] = ()
 ) -> tuple[Correlation, ...]:
     if not 2 <= column_limit <= 16:
         raise ValueError("Correlation column limit must be 2–16")
+    names = features or numeric_columns(dataset)[:column_limit]
+    if (
+        len(names) > 16
+        or len(set(names)) != len(names)
+        or any(n not in numeric_columns(dataset) for n in names)
+    ):
+        raise ValueError("Choose up to 16 distinct numeric relationship columns")
     table = dataset.table
     indices = sample_indices(table.height, CORRELATION_ROW_LIMIT)
     columns = {
@@ -126,7 +133,7 @@ def prepare_correlations(
         .gather(indices)
         .cast(pl.Float64)
         .to_numpy()
-        for name in numeric_columns(dataset)[:column_limit]
+        for name in names
     }
     results = []
     for x, y in combinations(columns, 2):

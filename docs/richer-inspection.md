@@ -34,3 +34,18 @@ Verification: 15 focused coloring/exploration/selection/plot tests passed;
 Pyrefly zero errors; Ruff lint/format and diff checks passed. The live comparison
 smoke now also exercises a colored raw scatter and table-linked highlight
 (116 frames initially, final layout rerun recorded in command output).
+
+## Step 3 — Relationship heatmap and grid
+
+Explicit ordered numeric features drive a fixed −1…+1 Pearson heatmap with
+undefined cells colored gray and finite-pair tooltips. Heatmap clicks navigate
+to raw axes or profiles. The grid caps features at eight and each pair at 150
+points drawn from the common 10,000-row correlation cohort. Mirrored cells
+reuse coordinates and source IDs; current table positions are mapped correctly.
+Diagonal exact histograms disclose their bin-index axes and link to profiles.
+Heatmap expansion to 16 features does not prepare an oversized grid.
+
+Verification: 13 focused relationship/exploration/all-format workflow tests
+passed; Pyrefly zero errors; Ruff lint/format and diff checks passed. The live
+relationship smoke passed 60 frames, including injected mouse navigation from
+a heatmap cell and linked grid highlights. Final grid screenshot inspected.

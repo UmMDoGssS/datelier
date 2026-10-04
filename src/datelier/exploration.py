@@ -9,11 +9,13 @@ from datelier.plotting import (
     Bars,
     Correlation,
     Scatter,
+    numeric_columns,
     prepare_bars,
     prepare_correlations,
     prepare_scatter,
 )
 from datelier.profiling import Profiles, prepare_profiles
+from datelier.relationships import Relationships, prepare_relationships
 
 
 @dataclass(frozen=True)
@@ -27,6 +29,7 @@ class PlotSettings:
     profile_column: str | None = None
     comparison: DistributionSettings = DistributionSettings()
     color_column: str | None = None
+    relationship_features: tuple[str, ...] = ()
 
     def validate(self) -> None:
         self.comparison.validate()
@@ -52,6 +55,7 @@ class Dashboard:
     scatters: tuple[Scatter, ...]
     bars: tuple[Bars, ...]
     comparison: Comparison | None = None
+    relationships: Relationships | None = None
 
 
 def prepare_dashboard(
@@ -66,7 +70,9 @@ def prepare_dashboard(
         column=settings.profile_column,
     )
     correlations = prepare_correlations(
-        dataset, column_limit=settings.correlation_columns
+        dataset,
+        column_limit=settings.correlation_columns,
+        features=settings.relationship_features,
     )
     ranked = sorted(
         (c for c in correlations if c.value is not None),
@@ -94,6 +100,13 @@ def prepare_dashboard(
         prepare_comparison(dataset, settings.comparison, settings.bins)
         if settings.comparison.columns
         else None,
+        prepare_relationships(
+            dataset,
+            settings.relationship_features
+            or numeric_columns(dataset)[: settings.correlation_columns],
+            correlations,
+            settings.bins,
+        ),
     )
 
 
