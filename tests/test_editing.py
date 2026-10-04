@@ -82,3 +82,28 @@ def test_stale_and_abandoned_edits_cannot_publish(tmp_path: Path, monkeypatch) -
     finally:
         release.set()
         editor.close()
+
+
+def test_preview_preparation_failure_does_not_publish_candidate(
+    tmp_path: Path, monkeypatch
+) -> None:
+    import datelier.editing as editing
+
+    path = tmp_path / "data.csv"
+    path.write_text("v\n2\n1\n")
+    active = prepare_inspection(load_csv(path))
+    editor = DatasetEditor()
+    editor.bind(active)
+    original = editor.pipeline
+
+    def failed(ignored: object) -> None:
+        raise RuntimeError("summary preparation failed")
+
+    monkeypatch.setattr(editing, "prepare_inspection", failed)
+    try:
+        editor.request(Sort(("v",)))
+        assert wait_edit(editor, active) is None
+        assert editor.pipeline is original and editor.inspection is active
+        assert "summary preparation failed" in editor.message
+    finally:
+        editor.close()
