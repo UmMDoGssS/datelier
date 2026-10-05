@@ -33,6 +33,8 @@ class PlotArea:
         numeric_axes: tuple[bool, bool] = (True, True),
         three_d: bool = False,
         minimum_height: float = 170,
+        footer: Callable[[], None] | None = None,
+        footer_height: float = 0,
     ) -> bool:
         if key != self._key:
             self._key = key
@@ -62,13 +64,27 @@ class PlotArea:
                 if imgui.button("Restore"):
                     self.expanded = False
                 shown = self._draw(
-                    draw, numeric_axes, three_d, minimum_height, expanded=True
+                    draw,
+                    numeric_axes,
+                    three_d,
+                    minimum_height,
+                    footer_height,
+                    expanded=True,
                 )
+                if footer is not None:
+                    footer()
             imgui.end()
         else:
             shown = self._draw(
-                draw, numeric_axes, three_d, minimum_height, expanded=False
+                draw,
+                numeric_axes,
+                three_d,
+                minimum_height,
+                footer_height,
+                expanded=False,
             )
+            if footer is not None:
+                footer()
         imgui.pop_id()
         return shown
 
@@ -78,6 +94,7 @@ class PlotArea:
         numeric_axes: tuple[bool, bool],
         three_d: bool,
         minimum_height: float,
+        footer_height: float,
         *,
         expanded: bool,
     ) -> bool:
@@ -125,7 +142,9 @@ class PlotArea:
                 if imgui.button("Auto"):
                     self.height = 0
         available = imgui.get_content_region_avail().y
-        height = max(minimum_height, available - (5 if expanded else 50))
+        height = max(
+            minimum_height, available - (5 if expanded else 50) - footer_height
+        )
         if not expanded and self.height:
             height = max(minimum_height, self.height)
         self.rendered_height = height

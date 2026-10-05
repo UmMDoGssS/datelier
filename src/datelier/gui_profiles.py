@@ -11,6 +11,7 @@ from datelier.exploration import Dashboard, Explorer
 from datelier.gui_axes import AxisControls
 from datelier.gui_distributions import MODES, show_comparison
 from datelier.gui_plot_area import PlotArea
+from datelier.gui_profile_statistics import show_statistics, statistics_height
 from datelier.plotting import Bars
 from datelier.profiling import COUNT_ROW_LIMIT, ColumnProfile, ProfileKind
 
@@ -78,6 +79,13 @@ class ProfileView:
         imgui.text_wrapped(profile_summary(profile, profiles.row_count))
         key = (dashboard.revision, profile.name, self.mode, dashboard.settings)
         shown = False
+        statistics_shown = False
+
+        def footer() -> None:
+            nonlocal statistics_shown
+            statistics_shown = True
+            show_statistics((profile,))
+
         if not profile.counted_rows:
             imgui.text_wrapped(
                 profile.note
@@ -114,6 +122,8 @@ class ProfileView:
                         axes=axes,
                     ),
                     numeric_axes=(False, True) if self.mode in (3, 4) else (True, True),
+                    footer=footer,
+                    footer_height=statistics_height(1),
                 )
             else:
                 imgui.text_wrapped(explorer.distribution.message)
@@ -133,7 +143,11 @@ class ProfileView:
                 else (False, True)
                 if profile.kind == ProfileKind.TEMPORAL
                 else (True, True),
+                footer=footer,
+                footer_height=statistics_height(1),
             )
+        if not statistics_shown:
+            footer()
         if imgui.collapsing_header("Details##profile"):
             imgui.text(f"{profile.kind} · {profile.dtype}")
             if profile.minimum:

@@ -19,7 +19,7 @@ Deliver and verify these coherent steps separately:
 ## Verification gates
 
 - [x] Schema counts and native role override/undo are verified.
-- [ ] Statistics correctness, finite-value handling, and native table layout
+- [x] Statistics correctness, finite-value handling, and native table layout
   below the plot are verified.
 - [ ] Checklist exclusivity, multiple numeric plots/statistics, arbitrary
   numeric selection count, worker revision lifecycle, and view restore pass.
@@ -33,3 +33,12 @@ format pass. The native Titanic Schema check passed in 61 frames, including a
 real role dropdown selection and undo. All five headings fit the default pane;
 shape is `(15, 850)`, `age` has 676 non-null rows and 88 uniques. The source is
 unchanged and no analysis ran. Screenshot: `/tmp/datelier-column-roles.png`.
+
+Statistics evidence: 22 focused profiling, statistics, exploration, and preview
+tests pass, including empty/constant columns, Float64 overflow, literal column
+names, rounded/tied modes, and integer extrema above 2**53. Pyrefly has zero
+errors and Ruff lint/format pass. Native Titanic age Histogram and expanded KDE
+checks, plus sex counts, pass with source preservation. The expanded view keeps
+statistics below the plot; narrow tables scroll horizontally with the column
+name frozen. Mean/std/median/mode for age are 29.5198/14.5622/28/18. Screenshot:
+`/tmp/datelier-profile-statistics.png`.

@@ -21,6 +21,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source", type=Path)
     parser.add_argument("--column", default="category")
+    parser.add_argument("--expand", action="store_true")
     parser.add_argument(
         "--mode",
         choices=("Histogram", "KDE", "ECDF", "Box", "Violin"),
@@ -60,6 +61,7 @@ def main() -> None:
                 "Box",
                 "Violin",
             ].index(args.mode)
+            session.exploration.profile.area.expanded = args.expand
             if not ready:
                 ready = evidence.frames
             if evidence.frames > ready + 25:
@@ -82,6 +84,7 @@ def main() -> None:
                     temporal_ticks=bars.tick_labels,
                     plots_rendered=session.exploration.plot_frames,
                     chart_type=args.mode,
+                    statistics=repr(profile.statistics),
                 )
                 hello_imgui.get_runner_params().app_shall_exit = True
 
