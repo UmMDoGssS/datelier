@@ -70,6 +70,21 @@ def restore_plots(
     comparison = saved.comparison
     controls.standardize, controls.density = comparison.standardize, comparison.density
     controls.bandwidth, controls.seed = comparison.bandwidth, comparison.seed
+    controls.relationship_chart = "Scatter"
+    if saved.category_chart is not None:
+        chart = saved.category_chart
+        if (
+            chart.category in controls.categories
+            and (chart.group is None or chart.group in controls.categories)
+            and (chart.value is None or chart.value in controls.numeric)
+        ):
+            controls.relationship_chart = chart.representation.value
+            (
+                controls.category_column,
+                controls.category_group,
+                controls.category_value,
+            ) = chart.category, chart.group, chart.value
+            controls.top_counts = chart.top
     return controls.settings() != replace(saved, clusters=None)
 
 
@@ -135,6 +150,7 @@ def capture_views(session: GuiSession) -> WorkspaceViews:
         view.scatter_area.height,
         view.relationships.area.height,
         session.plots.color_source,
+        view.categories.area.height,
     )
 
 
@@ -151,7 +167,9 @@ def restore_view_settings(session: GuiSession, saved: WorkspaceViews) -> None:
     assert session.loader.active is not None
     dataset = session.loader.active.dataset
     view = session.exploration
-    view.tab = view.active_tab = saved.tab
+    view.tab = view.active_tab = (
+        "Relationships" if saved.tab == "Scatter" else saved.tab
+    )
     view.comparison_mode, view.relationships.mode = (
         saved.comparison_mode,
         saved.relationship_mode,
@@ -165,6 +183,7 @@ def restore_view_settings(session: GuiSession, saved: WorkspaceViews) -> None:
     view.comparison_area.height = saved.comparison_height
     view.scatter_area.height = saved.scatter_height
     view.relationships.area.height = saved.relationship_height
+    view.categories.area.height = saved.category_height
     view.saved_scatter_index = saved.scatter_index
     session.table.column_start = min(saved.column_start, dataset.table.width - 1)
     session.table.target_row = min(saved.target_row, max(1, dataset.table.height))

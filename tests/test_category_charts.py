@@ -1,0 +1,178 @@
+from dataclasses import replace
+from pathlib import Path
+
+import numpy as np
+import polars as pl
+import pytest
+
+from datelier.category_charts import CategoryRepresentation as Mode
+from datelier.category_charts import CategorySettings, prepare_category_chart
+from datelier.column_roles import ColumnRole
+from datelier.dataset import Dataset, SourceReference
+from datelier.exploration import PlotSettings
+from datelier.gui_plot_controls import PlotControls
+from datelier.gui_workspace_state import restore_plots
+from datelier.operations import Sort, apply_operation
+from datelier.recipe_codec import decode_record, encode
+
+
+def data() -> Dataset:
+    return Dataset.from_source(
+        pl.DataFrame(
+            {
+                "category": ["a", "a", "b", "b", None, "Missing (null)"],
+                "group": ["x", "y", "x", "y", "x", "x"],
+                "value": [1.0, 3.0, 6.0, float("inf"), None, -2.0],
+            }
+        ),
+        SourceReference(Path("unused"), 0, 0),
+    )
+
+
+def test_counts_grouping_missing_and_other_keep_all_rows() -> None:
+    dataset = apply_operation(data(), Sort(("value",), descending=True))
+    chart = prepare_category_chart(dataset, CategorySettings("category", top=1))
+    assert chart.values.tolist() == [[2.0, 4.0]]
+    assert chart.labels == ("a", "Other (remaining values)")
+    assert chart.other_categories == 3
+    assert sum(len(ids) for row in chart.row_ids for ids in row) == 6
+    assert set(i for row in chart.row_ids for ids in row for i in ids) == set(range(6))
+    for g, row in enumerate(chart.first_positions):
+        for c, position in enumerate(row):
+            if chart.counts[g, c]:
+                assert dataset.row_ids[position] in chart.row_ids[g][c]
+    grouped = prepare_category_chart(
+        dataset, CategorySettings("category", Mode.GROUPED, group="group")
+    )
+    assert grouped.values.sum() == 6 and len(grouped.groups) == 2
+    assert len(set(grouped.labels)) == len(grouped.labels)
+    assert not chart.values.flags.writeable and not chart.counts.flags.writeable
+
+
+@pytest.mark.parametrize(
+    "mode,expected", [(Mode.MEAN, 2), (Mode.MEDIAN, 2), (Mode.SUM, 4)]
+)
+def test_numeric_aggregation_excludes_nonfinite_values(
+    mode: Mode, expected: float
+) -> None:
+    chart = prepare_category_chart(
+        data(), CategorySettings("category", mode, value="value")
+    )
+    assert chart.excluded_values == 2 and chart.included_rows == 4
+    assert chart.values[0, chart.labels.index("a")] == expected
+    assert chart.counts.sum() == 4
+    assert chart.values[0, chart.labels.index("Missing (null)")] == -2
+    assert np.isfinite(chart.values).all()
+
+
+def test_role_compatibility_saved_controls_and_unique_text_exclusion() -> None:
+    dataset = data()
+    settings = PlotSettings(
+        category_chart=CategorySettings("category", Mode.MEAN, value="value")
+    )
+    assert decode_record(PlotSettings, encode(settings)) == settings
+    plots = PlotControls()
+    assert not restore_plots(plots, dataset, settings)
+    assert plots.category_settings() == settings.category_chart
+    with pytest.raises(ValueError):
+        prepare_category_chart(dataset, CategorySettings("value"))
+    with pytest.raises(ValueError):
+        CategorySettings("category", Mode.GROUPED, group="category").validate()
+    with pytest.raises(ValueError):
+        CategorySettings("category", Mode.COUNTS, value="value").validate()
+    text = dataset.with_role("category", ColumnRole.TEXT)
+    plots.bind(text)
+    assert "category" not in plots.categories
+    assert restore_plots(plots, text, settings)
+    assert plots.relationship_chart == "Scatter"
+
+
+def test_empty_high_cardinality_and_bounded_bar_selection() -> None:
+    dataset = Dataset.from_source(
+        pl.DataFrame({"category": ["a"] * 20_000}),
+        SourceReference(Path("unused"), 0, 0),
+    )
+    chart = prepare_category_chart(dataset, CategorySettings("category"))
+    assert chart.counts.sum() == 20_000
+    assert len(chart.row_ids[0][0]) == 10_000
+    empty = dataset.with_rows(dataset.table.clear(), dataset.row_ids.clear())
+    assert not prepare_category_chart(empty, CategorySettings("category")).labels
+    wide = Dataset.from_source(
+        pl.DataFrame(
+            {
+                "category": [str(i % 40) for i in range(100_010)],
+                "group": [str(i % 7) for i in range(100_010)],
+            }
+        ),
+        SourceReference(Path("unused"), 0, 0),
+    )
+    grouped = prepare_category_chart(
+        wide, CategorySettings("category", Mode.GROUPED, group="group")
+    )
+    assert grouped.input_rows == grouped.included_rows == 100_000
+    assert grouped.values.shape == (6, 13)
+    assert grouped.values.sum() == 100_000
+    assert grouped.other_categories == 28 and grouped.other_groups == 2
+    assert replace(CategorySettings("category"), top=31)
+    with pytest.raises(ValueError):
+        replace(CategorySettings("category"), top=31).validate()
+
+
+def test_category_recipe_survives_workspace_replay_and_view_restore(
+    tmp_path: Path,
+) -> None:
+    from datelier.importing import load_file
+    from datelier.workspace_restore import restore_workspace
+    from datelier.workspace_types import Workspace, WorkspaceViews
+    from datelier.workspaces import reference_source, save_workspace
+
+    source = tmp_path / "data.csv"
+    source.write_text("group,value\na,1\nb,2\na,3\n")
+    imported = load_file(source)
+    plots = PlotSettings(
+        category_chart=CategorySettings("group", Mode.MEAN, value="value")
+    )
+    workspace = Workspace(
+        reference_source(imported.dataset.source),
+        imported.format,
+        imported.options,
+        plots=plots,
+        views=WorkspaceViews(tab="Relationships", category_height=310),
+    )
+    saved = tmp_path / "charts.datelier"
+    save_workspace(saved, workspace)
+    restored = restore_workspace(saved)
+    assert restored.workspace.plots == plots
+    assert restored.workspace.views.category_height == 310
+    controls = PlotControls()
+    assert not restore_plots(
+        controls, restored.pipeline.current, restored.workspace.plots
+    )
+    assert controls.relationship_chart == Mode.MEAN.value
+
+
+def test_numeric_axes_remain_distinct_after_a_role_change() -> None:
+    dataset = Dataset.from_source(
+        pl.DataFrame({"a": [1, 2, 3], "b": [2, 3, 4], "c": [3, 4, 5], "d": [4, 5, 6]}),
+        SourceReference(Path("unused"), 0, 0),
+    )
+    controls = PlotControls(three_d=True)
+    controls.bind(dataset)
+    controls.bind(dataset.with_role("a", ColumnRole.CATEGORY))
+    assert len(set((controls.x_index, controls.y_index, controls.z_index))) == 3
+    controls.settings().validate()
+
+
+def test_extreme_aggregates_do_not_publish_infinite_bar_values() -> None:
+    dataset = Dataset.from_source(
+        pl.DataFrame({"group": ["a", "a"], "value": [1e308, 1e308]}),
+        SourceReference(Path("unused"), 0, 0),
+    )
+    chart = prepare_category_chart(
+        dataset, CategorySettings("group", Mode.MEAN, value="value")
+    )
+    assert chart.values[0, 0] == pytest.approx(1e308)
+    with pytest.raises(ValueError, match="overflowed"):
+        prepare_category_chart(
+            dataset, CategorySettings("group", Mode.SUM, value="value")
+        )

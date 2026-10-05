@@ -236,7 +236,8 @@ def run_gui(
             explorer.request(edited.dataset, plot_controls.settings())
         completed = analysis.poll(loader.active.dataset if loader.active else None)
         if completed:
-            exploration.tab = "Scatter"
+            exploration.tab = "Relationships"
+            plot_controls.relationship_chart = "Scatter"
         if analysis.sync_colors(plot_controls) and loader.active is not None:
             explorer.request(loader.active.dataset, plot_controls.settings())
         explorer.poll(loader.revision)

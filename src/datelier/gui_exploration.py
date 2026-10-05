@@ -7,6 +7,7 @@ from imgui_bundle import imgui
 from datelier.dataset import Dataset
 from datelier.exploration import Dashboard, Explorer
 from datelier.gui_analysis import AnalysisSession
+from datelier.gui_categories import CategoryView
 from datelier.gui_distributions import MODES, show_comparison
 from datelier.gui_plot_area import PlotArea
 from datelier.gui_plot_controls import PlotControls
@@ -35,6 +36,7 @@ class ExplorationView:
     active_tab: str = "Profiles"
     saved_scatter_index: int | None = None
     _dashboard: Dashboard | None = None
+    categories: CategoryView = field(default_factory=CategoryView)
 
     @property
     def scatter_area(self) -> PlotArea:
@@ -86,6 +88,9 @@ class ExplorationView:
         if dashboard is None:
             imgui.text_wrapped(explorer.message)
             if plots is not None and dataset is not None:
+                if plots.relationship_chart != "Scatter":
+                    self.categories.controls(plots, explorer, dataset)
+                    return
                 if analysis is not None:
                     points = analysis.scatter_controls(dataset, plots)
                     if points is not None:
@@ -98,6 +103,8 @@ class ExplorationView:
         profiles = dashboard.profiles
         imgui.text(f"{profiles.row_count:,} rows · {profiles.total_columns} columns")
         requested_tab, self.tab = self.tab, ""
+        if requested_tab == "Scatter":
+            requested_tab = "Relationships"
         if imgui.begin_tab_bar("Exploration views"):
             for label, callback in (
                 (
@@ -105,8 +112,8 @@ class ExplorationView:
                     lambda dashboard: self.show_profile(explorer, dashboard, dataset),
                 ),
                 (
-                    "Scatter",
-                    lambda dashboard: self.show_scatter_controls(
+                    "Relationships",
+                    lambda dashboard: self.show_relationship_charts(
                         explorer, dashboard, selection, table, plots, dataset, analysis
                     ),
                 ),
@@ -191,8 +198,35 @@ class ExplorationView:
                     plots.numeric.index(y),
                 )
                 self.scatter_index = 0
-                self.tab = "Scatter"
+                self.tab = "Relationships"
+                plots.relationship_chart = "Scatter"
             explorer.request(dataset, plots.settings())
+
+    def show_relationship_charts(
+        self,
+        explorer: Explorer,
+        dashboard: Dashboard,
+        selection: LinkedSelection,
+        table: TableView,
+        plots: PlotControls | None,
+        dataset: Dataset | None,
+        analysis: AnalysisSession | None,
+    ) -> None:
+        if (
+            plots is not None
+            and dataset is not None
+            and self.categories.controls(plots, explorer, dataset)
+        ):
+            chart = dashboard.category_chart
+            if chart is not None and chart.settings == plots.category_settings():
+                if self.categories.show(chart, selection, table):
+                    self.plot_frames += 1
+            else:
+                imgui.text_wrapped(explorer.message)
+            return
+        self.show_scatter_controls(
+            explorer, dashboard, selection, table, plots, dataset, analysis
+        )
 
     def show_scatter_controls(
         self,

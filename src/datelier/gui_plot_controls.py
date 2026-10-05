@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 from imgui_bundle import imgui
 
 from datelier.analysis_types import Algorithm, ClusteringResult
+from datelier.category_charts import CategoryRepresentation, CategorySettings
 from datelier.column_roles import ColumnRole
 from datelier.dataset import Dataset
 from datelier.distributions import DistributionSettings
@@ -40,6 +41,11 @@ class PlotControls:
     three_d: bool = False
     z_index: int = 2
     scatter_dirty: bool = False
+    relationship_chart: str = "Scatter"
+    categories: tuple[str, ...] = ()
+    category_column: str | None = None
+    category_group: str | None = None
+    category_value: str | None = None
 
     def bind(self, dataset: Dataset) -> None:
         self.scatter_dirty = False
@@ -70,6 +76,28 @@ class PlotControls:
             else int(self.color_source == "Column" and bool(self.color_columns))
         )
         self.numeric = feature_columns(dataset)
+        self.categories = dataset.columns_for(ColumnRole.CATEGORY)
+        self.category_column = (
+            self.category_column
+            if self.category_column in self.categories
+            else min(
+                self.categories,
+                key=lambda name: dataset.role(name).distinct or 0,
+            )
+            if self.categories
+            else None
+        )
+        self.category_group = (
+            self.category_group
+            if self.category_group in self.categories
+            and self.category_group != self.category_column
+            else next((n for n in self.categories if n != self.category_column), None)
+        )
+        self.category_value = (
+            self.category_value
+            if self.category_value in self.numeric
+            else next(iter(self.numeric), None)
+        )
         self.relationship_features = (
             list(self.numeric[:6])
             if self.relationship_features is None
@@ -89,6 +117,16 @@ class PlotControls:
             if previous_z in self.numeric
             else max(0, min(2, len(self.numeric) - 1))
         )
+        if len(self.numeric) >= 2 and self.y_index == self.x_index:
+            self.y_index = next(
+                i for i in range(len(self.numeric)) if i != self.x_index
+            )
+        if len(self.numeric) >= 3 and self.z_index in (self.x_index, self.y_index):
+            self.z_index = next(
+                i
+                for i in range(len(self.numeric))
+                if i not in (self.x_index, self.y_index)
+            )
         self.profile_index = (
             self.columns.index(previous_profile) + 1
             if previous_profile in self.columns
@@ -129,6 +167,22 @@ class PlotControls:
             self.numeric[self.z_index]
             if self.three_d and len(self.numeric) >= 3
             else None,
+            self.category_settings(),
+        )
+
+    def category_settings(self) -> CategorySettings | None:
+        if self.relationship_chart == "Scatter" or self.category_column is None:
+            return None
+        mode = CategoryRepresentation(self.relationship_chart)
+        return CategorySettings(
+            self.category_column,
+            mode,
+            self.category_value
+            if mode
+            not in (CategoryRepresentation.COUNTS, CategoryRepresentation.GROUPED)
+            else None,
+            self.category_group if mode == CategoryRepresentation.GROUPED else None,
+            min(30, self.top_counts),
         )
 
     def show(self, explorer: Explorer, dataset: Dataset | None) -> None:

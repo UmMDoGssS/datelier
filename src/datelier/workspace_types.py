@@ -40,9 +40,10 @@ class WorkspaceViews:
     scatter_height: float = 0
     relationship_height: float = 0
     color_source: str | None = None
+    category_height: float = 0
 
     def validate(self) -> None:
-        if self.tab not in ("Profiles", "Scatter", "Correlations"):
+        if self.tab not in ("Profiles", "Scatter", "Relationships", "Correlations"):
             raise ValueError("Unknown exploration view")
         if not 0 <= self.comparison_mode <= 5 or self.relationship_mode not in (0, 1):
             raise ValueError("Unknown comparison or relationship view")
@@ -68,6 +69,7 @@ class WorkspaceViews:
                 self.comparison_height,
                 self.scatter_height,
                 self.relationship_height,
+                self.category_height,
             )
         ):
             raise ValueError(

@@ -22,7 +22,7 @@ coordinates and make pair-grid diagonals configurable. Deliver in three steps:
 - [x] Role inference, reversible overrides, workspace replay, and native Schema
   selection pass. ID heuristics are deliberately conservative; inspect the role
   and override Numeric for an ID-like feature or Identifier for an unnamed ID.
-- [ ] Categorical chart preparation and native conditional controls pass,
+- [x] Categorical chart preparation and native conditional controls pass,
   including missing values, numeric finite-value exclusion, bounded categories,
   aggregation, and workspace restore.
 - [ ] Pair-grid representation preparation, native rendering and saved settings
@@ -40,3 +40,14 @@ existing dependency stub suppression remains); Ruff lint and format passed.
 `scripts/column_roles_smoke.py` clicked the native passenger ID role dropdown,
 selected Numeric and undid it in 61 frames. Feature choices updated, no ML ran,
 and the Titanic source SHA-256 stayed unchanged.
+
+Step 2 evidence: 60 focused tests passed, including category aggregates, bounded
+selection, missing/Other groups, extreme numeric means and workspace replay.
+Pyrefly and Ruff lint/format passed. The native Titanic category smoke clicked
+Count bars, selected 551 male source rows, rendered mean survival by sex and
+grouped embarkation counts with the missing group, and verified exclusive
+controls in 120 frames. The numeric scatter/PCA smoke passed in 149 frames.
+Grouped legends sit above bars; category/value controls share a row. All runs
+preserved the source; category charts launched no ML. Legacy Scatter recipes
+open Relationships. Category counts use at most 100,000 input rows, 30 visible
+categories plus Other, five groups plus Other, and 10,000 selected IDs per bar.

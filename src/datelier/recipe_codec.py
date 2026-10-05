@@ -19,6 +19,7 @@ from datelier.analysis_types import (
     TSNEParameters,
     UMAPParameters,
 )
+from datelier.category_charts import CategorySettings
 from datelier.distributions import DistributionSettings
 from datelier.exploration import PlotSettings
 from datelier.import_types import CsvOptions, JsonOptions, ParquetOptions, XmlOptions
@@ -58,6 +59,7 @@ RECORDS = (
     KMeansParameters,
     PlotSettings,
     DistributionSettings,
+    CategorySettings,
 )
 
 

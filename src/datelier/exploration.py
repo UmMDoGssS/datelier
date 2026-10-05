@@ -4,6 +4,11 @@ from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import dataclass, field
 
 from datelier.analysis_types import ClusteringResult
+from datelier.category_charts import (
+    CategoryChart,
+    CategorySettings,
+    prepare_category_chart,
+)
 from datelier.dataset import Dataset, DatasetRevision
 from datelier.distribution_preview import DistributionPreview
 from datelier.distributions import Comparison, DistributionSettings, prepare_comparison
@@ -34,9 +39,12 @@ class PlotSettings:
     relationship_features: tuple[str, ...] = ()
     clusters: ClusteringResult | None = field(default=None, compare=False, repr=False)
     scatter_z: str | None = None
+    category_chart: CategorySettings | None = None
 
     def validate(self) -> None:
         self.comparison.validate()
+        if self.category_chart is not None:
+            self.category_chart.validate()
         if not (
             1 <= self.profile_columns <= 128
             and 1 <= self.bins <= 100
@@ -60,6 +68,7 @@ class Dashboard:
     bars: tuple[Bars, ...]
     comparison: Comparison | None = None
     relationships: Relationships | None = None
+    category_chart: CategoryChart | None = None
 
 
 def prepare_dashboard(
@@ -118,6 +127,9 @@ def prepare_dashboard(
             correlations,
             settings.bins,
         ),
+        prepare_category_chart(dataset, settings.category_chart)
+        if settings.category_chart is not None
+        else None,
     )
 
 
