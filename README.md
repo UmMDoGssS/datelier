@@ -170,7 +170,7 @@ camera position last for the session. See [Phase 6 evidence](docs/phase-6.md).
 
 The **Explore** panel automatically prepares numeric, categorical, and temporal
 profiles after import and successful edits. Choose **Profiles**, **Relationships**,
-or **Correlations**. Schema shows `Shape: (cols, rows)` above **Column**, **Non
+or **Correlations**. Schema shows `Shape: (rows, cols)` above **Column**, **Non
 nulls**, **Uniques**, **Type**, and **Interpretation**. Non-null and unique counts
 exclude nulls; NaNs and infinities remain non-null values. Interpretation allows
 reversible overrides of inferred column roles.

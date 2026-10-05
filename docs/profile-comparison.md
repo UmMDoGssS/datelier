@@ -5,7 +5,7 @@ checklist allowing one categorical column or any number of numeric columns.
 Deliver and verify these coherent steps separately:
 
 1. Schema shows `Column`, `Non nulls`, `Uniques`, `Type`, and `Interpretation`,
-   with `Shape: (cols, rows)` above. Non-null and unique counts exclude nulls;
+   with `Shape: (rows, cols)` above. Non-null and unique counts exclude nulls;
    NaNs and infinities are still non-null values. Role overrides remain usable.
 2. Prepare numeric statistics in workers and display a table below the plot.
    Moments and quantiles use finite values, standard deviation uses ddof=1,

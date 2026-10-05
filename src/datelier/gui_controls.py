@@ -201,7 +201,7 @@ def show_schema(loader: DatasetLoader, editor: DatasetEditor) -> None:
         return
     dataset = inspection.dataset
     schema = dataset.table.schema
-    imgui.text(f"Shape: ({len(inspection.schema):,}, {inspection.row_count:,})")
+    imgui.text(f"Shape: ({inspection.row_count:,}, {len(inspection.schema):,})")
     flags = (
         imgui.TableFlags_.borders
         | imgui.TableFlags_.scroll_y
