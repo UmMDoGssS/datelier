@@ -144,3 +144,49 @@ M9.1 passes. Step commits are `c0d0fbe` (file/shared ownership), `ec76f42` (tabs
 and the closure/evidence commit accompanying this section. M9.2 is next; the
 Open dataset and Workspace panels remain until its editor-controls replacement.
 Whole-session workspace restoration and cross-file profiles remain M9.3/M9.4.
+
+## Step 4 / M9.2 in progress — Welcome and file opening
+
+Blank tabs render Welcome with Open Files, Open Folder and a path/retry action.
+An ImGui modal picker renders virtualized directory metadata prepared in shared
+workers; folder listing and symlink/path resolution never run in frame callbacks.
+Selections can span folders; Open Folder can open all supported immediate files.
+The picker currently lists the existing tabular formats; direct media collections
+remain M10.4. Directory navigation/failures have parent/retry controls.
+
+Open requests are bound to their originating tab. Multiple chosen paths reuse
+its blank tab and create independent additional tabs. Canonical paths deduplicate
+choices, including symlink aliases, and focus already-open sources without
+reimporting or resetting their state. A failed import has its own Welcome/error
+state and can retry with explicit import options. Closing the origin abandons
+path resolution and closes its picker without routing results to a replacement.
+
+Verification on 2026-10-06: **18 focused tests** pass across opening/catalog,
+file/editor ownership, shared workers and CLI behavior. Fixtures include malformed
+CSV, retry delimiter options, symlink/duplicate choices, unsupported files,
+missing folders, newer directory listings, and closing an executing resolution.
+Batch Pyrefly zero errors; Ruff lint/format and diff whitespace checks pass.
+Native `scripts/welcome_smoke.py` passes **126 frames / 101 Welcome frames**: startup
+and New Tab, multi-checkbox selection, supported folder listing/open-all, duplicate
+focus with unchanged revisions, unchanged source bytes and zero implicit ML.
+Input uses ImGui synthetic button/position/delta state before rendering.
+
+The smoke's `--capture welcome` and `--capture picker` modes produce visual
+artifacts without claiming the multi-open gates: 12/28 frames respectively.
+[Startup Welcome](evidence/phase9/welcome.png),
+[file picker](evidence/phase9/file-picker.png), and
+[opened files](evidence/phase9/welcome-files.png) were visually inspected.
+The picker displays the two tabular fixtures, excludes the text fixture, and
+shows independent selection/open/cancel controls; the opened train tab displays
+its own rows/schema/profile beside the test tab.
+
+Commands retain the temporary uv cache setting and Mesa/Linux native invocation
+from earlier steps. Focused command: `pytest tests/test_opening.py
+tests/test_editor_sessions.py tests/test_file_sessions.py tests/test_shared_jobs.py
+tests/test_cli.py`. Native command: `LIBGL_ALWAYS_SOFTWARE=1 POLARS_MAX_THREADS=8
+uv run --offline scripts/welcome_smoke.py`; capture modes add `--capture welcome`
+or `--capture picker` and `--output /tmp/<name>.ppm`.
+
+M9.2 remains open: recent files/workspaces and contextual import/workspace menu
+actions must replace the old Open dataset/Workspace panels. Its full suite and
+layout/menu/recent-source recovery acceptance remain to be recorded.

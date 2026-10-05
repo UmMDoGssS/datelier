@@ -13,6 +13,7 @@ from datelier.gui.editor_session import EditorSession
 from datelier.gui.file_session import FileSession
 from datelier.gui.layout import configure_layout
 from datelier.gui.tabs import EditorTabs
+from datelier.gui.welcome import Welcome
 from datelier.io.loading import DatasetLoader, LoadPhase
 from datelier.workspace.preferences import preference_path
 
@@ -29,6 +30,9 @@ class InspectionEvidence:
     table_dock_id: int = 0
     schema_dock_id: int = 0
     frame_intervals_ms: list[float] = field(default_factory=list)
+    welcome_frames: int = 0
+    welcome_open_files_pixel: tuple[float, float] = (0, 0)
+    welcome_open_folder_pixel: tuple[float, float] = (0, 0)
 
 
 def run_gui(
@@ -54,6 +58,7 @@ def run_gui(
     )
     preferences = editor.preferences
     tabs = EditorTabs()
+    welcome = Welcome()
     evidence = InspectionEvidence()
     params = hello_imgui.RunnerParams()
     params.app_window_params.window_title = "Datelier — data inspection"
@@ -66,6 +71,12 @@ def run_gui(
 
     def show_table(session: FileSession) -> None:
         evidence.table_dock_id = imgui.get_window_dock_id()
+        if session.loader.active is None:
+            welcome.show(editor, session)
+            evidence.welcome_frames += 1
+            evidence.welcome_open_files_pixel = welcome.open_files_pixel
+            evidence.welcome_open_folder_pixel = welcome.open_folder_pixel
+            return
         session.table.show(session.loader.active, session.pages, session.selection)
         evidence.max_rendered_rows = max(
             evidence.max_rendered_rows, session.table.rendered_rows
@@ -182,6 +193,9 @@ def run_gui(
         previous_frame = now
         evidence.frames += 1
         editor.poll()
+        paths = editor.browser.show()
+        if paths is not None and editor.browser.owner is not None:
+            editor.opening.request(paths, editor.browser.owner)
         session = editor.active
         if session.loader.status.phase == LoadPhase.LOADING:
             evidence.loading_frames += 1

@@ -646,7 +646,7 @@ next outstanding milestone.
 ### M9.2 — Welcome, recent sources, and file opening
 
 - [ ] **Deliverables:** Welcome on startup and blank tabs, recent files/workspaces, Open Files/Open Folder with multi-file selection; contextual import settings and menu workspace actions replacing Open dataset and Workspace panels.
-- [ ] **Entry gate:** M9.1 passes; file opening targets a specific session and failures cannot replace another tab's source.
+- [x] **Entry gate:** M9.1 passes; file opening targets a specific session and failures cannot replace another tab's source.
 - [ ] **Exit gate:** startup/New Tab show Welcome; multiple chosen files open independent tabs; Open Folder lists supported tabular files, with media collections added in M10.4; reopening a source focuses it; recent missing sources and failed imports offer actionable recovery; import options and workspace actions remain accessible.
 - [ ] **Verification evidence:** recent-source persistence/failure fixtures, multi-open and duplicate-open tests, native welcome/file-picker/menu workflows and layout reset/recovery checks.
 - [ ] **Suggested step commits:** `feat: open files from welcome tabs` → `feat: remember recent files and workspaces` → `refactor: move import and workspace actions into editor controls`.
