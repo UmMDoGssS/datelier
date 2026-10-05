@@ -6,8 +6,8 @@ import numpy as np
 import polars as pl
 import pytest
 
-from datelier.analysis_jobs import AnalysisJobs
-from datelier.analysis_types import (
+from datelier.analysis.jobs import AnalysisJobs
+from datelier.analysis.types import (
     AnalysisRequest,
     EmbeddingResult,
     PreparedInput,
@@ -114,7 +114,7 @@ def test_preparation_and_worker_errors_are_visible() -> None:
 
 
 def test_actual_tsne_cancellation_has_no_publication() -> None:
-    from datelier.analysis_types import TSNEParameters
+    from datelier.analysis.types import TSNEParameters
 
     data = dataset()
     jobs = AnalysisJobs()

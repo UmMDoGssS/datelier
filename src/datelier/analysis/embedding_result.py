@@ -3,8 +3,8 @@
 import numpy as np
 from numpy.typing import NDArray
 
-from datelier.analysis_provenance import make_provenance
-from datelier.analysis_types import EmbeddingResult, PreparedInput
+from datelier.analysis.provenance import make_provenance
+from datelier.analysis.types import EmbeddingResult, PreparedInput
 
 
 def embedding_result(

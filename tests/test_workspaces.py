@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from datelier.analysis_types import (
+from datelier.analysis.types import (
     AnalysisRequest,
     KMeansParameters,
     PCAParameters,

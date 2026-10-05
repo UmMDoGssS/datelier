@@ -3,8 +3,8 @@
 from dataclasses import dataclass, field
 from typing import ClassVar
 
-from datelier.analysis_algorithm import Algorithm
-from datelier.parameter_fields import choice, setting
+from datelier.analysis.algorithm import Algorithm
+from datelier.analysis.parameter_fields import choice, setting
 
 
 @dataclass(frozen=True)

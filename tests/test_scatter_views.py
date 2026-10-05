@@ -3,7 +3,7 @@ from pathlib import Path
 import polars as pl
 import pytest
 
-from datelier.analysis_types import Algorithm
+from datelier.analysis.types import Algorithm
 from datelier.core.dataset import Dataset, SourceReference
 from datelier.gui_analysis import AnalysisSession
 from datelier.gui_plot_controls import PlotControls

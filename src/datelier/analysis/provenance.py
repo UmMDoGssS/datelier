@@ -3,7 +3,7 @@
 from importlib.metadata import version
 from time import perf_counter
 
-from datelier.analysis_types import PreparedInput, Provenance
+from datelier.analysis.types import PreparedInput, Provenance
 
 
 def make_provenance(

@@ -12,7 +12,7 @@ import numpy as np
 from imgui_bundle import hello_imgui
 from numpy.typing import NDArray
 
-from datelier.analysis_types import Algorithm, ClusteringResult
+from datelier.analysis.types import Algorithm, ClusteringResult
 from datelier.feasibility.fixtures import make_table
 from datelier.gui import GuiSession, InspectionEvidence, run_gui
 

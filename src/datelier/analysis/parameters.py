@@ -4,13 +4,13 @@ import math
 from dataclasses import dataclass, field, fields
 from typing import ClassVar, cast
 
-from datelier.analysis_algorithm import Algorithm
-from datelier.embedding_parameters import (
+from datelier.analysis.algorithm import Algorithm
+from datelier.analysis.embedding_parameters import (
     EMBEDDING_DEFAULTS,
     EMBEDDING_LIMITS,
     EmbeddingParameters,
 )
-from datelier.parameter_fields import choice, setting
+from datelier.analysis.parameter_fields import choice, setting
 
 
 @dataclass(frozen=True)

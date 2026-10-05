@@ -3,10 +3,10 @@ from pathlib import Path
 import numpy as np
 import polars as pl
 
-from datelier.analysis import run_analysis
-from datelier.analysis_input import prepare_input
-from datelier.analysis_plots import prepare_embedding_plot
-from datelier.analysis_types import AnalysisRequest, EmbeddingResult, PCAParameters
+from datelier.analysis.input import prepare_input
+from datelier.analysis.plots import prepare_embedding_plot
+from datelier.analysis.runner import run_analysis
+from datelier.analysis.types import AnalysisRequest, EmbeddingResult, PCAParameters
 from datelier.core.dataset import Dataset, SourceReference
 
 
@@ -48,8 +48,11 @@ def test_pca_subspace_repeatability_and_linked_plot() -> None:
 
 
 def test_kmeans_fit_sample_and_displayed_prediction_alignment() -> None:
-    from datelier.analysis_types import ClusteringResult, KMeansParameters
-    from datelier.clustering import predict_clusters, prepare_cluster_colors
+    from datelier.analysis.cluster_colors import (
+        predict_clusters,
+        prepare_cluster_colors,
+    )
+    from datelier.analysis.types import ClusteringResult, KMeansParameters
 
     rng = np.random.default_rng(2)
     values = rng.normal(scale=0.15, size=(240, 2)) + np.repeat([0, 10, 20], 80)[:, None]
@@ -88,7 +91,7 @@ def test_kmeans_fit_sample_and_displayed_prediction_alignment() -> None:
 
 
 def test_tsne_finite_dimensions_seed_and_explicit_settings() -> None:
-    from datelier.analysis_types import TSNEParameters
+    from datelier.analysis.types import TSNEParameters
 
     rng = np.random.default_rng(5)
     dataset = Dataset.from_source(
@@ -114,7 +117,7 @@ def test_tsne_finite_dimensions_seed_and_explicit_settings() -> None:
 
 
 def test_umap_finite_dimensions_seed_and_metric() -> None:
-    from datelier.analysis_types import UMAPParameters
+    from datelier.analysis.types import UMAPParameters
 
     rng = np.random.default_rng(9)
     dataset = Dataset.from_source(

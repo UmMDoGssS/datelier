@@ -7,15 +7,15 @@ import numpy as np
 import polars as pl
 import pytest
 
-from datelier.analysis import run_analysis
-from datelier.analysis_input import prepare_input
-from datelier.analysis_types import (
+from datelier.analysis.embedding_parameters import EMBEDDING_DEFAULTS, NMFParameters
+from datelier.analysis.input import prepare_input
+from datelier.analysis.runner import run_analysis
+from datelier.analysis.types import (
     Algorithm,
     AnalysisRequest,
     EmbeddingResult,
     Preprocessing,
 )
-from datelier.embedding_parameters import EMBEDDING_DEFAULTS, NMFParameters
 from datelier.io.importing import load_file
 
 

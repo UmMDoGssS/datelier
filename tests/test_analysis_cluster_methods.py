@@ -8,11 +8,11 @@ import polars as pl
 import pytest
 from sklearn.metrics import adjusted_rand_score
 
-from datelier.analysis import run_analysis
-from datelier.analysis_input import prepare_input
-from datelier.analysis_parameters import EXTRA_DEFAULTS
-from datelier.analysis_types import LIMITS, Algorithm, AnalysisRequest, ClusteringResult
-from datelier.clustering import predict_clusters
+from datelier.analysis.cluster_colors import predict_clusters
+from datelier.analysis.input import prepare_input
+from datelier.analysis.parameters import EXTRA_DEFAULTS
+from datelier.analysis.runner import run_analysis
+from datelier.analysis.types import LIMITS, Algorithm, AnalysisRequest, ClusteringResult
 from datelier.io.importing import load_file
 
 METHODS = [

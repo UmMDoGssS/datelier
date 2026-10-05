@@ -8,14 +8,14 @@ from warnings import catch_warnings
 import numpy as np
 from numpy.typing import NDArray
 
-from datelier.analysis_embedding_result import embedding_result
-from datelier.analysis_types import EmbeddingResult, PreparedInput
-from datelier.embedding_parameters import (
+from datelier.analysis.embedding_parameters import (
     IsomapParameters,
     LLEParameters,
     MDSParameters,
     SpectralEmbeddingParameters,
 )
+from datelier.analysis.embedding_result import embedding_result
+from datelier.analysis.types import EmbeddingResult, PreparedInput
 
 
 def run_manifold(prepared: PreparedInput) -> EmbeddingResult:

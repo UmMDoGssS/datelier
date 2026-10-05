@@ -9,9 +9,9 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from time import perf_counter, sleep
 
-from datelier.analysis_jobs import AnalysisJobs
-from datelier.analysis_parameters import EXTRA_DEFAULTS, DBSCANParameters
-from datelier.analysis_types import (
+from datelier.analysis.jobs import AnalysisJobs
+from datelier.analysis.parameters import EXTRA_DEFAULTS, DBSCANParameters
+from datelier.analysis.types import (
     DEFAULT_LIMITS,
     Algorithm,
     AnalysisRequest,

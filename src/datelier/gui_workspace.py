@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 from imgui_bundle import imgui
 
-from datelier.analysis_types import Algorithm
+from datelier.analysis.types import Algorithm
 from datelier.gui_workspace_state import capture_views
 from datelier.io.loading import LoadPhase
 from datelier.workspace_jobs import WorkspaceJobs

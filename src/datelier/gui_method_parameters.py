@@ -6,8 +6,8 @@ from typing import TYPE_CHECKING, cast
 
 from imgui_bundle import imgui
 
-from datelier.analysis_algorithm import Algorithm
-from datelier.analysis_parameters import EXTRA_LIMITS, ExtraParameters
+from datelier.analysis.algorithm import Algorithm
+from datelier.analysis.parameters import EXTRA_LIMITS, ExtraParameters
 from datelier.gui_fields import combo, field
 
 if TYPE_CHECKING:

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from imgui_bundle import imgui
 
-from datelier.analysis_types import Algorithm
+from datelier.analysis.types import Algorithm
 from datelier.gui_fields import combo, field
 from datelier.gui_method_parameters import show_extra_parameters
 

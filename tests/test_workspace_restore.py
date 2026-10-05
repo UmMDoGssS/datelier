@@ -134,7 +134,7 @@ def test_failed_and_obsolete_jobs_cannot_replace_active_workspace(
 
 
 def test_background_save_captures_recipe_without_ml_results(tmp_path: Path) -> None:
-    from datelier.analysis_types import AnalysisRequest
+    from datelier.analysis.types import AnalysisRequest
     from datelier.inspection.exploration import PlotSettings
     from datelier.workspace_types import WorkspaceViews
 

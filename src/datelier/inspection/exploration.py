@@ -3,7 +3,7 @@
 from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import dataclass, field
 
-from datelier.analysis_types import ClusteringResult
+from datelier.analysis.types import ClusteringResult
 from datelier.core.dataset import Dataset, DatasetRevision
 from datelier.inspection.profile_preview import ProfilePreview
 from datelier.inspection.profiles import Profiles, prepare_profiles

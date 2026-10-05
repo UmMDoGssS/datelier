@@ -3,8 +3,8 @@
 from dataclasses import replace
 from typing import TYPE_CHECKING
 
-from datelier.analysis_parameters import EXTRA_DEFAULTS
-from datelier.analysis_types import (
+from datelier.analysis.parameters import EXTRA_DEFAULTS
+from datelier.analysis.types import (
     KMeansParameters,
     PCAParameters,
     TSNEParameters,

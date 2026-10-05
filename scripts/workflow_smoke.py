@@ -15,7 +15,7 @@ import polars as pl
 from imgui_bundle import hello_imgui
 
 import datelier
-from datelier.analysis_types import Algorithm
+from datelier.analysis.types import Algorithm
 from datelier.gui import GuiSession, InspectionEvidence, run_gui
 from datelier.io.exporting import ExportFormat
 from datelier.pipeline.operations import Comparison, Filter, Sort

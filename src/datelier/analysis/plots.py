@@ -2,8 +2,8 @@
 
 from concurrent.futures import Future, ThreadPoolExecutor
 
-from datelier.analysis_types import ClusteringResult, EmbeddingResult
-from datelier.clustering import prepare_cluster_colors
+from datelier.analysis.cluster_colors import prepare_cluster_colors
+from datelier.analysis.types import ClusteringResult, EmbeddingResult
 from datelier.core.dataset import Dataset, DatasetRevision
 from datelier.plotting.colors import prepare_colors
 from datelier.plotting.data import Scatter, sample_indices

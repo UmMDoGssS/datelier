@@ -7,19 +7,19 @@ from warnings import catch_warnings
 import numpy as np
 from numpy.typing import NDArray
 
-from datelier.analysis_embedding_result import embedding_result
-from datelier.analysis_types import (
+from datelier.analysis.embedding_parameters import (
+    IsomapParameters,
+    LLEParameters,
+    MDSParameters,
+    SpectralEmbeddingParameters,
+)
+from datelier.analysis.embedding_result import embedding_result
+from datelier.analysis.types import (
     AnalysisResult,
     PCAParameters,
     PreparedInput,
     TSNEParameters,
     UMAPParameters,
-)
-from datelier.embedding_parameters import (
-    IsomapParameters,
-    LLEParameters,
-    MDSParameters,
-    SpectralEmbeddingParameters,
 )
 
 
@@ -30,7 +30,7 @@ def run_analysis(prepared: PreparedInput) -> AnalysisResult:
     request = prepared.request
     params = request.parameters
     if request.algorithm.is_clustering:
-        from datelier.analysis_clustering import run_clustering
+        from datelier.analysis.clustering import run_clustering
 
         return run_clustering(prepared)
     if isinstance(params, TSNEParameters):
@@ -101,11 +101,11 @@ def run_analysis(prepared: PreparedInput) -> AnalysisResult:
         params,
         (IsomapParameters, MDSParameters, SpectralEmbeddingParameters, LLEParameters),
     ):
-        from datelier.analysis_manifold import run_manifold
+        from datelier.analysis.manifold import run_manifold
 
         return run_manifold(prepared)
     if not isinstance(params, PCAParameters):
-        from datelier.analysis_linear import run_linear
+        from datelier.analysis.linear import run_linear
 
         return run_linear(prepared)
     # Estimator imports stay inside the owned worker (never GUI import/startup).

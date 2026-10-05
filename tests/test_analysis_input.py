@@ -4,8 +4,8 @@ import numpy as np
 import polars as pl
 import pytest
 
-from datelier.analysis_input import prepare_input
-from datelier.analysis_types import (
+from datelier.analysis.input import prepare_input
+from datelier.analysis.types import (
     AnalysisRequest,
     KMeansParameters,
     Preprocessing,

@@ -7,8 +7,8 @@ from typing import ClassVar
 import numpy as np
 from numpy.typing import NDArray
 
-from datelier.analysis_algorithm import Algorithm as Algorithm
-from datelier.analysis_parameters import (
+from datelier.analysis.algorithm import Algorithm as Algorithm
+from datelier.analysis.parameters import (
     EXTRA_DEFAULT_LIMITS,
     EXTRA_LIMITS,
     ExtraParameters,

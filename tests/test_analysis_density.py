@@ -7,15 +7,15 @@ import numpy as np
 import polars as pl
 import pytest
 
-from datelier.analysis import run_analysis
-from datelier.analysis_input import prepare_input
-from datelier.analysis_parameters import (
+from datelier.analysis.cluster_colors import predict_clusters, prepare_cluster_colors
+from datelier.analysis.input import prepare_input
+from datelier.analysis.parameters import (
     DBSCANParameters,
     HDBSCANParameters,
     OPTICSParameters,
 )
-from datelier.analysis_types import AnalysisRequest, ClusteringResult
-from datelier.clustering import predict_clusters, prepare_cluster_colors
+from datelier.analysis.runner import run_analysis
+from datelier.analysis.types import AnalysisRequest, ClusteringResult
 from datelier.io.importing import load_file
 
 
@@ -90,7 +90,7 @@ def test_density_fits_keep_noise_separate_from_unseen_rows(
 def test_density_rejects_invalid_settings(parameters: object) -> None:
     from typing import cast
 
-    from datelier.analysis_types import Parameters
+    from datelier.analysis.types import Parameters
 
     with pytest.raises(ValueError):
         AnalysisRequest(("x",), cast(Parameters, parameters), row_limit=100).validate()

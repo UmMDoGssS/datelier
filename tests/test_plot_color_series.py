@@ -3,11 +3,11 @@ from pathlib import Path
 import numpy as np
 import polars as pl
 
-from datelier.analysis import run_analysis
-from datelier.analysis_input import prepare_input
-from datelier.analysis_parameters import DBSCANParameters
-from datelier.analysis_types import AnalysisRequest, ClusteringResult
-from datelier.clustering import prepare_cluster_colors
+from datelier.analysis.cluster_colors import prepare_cluster_colors
+from datelier.analysis.input import prepare_input
+from datelier.analysis.parameters import DBSCANParameters
+from datelier.analysis.runner import run_analysis
+from datelier.analysis.types import AnalysisRequest, ClusteringResult
 from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset, SourceReference
 from datelier.plotting.colors import (

@@ -10,9 +10,9 @@ from time import perf_counter
 import numpy as np
 from numpy.typing import NDArray
 
-from datelier.analysis import run_analysis
-from datelier.analysis_input import prepare_input
-from datelier.analysis_types import (
+from datelier.analysis.input import prepare_input
+from datelier.analysis.runner import run_analysis
+from datelier.analysis.types import (
     Algorithm,
     AnalysisRequest,
     AnalysisResult,

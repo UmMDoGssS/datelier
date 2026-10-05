@@ -3,7 +3,18 @@
 import numpy as np
 import polars as pl
 
-from datelier.analysis_parameters import (
+from datelier.analysis.embedding_parameters import (
+    FactorAnalysisParameters,
+    ICAParameters,
+    IsomapParameters,
+    KernelPCAParameters,
+    LLEParameters,
+    MDSParameters,
+    NMFParameters,
+    SpectralEmbeddingParameters,
+    SVDParameters,
+)
+from datelier.analysis.parameters import (
     AgglomerativeParameters,
     BayesianMixtureParameters,
     BirchParameters,
@@ -13,7 +24,7 @@ from datelier.analysis_parameters import (
     OPTICSParameters,
     SpectralClusteringParameters,
 )
-from datelier.analysis_types import (
+from datelier.analysis.types import (
     AnalysisRequest,
     InputSummary,
     KMeansParameters,
@@ -25,17 +36,6 @@ from datelier.analysis_types import (
 )
 from datelier.core.dataset import Dataset
 from datelier.core.sampling import seeded_sample
-from datelier.embedding_parameters import (
-    FactorAnalysisParameters,
-    ICAParameters,
-    IsomapParameters,
-    KernelPCAParameters,
-    LLEParameters,
-    MDSParameters,
-    NMFParameters,
-    SpectralEmbeddingParameters,
-    SVDParameters,
-)
 from datelier.plotting.data import numeric_columns
 
 

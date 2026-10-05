@@ -4,7 +4,7 @@ from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import dataclass, replace
 from pathlib import Path
 
-from datelier.analysis_types import AnalysisRequest
+from datelier.analysis.types import AnalysisRequest
 from datelier.core.dataset import DatasetRevision
 from datelier.inspection.exploration import PlotSettings
 from datelier.io.types import ImportResult

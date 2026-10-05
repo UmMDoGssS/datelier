@@ -406,7 +406,7 @@ update source/test/script imports, monkeypatch targets and source links.
   Pyrefly and Ruff pass.
 - [x] Move inspection and plotting preparation; focused tests, Pyrefly and Ruff
   pass.
-- [ ] Move analysis; spawned publication, cancellation and stale-result checks,
+- [x] Move analysis; spawned publication, cancellation and stale-result checks,
   focused tests, Pyrefly and Ruff pass.
 - [ ] Move workspace persistence/preferences; round-trip and restore/relink
   checks, focused tests, Pyrefly and Ruff pass.
@@ -442,3 +442,11 @@ complete-workflow tests: **100 passed**. Pyrefly zero errors, Ruff lint/format,
 all 19 documents' local links and diff whitespace pass. Non-import ASTs of all
 189 original Python modules remain identical; monkeypatch imports now target
 the relocated modules. Step 2 commit: `a1f2883`; convention commit: `c5e1add`.
+
+Step 4 (2026-10-05): 15 analysis modules grouped under `analysis`, including
+the concrete `runner` and `cluster_colors` modules. `uv run pytest` with
+`test_analysis_*.py`, plot-color-series, exploration-workflow and scatter-view
+tests: **103 passed**, including real spawned workers, cancellation, abrupt
+worker exit/retry and revision invalidation. Pyrefly zero errors, Ruff
+lint/format, local links, non-import AST comparison and diff whitespace pass.
+Step 3 commit: `ff04fb6`.

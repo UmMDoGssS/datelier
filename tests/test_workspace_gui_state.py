@@ -3,7 +3,7 @@
 from dataclasses import replace
 from pathlib import Path
 
-from datelier.analysis_types import (
+from datelier.analysis.types import (
     Algorithm,
     AnalysisRequest,
     Preprocessing,
@@ -203,8 +203,8 @@ def test_unfitted_color_source_is_saved_without_fitted_artifacts() -> None:
 
 
 def test_every_method_recipe_round_trips_through_strict_codec(tmp_path: Path) -> None:
-    from datelier.analysis_parameters import DBSCANParameters
-    from datelier.embedding_parameters import LLEParameters
+    from datelier.analysis.embedding_parameters import LLEParameters
+    from datelier.analysis.parameters import DBSCANParameters
 
     path = tmp_path / "data.csv"
     path.write_text("x,y,z\n1,2,3\n3,4,5\n6,8,9\n")
@@ -234,9 +234,9 @@ def test_every_method_recipe_round_trips_through_strict_codec(tmp_path: Path) ->
 def test_finished_clustering_cannot_override_another_color_source(
     tmp_path: Path,
 ) -> None:
-    from datelier.analysis import run_analysis
-    from datelier.analysis_input import prepare_input
-    from datelier.analysis_types import ClusteringResult, KMeansParameters
+    from datelier.analysis.input import prepare_input
+    from datelier.analysis.runner import run_analysis
+    from datelier.analysis.types import ClusteringResult, KMeansParameters
     from datelier.gui_analysis import AnalysisSession
 
     path = tmp_path / "data.csv"

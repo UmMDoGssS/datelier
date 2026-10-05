@@ -4,9 +4,9 @@ from dataclasses import dataclass, field
 
 from imgui_bundle import hello_imgui, imgui
 
-from datelier.analysis_jobs import AnalysisJobs
-from datelier.analysis_plots import AnalysisPlots
-from datelier.analysis_types import Algorithm, ClusteringResult, EmbeddingResult
+from datelier.analysis.jobs import AnalysisJobs
+from datelier.analysis.plots import AnalysisPlots
+from datelier.analysis.types import Algorithm, ClusteringResult, EmbeddingResult
 from datelier.core.dataset import Dataset
 from datelier.gui_analysis_controls import AnalysisControls
 from datelier.gui_analysis_form import show_inputs, show_parameters

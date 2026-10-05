@@ -8,10 +8,11 @@ import numpy as np
 import polars as pl
 import pytest
 
-from datelier.analysis import run_analysis
-from datelier.analysis_input import prepare_input
-from datelier.analysis_plots import prepare_embedding_plot
-from datelier.analysis_types import (
+from datelier.analysis.cluster_colors import prepare_cluster_colors
+from datelier.analysis.input import prepare_input
+from datelier.analysis.plots import prepare_embedding_plot
+from datelier.analysis.runner import run_analysis
+from datelier.analysis.types import (
     AnalysisRequest,
     ClusteringResult,
     EmbeddingResult,
@@ -21,7 +22,6 @@ from datelier.analysis_types import (
     TSNEParameters,
     UMAPParameters,
 )
-from datelier.clustering import prepare_cluster_colors
 from datelier.inspection.exploration import PlotSettings, prepare_dashboard
 from datelier.inspection.table import prepare_inspection
 from datelier.io.exporting import ExportFormat, export_dataset

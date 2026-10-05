@@ -3,16 +3,16 @@ from pathlib import Path
 import polars as pl
 import pytest
 
-from datelier.analysis import run_analysis
-from datelier.analysis_input import prepare_input
-from datelier.analysis_plots import prepare_embedding_plot
-from datelier.analysis_types import (
+from datelier.analysis.cluster_colors import predict_clusters
+from datelier.analysis.input import prepare_input
+from datelier.analysis.plots import prepare_embedding_plot
+from datelier.analysis.runner import run_analysis
+from datelier.analysis.types import (
     AnalysisRequest,
     ClusteringResult,
     EmbeddingResult,
     KMeansParameters,
 )
-from datelier.clustering import predict_clusters
 from datelier.inspection.exploration import PlotSettings, prepare_dashboard
 from datelier.io.importing import load_file
 from datelier.pipeline.history import Pipeline

@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 from imgui_bundle import hello_imgui, imgui, implot, implot3d
 
-from datelier.analysis_types import Algorithm
+from datelier.analysis.types import Algorithm
 from datelier.gui import GuiSession, InspectionEvidence, run_gui
 
 

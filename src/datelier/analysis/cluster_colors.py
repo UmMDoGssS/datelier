@@ -4,7 +4,7 @@ import numpy as np
 import polars as pl
 from numpy.typing import NDArray
 
-from datelier.analysis_types import ClusteringResult
+from datelier.analysis.types import ClusteringResult
 from datelier.core.dataset import Dataset
 from datelier.plotting.colors import NEUTRAL, PALETTE, PointColors, color_series
 

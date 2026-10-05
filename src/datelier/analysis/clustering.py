@@ -7,7 +7,7 @@ from warnings import catch_warnings
 import numpy as np
 from numpy.typing import NDArray
 
-from datelier.analysis_parameters import (
+from datelier.analysis.parameters import (
     AffinityPropagationParameters,
     AgglomerativeParameters,
     BayesianMixtureParameters,
@@ -20,8 +20,8 @@ from datelier.analysis_parameters import (
     OPTICSParameters,
     SpectralClusteringParameters,
 )
-from datelier.analysis_provenance import make_provenance
-from datelier.analysis_types import (
+from datelier.analysis.provenance import make_provenance
+from datelier.analysis.types import (
     ClusteringResult,
     KMeansFit,
     KMeansParameters,

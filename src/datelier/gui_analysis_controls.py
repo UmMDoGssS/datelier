@@ -4,13 +4,13 @@ from dataclasses import asdict, dataclass, field, replace
 
 from imgui_bundle import imgui
 
-from datelier.analysis_jobs import AnalysisJobs
-from datelier.analysis_parameters import (
+from datelier.analysis.jobs import AnalysisJobs
+from datelier.analysis.parameters import (
     EXTRA_DEFAULT_LIMITS,
     EXTRA_DEFAULTS,
     ExtraParameters,
 )
-from datelier.analysis_types import (
+from datelier.analysis.types import (
     Algorithm,
     AnalysisRequest,
     ClusteringResult,

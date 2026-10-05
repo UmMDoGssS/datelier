@@ -10,8 +10,8 @@ from dataclasses import fields, is_dataclass
 from enum import Enum
 from typing import TypeAliasType, cast, get_args, get_origin, get_type_hints
 
-from datelier.analysis_parameters import EXTRA_DEFAULTS
-from datelier.analysis_types import (
+from datelier.analysis.parameters import EXTRA_DEFAULTS
+from datelier.analysis.types import (
     AnalysisRequest,
     KMeansParameters,
     PCAParameters,

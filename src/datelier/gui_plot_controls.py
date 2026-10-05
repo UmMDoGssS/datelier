@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 
 from imgui_bundle import imgui
 
-from datelier.analysis_types import Algorithm, ClusteringResult
+from datelier.analysis.types import Algorithm, ClusteringResult
 from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset
 from datelier.gui_fields import combo
