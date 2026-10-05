@@ -421,3 +421,38 @@ and editor tests, Pyrefly/Ruff/diff checks, `session_workspace_smoke.py`,
 M9.3 passes. Its coherent steps are `1d4c576` (storage/migration), `8017e50`
 (worker capture/restore/recovery), and the menu/layout acceptance commit
 accompanying this section. M9.4 is the next outstanding gate.
+
+
+## Step 10 / M9.4 foundation — Exact source-bound comparisons
+
+A typed comparison worker prepares explicitly mapped columns from at least two
+files. Numeric inputs share Float64 bin edges, account for every finite value,
+and expose Count or independently normalized density with original-unit numeric
+statistics. Extreme ranges use a common displayed scale and explain it.
+Categorical inputs share pooled-frequency order with deterministic ties, keep
+nulls distinct from literal text, and aggregate remaining categories into Other.
+Counts are exact over each current table; proportions include nulls in the file’s
+row denominator. Physical category families must be compatible; numeric/category,
+text/identifier/temporal, unavailable columns and no-finite-value inputs produce
+clear diagnostics. No automatic feature coercion is added.
+
+Each series carries file ID, table-view ID, dataset revision and column. Shared
+bounded workers prepare only changed comparisons; unaffected prepared objects
+remain usable. Removing a comparison or closing/changing a contributor abandons
+obsolete futures. On-demand bin selection scans only the selected source in a
+worker and returns at most its first 10,000 matching source IDs with total count
+and first display position. It retains no whole-table selection cache and cannot
+publish into a closed or changed source.
+
+Verification on 2026-10-06: **29 focused tests passed in 0.64s** (17 new comparison
+fixtures plus 12 session recipe fixtures). Coverage includes unequal-size
+known distributions and density integrals, count scales, independent names,
+null/nonfinite accounting, empty files, constant/extreme/tiny ranges, exact counts
+above the former profile sampling cap, common category order/tail/missing-literal
+distinctions, sorted row identity and selection limits, incompatible types,
+worker-only computation, only-affected invalidation, executing stale preparation
+and closed-source selection. Pyrefly zero errors; Ruff lint/format and diff checks
+pass. This foundation adds no GUI behavior; native comparison and resource gates
+remain open for the next step. Commands use the earlier cache/offline settings:
+`pytest tests/test_cross_file_comparisons.py tests/test_comparison_jobs.py
+ tests/test_session_workspaces.py`, Pyrefly/Ruff and diff checks.

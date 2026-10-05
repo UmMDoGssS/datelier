@@ -663,7 +663,7 @@ the next outstanding milestone.
 ### M9.4 — Cross-file profile comparison
 
 - [ ] **Deliverables:** dockable comparison view with explicit field mappings, numeric distribution overlays, categorical counts and adjacent statistics; shared bins/category ordering, source labels/colors, count/density normalization and saved comparison settings.
-- [ ] **Entry gate:** M9.3 passes; prepared profiles and comparisons can identify every contributing file/view/revision.
+- [x] **Entry gate:** M9.3 passes; prepared profiles and comparisons can identify every contributing file/view/revision.
 - [ ] **Exit gate:** unequal-size training/test distributions compare correctly; mismatched names can be mapped; incompatible types show diagnostics; edits invalidate only affected comparison results and linked selections stay in their originating file.
 - [ ] **Verification evidence:** known-distribution and category fixtures, shared-bin/normalization tests, cross-file selection/stale-result tests, native comparison and fresh-process restore, measured multi-file resources.
 - [ ] **Suggested step commits:** `feat: prepare cross-file profile comparisons` → `feat: compare profiles across editor files`.
