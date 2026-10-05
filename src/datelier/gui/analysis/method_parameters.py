@@ -8,10 +8,10 @@ from imgui_bundle import imgui
 
 from datelier.analysis.algorithm import Algorithm
 from datelier.analysis.parameters import EXTRA_LIMITS, ExtraParameters
-from datelier.gui_fields import combo, field
+from datelier.gui.widgets.fields import combo, field
 
 if TYPE_CHECKING:
-    from datelier.gui_analysis_controls import AnalysisControls
+    from datelier.gui.analysis.controls import AnalysisControls
 
 
 def show_extra_parameters(controls: AnalysisControls, algorithm: Algorithm) -> None:

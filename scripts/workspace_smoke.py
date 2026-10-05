@@ -9,7 +9,7 @@ from imgui_bundle import hello_imgui
 from datelier.analysis.embedding_parameters import LLEParameters
 from datelier.analysis.parameters import DBSCANParameters
 from datelier.analysis.types import Algorithm
-from datelier.gui import GuiSession, InspectionEvidence, run_gui
+from datelier.gui.app import GuiSession, InspectionEvidence, run_gui
 from datelier.pipeline.editing import HistoryAction
 from datelier.pipeline.operations import Sort
 

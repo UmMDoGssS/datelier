@@ -7,12 +7,12 @@ from typing import TYPE_CHECKING
 from imgui_bundle import imgui
 
 from datelier.analysis.types import Algorithm
-from datelier.gui_workspace_state import capture_views
+from datelier.gui.workspace.state import capture_views
 from datelier.io.loading import LoadPhase
 from datelier.workspace.jobs import WorkspaceJobs
 
 if TYPE_CHECKING:
-    from datelier.gui import GuiSession
+    from datelier.gui.app import GuiSession
 
 
 @dataclass

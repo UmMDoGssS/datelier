@@ -5,16 +5,16 @@ from dataclasses import dataclass, field
 from imgui_bundle import imgui
 
 from datelier.core.dataset import Dataset
-from datelier.gui_analysis import AnalysisSession
-from datelier.gui_categories import CategoryView
-from datelier.gui_plot_area import PlotArea
-from datelier.gui_plot_controls import PlotControls
-from datelier.gui_profiles import ProfileView
-from datelier.gui_relationships import RelationshipView
-from datelier.gui_scatter import ScatterView
-from datelier.gui_scatter3d import Scatter3DView
-from datelier.gui_selection import ScatterInteraction
-from datelier.gui_table import TableView
+from datelier.gui.analysis.session import AnalysisSession
+from datelier.gui.data.table import TableView
+from datelier.gui.plots.area import PlotArea
+from datelier.gui.plots.categories import CategoryView
+from datelier.gui.plots.controls import PlotControls
+from datelier.gui.plots.relationships import RelationshipView
+from datelier.gui.plots.scatter import ScatterView
+from datelier.gui.plots.scatter3d import Scatter3DView
+from datelier.gui.plots.selection import ScatterInteraction
+from datelier.gui.profiles.view import ProfileView
 from datelier.inspection.exploration import Dashboard, Explorer
 from datelier.plotting.data import Scatter
 from datelier.plotting.selection import LinkedSelection

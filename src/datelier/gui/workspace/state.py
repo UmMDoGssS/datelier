@@ -12,14 +12,14 @@ from datelier.analysis.types import (
 )
 from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset
-from datelier.gui_analysis_controls import AnalysisControls
-from datelier.gui_plot_controls import PlotControls
+from datelier.gui.analysis.controls import AnalysisControls
+from datelier.gui.plots.controls import PlotControls
 from datelier.inspection.exploration import PlotSettings
 from datelier.plotting.categories import CategoryRepresentation
 from datelier.workspace.types import Workspace, WorkspaceViews
 
 if TYPE_CHECKING:
-    from datelier.gui import GuiSession
+    from datelier.gui.app import GuiSession
 
 
 def restore_plots(

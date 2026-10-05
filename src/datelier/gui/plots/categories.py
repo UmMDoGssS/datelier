@@ -6,13 +6,13 @@ import numpy as np
 from imgui_bundle import imgui, implot
 
 from datelier.core.dataset import Dataset
-from datelier.gui_axes import AxisControls
-from datelier.gui_category_distributions import draw_category_distributions
-from datelier.gui_fields import combo
-from datelier.gui_plot_area import PlotArea
-from datelier.gui_plot_controls import PlotControls
-from datelier.gui_scatter_items import legend_hovered
-from datelier.gui_table import TableView
+from datelier.gui.data.table import TableView
+from datelier.gui.plots.area import PlotArea
+from datelier.gui.plots.axes import AxisControls
+from datelier.gui.plots.category_distributions import draw_category_distributions
+from datelier.gui.plots.controls import PlotControls
+from datelier.gui.plots.scatter_items import legend_hovered
+from datelier.gui.widgets.fields import combo
 from datelier.inspection.exploration import Explorer
 from datelier.plotting.categories import CategoryChart, CategoryRepresentation
 from datelier.plotting.selection import LinkedSelection

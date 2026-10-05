@@ -5,7 +5,7 @@ import polars as pl
 import pytest
 
 from datelier.core.dataset import Dataset, SourceReference
-from datelier.gui_plot_controls import PlotControls
+from datelier.gui.plots.controls import PlotControls
 from datelier.inspection.exploration import prepare_dashboard
 from datelier.pipeline.history import Pipeline
 from datelier.pipeline.operations import Comparison, Filter, SelectColumns, Sort

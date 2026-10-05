@@ -2,8 +2,8 @@
 
 from imgui_bundle import imgui, implot
 
-from datelier.gui_distributions import draw_box, draw_curve
-from datelier.gui_profiles import draw_histogram
+from datelier.gui.plots.distributions import draw_box, draw_curve
+from datelier.gui.profiles.view import draw_histogram
 from datelier.plotting.relationships import Relationships
 
 

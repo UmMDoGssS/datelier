@@ -5,11 +5,11 @@ from typing import TYPE_CHECKING
 from imgui_bundle import imgui
 
 from datelier.analysis.types import Algorithm
-from datelier.gui_fields import combo, field
-from datelier.gui_method_parameters import show_extra_parameters
+from datelier.gui.analysis.method_parameters import show_extra_parameters
+from datelier.gui.widgets.fields import combo, field
 
 if TYPE_CHECKING:
-    from datelier.gui_analysis_controls import AnalysisControls
+    from datelier.gui.analysis.controls import AnalysisControls
 
 
 def show_inputs(

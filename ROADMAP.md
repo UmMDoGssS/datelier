@@ -410,16 +410,17 @@ update source/test/script imports, monkeypatch targets and source links.
   focused tests, Pyrefly and Ruff pass.
 - [x] Move workspace persistence/preferences; round-trip and restore/relink
   checks, focused tests, Pyrefly and Ruff pass.
-- [ ] Organize GUI; existing workflow, workspace and scatter Mesa smoke checks
+- [x] Organize GUI; existing workflow, workspace and scatter Mesa smoke checks
   pass alongside focused tests, Pyrefly and Ruff.
-- [ ] Final acceptance: full suite, wheel build, isolated installed CLI/workflow,
+- [x] Final acceptance: full suite, wheel build, isolated installed CLI/workflow,
   stale-import/source-link audit and diff review pass with recorded evidence.
 
 ### Verification evidence
 
 Planning baseline: all 94 non-bootstrap root modules have a subsystem assignment;
 the existing `feasibility` package stays intact. The existing suite collects
-493 tests. Behavioral and installed-package acceptance remain open.
+493 tests. All package-refactor acceptance gates now pass; unrelated
+feature and usability gates retain their existing status.
 
 Step 1 (2026-10-05): convention and refactor sequence reviewed; local Markdown
 links in `AGENTS.md`/`ROADMAP.md` and `git diff --check` pass. No application code
@@ -457,3 +458,61 @@ category-distribution tests: **92 passed**, covering recipe round trips,
 missing/changed sources, relinking, failed/stale background restoration and
 view settings. Pyrefly zero errors, Ruff lint/format, local links, unchanged
 non-import ASTs and diff whitespace pass. Step 4 commit: `87e3376`.
+
+Step 6 and final acceptance (2026-10-05): all 34 GUI modules moved into the
+agreed subpackages. The package root now contains only `__init__.py` bootstrap
+code; all new package initializers contain docstrings only. `uv run pytest` with
+CLI, axis-control, scatter-view/scatter3d, selection, workspace-GUI-state,
+profile-selection and plot-color-series tests: **57 passed**. Full
+`uv run pytest`: **493 passed in 16.29s**. Pyrefly zero errors, Ruff lint/format,
+all 19 Markdown documents' local links, stale-import audit and diff whitespace
+pass. All 100 original application modules retain identical non-import ASTs,
+as do 88 original test/script modules. Dependency metadata is unchanged.
+Step 5 commit: `c5e4711`.
+
+The existing workflow smoke failed its restored-selection assertion against
+both the pre-refactor snapshot `c5e1add` and the reorganized source: it expected
+a saved PCA coordinate source to render without fitting. Its verification setup
+now asserts the saved PCA choice and explicitly switches to raw columns before
+checking linked selection; restore still starts no ML. No application behavior
+changed. The corrected workflow, workspace restore/relink and scatter-controls
+smoke checks all pass with desktop display access and Mesa software OpenGL.
+The sandbox could not open display `:0`; desktop checks ran outside that sandbox.
+The rendered scatter screenshot was visually inspected.
+
+`uv build --offline` builds the source archive and wheel. Wheel inspection finds
+all **114** source Python modules, the unchanged `datelier:main` entry point and
+no bytecode. An empty `/tmp/datelier-refactor-install` environment installs the
+15 locked runtime dependencies and wheel; `uv pip check` validates all 16
+packages, with pytest absent. From `/tmp`, installed imports resolve inside that
+environment, CLI help passes, and default/feasibility CLI windows each render
+20 frames (18 feasibility plot frames). The copied installed workflow passes
+fresh save/reopen processes, explicit PCA/k-means, linked selection, both exports,
+source preservation and no implicit ML on restore. Source save/reopen frame p95
+is 14.37/12.99ms; installed p95 is 13.76/12.69ms, within existing smoke budgets.
+
+[Machine-readable verification](docs/evidence/source-package-refactor.json)
+records workflow/resource results, the baseline smoke correction and wheel hash.
+Reproduction commands, with the uv/Numba caches and thread limits noted above:
+
+```sh
+export UV_CACHE_DIR=/tmp/datelier-uv-cache NUMBA_CACHE_DIR=/tmp/datelier-numba-cache
+export POLARS_MAX_THREADS=8 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1
+uv run --offline --no-sync pytest
+uv run --offline --no-sync pyrefly check
+uv run --offline --no-sync ruff check .
+uv run --offline --no-sync ruff format --check .
+LIBGL_ALWAYS_SOFTWARE=1 uv run --offline --no-sync scripts/workflow_smoke.py --output /tmp/datelier-refactor-workflow.json
+LIBGL_ALWAYS_SOFTWARE=1 uv run --offline --no-sync scripts/workspace_smoke.py
+LIBGL_ALWAYS_SOFTWARE=1 uv run --offline --no-sync scripts/scatter_modes_smoke.py --output /tmp/datelier-refactor-scatter.ppm
+uv build --offline
+UV_PROJECT_ENVIRONMENT=/tmp/datelier-refactor-install uv sync --offline --locked --no-dev --no-install-project
+uv pip install --offline --no-deps --python /tmp/datelier-refactor-install/bin/python dist/datelier-0.1.0-py3-none-any.whl
+uv pip check --python /tmp/datelier-refactor-install/bin/python
+cp scripts/workflow_smoke.py /tmp/datelier-refactor-installed-workflow.py
+cd /tmp
+LIBGL_ALWAYS_SOFTWARE=1 /tmp/datelier-refactor-install/bin/python /tmp/datelier-refactor-installed-workflow.py --output /tmp/datelier-refactor-installed-workflow.json
+/tmp/datelier-refactor-install/bin/datelier --help
+LIBGL_ALWAYS_SOFTWARE=1 /tmp/datelier-refactor-install/bin/datelier --smoke-frames 20
+LIBGL_ALWAYS_SOFTWARE=1 /tmp/datelier-refactor-install/bin/datelier --feasibility --smoke-frames 20
+```

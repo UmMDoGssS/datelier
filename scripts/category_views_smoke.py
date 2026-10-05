@@ -7,7 +7,7 @@ from tempfile import TemporaryDirectory
 
 from imgui_bundle import hello_imgui
 
-from datelier.gui import GuiSession, InspectionEvidence, run_gui
+from datelier.gui.app import GuiSession, InspectionEvidence, run_gui
 from datelier.inspection.exploration import PlotSettings
 from datelier.io.importing import load_file
 from datelier.plotting.categories import CategoryRepresentation as Mode

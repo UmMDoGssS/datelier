@@ -10,7 +10,7 @@ import numpy as np
 from imgui_bundle import hello_imgui
 from numpy.typing import NDArray
 
-from datelier.gui import GuiSession, InspectionEvidence, run_gui
+from datelier.gui.app import GuiSession, InspectionEvidence, run_gui
 from datelier.pipeline.editing import HistoryAction
 from datelier.pipeline.operations import (
     Comparison,

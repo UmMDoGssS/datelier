@@ -9,7 +9,7 @@ from tempfile import TemporaryDirectory
 
 from imgui_bundle import hello_imgui, imgui
 
-from datelier.gui import GuiSession, InspectionEvidence, run_gui
+from datelier.gui.app import GuiSession, InspectionEvidence, run_gui
 from datelier.pipeline.operations import Sort
 from datelier.workspace.preferences import Theme, read_preferences
 

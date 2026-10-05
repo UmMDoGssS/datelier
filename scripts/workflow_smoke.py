@@ -16,7 +16,7 @@ from imgui_bundle import hello_imgui
 
 import datelier
 from datelier.analysis.types import Algorithm
-from datelier.gui import GuiSession, InspectionEvidence, run_gui
+from datelier.gui.app import GuiSession, InspectionEvidence, run_gui
 from datelier.io.exporting import ExportFormat
 from datelier.pipeline.operations import Comparison, Filter, Sort
 from datelier.pipeline.types import DerivedColumn
@@ -55,6 +55,9 @@ def worker(root: Path, restoring: bool) -> None:
                 assert session.plots.bins == 7
                 assert session.editor.pipeline is not None
                 assert session.editor.pipeline.cursor == 3
+                assert analysis.source == Algorithm.PCA
+                # Reopened embeddings are intentionally unfitted; inspect raw columns.
+                analysis.source = None
                 session.exploration.tab = "Scatter"
                 session.selection.choose(dataset.revision, (47,))
                 session.exporter.request(dataset, root / "result.csv", ExportFormat.CSV)

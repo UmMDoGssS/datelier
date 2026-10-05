@@ -5,9 +5,9 @@ import pytest
 
 from datelier.analysis.types import Algorithm
 from datelier.core.dataset import Dataset, SourceReference
-from datelier.gui_analysis import AnalysisSession
-from datelier.gui_plot_controls import PlotControls
-from datelier.gui_workspace_state import restore_plots
+from datelier.gui.analysis.session import AnalysisSession
+from datelier.gui.plots.controls import PlotControls
+from datelier.gui.workspace.state import restore_plots
 from datelier.inspection.exploration import PlotSettings
 from datelier.workspace.codec import decode_record, encode
 from datelier.workspace.types import WorkspaceViews

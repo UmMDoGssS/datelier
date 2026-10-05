@@ -2,10 +2,10 @@
 
 from imgui_bundle import imgui, implot
 
-from datelier.gui_axes import AxisControls
-from datelier.gui_distributions import draw_box
-from datelier.gui_profile_colors import profile_color
-from datelier.gui_table import TableView
+from datelier.gui.data.table import TableView
+from datelier.gui.plots.axes import AxisControls
+from datelier.gui.plots.distributions import draw_box
+from datelier.gui.profiles.colors import profile_color
 from datelier.plotting.categories import CategoryChart, CategoryRepresentation
 from datelier.plotting.selection import LinkedSelection
 

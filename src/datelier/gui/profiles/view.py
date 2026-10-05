@@ -7,12 +7,12 @@ from imgui_bundle import imgui, implot
 
 from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset
-from datelier.gui_axes import AxisControls
-from datelier.gui_distributions import MODES, show_comparison
-from datelier.gui_plot_area import PlotArea
-from datelier.gui_profile_colors import profile_color
-from datelier.gui_profile_selector import show_selector
-from datelier.gui_profile_statistics import show_statistics, statistics_height
+from datelier.gui.plots.area import PlotArea
+from datelier.gui.plots.axes import AxisControls
+from datelier.gui.plots.distributions import MODES, show_comparison
+from datelier.gui.profiles.colors import profile_color
+from datelier.gui.profiles.selector import show_selector
+from datelier.gui.profiles.statistics import show_statistics, statistics_height
 from datelier.inspection.exploration import Dashboard, Explorer
 from datelier.inspection.profile_preview import ProfileRequest
 from datelier.inspection.profile_selection import ProfileSelection

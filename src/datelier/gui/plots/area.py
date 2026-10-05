@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 
 from imgui_bundle import imgui
 
-from datelier.gui_axes import AxisControls
+from datelier.gui.plots.axes import AxisControls
 
 
 @dataclass

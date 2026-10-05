@@ -5,8 +5,8 @@ from dataclasses import dataclass, field
 
 from imgui_bundle import imgui
 
-from datelier.gui_transforms import TransformControls
-from datelier.gui_values import scalar_input
+from datelier.gui.data.transforms import TransformControls
+from datelier.gui.widgets.values import scalar_input
 from datelier.pipeline.editing import DatasetEditor, HistoryAction
 from datelier.pipeline.expressions import HELP
 from datelier.pipeline.operations import (

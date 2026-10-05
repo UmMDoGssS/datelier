@@ -14,7 +14,7 @@ from numpy.typing import NDArray
 
 from datelier.analysis.types import Algorithm, ClusteringResult
 from datelier.feasibility.fixtures import make_table
-from datelier.gui import GuiSession, InspectionEvidence, run_gui
+from datelier.gui.app import GuiSession, InspectionEvidence, run_gui
 
 
 def main() -> None:

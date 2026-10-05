@@ -5,15 +5,19 @@ from dataclasses import dataclass, field
 from imgui_bundle import imgui, implot
 
 from datelier.core.dataset import Dataset
-from datelier.gui_axes import AxisControls
-from datelier.gui_distributions import MODES
-from datelier.gui_fields import combo
-from datelier.gui_heatmap import HeatmapView
-from datelier.gui_pair_diagonal import diagonal_axes, diagonal_details, draw_diagonal
-from datelier.gui_plot_area import PlotArea
-from datelier.gui_plot_controls import PlotControls
-from datelier.gui_selection import ScatterInteraction
-from datelier.gui_table import TableView
+from datelier.gui.data.table import TableView
+from datelier.gui.plots.area import PlotArea
+from datelier.gui.plots.axes import AxisControls
+from datelier.gui.plots.controls import PlotControls
+from datelier.gui.plots.distributions import MODES
+from datelier.gui.plots.heatmap import HeatmapView
+from datelier.gui.plots.pair_diagonal import (
+    diagonal_axes,
+    diagonal_details,
+    draw_diagonal,
+)
+from datelier.gui.plots.selection import ScatterInteraction
+from datelier.gui.widgets.fields import combo
 from datelier.inspection.exploration import Explorer
 from datelier.plotting.relationships import Relationships
 from datelier.plotting.selection import LinkedSelection

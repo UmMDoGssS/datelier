@@ -9,10 +9,10 @@ from datelier.analysis.types import (
     Preprocessing,
     TSNEParameters,
 )
-from datelier.gui_analysis_controls import AnalysisControls
-from datelier.gui_plot_controls import PlotControls
-from datelier.gui_profiles import profile_summary
-from datelier.gui_workspace_state import restore_analysis, restore_plots
+from datelier.gui.analysis.controls import AnalysisControls
+from datelier.gui.plots.controls import PlotControls
+from datelier.gui.profiles.view import profile_summary
+from datelier.gui.workspace.state import restore_analysis, restore_plots
 from datelier.inspection.exploration import PlotSettings
 from datelier.inspection.profiles import prepare_profiles
 from datelier.io.importing import load_file
@@ -121,7 +121,7 @@ def test_profile_chart_type_recipes_remain_backward_compatible() -> None:
 def test_unfitted_coordinates_survive_polling_without_starting_analysis(
     tmp_path: Path,
 ) -> None:
-    from datelier.gui_analysis import AnalysisSession
+    from datelier.gui.analysis.session import AnalysisSession
 
     source = tmp_path / "data.csv"
     source.write_text("x,y,z\n1,2,3\n3,4,5\n")
@@ -168,7 +168,7 @@ def test_profile_summary_accounts_for_missing_and_nonfinite(tmp_path: Path) -> N
 def test_color_sources_are_exclusive_and_selection_does_not_run_ml(
     tmp_path: Path,
 ) -> None:
-    from datelier.gui_analysis import AnalysisSession
+    from datelier.gui.analysis.session import AnalysisSession
 
     path = tmp_path / "data.csv"
     path.write_text("x,y,group\n1,2,a\n3,4,b\n5,6,a\n")
@@ -237,7 +237,7 @@ def test_finished_clustering_cannot_override_another_color_source(
     from datelier.analysis.input import prepare_input
     from datelier.analysis.runner import run_analysis
     from datelier.analysis.types import ClusteringResult, KMeansParameters
-    from datelier.gui_analysis import AnalysisSession
+    from datelier.gui.analysis.session import AnalysisSession
 
     path = tmp_path / "data.csv"
     path.write_text("x,y,group\n0,1,a\n1,0,a\n9,10,b\n10,9,b\n")
@@ -298,8 +298,8 @@ def test_pending_default_correlations_preserve_saved_pair_grid(
 ) -> None:
     from imgui_bundle import imgui
 
-    from datelier.gui_exploration import ExplorationView
-    from datelier.gui_table import TableView
+    from datelier.gui.data.table import TableView
+    from datelier.gui.exploration import ExplorationView
     from datelier.inspection.exploration import Explorer
     from datelier.plotting.selection import LinkedSelection
 

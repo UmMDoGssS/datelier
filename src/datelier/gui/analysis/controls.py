@@ -22,7 +22,7 @@ from datelier.analysis.types import (
     UMAPParameters,
 )
 from datelier.core.dataset import Dataset
-from datelier.gui_analysis_form import show_inputs, show_parameters
+from datelier.gui.analysis.form import show_inputs, show_parameters
 from datelier.plotting.data import feature_columns
 
 

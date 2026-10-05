@@ -34,7 +34,7 @@ def main() -> None:
         evidence = run_gui(make_table(256), smoke_frames=args.smoke_frames)
         print(f"Rendered {evidence.frames} frames; {evidence.plot_frames} plot frames.")
     else:
-        from datelier.gui import run_gui
+        from datelier.gui.app import run_gui
 
         evidence = run_gui(
             args.dataset,

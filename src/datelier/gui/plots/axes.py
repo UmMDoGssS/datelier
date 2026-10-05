@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 
 from imgui_bundle import imgui, implot
 
-from datelier.gui_fields import combo
+from datelier.gui.widgets.fields import combo
 
 Range = tuple[float, float]
 SCALES = [implot.Scale_.linear, implot.Scale_.sym_log, implot.Scale_.log10]

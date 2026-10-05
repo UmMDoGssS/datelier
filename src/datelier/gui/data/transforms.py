@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from imgui_bundle import imgui
 
 from datelier.core.scalars import Scalar
-from datelier.gui_values import scalar_input
+from datelier.gui.widgets.values import scalar_input
 from datelier.pipeline.editing import DatasetEditor
 from datelier.pipeline.types import (
     CastColumn,

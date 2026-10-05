@@ -6,7 +6,7 @@ from dataclasses import dataclass
 import numpy as np
 from imgui_bundle import imgui, implot
 
-from datelier.gui_axes import AxisControls
+from datelier.gui.plots.axes import AxisControls
 from datelier.plotting.relationships import Relationships
 
 

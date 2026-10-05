@@ -2,7 +2,7 @@
 
 from imgui_bundle import imgui
 
-from datelier.gui_profile_colors import profile_color
+from datelier.gui.profiles.colors import profile_color
 from datelier.inspection.profiles import ColumnProfile, ProfileKind
 
 

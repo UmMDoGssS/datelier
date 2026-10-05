@@ -12,7 +12,7 @@ import polars as pl
 from imgui_bundle import hello_imgui, imgui
 from numpy.typing import NDArray
 
-from datelier.gui import GuiSession, InspectionEvidence, run_gui
+from datelier.gui.app import GuiSession, InspectionEvidence, run_gui
 
 
 def main() -> None:

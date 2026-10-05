@@ -8,17 +8,17 @@ from time import perf_counter
 
 from imgui_bundle import hello_imgui, imgui, immapp
 
-from datelier.gui_analysis import AnalysisSession
-from datelier.gui_controls import ImportControls, show_schema
-from datelier.gui_exploration import ExplorationView
-from datelier.gui_export import ExportControls
-from datelier.gui_layout import configure_layout
-from datelier.gui_operations import OperationControls
-from datelier.gui_plot_controls import PlotControls
-from datelier.gui_preferences import PreferenceControls
-from datelier.gui_table import TableView
-from datelier.gui_workspace import WorkspaceControls
-from datelier.gui_workspace_state import (
+from datelier.gui.analysis.session import AnalysisSession
+from datelier.gui.data.export import ExportControls
+from datelier.gui.data.import_controls import ImportControls, show_schema
+from datelier.gui.data.operations import OperationControls
+from datelier.gui.data.table import TableView
+from datelier.gui.exploration import ExplorationView
+from datelier.gui.layout import configure_layout
+from datelier.gui.plots.controls import PlotControls
+from datelier.gui.workspace.controls import WorkspaceControls
+from datelier.gui.workspace.preferences import PreferenceControls
+from datelier.gui.workspace.state import (
     restore_plots,
     restore_view_settings,
     restore_views,

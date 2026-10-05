@@ -7,7 +7,7 @@ import pytest
 from imgui_bundle import implot3d
 
 from datelier.core.dataset import Dataset, SourceReference
-from datelier.gui_scatter3d import FACE_VIEWS
+from datelier.gui.plots.scatter3d import FACE_VIEWS
 from datelier.plotting.data import prepare_scatter
 from datelier.plotting.projection import projected_nearest, projected_rectangle
 

@@ -223,8 +223,8 @@ summary. Reuse the existing distribution preparation for KDE/ECDF. Display
 ordinary numeric histograms in value space, preserving nonuniform bin widths
 and count/density meaning. Handle constant/all-null columns explicitly.
 
-Primary areas: [profile rendering](../src/datelier/gui_exploration.py),
-[comparison rendering](../src/datelier/gui_distributions.py),
+Primary areas: [profile rendering](../src/datelier/gui/exploration.py),
+[comparison rendering](../src/datelier/gui/plots/distributions.py),
 [prepared bars](../src/datelier/plotting/data.py),
 [profiles](../src/datelier/inspection/profiles.py),
 [distribution preparation](../src/datelier/plotting/distributions.py).
@@ -241,9 +241,9 @@ resize divider, and chart/table focus actions. Keep important controls above
 the chart without forcing them onto one line. Establish minimum readable size
 and a compact fallback rather than drawing clipped charts.
 
-Primary areas: [docking layout](../src/datelier/gui_layout.py),
-[2D scatter](../src/datelier/gui_scatter.py),
-[3D scatter](../src/datelier/gui_scatter3d.py), and distribution/relationship
+Primary areas: [docking layout](../src/datelier/gui/layout.py),
+[2D scatter](../src/datelier/gui/plots/scatter.py),
+[3D scatter](../src/datelier/gui/plots/scatter3d.py), and distribution/relationship
 renderers.
 
 Gate: at all three reviewed sizes, primary controls and full plot axes are
@@ -260,10 +260,10 @@ Use one coordinate-source selector and one color selector; eliminate competing
 raw controls on embedding views. Keep feature selection explicit, preview
 included/excluded rows before fitting, and make errors visible beside Run.
 
-Primary areas: [GUI orchestration](../src/datelier/gui.py),
-[analysis view](../src/datelier/gui_analysis.py),
-[analysis controls](../src/datelier/gui_analysis_controls.py),
-[plot controls](../src/datelier/gui_plot_controls.py), and layout.
+Primary areas: [GUI orchestration](../src/datelier/gui/app.py),
+[analysis view](../src/datelier/gui/analysis/session.py),
+[analysis controls](../src/datelier/gui/analysis/controls.py),
+[plot controls](../src/datelier/gui/plots/controls.py), and layout.
 
 Gate: select the four audited features, run PCA, inspect its result/provenance,
 switch back to raw age/fare, and choose sex/cluster colors within one inspection
@@ -318,9 +318,9 @@ row/cell inspection, graphical column selection/mapping editors, and visible
 selection modes. Provide an inline impact preview for filters and missing-value
 actions before committing a reversible operation.
 
-Primary areas: [table](../src/datelier/gui_table.py),
-[operations](../src/datelier/gui_operations.py),
-[transforms](../src/datelier/gui_transforms.py), and selection rendering.
+Primary areas: [table](../src/datelier/gui/data/table.py),
+[operations](../src/datelier/gui/data/operations.py),
+[transforms](../src/datelier/gui/data/transforms.py), and selection rendering.
 
 Gate: filter to female passengers, undo/redo, inspect an untruncated name, and
 brush points and show the matching rows. Preserve row identity after sorting
@@ -332,9 +332,9 @@ Add Open/Save dialogs and compact toolbar/menu actions; retain typed paths.
 Preserve explicit destination/overwrite choices and source protection. Save
 the new view preferences with the existing referenced-workspace contract.
 
-Primary areas: [import](../src/datelier/gui_controls.py),
-[export](../src/datelier/gui_export.py),
-[workspace](../src/datelier/gui_workspace.py), and GUI menus/preferences.
+Primary areas: [import](../src/datelier/gui/data/import_controls.py),
+[export](../src/datelier/gui/data/export.py),
+[workspace](../src/datelier/gui/workspace/controls.py), and GUI menus/preferences.
 
 Gate: export to a new destination, save/reopen the workspace, and relink a moved
 source. Verify dialog cancellation, failure, and overwrite behavior; restored

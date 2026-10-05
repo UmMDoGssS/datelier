@@ -16,7 +16,7 @@ from numpy.typing import NDArray
 
 from datelier.core.dataset import DatasetRevision
 from datelier.feasibility.fixtures import make_table
-from datelier.gui import GuiSession, InspectionEvidence, run_gui
+from datelier.gui.app import GuiSession, InspectionEvidence, run_gui
 from datelier.io.csv import CsvImport, load_csv
 from datelier.io.loading import DatasetLoader, LoadPhase
 from datelier.io.types import CsvOptions, ImportOptions

@@ -7,8 +7,8 @@ import pytest
 
 from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset, SourceReference
-from datelier.gui_plot_controls import PlotControls
-from datelier.gui_workspace_state import restore_plots
+from datelier.gui.plots.controls import PlotControls
+from datelier.gui.workspace.state import restore_plots
 from datelier.inspection.exploration import PlotSettings
 from datelier.pipeline.operations import Sort, apply_operation
 from datelier.plotting.categories import CategoryRepresentation as Mode

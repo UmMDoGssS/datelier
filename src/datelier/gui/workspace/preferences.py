@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 from imgui_bundle import hello_imgui, imgui
 
-from datelier.gui_workspace_state import capture_views, restore_plots
+from datelier.gui.workspace.state import capture_views, restore_plots
 from datelier.workspace.preferences import (
     Preferences,
     Theme,
@@ -16,7 +16,7 @@ from datelier.workspace.preferences import (
 )
 
 if TYPE_CHECKING:
-    from datelier.gui import GuiSession
+    from datelier.gui.app import GuiSession
 
 
 class PreferenceControls:
