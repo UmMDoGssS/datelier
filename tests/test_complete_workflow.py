@@ -30,9 +30,9 @@ from datelier.pipeline.history import Pipeline
 from datelier.pipeline.operations import Comparison, Filter, Sort
 from datelier.pipeline.types import DerivedColumn
 from datelier.plotting.selection import LinkedSelection
-from datelier.workspace_restore import restore_workspace
-from datelier.workspace_types import Workspace
-from datelier.workspaces import reference_source, save_workspace
+from datelier.workspace.restore import restore_workspace
+from datelier.workspace.storage import reference_source, save_workspace
+from datelier.workspace.types import Workspace
 
 
 def write_source(path: Path) -> None:

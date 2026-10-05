@@ -13,7 +13,7 @@ from datelier.inspection.exploration import PlotSettings
 from datelier.pipeline.operations import Sort, apply_operation
 from datelier.plotting.categories import CategoryRepresentation as Mode
 from datelier.plotting.categories import CategorySettings, prepare_category_chart
-from datelier.recipe_codec import decode_record, encode
+from datelier.workspace.codec import decode_record, encode
 
 
 def data() -> Dataset:
@@ -124,9 +124,9 @@ def test_category_recipe_survives_workspace_replay_and_view_restore(
     mode: Mode,
 ) -> None:
     from datelier.io.importing import load_file
-    from datelier.workspace_restore import restore_workspace
-    from datelier.workspace_types import Workspace, WorkspaceViews
-    from datelier.workspaces import reference_source, save_workspace
+    from datelier.workspace.restore import restore_workspace
+    from datelier.workspace.storage import reference_source, save_workspace
+    from datelier.workspace.types import Workspace, WorkspaceViews
 
     source = tmp_path / "data.csv"
     source.write_text("group,other,value\na,x,1\nb,y,2\na,x,3\n")

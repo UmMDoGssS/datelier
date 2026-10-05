@@ -11,7 +11,7 @@ from datelier.inspection.profiles import ProfileKind, prepare_profiles
 from datelier.pipeline.history import Pipeline
 from datelier.pipeline.operations import OperationFailure, SetColumnRole, Sort
 from datelier.plotting.data import prepare_correlations
-from datelier.recipe_codec import decode_record, encode
+from datelier.workspace.codec import decode_record, encode
 
 
 def data() -> Dataset:
@@ -97,9 +97,9 @@ def test_explicit_categories_and_empty_text_are_not_misclassified() -> None:
 
 def test_role_overrides_survive_workspace_restore(tmp_path: Path) -> None:
     from datelier.io.importing import load_file
-    from datelier.workspace_restore import restore_workspace
-    from datelier.workspace_types import Workspace
-    from datelier.workspaces import reference_source, save_workspace
+    from datelier.workspace.restore import restore_workspace
+    from datelier.workspace.storage import reference_source, save_workspace
+    from datelier.workspace.types import Workspace
 
     path = tmp_path / "source.csv"
     path.write_text("id,group\n1,a\n2,b\n3,a\n")

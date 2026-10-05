@@ -14,7 +14,7 @@ from imgui_bundle import hello_imgui, imgui, implot
 from numpy.typing import NDArray
 
 from datelier.gui import GuiSession, InspectionEvidence, run_gui
-from datelier.preferences import Theme
+from datelier.workspace.preferences import Theme
 
 
 def main() -> None:

@@ -29,7 +29,7 @@ from datelier.io.exporting import DatasetExporter
 from datelier.io.loading import DatasetLoader, LoadPhase, LoadStatus
 from datelier.pipeline.editing import DatasetEditor
 from datelier.plotting.selection import LinkedSelection
-from datelier.preferences import preference_path
+from datelier.workspace.preferences import preference_path
 
 
 @dataclass

@@ -9,8 +9,8 @@ from datelier.gui_analysis import AnalysisSession
 from datelier.gui_plot_controls import PlotControls
 from datelier.gui_workspace_state import restore_plots
 from datelier.inspection.exploration import PlotSettings
-from datelier.recipe_codec import decode_record, encode
-from datelier.workspace_types import WorkspaceViews
+from datelier.workspace.codec import decode_record, encode
+from datelier.workspace.types import WorkspaceViews
 
 
 def data() -> Dataset:

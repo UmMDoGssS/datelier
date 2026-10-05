@@ -3,7 +3,7 @@ import math
 import pytest
 
 from datelier.gui_axes import AxisControls, validate_range
-from datelier.workspace_types import WorkspaceViews
+from datelier.workspace.types import WorkspaceViews
 
 
 @pytest.mark.parametrize("bounds", [(1, 1), (2, 1), (math.nan, 2), (1, math.inf)])

@@ -8,7 +8,7 @@ from datelier.core.dataset import Dataset, SourceReference
 from datelier.pipeline.operations import Sort, apply_operation
 from datelier.plotting.categories import CategoryRepresentation as Mode
 from datelier.plotting.categories import CategorySettings, prepare_category_chart
-from datelier.recipe_codec import decode_record, encode
+from datelier.workspace.codec import decode_record, encode
 
 
 def data(table: pl.DataFrame) -> Dataset:

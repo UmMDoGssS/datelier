@@ -9,7 +9,7 @@ from imgui_bundle import imgui
 from datelier.analysis.types import Algorithm
 from datelier.gui_workspace_state import capture_views
 from datelier.io.loading import LoadPhase
-from datelier.workspace_jobs import WorkspaceJobs
+from datelier.workspace.jobs import WorkspaceJobs
 
 if TYPE_CHECKING:
     from datelier.gui import GuiSession

@@ -8,9 +8,9 @@ from pathlib import Path
 from typing import cast
 
 from datelier.inspection.exploration import PlotSettings
-from datelier.recipe_codec import decode_record, encode
-from datelier.workspace_types import WorkspaceViews
-from datelier.workspaces import MAX_WORKSPACE_BYTES, atomic_write
+from datelier.workspace.codec import decode_record, encode
+from datelier.workspace.storage import MAX_WORKSPACE_BYTES, atomic_write
+from datelier.workspace.types import WorkspaceViews
 
 MAX_LAYOUT_BYTES = 256 * 1024
 

@@ -31,7 +31,7 @@ from datelier.pipeline.types import (
 )
 from datelier.plotting.categories import CategorySettings
 from datelier.plotting.distributions import DistributionSettings
-from datelier.workspace_types import Workspace, WorkspaceSource, WorkspaceViews
+from datelier.workspace.types import Workspace, WorkspaceSource, WorkspaceViews
 
 RECORDS = (
     *(type(p) for p in EXTRA_DEFAULTS.values()),

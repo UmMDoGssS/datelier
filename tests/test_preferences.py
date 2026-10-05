@@ -7,14 +7,14 @@ import pytest
 
 from datelier.inspection.exploration import PlotSettings
 from datelier.plotting.distributions import DistributionSettings
-from datelier.preferences import (
+from datelier.workspace.preferences import (
     Preferences,
     Theme,
     preference_path,
     read_preferences,
     save_preferences,
 )
-from datelier.workspace_types import WorkspaceViews
+from datelier.workspace.types import WorkspaceViews
 
 LAYOUT = (
     "[Window][Table preview]\nPos=0,0\nSize=800,600\n"

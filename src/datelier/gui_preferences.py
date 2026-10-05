@@ -8,7 +8,12 @@ from typing import TYPE_CHECKING
 from imgui_bundle import hello_imgui, imgui
 
 from datelier.gui_workspace_state import capture_views, restore_plots
-from datelier.preferences import Preferences, Theme, read_preferences, save_preferences
+from datelier.workspace.preferences import (
+    Preferences,
+    Theme,
+    read_preferences,
+    save_preferences,
+)
 
 if TYPE_CHECKING:
     from datelier.gui import GuiSession

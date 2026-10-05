@@ -7,8 +7,8 @@ from datelier.inspection.table import Inspection, prepare_inspection
 from datelier.io.importing import load_file
 from datelier.pipeline.history import Pipeline
 from datelier.pipeline.operations import apply_operation
-from datelier.workspace_types import Workspace
-from datelier.workspaces import fingerprint, read_workspace
+from datelier.workspace.storage import fingerprint, read_workspace
+from datelier.workspace.types import Workspace
 
 
 class SourceIssue(ValueError):

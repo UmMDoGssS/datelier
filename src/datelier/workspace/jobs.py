@@ -9,9 +9,9 @@ from datelier.core.dataset import DatasetRevision
 from datelier.inspection.exploration import PlotSettings
 from datelier.io.types import ImportResult
 from datelier.pipeline.history import Pipeline
-from datelier.workspace_restore import RestoredWorkspace, SourceIssue, restore_workspace
-from datelier.workspace_types import Workspace, WorkspaceViews
-from datelier.workspaces import reference_source, save_workspace
+from datelier.workspace.restore import RestoredWorkspace, SourceIssue, restore_workspace
+from datelier.workspace.storage import reference_source, save_workspace
+from datelier.workspace.types import Workspace, WorkspaceViews
 
 
 @dataclass(frozen=True)

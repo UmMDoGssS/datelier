@@ -16,7 +16,7 @@ from datelier.gui_analysis_controls import AnalysisControls
 from datelier.gui_plot_controls import PlotControls
 from datelier.inspection.exploration import PlotSettings
 from datelier.plotting.categories import CategoryRepresentation
-from datelier.workspace_types import Workspace, WorkspaceViews
+from datelier.workspace.types import Workspace, WorkspaceViews
 
 if TYPE_CHECKING:
     from datelier.gui import GuiSession

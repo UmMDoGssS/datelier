@@ -11,7 +11,7 @@ from imgui_bundle import hello_imgui, imgui
 
 from datelier.gui import GuiSession, InspectionEvidence, run_gui
 from datelier.pipeline.operations import Sort
-from datelier.preferences import Theme, read_preferences
+from datelier.workspace.preferences import Theme, read_preferences
 
 
 def main() -> None:

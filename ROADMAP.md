@@ -408,7 +408,7 @@ update source/test/script imports, monkeypatch targets and source links.
   pass.
 - [x] Move analysis; spawned publication, cancellation and stale-result checks,
   focused tests, Pyrefly and Ruff pass.
-- [ ] Move workspace persistence/preferences; round-trip and restore/relink
+- [x] Move workspace persistence/preferences; round-trip and restore/relink
   checks, focused tests, Pyrefly and Ruff pass.
 - [ ] Organize GUI; existing workflow, workspace and scatter Mesa smoke checks
   pass alongside focused tests, Pyrefly and Ruff.
@@ -450,3 +450,10 @@ tests: **103 passed**, including real spawned workers, cancellation, abrupt
 worker exit/retry and revision invalidation. Pyrefly zero errors, Ruff
 lint/format, local links, non-import AST comparison and diff whitespace pass.
 Step 3 commit: `ff04fb6`.
+
+Step 5 (2026-10-05): six modules moved into `workspace`. `uv run pytest` with
+`test_workspace*.py`, preferences, complete-workflow, scatter-view and
+category-distribution tests: **92 passed**, covering recipe round trips,
+missing/changed sources, relinking, failed/stale background restoration and
+view settings. Pyrefly zero errors, Ruff lint/format, local links, unchanged
+non-import ASTs and diff whitespace pass. Step 4 commit: `87e3376`.

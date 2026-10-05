@@ -13,8 +13,8 @@ from datelier.io.importing import load_file
 from datelier.plotting.categories import CategoryRepresentation as Mode
 from datelier.plotting.categories import CategorySettings
 from datelier.plotting.distributions import DistributionSettings
-from datelier.workspace_types import Workspace, WorkspaceViews
-from datelier.workspaces import reference_source, save_workspace
+from datelier.workspace.storage import reference_source, save_workspace
+from datelier.workspace.types import Workspace, WorkspaceViews
 
 
 def check_view(session: GuiSession, mode: Mode, evidence: InspectionEvidence) -> bool:
