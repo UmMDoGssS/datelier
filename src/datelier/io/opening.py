@@ -26,6 +26,7 @@ class OpeningJobs:
         self._executor = JobExecutor(executor, max_workers=1, name="opening")
         self._requests: list[OpeningRequest] = []
         self.message = ""
+        self.generation = 0
 
     @property
     def busy(self) -> bool:
@@ -42,6 +43,7 @@ class OpeningJobs:
     ) -> None:
         if not paths:
             raise ValueError("Choose at least one file")
+        self.generation += 1
         self._requests.append(
             OpeningRequest(
                 owner,
@@ -73,6 +75,12 @@ class OpeningJobs:
                     )
         return tuple(ready)
 
-    def close(self) -> None:
+    def abandon(self) -> None:
+        self.generation += 1
+        for request in self._requests:
+            request.future.cancel()
         self._requests.clear()
+
+    def close(self) -> None:
+        self.abandon()
         self._executor.shutdown(wait=False, cancel_futures=True)

@@ -1,0 +1,31 @@
+{
+  "budgets": {
+    "preview_ms": 2000,
+    "frame_p95_ms": 33,
+    "peak_rss_mib": 1024,
+    "retained_growth_mib": 96,
+    "close_ms": 33,
+    "workers": 4
+  },
+  "rows_per_file": 100000,
+  "numeric_columns": 8,
+  "cycles": 30,
+  "frames": 387,
+  "initial_preview_ms": [
+    124.70082700019702,
+    159.45207999902777
+  ],
+  "max_cycle_preview_ms": 204.41573500283994,
+  "frame_p95_ms": 15.209921018686146,
+  "peak_rss_mib": 460.8359375,
+  "baseline_rss_mib": 433.31640625,
+  "retained_growth_mib": -1.86328125,
+  "max_close_ms": 0.22320199059322476,
+  "workers": 2,
+  "outstanding_jobs": 0,
+  "retained_closed_sessions": 0,
+  "fixture_disk_bytes": 1573727,
+  "source_bytes_unchanged": true,
+  "temporary_directory_removed": true,
+  "worker_threads_after_exit": 0
+}

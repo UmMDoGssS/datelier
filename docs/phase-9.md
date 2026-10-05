@@ -320,3 +320,58 @@ Commands use the earlier cache/offline/Mesa settings. Focused tests:
 native `scripts/workspace_smoke.py`. The session APIs are a verified foundation;
 the editor/menu/CLI still use version-one actions until the next implementation
 step. M9.3 deliverables/exit/fresh-process/full-suite gates remain open.
+
+
+## Step 8 / M9.3 in progress — Shared session jobs and editor publication
+
+The editor now has typed whole-session save/open/recover APIs. Capture creates
+immutable recipes and source references; workers fingerprint sources and perform
+writes/import/replay. Restoring replaces owned file controllers while retaining
+saved IDs/order/active tab, views, settings, history, selections and comparison
+mappings. Welcome and failed-source tabs remain separate. Native tab bookkeeping
+resets to saved order; panel bindings use weak controller references so a newly
+restored controller with the same saved ID restores scroll without retaining a
+closed session. Prepared layout/visibility remains pending for the next menu/CLI
+integration step.
+
+Session and recovery jobs share the bounded application executor. File revisions,
+loader generations, edit state and open-request generations guard publication.
+A closed recovery owner cannot publish into a new Welcome tab; an import begun
+in a still-blank tab invalidates an earlier whole-session restore. Executing
+abandoned work can finish, and explicit requested saves retain prior semantics.
+Repeated successful workspace actions promote recent entries; recovery displays
+its completed outcome. Session snapshots contain no tables or fitted artifacts.
+
+Verification on 2026-10-06: **40 focused tests passed**, covering the new editor
+save/reopen/partial-recovery APIs, worker-only fingerprinting, independent
+histories/seeds/settings and source selections, closed recovery ownership and a
+new import while a blank owner still has no revision, plus existing session,
+file, opening and legacy workspace fixtures. Pyrefly zero errors; Ruff lint/format
+and diff checks pass.
+
+Native `scripts/session_workspace_smoke.py` launches different save/reopen
+processes (PIDs 423223/423334), uses API frame hooks and verifies rendered tab
+order/active tab and the recovered train row selection. Save 15/reopen 26 frames;
+original train/test bytes and zero implicit ML pass. The test source remains
+usable while the train source needs relinking; relinking retains train sort,
+seed 17/bins 7 and test seed 29/bins 13. The
+[restored native tabs/selection](evidence/phase9/session-workspace.png) were
+visually inspected. This smoke does not claim the upcoming menu/CLI/layout gate.
+Native tab regression passes 197 frames; legacy workspace smoke passes 31/44.
+
+The tab-lifecycle benchmark rerun passes the original budgets with the new
+weak bindings/session owner: [report](evidence/phase9/tab-lifecycle-session.json),
+445 frames, previews 118.9/126.5 ms, maximum cycle preview 161.3 ms, frame p95
+11.57 ms, peak RSS 459.25 MiB, retained growth -5.86 MiB, maximum close 0.219 ms,
+two shared workers, zero outstanding jobs/retained closed sessions/worker threads
+after exit. Source bytes and temporary cleanup pass; the fixture and limits are
+those declared in Step 3, not an arbitrary dataset capacity guarantee.
+
+Commands retain the earlier offline/cache/Mesa settings. Focused tests:
+`tests/test_editor_workspaces.py tests/test_session_workspaces.py
+ tests/test_editor_sessions.py tests/test_file_sessions.py tests/test_opening.py
+ tests/test_workspace_restore.py`; Pyrefly/Ruff/diff; new native
+`session_workspace_smoke.py`, existing `editor_tabs_smoke.py`/`workspace_smoke.py`
+and `benchmark_editor_tabs.py`. M9.3 remains open until menu/CLI/recent actions,
+visible per-source recovery and layout restoration use these session APIs and
+pass fresh-process/full-suite acceptance.

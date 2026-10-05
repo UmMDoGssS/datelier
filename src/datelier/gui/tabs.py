@@ -42,6 +42,11 @@ class EditorTabs:
         )
         if not imgui.begin_tab_bar("Editor files", flags):
             return
+        if editor.order_reset:
+            native = imgui.internal.get_current_tab_bar()
+            for identity in tuple(tab.id_ for tab in native.tabs):
+                imgui.internal.tab_bar_remove_tab(native, identity)
+            editor.order_reset = False
         closed: list[str] = []
         native_ids: dict[int, str] = {}
         requested = editor.focus_requested
@@ -76,7 +81,7 @@ class EditorTabs:
         )
         self.native_order = order
         if len(order) == len(editor.files):
-            editor.reorder(order)
+            editor.reorder(order, native=True)
         imgui.end_tab_bar()
         for identity in closed:
             editor.close_tab(identity)

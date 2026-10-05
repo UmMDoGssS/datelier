@@ -59,6 +59,10 @@ class DatasetLoader:
         self._closed = False
 
     @property
+    def generation(self) -> int:
+        return self._number
+
+    @property
     def revision(self) -> DatasetRevision | None:
         return self.active.dataset.revision if self.active else None
 

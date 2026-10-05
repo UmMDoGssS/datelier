@@ -5,10 +5,14 @@ from pathlib import Path
 from datelier.core.jobs import SharedWorkers
 from datelier.gui.file_browser import FileBrowser
 from datelier.gui.file_session import FileSession
+from datelier.gui.workspace.capture import capture_session
 from datelier.gui.workspace.preferences import PreferenceControls
+from datelier.inspection.comparison_settings import ComparisonSettings
 from datelier.io.loading import DatasetLoader, LoadPhase
 from datelier.io.opening import OpeningJobs, OpeningRequest
 from datelier.workspace.recent import RecentKind, RecentSource
+from datelier.workspace.session_jobs import SessionJobs, SessionStamp
+from datelier.workspace.session_restore import RestoredSession, SourceRecovery
 
 
 class EditorSession:
@@ -24,6 +28,12 @@ class EditorSession:
         self.preferences = PreferenceControls(preferences_path, executor=self.workers)
         self.browser = FileBrowser(self.workers, Path.cwd())
         self.opening = OpeningJobs(self.workers)
+        self.workspace_jobs = SessionJobs(self.workers)
+        self.comparisons: tuple[ComparisonSettings, ...] = ()
+        self.order_reset = False
+        self.pending_layout: tuple[str, tuple[str, ...]] | None = None
+        self.workspace_path = ""
+        self._whole_recent_serial = 0
         first = FileSession.create(
             self.preferences,
             executor=self.workers,
@@ -52,7 +62,77 @@ class EditorSession:
                 paths.append(file.loader.status.path)
             if file.workspace.jobs.issue is not None:
                 paths.append(Path(file.workspace.jobs.issue.workspace.source.path))
+            if file.recovery is not None:
+                recipe, draft = file.recovery.file.recipe, file.recovery.file.draft
+                if recipe is not None:
+                    paths.append(Path(recipe.source.path))
+                elif draft is not None:
+                    paths.append(Path(draft.path))
         return tuple(dict.fromkeys(paths))
+
+    @property
+    def stamp(self) -> SessionStamp:
+        return tuple(
+            (
+                file.identity,
+                (file.loader.revision, file.loader.generation, file.editor.busy),
+            )
+            for file in self.files
+        )
+
+    def save_workspace(
+        self,
+        path: Path,
+        *,
+        layout: str = "",
+        hidden: tuple[str, ...] = (),
+        overwrite: bool = False,
+    ) -> None:
+        self.workspace_jobs.request_save(
+            path, capture_session(self, layout, hidden), overwrite=overwrite
+        )
+        self.workspace_path = str(path)
+
+    def open_workspace(self, path: Path) -> None:
+        self.opening.abandon()
+        self.workspace_jobs.request_restore(
+            path, self.stamp, context=self.opening.generation
+        )
+        self.workspace_path = str(path)
+
+    def recover_source(
+        self, identity: str, *, relink: Path | None = None, accept_changed: bool = False
+    ) -> None:
+        file = next(file for file in self.files if file.identity == identity)
+        if file.recovery is None:
+            raise ValueError("This file does not need source recovery")
+        self.workspace_jobs.request_recovery(
+            file.recovery,
+            dict(self.stamp)[identity],
+            SourceRecovery(identity, relink, accept_changed),
+        )
+
+    def _install_session(self, restored: RestoredSession) -> None:
+        self.browser.cancel()
+        self.opening.abandon()
+        for file in self.files:
+            file.close()
+        self._recent_files.clear()
+        self._recent_workspaces.clear()
+        self.files = []
+        for result in restored.files:
+            file = FileSession.create(self.preferences, executor=self.workers)
+            file.identity = result.file.identity
+            file.install_session_file(result)
+            self.files.append(file)
+        self.comparisons = restored.workspace.comparisons
+        self.pending_layout = (
+            restored.workspace.layout,
+            restored.workspace.hidden_windows,
+        )
+        self.activate(restored.workspace.active_id)
+        self.order_reset = True
+        self.workspace_path = str(restored.path)
 
     def open_recent(self, source: RecentSource) -> None:
         if source.source_kind == RecentKind.FILE:
@@ -134,11 +214,13 @@ class EditorSession:
         elif self.active_id == identity:
             self.activate(self.files[min(index, len(self.files) - 1)].identity)
 
-    def reorder(self, identities: tuple[str, ...]) -> None:
+    def reorder(self, identities: tuple[str, ...], *, native: bool = False) -> None:
         current = {file.identity: file for file in self.files}
         if len(identities) != len(current) or set(identities) != set(current):
             raise ValueError("Tab order must include every open file exactly once")
         self.files = [current[identity] for identity in identities]
+        if not native:
+            self.order_reset = True
 
     def poll(self) -> None:
         if self.closed:
@@ -152,6 +234,27 @@ class EditorSession:
                 self._recent_workspaces[file.identity] = path
                 self.preferences.remember(RecentSource(str(path), RecentKind.WORKSPACE))
         self.browser.poll()
+        restored, recovered = self.workspace_jobs.poll(
+            self.stamp, context=self.opening.generation
+        )
+        if restored is not None:
+            self._install_session(restored)
+        for result in recovered:
+            file = next(
+                file for file in self.files if file.identity == result.file.identity
+            )
+            file.install_session_file(result)
+        path = (
+            self.workspace_jobs.saved.path
+            if self.workspace_jobs.saved is not None
+            else self.workspace_jobs.opened
+        )
+        if (
+            path is not None
+            and self.workspace_jobs.completed != self._whole_recent_serial
+        ):
+            self._whole_recent_serial = self.workspace_jobs.completed
+            self.preferences.remember(RecentSource(str(path), RecentKind.WORKSPACE))
         for request, paths in self.opening.poll({file.identity for file in self.files}):
             self._open_resolved(request, paths)
         self.preferences.poll()
@@ -207,5 +310,6 @@ class EditorSession:
             file.close()
         self.browser.close()
         self.opening.close()
+        self.workspace_jobs.close()
         self.preferences.close()
         self.workers.shutdown(wait=True)

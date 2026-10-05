@@ -28,6 +28,8 @@ from datelier.io.loading import DatasetLoader, LoadPhase, LoadStatus
 from datelier.pipeline.editing import DatasetEditor
 from datelier.plotting.selection import LinkedSelection
 from datelier.workspace.jobs import WorkspaceJobs
+from datelier.workspace.restore import RestoredWorkspace
+from datelier.workspace.session_restore import RestoredSessionFile
 
 
 @dataclass
@@ -49,6 +51,7 @@ class FileSession:
     preferences: PreferenceControls  # Borrowed application defaults, never owned.
     identity: str = field(default_factory=lambda: uuid4().hex)
     closed: bool = False
+    recovery: RestoredSessionFile | None = None
     panel_scroll: dict[str, tuple[float, float]] = field(default_factory=dict)
 
     @classmethod
@@ -103,11 +106,34 @@ class FileSession:
         )
         return session
 
+    def install_restored(self, restored: RestoredWorkspace) -> None:
+        self.loader.abandon()
+        self.loader.active = restored.inspection
+        self.loader.status = LoadStatus(
+            LoadPhase.READY, restored.pipeline.source.source.path
+        )
+        self.controls.path = str(restored.pipeline.source.source.path)
+        self.controls.bind_settings(
+            restored.workspace.format, restored.workspace.options
+        )
+        self.editor.bind(restored.inspection)
+        self.editor.pipeline = restored.pipeline
+        self.pages.bind(restored.inspection)
+        self.table.reset()
+        adjusted = restore_views(self, restored.workspace)
+        if adjusted:
+            self.workspace.jobs.message += (
+                " Saved plot settings were adjusted to the current columns and charts."
+            )
+        self.selection.bind(restored.inspection.dataset.revision)
+        self.explorer.request(restored.inspection.dataset, self.plots.settings())
+
     def poll(self) -> None:
         if self.closed:
             return
         if self.loader.poll():
             assert self.loader.active is not None
+            self.recovery = None
             imported = self.loader.active.imported
             self.controls.path = str(imported.dataset.source.path)
             self.controls.bind_settings(imported.format, imported.options)
@@ -126,26 +152,7 @@ class FileSession:
             self.workspace.jobs.abandon()
         restored = self.workspace.jobs.poll(self.loader.revision)
         if restored is not None:
-            self.loader.active = restored.inspection
-            self.loader.status = LoadStatus(
-                LoadPhase.READY, restored.pipeline.source.source.path
-            )
-            self.controls.path = str(restored.pipeline.source.source.path)
-            self.controls.bind_settings(
-                restored.workspace.format, restored.workspace.options
-            )
-            self.editor.bind(restored.inspection)
-            self.editor.pipeline = restored.pipeline
-            self.pages.bind(restored.inspection)
-            self.table.reset()
-            adjusted = restore_views(self, restored.workspace)
-            if adjusted:
-                self.workspace.jobs.message += (
-                    " Saved plot settings were adjusted"
-                    " to the current columns and charts."
-                )
-            self.selection.bind(restored.inspection.dataset.revision)
-            self.explorer.request(restored.inspection.dataset, self.plots.settings())
+            self.install_restored(restored)
         edited = self.editor.poll(self.loader.revision)
         if edited is not None:
             self.loader.active = edited
@@ -168,6 +175,31 @@ class FileSession:
         self.exporter.poll()
         self.pages.poll()
 
+    def install_session_file(self, result: RestoredSessionFile) -> None:
+        self.panel_scroll = {name: (x, y) for name, x, y in result.file.panel_scroll}
+        if result.restored is not None:
+            self.install_restored(result.restored)
+            self.selection.choose(
+                result.restored.inspection.dataset.revision, result.file.selection
+            )
+            if result.message:
+                self.loader.status = LoadStatus(
+                    LoadPhase.READY, self.loader.status.path, result.message
+                )
+            self.recovery = None
+        elif result.message:
+            self.recovery = result
+            recipe, draft = result.file.recipe, result.file.draft
+            if recipe is not None:
+                self.controls.path = recipe.source.path
+                self.controls.bind_settings(recipe.format, recipe.options)
+            elif draft is not None:
+                self.controls.path = draft.path
+                self.controls.bind_settings(draft.format, draft.options)
+            self.loader.status = LoadStatus(
+                LoadPhase.FAILED, Path(self.controls.path), result.message
+            )
+
     def close(self) -> None:
         if self.closed:
             return
@@ -183,3 +215,4 @@ class FileSession:
         self.editor.pipeline = None
         self.editor.inspection = None
         self.panel_scroll.clear()
+        self.recovery = None

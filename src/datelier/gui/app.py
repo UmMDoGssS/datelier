@@ -5,6 +5,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 from time import perf_counter
+from weakref import ReferenceType, ref
 
 from imgui_bundle import hello_imgui, imgui, immapp
 
@@ -113,18 +114,18 @@ def run_gui(
         )
 
     def bind(callback: Callable[[FileSession], None]) -> Callable[[], None]:
-        previous: str | None = None
+        previous: ReferenceType[FileSession] | None = None
 
         def show() -> None:
             nonlocal previous
             session = editor.active
             panel = imgui.internal.get_current_window().name
-            switching = previous != session.identity
+            switching = previous is None or previous() is not session
             if switching:
                 x, y = session.panel_scroll.get(panel, (0, 0))
                 imgui.set_scroll_x(x)
                 imgui.set_scroll_y(y)
-                previous = session.identity
+                previous = ref(session)
             imgui.push_id(session.identity)
             try:
                 callback(session)
