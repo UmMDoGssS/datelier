@@ -133,6 +133,11 @@ Keep both documents aligned when an authorized decision changes direction.
 
 ## Python and tooling conventions
 
+- Prefer grouping related source files into cohesive packages by subsystem.
+  Put new modules in the package that owns their responsibility, and create
+  subpackages when several files form a meaningful group. Keep the package root
+  focused on bootstrap code; avoid unrelated utility folders and redundant
+  filename prefixes.
 - Write idiomatic, typed Python with explicit function return types, useful
   domain types, and narrow interfaces. Use names and small functions to make
   responsibilities clear. Avoid unnecessary frameworks and indirection.

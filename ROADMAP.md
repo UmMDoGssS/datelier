@@ -366,3 +366,61 @@ Both steps are verified: independent scatter choices/heights and fixed component
 counts, nested raw axes, native category/cluster legends and continuous scales,
 visibility-aware linked interactions, saved-view compatibility, full tests and
 native Titanic inspection. Original Titanic usability gates remain separate.
+
+## Authorized source package refactor
+
+Group source files by subsystem, with GUI rendering in a separate package.
+Simplify redundant filename prefixes and update imports directly, without root
+compatibility modules. Preserve behavior, CLI commands, class names, recipe
+identifiers, dependencies and workspace schemas. Tests and smoke scripts retain
+their current folder organization. `datelier:main` remains the CLI entry point;
+package initializers stay minimal and imports name concrete modules.
+
+| Package | Responsibilities |
+| --- | --- |
+| `core` | Dataset identity, column roles, scalars, sampling |
+| `io` | Import adapters/contracts, parsing, loading, export |
+| `pipeline` | Operations, history, editing, transforms, expressions |
+| `inspection` | Table previews, profiles/statistics, profile selection, exploration |
+| `plotting` | Prepared charts, distributions, relationships, colors, projection, selection |
+| `analysis` | Algorithms/parameters, inputs, workers, provenance, analysis plots, cluster colors |
+| `workspace` | Types, storage, recipes, restoration, preferences |
+| `gui` | Application assembly, rendering, controls |
+| `feasibility` | Existing organized feasibility probes |
+
+GUI subpackages are `analysis`, `data`, `plots`, `profiles`, `workspace`, and
+`widgets`; assembly, exploration orchestration, and layout sit directly in `gui`.
+Use `analysis/runner.py` for dispatch, `analysis/cluster_colors.py` for the existing
+cluster-color helpers, `pipeline/history.py` for history, `inspection/table.py`
+for table preparation, `plotting/data.py` for plot preparation, and
+`workspace/storage.py` for storage. GUI assembly becomes `gui/app.py`, the analysis
+session `gui/analysis/session.py`, and the profile view `gui/profiles/view.py`.
+
+### Bounded steps and acceptance gates
+
+Verify, review and commit each step before starting the next. At every move,
+update source/test/script imports, monkeypatch targets and source links.
+
+- [x] Document the convention, target layout and open acceptance gates.
+- [ ] Move foundation, import/export and pipeline modules; focused tests,
+  Pyrefly and Ruff pass.
+- [ ] Move inspection and plotting preparation; focused tests, Pyrefly and Ruff
+  pass.
+- [ ] Move analysis; spawned publication, cancellation and stale-result checks,
+  focused tests, Pyrefly and Ruff pass.
+- [ ] Move workspace persistence/preferences; round-trip and restore/relink
+  checks, focused tests, Pyrefly and Ruff pass.
+- [ ] Organize GUI; existing workflow, workspace and scatter Mesa smoke checks
+  pass alongside focused tests, Pyrefly and Ruff.
+- [ ] Final acceptance: full suite, wheel build, isolated installed CLI/workflow,
+  stale-import/source-link audit and diff review pass with recorded evidence.
+
+### Verification evidence
+
+Planning baseline: all 94 non-bootstrap root modules have a subsystem assignment;
+the existing `feasibility` package stays intact. The existing suite collects
+493 tests. Behavioral and installed-package acceptance remain open.
+
+Step 1 (2026-10-05): convention and refactor sequence reviewed; local Markdown
+links in `AGENTS.md`/`ROADMAP.md` and `git diff --check` pass. No application code
+changed, so application checks are not required for this documentation step.
