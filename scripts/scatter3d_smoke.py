@@ -64,14 +64,17 @@ def main() -> None:
                 session.editor.request(Sort(("x",), descending=True))
                 stage = 1
             elif stage == 1 and active.first_page.row_ids[0] == 19:
-                session.plots.three_d = session.plots.custom_scatter = True
+                session.plots.choose_chart("Scatter 3D")
+                session.plots.custom_scatter = True
                 session.plots.x_index, session.plots.y_index, session.plots.z_index = (
                     0,
                     1,
                     2,
                 )
                 session.explorer.request(active.dataset, session.plots.settings())
-                session.exploration.tab = "Scatter"
+                session.exploration.tab = "Relationships"
+                # Keep gesture targets visible regardless of dock height.
+                session.exploration.scatter3d_area.expanded = True
                 stage, entered = 2, evidence.frames
             elif stage == 2 and age > 20 and view.frames > 10:
                 points = dashboard.scatters[0]

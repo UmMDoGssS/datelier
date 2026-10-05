@@ -6,6 +6,7 @@ import numpy as np
 import polars as pl
 from numpy.typing import NDArray
 
+from datelier.column_roles import ColumnRole
 from datelier.dataset import Dataset
 from datelier.profiling import COUNT_ROW_LIMIT, ProfileKind, profile_kind
 
@@ -27,23 +28,54 @@ PALETTE = (
 
 
 @dataclass(frozen=True)
+class ColorSeries:
+    label: str
+    rgba: int
+    indices: NDArray[np.int64]
+    continuous: bool = False
+
+
+@dataclass(frozen=True)
+class ColorScale:
+    minimum: float
+    maximum: float
+    divisor: float = 1
+
+
+@dataclass(frozen=True)
 class PointColors:
     name: str
     rgba: NDArray[np.uint32]
     legend: tuple[tuple[str, int], ...]
     note: str
+    series: tuple[ColorSeries, ...] = ()
+    scale: ColorScale | None = None
+
+
+def color_series(
+    rgba: NDArray[np.uint32], legend: tuple[tuple[str, int], ...]
+) -> tuple[ColorSeries, ...]:
+    result = []
+    for label, color in legend:
+        indices = np.flatnonzero(rgba == color).astype(np.int64)
+        if len(indices):
+            indices.flags.writeable = False
+            result.append(ColorSeries(label, color, indices))
+    return tuple(result)
 
 
 def continuous_colors(values: NDArray[np.float64], name: str) -> PointColors:
     mask = np.isfinite(values)
     rgba = np.full(len(values), NEUTRAL, dtype=np.uint32)
     legend: tuple[tuple[str, int], ...] = ()
+    scale: ColorScale | None = None
+    series: tuple[ColorSeries, ...] = ()
     if mask.any():
         lo, hi = float(values[mask].min()), float(values[mask].max())
-        scale = max(abs(lo), abs(hi)) or 1
-        low, high = lo / scale, hi / scale
+        magnitude = max(abs(lo), abs(hi)) or 1
+        low, high = lo / magnitude, hi / magnitude
         t = (
-            (values[mask] / scale - low) / (high - low)
+            (values[mask] / magnitude - low) / (high - low)
             if hi > lo
             else np.full(mask.sum(), 0.5)
         )
@@ -51,12 +83,27 @@ def continuous_colors(values: NDArray[np.float64], name: str) -> PointColors:
         blue = (245 - 195 * t).astype(np.uint32)
         rgba[mask] = red | (np.uint32(100) << 8) | (blue << 16) | np.uint32(0xFF000000)
         legend = ((f"{lo:.6g}", 0xFFF56432), (f"{hi:.6g}", 0xFF3264F5))
+        indices = np.flatnonzero(mask).astype(np.int64)
+        indices.flags.writeable = False
+        if hi > lo:
+            divisor = magnitude if not np.isfinite(hi - lo) or magnitude >= 1e300 else 1
+            # A finite scale keeps native color-bar ticks representable too.
+            scale = ColorScale(lo / divisor, hi / divisor, divisor)
+            series = (ColorSeries(name, NEUTRAL, indices, continuous=True),)
+        else:
+            series = (ColorSeries(f"{name}: {lo:.6g}", int(rgba[indices[0]]), indices),)
+            scale = None
+    else:
+        scale = None
     rgba.flags.writeable = False
+    missing = (("Missing / nonfinite", NEUTRAL),)
     return PointColors(
         name,
         rgba,
-        (*legend, ("Missing / nonfinite", NEUTRAL)),
+        (*legend, *missing),
         "Continuous scale uses displayed finite values.",
+        (*series, *color_series(rgba, missing)),
+        scale,
     )
 
 
@@ -65,6 +112,8 @@ def prepare_colors(
 ) -> PointColors:
     series = dataset.table.get_column(column)
     kind = profile_kind(series.dtype)
+    if dataset.role(column).role == ColumnRole.CATEGORY:
+        kind = ProfileKind.CATEGORICAL
     if kind not in (ProfileKind.NUMERIC, ProfileKind.TEMPORAL, ProfileKind.CATEGORICAL):
         raise ValueError(
             "Color requires numeric, temporal, categorical or Boolean data"
@@ -91,6 +140,8 @@ def prepare_colors(
                 result.rgba,
                 result.legend,
                 f"Physical units relative to {minimum}; " + result.note,
+                result.series,
+                result.scale,
             )
         return result
     counts = (
@@ -116,10 +167,12 @@ def prepare_colors(
     )
     rgba.flags.writeable = False
     legend = tuple((str(v)[:120], lookup[v]) for v in top)
+    legend = (*legend, ("Other", other), ("Missing", NEUTRAL))
     return PointColors(
         column,
         rgba,
-        (*legend, ("Other", other), ("Missing", NEUTRAL)),
+        legend,
         "Top 12 categories from at most 100,000 input rows; "
         "remaining values are Other.",
+        color_series(rgba, legend),
     )

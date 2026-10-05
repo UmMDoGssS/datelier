@@ -54,7 +54,14 @@ class LinkedSelection:
         return True
 
     def rectangle(
-        self, points: Scatter, x1: float, y1: float, x2: float, y2: float
+        self,
+        points: Scatter,
+        x1: float,
+        y1: float,
+        x2: float,
+        y2: float,
+        *,
+        visible: NDArray[np.bool_] | None = None,
     ) -> bool:
         mask = (
             (points.x >= min(x1, x2))
@@ -62,6 +69,8 @@ class LinkedSelection:
             & (points.y >= min(y1, y2))
             & (points.y <= max(y1, y2))
         )
+        if visible is not None:
+            mask &= visible
         return self.choose(points.revision, (int(i) for i in points.row_ids[mask]))
 
     def nearest(

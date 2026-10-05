@@ -236,7 +236,12 @@ method. Only Column shows the column picker: continuous numeric/temporal colors,
 top-12 categorical colors plus Other, and neutral missing values. Clustering
 shows its own settings and explicit Run button. Selected points retain their
 highlight. Column axes and colors update
-in the background when changed. Analysis runs only after an explicit command.
+in the background when changed. Category and cluster colors use clickable native
+plot legends in both dimensions, including Other, missing, noise and unassigned
+groups when present. Hiding a group also hides its selection highlight and
+excludes it from picking/brushing; its source rows remain selected in the table.
+Continuous colors have a labeled color bar beside the plot. Analysis runs only
+after an explicit command.
 A fitted reduction with a different component count requires a rerun for the
 chosen plot.
 
@@ -326,8 +331,9 @@ phases and elapsed time; **Cancel analysis** reports completion after the worker
 exits. Dataset revisions invalidate results and stale jobs cannot publish.
 These sample limits are bounds, not capacity guarantees.
 
-Choose Columns or an embedding in Scatter to switch views without fitting
-again. An unfitted method shows its setup; it never falls back to column axes.
+Choose Columns or an embedding in Relationships to switch views without fitting
+again when its component count matches the chosen scatter chart. An unfitted
+method shows its setup; it never falls back to column axes.
 Changed settings require another command. Colors uses the selected completed
 clustering result on raw or reduced plots. K-means and Mini-batch K-means predict
 displayed rows by nearest center; other methods color known fitting identities.

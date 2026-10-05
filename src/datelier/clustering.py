@@ -5,7 +5,7 @@ import polars as pl
 from numpy.typing import NDArray
 
 from datelier.analysis_types import ClusteringResult
-from datelier.coloring import NEUTRAL, PALETTE, PointColors
+from datelier.coloring import NEUTRAL, PALETTE, PointColors, color_series
 from datelier.dataset import Dataset
 
 
@@ -96,10 +96,11 @@ def prepare_cluster_colors(
         extra.append((f"Noise (fit {result.noise_count:,})", 0xFF7777DD))
     if np.any(labels == -2):
         extra.append(("Unassigned / excluded", NEUTRAL))
+    entries = (*legend, *extra)
     return PointColors(
         str(result.provenance.request.algorithm),
         rgba,
-        (*legend, *extra),
+        entries,
         f"Fit on {len(result.row_ids):,} sampled rows; "
         + (
             "displayed labels are nearest-center "
@@ -109,4 +110,5 @@ def prepare_cluster_colors(
             else f"Labels shown for {displayed_fit:,} fitting rows; "
             "unseen rows have no assignment."
         ),
+        color_series(rgba, entries),
     )

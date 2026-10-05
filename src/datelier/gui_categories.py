@@ -13,6 +13,7 @@ from datelier.gui_category_distributions import draw_category_distributions
 from datelier.gui_fields import combo
 from datelier.gui_plot_area import PlotArea
 from datelier.gui_plot_controls import PlotControls
+from datelier.gui_scatter_items import legend_hovered
 from datelier.gui_table import TableView
 from datelier.selection import LinkedSelection
 
@@ -182,13 +183,14 @@ class CategoryView:
         self.selected_rows = (
             len(selection.row_ids) if selection.revision == chart.revision else 0
         )
-        if implot.is_plot_hovered():
+        if implot.is_plot_hovered() and not legend_hovered():
             c = int(np.floor(mouse.y + 0.5))
             g = int(np.floor((mouse.y - c + 0.4) / width))
             if (
                 0 <= c < len(chart.labels)
                 and 0 <= g < len(chart.groups)
                 and chart.counts[g, c]
+                and implot.internal.get_item(chart.groups[g]).show
             ):
                 value = chart.values[g, c]
                 if min(0, value) <= mouse.x <= max(0, value):

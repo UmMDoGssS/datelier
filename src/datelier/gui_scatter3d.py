@@ -6,6 +6,7 @@ import numpy as np
 from imgui_bundle import imgui, implot3d
 from numpy.typing import NDArray
 
+from datelier.gui_scatter_items import draw_color_items, legend_hovered
 from datelier.gui_table import TableView
 from datelier.plotting import Scatter
 from datelier.projection import projected_nearest, projected_rectangle
@@ -36,13 +37,9 @@ class Scatter3DView:
     _selected: NDArray[np.bool_] = field(
         default_factory=lambda: np.array([], dtype=bool)
     )
-    _coordinates: (
-        tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.float64]] | None
-    ) = None
-    _selected_coordinates: (
-        tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.float64]] | None
-    ) = None
-    _colors: NDArray[np.uint32] | None = None
+    _visible: NDArray[np.bool_] = field(
+        default_factory=lambda: np.array([], dtype=bool)
+    )
 
     def show(
         self,
@@ -51,6 +48,8 @@ class Scatter3DView:
         table: TableView,
         fit: bool,
         height: float,
+        *,
+        width: float = -1,
     ) -> bool:
         z = points.z
         if z is None:
@@ -76,13 +75,7 @@ class Scatter3DView:
                 else np.zeros(len(z), dtype=bool)
             )
             self._selected = mask
-            self._coordinates = (points.x[~mask], points.y[~mask], z[~mask])
-            self._selected_coordinates = (points.x[mask], points.y[mask], z[mask])
-            self._colors = (
-                points.colors.rgba[~mask] if points.colors is not None else None
-            )
-            self.selected_points = int(mask.sum())
-        flags = implot3d.Flags_.no_legend
+        flags = 0
         changing_face = self._pending_face is not None
         if changing_face:
             # A popup item can close on mouse-down over the plot. Consume that
@@ -94,7 +87,7 @@ class Scatter3DView:
                 | implot3d.Flags_.no_pan
                 | implot3d.Flags_.no_zoom
             )
-        if not implot3d.begin_plot("Scatter 3D", (-1, height), flags):
+        if not implot3d.begin_plot("Scatter 3D", (width, height), flags):
             return False
         implot3d.setup_axes(points.x_name, points.y_name, points.z_name)
         if self._pending_face is not None:
@@ -109,19 +102,10 @@ class Scatter3DView:
                 pad = (hi - lo) * 0.05 if hi > lo else max(0.5, abs(lo) * 1e-6)
                 bounds.extend((lo - pad, hi + pad))
             implot3d.setup_axes_limits(*bounds, cond=implot3d.Cond_.always)
-        style = implot3d.Spec()
-        style.marker = implot3d.Marker_.square
-        style.marker_size = 1.5
-        style.line_weight = 0
-        # Keep colors opaque: native fill enablement follows item opacity,
-        # even when an explicit marker-fill color is present.
-        if self._colors is not None:
-            style.marker_fill_colors = style.marker_line_colors = self._colors
-        if self._coordinates is not None and len(self._coordinates[0]):
-            implot3d.plot_scatter("Rows", *self._coordinates, style)
-        if self._selected_coordinates is not None and len(
-            self._selected_coordinates[0]
-        ):
+        self._visible = draw_color_items(points, self._selected, three_d=True)
+        selected = self._selected & self._visible
+        self.selected_points = int(selected.sum())
+        if self.selected_points:
             highlight = implot3d.Spec()
             highlight.marker = implot3d.Marker_.square
             highlight.line_weight = 0
@@ -129,8 +113,13 @@ class Scatter3DView:
             highlight.marker_fill_color = highlight.marker_line_color = imgui.ImVec4(
                 1, 0.7, 0.2, 1
             )
+            highlight.flags = implot3d.ItemFlags_.no_legend
             implot3d.plot_scatter(
-                "Selected source rows", *self._selected_coordinates, highlight
+                "Selected source rows",
+                points.x[selected],
+                points.y[selected],
+                z[selected],
+                highlight,
             )
         if not changing_face:
             self._interact(points, selection, table)
@@ -157,6 +146,7 @@ class Scatter3DView:
             & (pixels[:, 1] >= pos.y)
             & (pixels[:, 1] <= pos.y + size.y)
         )
+        valid &= self._visible
         pixels[~valid] = np.nan
         return pixels
 
@@ -173,10 +163,14 @@ class Scatter3DView:
             )
             self.point_pixel = (pixel.x, pixel.y)
         mouse = imgui.get_mouse_pos()
-        hovered = imgui.is_window_hovered(
-            imgui.HoveredFlags_.allow_when_blocked_by_active_item
-        ) and imgui.is_mouse_hovering_rect(
-            pos, imgui.ImVec2(pos.x + size.x, pos.y + size.y)
+        hovered = (
+            imgui.is_window_hovered(
+                imgui.HoveredFlags_.allow_when_blocked_by_active_item
+            )
+            and not legend_hovered(three_d=True)
+            and imgui.is_mouse_hovering_rect(
+                pos, imgui.ImVec2(pos.x + size.x, pos.y + size.y)
+            )
         )
         if hovered and imgui.is_mouse_clicked(imgui.MouseButton_.left):
             if imgui.get_io().key_shift:

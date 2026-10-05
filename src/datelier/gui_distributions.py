@@ -46,6 +46,9 @@ def draw_box(
         ys = np.array([lo, hi, np.nan, q1, q1, q3, q3, q1, np.nan, median, median])
         implot.plot_line(series.name, xs, ys, implot.Spec(line_color=color))
     if len(series.outliers):
+        implot.hide_next_item(
+            not implot.internal.get_item(series.name).show, implot.Cond_.always
+        )
         implot.plot_scatter(
             f"{series.name} outliers",
             np.full(len(series.outliers), center),
@@ -124,8 +127,7 @@ def show_comparison(
         implot.StyleVar_.fit_padding,
         imgui.ImVec2(0.08, 0.05 if horizontal_boxes else 0),
     )
-    flags = implot.Flags_.no_legend if len(comparison.series) == 1 else 0
-    if not implot.begin_plot(title, (-1, height), flags):
+    if not implot.begin_plot(title, (-1, height)):
         implot.pop_style_var()
         return False
     ylabel = (

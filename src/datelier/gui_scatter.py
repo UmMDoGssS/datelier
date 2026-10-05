@@ -8,6 +8,7 @@ from imgui_bundle import imgui, implot
 from datelier.gui_axes import AxisControls
 from datelier.gui_plot_area import PlotArea
 from datelier.gui_scatter3d import Scatter3DView
+from datelier.gui_scatter_items import draw_color_items, with_color_scale
 from datelier.gui_selection import ScatterInteraction
 from datelier.gui_table import TableView
 from datelier.plotting import Scatter
@@ -22,26 +23,23 @@ def draw_scatter(
     fit: bool,
     height: float,
     axes: AxisControls | None = None,
+    *,
+    width: float = -1,
 ) -> bool:
     if fit:
         implot.set_next_axes_to_fit()
-    style = implot.Spec()
-    style.marker_size = 2
-    style.marker = implot.Marker_.square
-    style.line_weight = 0
-    shown = implot.begin_plot("Scatter", (-1, height))
+    shown = implot.begin_plot("Scatter 2D", (width, height))
     if shown:
         implot.setup_axes(points.x_name, points.y_name)
         if axes is not None:
             axes.apply()
-        xs, ys = selection.unselected(points)
-        if points.colors is not None:
-            mask = ~np.isin(points.row_ids, tuple(selection.row_ids))
-            style.marker_fill_colors = points.colors.rgba[mask]
-            style.marker_line_colors = points.colors.rgba[mask]
-        if len(xs):
-            implot.plot_scatter("Rows", xs, ys, style)
-        interaction.show(points, selection, table)
+        selected = (
+            np.isin(points.row_ids, tuple(selection.row_ids))
+            if points.revision == selection.revision
+            else np.zeros(len(points.x), dtype=bool)
+        )
+        visible = draw_color_items(points, selected)
+        interaction.show(points, selection, table, visible=visible)
         if axes is not None:
             axes.observe()
         implot.end_plot()
@@ -82,19 +80,6 @@ class ScatterView:
                 imgui.new_line()
             if imgui.button("Clear"):
                 selection.choose(points.revision, ())
-        if points.colors is not None:
-            if imgui.collapsing_header("Color legend"):
-                imgui.text_wrapped(points.colors.note)
-                for label, rgba in points.colors.legend:
-                    color = imgui.ImVec4(
-                        (rgba & 255) / 255,
-                        ((rgba >> 8) & 255) / 255,
-                        ((rgba >> 16) & 255) / 255,
-                        1,
-                    )
-                    imgui.text_colored(color, label)
-                    imgui.same_line()
-                imgui.new_line()
         key = (
             points.revision,
             points.x_name,
@@ -108,12 +93,25 @@ class ScatterView:
         shown = area.show(
             "Scatter 3D plot" if three_d else "Scatter 2D plot",
             key,
-            lambda height, fit, axes: (
-                self.scatter3d.show(points, selection, table, fit, height)
-                if three_d
-                else draw_scatter(
-                    points, selection, table, self.interaction, fit, height, axes
-                )
+            lambda height, fit, axes: with_color_scale(
+                points,
+                height,
+                lambda width: (
+                    self.scatter3d.show(
+                        points, selection, table, fit, height, width=width
+                    )
+                    if three_d
+                    else draw_scatter(
+                        points,
+                        selection,
+                        table,
+                        self.interaction,
+                        fit,
+                        height,
+                        axes,
+                        width=width,
+                    )
+                ),
             ),
             numeric_axes=(False, False) if three_d else (True, True),
             three_d=three_d,
@@ -122,6 +120,8 @@ class ScatterView:
             self.fit = False
             self.frames += 1
         if imgui.collapsing_header("Details##scatter"):
+            if points.colors is not None:
+                imgui.text_wrapped(points.colors.note)
             if three_d:
                 imgui.text_wrapped(
                     "3D: right-drag rotates, left-drag pans, wheel zooms. "

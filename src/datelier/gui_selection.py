@@ -4,7 +4,9 @@ from dataclasses import dataclass
 
 import numpy as np
 from imgui_bundle import imgui, implot
+from numpy.typing import NDArray
 
+from datelier.gui_scatter_items import legend_hovered
 from datelier.gui_table import TableView
 from datelier.plotting import Scatter
 from datelier.projection import projected_nearest
@@ -21,7 +23,12 @@ class ScatterInteraction:
     _points: Scatter | None = None
 
     def show(
-        self, points: Scatter, selection: LinkedSelection, table: TableView
+        self,
+        points: Scatter,
+        selection: LinkedSelection,
+        table: TableView,
+        *,
+        visible: NDArray[np.bool_] | None = None,
     ) -> None:
         if points is not self._points:
             self.brush_start = None
@@ -39,7 +46,11 @@ class ScatterInteraction:
             )
             self.point_pixel = (pixel.x, pixel.y)
         mouse = implot.get_plot_mouse_pos()
-        if implot.is_plot_hovered() and imgui.is_mouse_clicked(imgui.MouseButton_.left):
+        if (
+            implot.is_plot_hovered()
+            and not legend_hovered()
+            and imgui.is_mouse_clicked(imgui.MouseButton_.left)
+        ):
             if imgui.get_io().key_shift:
                 self.brush_start = (mouse.x, mouse.y)
             else:
@@ -53,13 +64,15 @@ class ScatterInteraction:
                     ],
                     dtype=np.float64,
                 ).reshape(-1, 2)
-                visible = (
+                inside = (
                     (pixels[:, 0] >= pos.x)
                     & (pixels[:, 0] <= pos.x + size.x)
                     & (pixels[:, 1] >= pos.y)
                     & (pixels[:, 1] <= pos.y + size.y)
                 )
-                pixels[~visible] = np.nan
+                if visible is not None:
+                    inside &= visible
+                pixels[~inside] = np.nan
                 screen = imgui.get_io().mouse_pos
                 index = projected_nearest(
                     pixels, np.zeros(len(pixels)), (screen.x, screen.y)
@@ -84,9 +97,15 @@ class ScatterInteraction:
             )
             implot.pop_plot_clip_rect()
             if imgui.is_mouse_released(imgui.MouseButton_.left):
-                selection.rectangle(points, *self.brush_start, mouse.x, mouse.y)
+                selection.rectangle(
+                    points, *self.brush_start, mouse.x, mouse.y, visible=visible
+                )
                 self.brush_start = None
-        xs, ys = selection.overlay(points)
+        if visible is None or points.revision != selection.revision:
+            xs, ys = selection.overlay(points)
+        else:
+            selected = np.isin(points.row_ids, tuple(selection.row_ids)) & visible
+            xs, ys = points.x[selected], points.y[selected]
         self.selected_points = len(xs)
         if len(xs):
             style = implot.Spec()
@@ -95,4 +114,5 @@ class ScatterInteraction:
             style.line_weight = 0
             style.marker_fill_color = imgui.ImVec4(1, 0.7, 0.2, 1)
             style.marker_line_color = imgui.ImVec4(1, 0.7, 0.2, 1)
+            style.flags = implot.ItemFlags_.no_legend
             implot.plot_scatter("Selected source rows", xs, ys, style)

@@ -134,15 +134,18 @@ def main() -> None:
                     )
 
             if stage == 0:
-                session.exploration.tab = "Scatter"
+                session.exploration.tab = "Relationships"
+                session.plots.choose_chart("Scatter 3D")
+                session.exploration.scatter3d_area.expanded = True
+                session.analysis.sync_dimensions(session.plots)
                 if args.embedding:
+                    session.analysis.source = Algorithm.PCA
                     session.analysis.controls.features = list(session.plots.numeric[:3])
-                    session.analysis.controls.dimensions = 3
                     session.analysis.controls.start(
                         session.analysis.jobs, active.dataset, Algorithm.PCA
                     )
                 else:
-                    session.plots.three_d = session.plots.custom_scatter = True
+                    session.plots.custom_scatter = True
                     (
                         session.plots.x_index,
                         session.plots.y_index,
@@ -156,7 +159,8 @@ def main() -> None:
                     if args.embedding
                     else dashboard.scatters[0]
                 )
-                assert points is not None
+                if points is None:
+                    return
                 chosen = int(points.row_ids[0])
                 session.selection.choose(active.dataset.revision, (chosen,))
                 baseline_ranges = ranges
@@ -247,7 +251,11 @@ def main() -> None:
                     assert view.selected_points == 1
                     assert sha256(source.read_bytes()).hexdigest() == before
                     hello_imgui.get_runner_params().app_shall_exit = True
-                if stage == 8 and session.exploration.scatter3d_area.expanded:
+                if (
+                    stage == 8
+                    and session.exploration.scatter3d_area.expanded
+                    and len(faces) > len(FACE_VIEWS)
+                ):
                     baseline_rotation = rotation
                     session.exploration.scatter3d_area.expanded = False
                     advance(13)

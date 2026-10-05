@@ -362,3 +362,7 @@ The user requested separate 2D/3D scatter charts with matching reduction output,
 axis selectors beneath Coordinates, and native legends across inspection plots.
 [Delivery gates](docs/scatter-views-and-legends.md) sequence scatter controls and
 saved views before the all-plot legend audit and native verification.
+Both steps are verified: independent scatter choices/heights and fixed component
+counts, nested raw axes, native category/cluster legends and continuous scales,
+visibility-aware linked interactions, saved-view compatibility, full tests and
+native Titanic inspection. Original Titanic usability gates remain separate.
