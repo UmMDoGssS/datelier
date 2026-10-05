@@ -334,6 +334,7 @@ restoring a workspace must still never launch ML automatically.
 
 The user requested a broader Relationships tab, category charts, inferred Text
 and Identifier roles with overrides, and selectable correlation-grid diagonals.
-[Delivery gates](docs/categorical-inspection.md) track three independently
-verified steps and the final acceptance checks. Original Titanic UX gates remain
+[Delivery gates](docs/categorical-inspection.md) record all three verified
+steps: reversible roles, category charts and selectable grid diagonals, with
+457 passing tests and native Titanic/workspace compatibility checks. Original Titanic UX gates remain
 separate and open where their evidence is incomplete.

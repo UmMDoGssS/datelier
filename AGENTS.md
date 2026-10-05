@@ -70,6 +70,11 @@ gates open; completed v1 capability gates do not imply usability acceptance.
 The user also authorized broader unsupervised inspection methods and explicit
 Colors sources; [docs/unsupervised-methods.md](docs/unsupervised-methods.md) tracks
 that expansion and its verification gates.
+The categorical inspection follow-up is also authorized;
+[docs/categorical-inspection.md](docs/categorical-inspection.md) records column
+roles and reversible overrides, Relationships charts, and pair-grid diagonal
+representations. Keep statistical preparation out of GUI callbacks and retain
+the distinction between physical types and user-controlled analysis roles.
 
 Use this file for durable conventions and `ROADMAP.md` for sequencing,
 deliverables, and acceptance gates. Inspect actual code and configuration

@@ -8,6 +8,7 @@ import polars as pl
 from numpy.typing import NDArray
 
 from datelier.dataset import Dataset
+from datelier.distributions import Comparison, DistributionSettings, prepare_comparison
 from datelier.plotting import (
     CORRELATION_ROW_LIMIT,
     Bars,
@@ -17,7 +18,7 @@ from datelier.plotting import (
     prepare_scatter,
     sample_indices,
 )
-from datelier.profiling import prepare_profiles
+from datelier.profiling import ProfileKind, prepare_range_profile
 
 
 @dataclass(frozen=True)
@@ -29,6 +30,9 @@ class Relationships:
     diagonals: tuple[Bars, ...]
     sampled_rows: int
     total_rows: int
+    diagonal_mode: int = 0
+    diagonal_distributions: tuple[Comparison | None, ...] = ()
+    diagonal_notes: tuple[str, ...] = ()
 
 
 def prepare_relationships(
@@ -36,6 +40,9 @@ def prepare_relationships(
     names: tuple[str, ...],
     correlations: tuple[Correlation, ...],
     bins: int,
+    diagonal_mode: int = 0,
+    bandwidth: float = 1,
+    seed: int = 42,
 ) -> Relationships:
     n = len(names)
     matrix = np.full((n, n), np.nan, dtype=np.float64)
@@ -63,6 +70,8 @@ def prepare_relationships(
         counts[i, j] = counts[j, i] = correlation.finite_pairs
     cells: list[list[Scatter | None]] = [[None] * n for _ in names]
     diagonals: tuple[Bars, ...] = ()
+    distributions: list[Comparison | None] = []
+    notes: list[str] = []
     if n <= 8:
         for i, j in combinations(range(n), 2):
             points = prepare_scatter(cohort, names[j], names[i], limit=150)
@@ -81,9 +90,26 @@ def prepare_relationships(
                 y=points.x,
             )
         diagonals = tuple(
-            prepare_bars(prepare_profiles(dataset, column=name, bins=bins).columns[0])
+            prepare_bars(
+                prepare_range_profile(
+                    dataset.table.get_column(name), ProfileKind.NUMERIC, bins
+                )
+            )
             for name in names
         )
+        if diagonal_mode:
+            for name in names:
+                try:
+                    comparison = prepare_comparison(
+                        dataset,
+                        DistributionSettings((name,), bandwidth=bandwidth, seed=seed),
+                        bins,
+                    )
+                    distributions.append(comparison)
+                    notes.append(comparison.series[0].note)
+                except ValueError as error:
+                    distributions.append(None)
+                    notes.append(str(error))
     matrix.flags.writeable = counts.flags.writeable = False
     return Relationships(
         names,
@@ -93,4 +119,7 @@ def prepare_relationships(
         diagonals,
         len(indices),
         dataset.table.height,
+        diagonal_mode,
+        tuple(distributions),
+        tuple(notes),
     )

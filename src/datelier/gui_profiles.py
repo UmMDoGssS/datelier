@@ -39,7 +39,9 @@ class ProfileView:
     ) -> bool:
         profiles = dashboard.profiles
         if not profiles.columns:
-            imgui.text("No columns to inspect.")
+            imgui.text_wrapped(
+                "No analyzable columns. Change a column's role in Schema to include it."
+            )
             return False
         names = [p.name for p in profiles.columns]
         self.index = min(self.index, len(names) - 1)

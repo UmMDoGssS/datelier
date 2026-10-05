@@ -30,6 +30,7 @@ def restore_plots(
         "top_counts",
         "correlation_columns",
         "point_limit",
+        "diagonal_mode",
     ):
         setattr(controls, name, getattr(saved, name))
     pair = saved.scatter_pair

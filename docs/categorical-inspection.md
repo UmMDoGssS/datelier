@@ -25,9 +25,9 @@ coordinates and make pair-grid diagonals configurable. Deliver in three steps:
 - [x] Categorical chart preparation and native conditional controls pass,
   including missing values, numeric finite-value exclusion, bounded categories,
   aggregation, and workspace restore.
-- [ ] Pair-grid representation preparation, native rendering and saved settings
+- [x] Pair-grid representation preparation, native rendering and saved settings
   pass, with histograms retaining their complete finite-value counts.
-- [ ] Full suite, Pyrefly, Ruff lint/format, Titanic GUI and source preservation
+- [x] Full suite, Pyrefly, Ruff lint/format, Titanic GUI and source preservation
   checks pass. No analysis is implicitly launched.
 
 The Titanic source has 850 rows. Its `name` column has 849 distinct non-null
@@ -51,3 +51,48 @@ Grouped legends sit above bars; category/value controls share a row. All runs
 preserved the source; category charts launched no ML. Legacy Scatter recipes
 open Relationships. Category counts use at most 100,000 input rows, 30 visible
 categories plus Other, five groups plus Other, and 10,000 selected IDs per bar.
+
+Step 3 evidence: 31 focused tests and the full 457-test suite passed. Pyrefly
+reported zero errors; Ruff lint/format and diff whitespace checks passed.
+`scripts/pair_diagonal_smoke.py` clicked KDE in the native dropdown, rendered all
+five representations, confirmed the heatmap hides the diagonal control, saved
+Violin and reopened the workspace (145/22 frames on Titanic; 143/21 on a
+constant-column fixture). Constant KDE cells show No density; constant violin
+cells show their box with an explicit fallback label. Invalid distribution
+ranges stay local to their diagonal and have an explanatory hover message.
+Histogram and box statistics retain all finite values; KDE/ECDF/violin curves
+use up to 2,000 values per feature with the saved comparison seed/bandwidth.
+Each feature has its own distribution range. Smaller grids now reserve 160 px
+per row of cells; large grids retain their bounded, named, scrollable canvas.
+
+Compatibility checks: native Titanic 3D face navigation passed (320 frames),
+dense pair-grid names/zoom/selection passed (74 frames), and annotated heatmap
+values/color scale passed. Fresh-process preferences save/default/reopen checks
+passed, including the Relationships name and legacy view migration. Every
+Titanic GUI run preserved SHA-256
+`ae179070a631b75d2c3fc7439d624c7fb5e0c8859919dc1d4f96d4d3ed6e854b`.
+No ML ran during chart choices or workspace restore. These GUI checks used
+Mesa software OpenGL on the reference Linux machine. A text/ID-only fixture
+rendered the excluded-analysis state in 18 frames with no plots or ML runs.
+
+Responsibility review: categorical preparation and rendering, role inference,
+and pair-diagonal rendering each have separate modules. PlotControls remains
+the single owner of plot recipes and bound column choices; ExplorationView
+coordinates the tabs and their navigation. Their shared settings are retained
+there to keep workspace capture/restore consistent.
+
+## Using the controls
+
+- In Schema, use **Use as** to override an ID to Numeric, a numeric code to
+  Categorical, or a nearly unique string to Text. **Auto** restores inference;
+  undo/redo and saved workspaces retain the choices.
+- In **Relationships**, choose **Chart type**: Scatter, Count bars, Grouped
+  count bars, Mean bars, Median bars or Sum bars. Only applicable columns appear.
+  Bars include named missing categories and Other; click a bar to select its
+  source rows. Expand, Height and numeric axis controls apply to the charts.
+- In **Correlations**, choose **Pair grid**, then **Diagonal**: Histogram, KDE,
+  ECDF, Box or Violin. Heatmap remains numeric Pearson correlation; categorical
+  values are never silently converted to arbitrary numeric codes.
+
+This completes this requested follow-up. The broader original Titanic UX gates
+in `ux-implementation.md` remain independent; this does not mark them accepted.

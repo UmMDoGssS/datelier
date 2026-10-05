@@ -88,6 +88,16 @@ class ExplorationView:
         if dashboard is None:
             imgui.text_wrapped(explorer.message)
             if plots is not None and dataset is not None:
+                if self.active_tab == "Correlations":
+                    self.relationships.controls(
+                        len(plots.relationship_features or ()), plots, explorer, dataset
+                    )
+                    return
+                if self.active_tab == "Profiles" and self.tab not in (
+                    "Scatter",
+                    "Relationships",
+                ):
+                    return
                 if plots.relationship_chart != "Scatter":
                     self.categories.controls(plots, explorer, dataset)
                     return
@@ -180,7 +190,9 @@ class ExplorationView:
             return
         if plots is not None and dataset is not None:
             self.relationships.show_features(plots, explorer, dataset)
-        action = self.relationships.show(dashboard.relationships, selection, table)
+        action = self.relationships.show(
+            dashboard.relationships, selection, table, plots, explorer, dataset
+        )
         if action is not None and plots is not None and dataset is not None:
             x, y = action
             if y is None:

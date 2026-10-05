@@ -40,6 +40,7 @@ class PlotSettings:
     clusters: ClusteringResult | None = field(default=None, compare=False, repr=False)
     scatter_z: str | None = None
     category_chart: CategorySettings | None = None
+    diagonal_mode: int = 0
 
     def validate(self) -> None:
         self.comparison.validate()
@@ -51,6 +52,7 @@ class PlotSettings:
             and 1 <= self.top_counts <= 100
             and 2 <= self.correlation_columns <= 16
             and 1 <= self.point_limit <= 10_000
+            and 0 <= self.diagonal_mode < 5
         ):
             raise ValueError("Plot settings exceed the displayed resource limits")
 
@@ -126,6 +128,9 @@ def prepare_dashboard(
             or feature_columns(dataset)[: settings.correlation_columns],
             correlations,
             settings.bins,
+            settings.diagonal_mode,
+            settings.comparison.bandwidth,
+            settings.comparison.seed,
         ),
         prepare_category_chart(dataset, settings.category_chart)
         if settings.category_chart is not None

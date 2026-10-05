@@ -46,6 +46,7 @@ class PlotControls:
     category_column: str | None = None
     category_group: str | None = None
     category_value: str | None = None
+    diagonal_mode: int = 0
 
     def bind(self, dataset: Dataset) -> None:
         self.scatter_dirty = False
@@ -168,6 +169,7 @@ class PlotControls:
             if self.three_d and len(self.numeric) >= 3
             else None,
             self.category_settings(),
+            self.diagonal_mode,
         )
 
     def category_settings(self) -> CategorySettings | None:

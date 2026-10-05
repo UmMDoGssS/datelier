@@ -120,7 +120,7 @@ def main() -> None:
                     return
                 assert session.plots.bins == 9
                 assert session.plots.compare_columns == ["y", "x"]
-                assert session.exploration.active_tab == "Scatter"
+                assert session.exploration.active_tab == "Relationships"
                 assert session.preferences.value.theme == Theme.LIGHT
                 assert evidence.table_dock_id == moved_dock, (
                     evidence.table_dock_id,

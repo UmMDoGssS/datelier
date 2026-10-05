@@ -9,7 +9,7 @@ from datelier.gui_axes import AxisControls
 MODES = ["Histogram", "KDE", "ECDF", "Box", "Violin"]
 
 
-def _box(series: NumericDistribution, index: int, violin: bool) -> None:
+def draw_box(series: NumericDistribution, index: int, violin: bool) -> None:
     if series.box is None:
         return
     lo, q1, median, q3, hi = series.box
@@ -43,6 +43,18 @@ def _box(series: NumericDistribution, index: int, violin: bool) -> None:
             np.full(len(series.outliers), center),
             series.outliers,
         )
+
+
+def draw_curve(series: NumericDistribution, mode: int) -> bool:
+    if mode == 1 and len(series.kde_y):
+        implot.plot_line(series.name, series.kde_x, series.kde_y)
+        return True
+    if mode == 2 and len(series.ecdf_x):
+        xs = np.concatenate(([series.ecdf_x[0]], series.ecdf_x))
+        ys = np.concatenate(([0.0], series.ecdf_y))
+        implot.plot_stairs(series.name, xs, ys)
+        return True
+    return False
 
 
 def show_comparison(
@@ -129,16 +141,10 @@ def show_comparison(
                 np.concatenate(([series.histogram[0]], series.histogram)),
                 hist_style,
             )
-        elif mode == 1 and len(series.kde_y):
-            implot.plot_line(series.name, series.kde_x, series.kde_y)
-        elif mode == 2 and len(series.ecdf_x):
-            # Include the zero baseline at the first observation; ties have one
-            # jump whose height includes every repeated observation.
-            xs = np.concatenate(([series.ecdf_x[0]], series.ecdf_x))
-            ys = np.concatenate(([0.0], series.ecdf_y))
-            implot.plot_stairs(series.name, xs, ys)
+        elif mode in (1, 2):
+            draw_curve(series, mode)
         elif horizontal_boxes and (mode == 3 or len(series.kde_y)):
-            _box(series, i, mode == 4)
+            draw_box(series, i, mode == 4)
     if axes is not None:
         axes.observe()
     implot.end_plot()

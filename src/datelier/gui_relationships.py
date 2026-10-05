@@ -7,11 +7,12 @@ from imgui_bundle import imgui, implot
 from datelier.dataset import Dataset
 from datelier.exploration import Explorer
 from datelier.gui_axes import AxisControls
+from datelier.gui_distributions import MODES
 from datelier.gui_fields import combo
 from datelier.gui_heatmap import HeatmapView
+from datelier.gui_pair_diagonal import diagonal_axes, diagonal_details, draw_diagonal
 from datelier.gui_plot_area import PlotArea
 from datelier.gui_plot_controls import PlotControls
-from datelier.gui_profiles import draw_histogram
 from datelier.gui_selection import ScatterInteraction
 from datelier.gui_table import TableView
 from datelier.relationships import Relationships
@@ -27,6 +28,39 @@ class RelationshipView:
     interactions: dict[tuple[int, int], ScatterInteraction] = field(
         default_factory=dict
     )
+    diagonal_mode: int = 0
+
+    def controls(
+        self,
+        count: int,
+        plots: PlotControls | None = None,
+        explorer: Explorer | None = None,
+        dataset: Dataset | None = None,
+    ) -> None:
+        choices = ["Heatmap", "Pair grid"] if 0 < count <= 8 else ["Heatmap"]
+        self.mode = min(self.mode, len(choices) - 1)
+        if imgui.begin_table(
+            "Correlation charts", 2, imgui.TableFlags_.sizing_stretch_same
+        ):
+            imgui.table_next_row()
+            imgui.table_set_column_index(0)
+            _, self.mode = combo("Chart type", self.mode, choices)
+            if self.mode == 1:
+                imgui.table_set_column_index(1)
+                if plots is not None:
+                    self.diagonal_mode = plots.diagonal_mode
+                changed, self.diagonal_mode = combo(
+                    "Diagonal", self.diagonal_mode, MODES
+                )
+                if (
+                    changed
+                    and plots is not None
+                    and explorer is not None
+                    and dataset is not None
+                ):
+                    plots.diagonal_mode = self.diagonal_mode
+                    explorer.request(dataset, plots.settings())
+            imgui.end_table()
 
     @property
     def pair_pixel(self) -> tuple[float, float]:
@@ -60,11 +94,15 @@ class RelationshipView:
             imgui.end_popup()
 
     def show(
-        self, data: Relationships, selection: LinkedSelection, table: TableView
+        self,
+        data: Relationships,
+        selection: LinkedSelection,
+        table: TableView,
+        plots: PlotControls | None = None,
+        explorer: Explorer | None = None,
+        dataset: Dataset | None = None,
     ) -> tuple[str, str | None] | None:
-        choices = ["Heatmap", "Pair grid"] if 0 < len(data.names) <= 8 else ["Heatmap"]
-        self.mode = min(self.mode, len(choices) - 1)
-        _, self.mode = combo("Chart type", self.mode, choices)
+        self.controls(len(data.names), plots, explorer, dataset)
         imgui.text_wrapped(
             f"{len(data.names)} features · "
             f"{data.sampled_rows:,} / {data.total_rows:,} rows"
@@ -76,8 +114,12 @@ class RelationshipView:
                 "Click a heatmap cell to open its profile or scatter. "
                 "In the pair grid, click to select a row or double-click "
                 "to open its axes. Grid cells show at most 150 sampled points; "
-                "diagonal histograms use all finite values."
+                "Histogram and box statistics use all finite values. "
+                "KDE/ECDF/violin curves use at most 2,000 finite values per feature."
             )
+        if self.mode == 1 and data.diagonal_mode != self.diagonal_mode:
+            imgui.text("Preparing diagonal distributions…")
+            return None
         if not data.names:
             imgui.text("Choose numeric features to compare.")
             return None
@@ -96,7 +138,7 @@ class RelationshipView:
 
         self.area.show(
             "Relationship plot",
-            (selection.revision, data.names, self.mode),
+            (selection.revision, data.names, self.mode, self.diagonal_mode),
             draw,
             numeric_axes=(False, False),
             minimum_height=170
@@ -121,7 +163,7 @@ class RelationshipView:
             return None
         label_width = max(imgui.calc_text_size(name).x for name in data.names)
         cell_width = max(120, label_width + 40)
-        cell_height = max(100, label_width + 30)
+        cell_height = max(100 if n > 4 else 160, label_width + 30)
         minimum_width = n * cell_width
         available = imgui.get_content_region_avail().x
         scroll = minimum_width > available
@@ -177,17 +219,21 @@ class RelationshipView:
                     ):
                         continue
                     axis_flags = implot.AxisFlags_.no_tick_labels if dense else 0
+                    diagonal = i == j
+                    xlabel, ylabel = (
+                        diagonal_axes(x, data.diagonal_mode) if diagonal else (x, y)
+                    )
                     implot.setup_axes(
-                        (x if i == 0 else "") if dense else x,
-                        (y if j == 0 else "") if dense else y if i != j else "Rows",
+                        (x if i == 0 else "") if dense else xlabel,
+                        (y if j == 0 else "") if dense else ylabel,
                         axis_flags | (implot.AxisFlags_.opposite if dense else 0),
                         axis_flags,
                     )
                     points = data.cells[i][j]
                     if points is None:
-                        bars = data.diagonals[i]
-                        if len(bars.counts):
-                            draw_histogram(x, bars)
+                        if data.diagonal_mode in (3, 4):
+                            implot.setup_axis_ticks(implot.ImAxis_.x1, [0.0], [x])
+                        draw_diagonal(data, i)
                     else:
                         style = implot.Spec()
                         style.marker = implot.Marker_.square
@@ -200,9 +246,11 @@ class RelationshipView:
                         )
                         interaction.show(points, selection, table)
                     hovered = implot.is_plot_hovered()
-                    if hovered and dense:
+                    if hovered and (dense or diagonal):
                         imgui.set_tooltip(
-                            f"X: {x} · Y: {y}" if i != j else f"{x}: value / row count"
+                            diagonal_details(data, i)
+                            if diagonal
+                            else f"X: {x} · Y: {y}"
                         )
                     if hovered and (
                         imgui.is_mouse_double_clicked(imgui.MouseButton_.left)

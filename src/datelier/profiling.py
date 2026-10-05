@@ -88,7 +88,9 @@ def _temporal_range(series: pl.Series) -> tuple[str, str]:
     return str(minimum), str(maximum)
 
 
-def _range_profile(series: pl.Series, kind: ProfileKind, bins: int) -> ColumnProfile:
+def prepare_range_profile(
+    series: pl.Series, kind: ProfileKind, bins: int
+) -> ColumnProfile:
     origin: int | None = None
     if kind == ProfileKind.TEMPORAL:
         physical = series.rename("value").to_physical()
@@ -267,7 +269,7 @@ def prepare_profiles(
         info = dataset.role(series.name)
         kind = ProfileKind(info.role.value)
         if kind in (ProfileKind.NUMERIC, ProfileKind.TEMPORAL):
-            profile = _range_profile(series, kind, bins)
+            profile = prepare_range_profile(series, kind, bins)
         elif kind == ProfileKind.CATEGORICAL:
             profile = _counts_profile(series, top)
         else:
