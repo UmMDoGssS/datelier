@@ -1,4 +1,4 @@
-"""Conditional categorical controls and named aggregate bars."""
+"""Conditional category relationships and category–category grouped bars."""
 
 from dataclasses import dataclass, field
 
@@ -9,6 +9,7 @@ from datelier.category_charts import CategoryChart, CategoryRepresentation
 from datelier.dataset import Dataset
 from datelier.exploration import Explorer
 from datelier.gui_axes import AxisControls
+from datelier.gui_category_distributions import draw_category_distributions
 from datelier.gui_fields import combo
 from datelier.gui_plot_area import PlotArea
 from datelier.gui_plot_controls import PlotControls
@@ -28,17 +29,15 @@ class CategoryView:
     ) -> bool:
         choices = ["Scatter"]
         if plots.categories:
-            choices.append(CategoryRepresentation.COUNTS.value)
-            if len(plots.categories) > 1:
-                choices.append(CategoryRepresentation.GROUPED.value)
             if plots.numeric:
                 choices.extend(
                     [
-                        CategoryRepresentation.MEAN.value,
-                        CategoryRepresentation.MEDIAN.value,
-                        CategoryRepresentation.SUM.value,
+                        CategoryRepresentation.BOX.value,
+                        CategoryRepresentation.VIOLIN.value,
                     ]
                 )
+            if len(plots.categories) > 1:
+                choices.append(CategoryRepresentation.GROUPED.value)
         if plots.relationship_chart not in choices:
             plots.relationship_chart = "Scatter"
         changed, index = combo(
@@ -47,11 +46,8 @@ class CategoryView:
         plots.relationship_chart = choices[index]
         categorical = plots.relationship_chart != "Scatter"
         if categorical:
-            fields = (
-                1 if plots.relationship_chart == CategoryRepresentation.COUNTS else 2
-            )
             if imgui.begin_table(
-                "Category fields", fields, imgui.TableFlags_.sizing_stretch_same
+                "Category fields", 2, imgui.TableFlags_.sizing_stretch_same
             ):
                 imgui.table_next_row()
                 imgui.table_set_column_index(0)
@@ -64,8 +60,7 @@ class CategoryView:
                 )
                 changed |= picked
                 plots.category_column = plots.categories[index]
-                if fields == 2:
-                    imgui.table_set_column_index(1)
+                imgui.table_set_column_index(1)
                 if plots.relationship_chart == CategoryRepresentation.GROUPED:
                     groups = [n for n in plots.categories if n != plots.category_column]
                     picked, index = combo(
@@ -77,7 +72,7 @@ class CategoryView:
                     )
                     changed |= picked
                     plots.category_group = groups[index]
-                elif plots.relationship_chart != CategoryRepresentation.COUNTS:
+                else:
                     picked, index = combo(
                         "Value",
                         plots.numeric.index(plots.category_value or plots.numeric[0]),
@@ -110,13 +105,31 @@ class CategoryView:
             imgui.text(
                 f"{chart.excluded_values:,} missing or nonfinite values excluded"
             )
+        distributions = chart.settings.representation in (
+            CategoryRepresentation.BOX,
+            CategoryRepresentation.VIOLIN,
+        )
+        if distributions and any(
+            len(s.outliers) and (s.sample_count < s.count or len(s.outliers) == 150)
+            for s in chart.distributions
+        ):
+            imgui.text("Outliers: sampled; up to 150 per category")
+        if chart.settings.representation == CategoryRepresentation.VIOLIN:
+            if any(s.sample_count < s.count for s in chart.distributions):
+                imgui.text("Density: up to 2,000 finite samples per category")
+            missing = [s.name for s in chart.distributions if not len(s.kde_y)]
+            if missing:
+                names = ", ".join(missing[:3]) + (
+                    f" and {len(missing) - 3} more" if len(missing) > 3 else ""
+                )
+                imgui.text_wrapped(f"No density for {names}; box summaries shown.")
         shown = self.area.show(
             "Category plot",
             (chart.revision, chart.settings),
             lambda height, fit, axes: self.draw(
                 chart, selection, table, height, fit, axes
             ),
-            numeric_axes=(True, False),
+            numeric_axes=(False, True) if distributions else (True, False),
         )
         if shown:
             self.plot_frames += 1
@@ -131,6 +144,14 @@ class CategoryView:
         fit: bool,
         axes: AxisControls,
     ) -> bool:
+        self.selected_rows = (
+            len(selection.row_ids) if selection.revision == chart.revision else 0
+        )
+        if chart.distributions:
+            shown, self.bar_pixel = draw_category_distributions(
+                chart, selection, table, height, fit, axes
+            )
+            return shown
         if fit:
             implot.set_next_axes_to_fit()
         title = f"{chart.value_label} by {chart.settings.category}"

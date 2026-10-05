@@ -10,6 +10,7 @@ from datelier.analysis_types import (
     TSNEParameters,
     UMAPParameters,
 )
+from datelier.category_charts import CategoryRepresentation
 from datelier.column_roles import ColumnRole
 from datelier.dataset import Dataset
 from datelier.exploration import PlotSettings
@@ -25,6 +26,7 @@ def restore_plots(
     controls: PlotControls, dataset: Dataset, saved: PlotSettings
 ) -> bool:
     controls.bind(dataset)
+    controls.profile_redirect = None
     for name in (
         "profile_columns",
         "bins",
@@ -80,7 +82,25 @@ def restore_plots(
             and (chart.group is None or chart.group in controls.categories)
             and (chart.value is None or chart.value in controls.numeric)
         ):
-            controls.relationship_chart = chart.representation.value
+            if chart.representation == CategoryRepresentation.COUNTS:
+                controls.profile_redirect = chart.category
+                controls.profile_index = controls.columns.index(chart.category) + 1
+            else:
+                controls.relationship_chart = (
+                    CategoryRepresentation.BOX.value
+                    if chart.representation
+                    in (
+                        CategoryRepresentation.MEAN,
+                        CategoryRepresentation.MEDIAN,
+                        CategoryRepresentation.SUM,
+                    )
+                    else chart.representation.value
+                )
+                if chart.representation in (
+                    CategoryRepresentation.BOX,
+                    CategoryRepresentation.VIOLIN,
+                ):
+                    controls.bandwidth, controls.seed = chart.bandwidth, chart.seed
             (
                 controls.category_column,
                 controls.category_group,
@@ -206,12 +226,20 @@ def restore_view_settings(session: GuiSession, saved: WorkspaceViews) -> None:
         else None
     )
     view.profile.selection.bind(dataset, default)
+    redirect = session.plots.profile_redirect
+    if redirect is not None:
+        view.profile.selection.columns = (redirect,)
+        if view.active_tab == "Relationships":
+            view.tab = view.active_tab = "Profiles"
+        session.plots.profile_redirect = None
     session.analysis.source = saved.coordinate_source
     if saved.color_source is not None:
         session.plots.choose_color(saved.color_source)
     view.profile.area.height = saved.profile_height or (
         saved.comparison_height if legacy_comparison else 0
     )
+    if redirect is not None and saved.tab in ("Scatter", "Relationships"):
+        view.profile.area.height = saved.category_height or saved.profile_height
     view.comparison_area.height = saved.comparison_height
     view.scatter_area.height = saved.scatter_height
     view.relationships.area.height = saved.relationship_height

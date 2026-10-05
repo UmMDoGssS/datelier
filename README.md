@@ -211,7 +211,23 @@ KDE/ECDF/violin use at most 2,000 finite values per column, sampled by source ID
 and seed (default 42). Box quartiles/Tukey whiskers are exact; displayed outliers
 use that sample, capped at 150. Empty/constant inputs have explicit explanations.
 
-In Relationships, **Coordinates → Columns** shows X/Y selectors; **Dimensions → 3D**
+In **Relationships**, **Chart type** offers Scatter, Box, Violin, and Grouped
+count bars when compatible columns exist. Box/Violin show **Category** and a
+numeric **Value**; grouped bars show **Category** and a distinct categorical
+**Group by**. Single-column count bars are in Profiles. Older saved count views
+reopen there with their category and plot height; saved mean/median/sum bars
+reopen as Box with the same columns.
+
+Category distributions use up to the first 100,000 input rows, exclude missing
+or nonfinite numeric values, and show the top 12 categories plus Other. Missing
+categories keep a named group. Quartiles and Tukey whiskers use every retained
+finite value; violin density and displayed outliers use seeded samples of up to
+2,000 values per category, with at most 150 outliers displayed. **Distribution
+settings** controls bandwidth and seed. Extreme numeric coordinates use labeled
+scaling. Click a box/violin to select that category's retained finite rows;
+click a grouped bar to select its rows, capped at 10,000 with a visible message.
+
+For Scatter, **Coordinates → Columns** shows X/Y selectors; **Dimensions → 3D**
 adds Z. Choosing an embedding replaces the manual axes with that method's
 inputs and Run command. **Colors** chooses Uniform, Column, or a clustering
 method. Only Column shows the column picker: continuous numeric/temporal colors,
@@ -254,7 +270,8 @@ See [Phase 4 evidence](docs/phase-4.md) and
 
 ## On-demand analysis
 
-In Scatter, choose a method under **Coordinates** or **Colors**, then select
+In Relationships with Scatter selected, choose a method under **Coordinates**
+or **Colors**, then select
 features in its **inputs and settings**. Choose preprocessing, seed and sample
 limit, then press **Run**. Coordinate methods also expose 2D/3D output. Colors
 methods hide output dimensions and use the original analysis feature space.

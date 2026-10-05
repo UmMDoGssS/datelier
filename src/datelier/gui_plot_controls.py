@@ -47,6 +47,7 @@ class PlotControls:
     category_group: str | None = None
     category_value: str | None = None
     diagonal_mode: int = 0
+    profile_redirect: str | None = None
 
     def bind(self, dataset: Dataset) -> None:
         self.scatter_dirty = False
@@ -185,6 +186,8 @@ class PlotControls:
             else None,
             self.category_group if mode == CategoryRepresentation.GROUPED else None,
             min(30, self.top_counts),
+            self.bandwidth,
+            self.seed,
         )
 
     def show(self, explorer: Explorer, dataset: Dataset | None) -> None:

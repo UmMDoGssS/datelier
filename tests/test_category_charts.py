@@ -68,7 +68,7 @@ def test_numeric_aggregation_excludes_nonfinite_values(
 def test_role_compatibility_saved_controls_and_unique_text_exclusion() -> None:
     dataset = data()
     settings = PlotSettings(
-        category_chart=CategorySettings("category", Mode.MEAN, value="value")
+        category_chart=CategorySettings("category", Mode.BOX, value="value")
     )
     assert decode_record(PlotSettings, encode(settings)) == settings
     plots = PlotControls()
@@ -118,8 +118,10 @@ def test_empty_high_cardinality_and_bounded_bar_selection() -> None:
         replace(CategorySettings("category"), top=31).validate()
 
 
+@pytest.mark.parametrize("mode", [Mode.BOX, Mode.VIOLIN, Mode.GROUPED])
 def test_category_recipe_survives_workspace_replay_and_view_restore(
     tmp_path: Path,
+    mode: Mode,
 ) -> None:
     from datelier.importing import load_file
     from datelier.workspace_restore import restore_workspace
@@ -127,10 +129,15 @@ def test_category_recipe_survives_workspace_replay_and_view_restore(
     from datelier.workspaces import reference_source, save_workspace
 
     source = tmp_path / "data.csv"
-    source.write_text("group,value\na,1\nb,2\na,3\n")
+    source.write_text("group,other,value\na,x,1\nb,y,2\na,x,3\n")
     imported = load_file(source)
     plots = PlotSettings(
-        category_chart=CategorySettings("group", Mode.MEAN, value="value")
+        category_chart=CategorySettings(
+            "group",
+            mode,
+            value="value" if mode != Mode.GROUPED else None,
+            group="other" if mode == Mode.GROUPED else None,
+        )
     )
     workspace = Workspace(
         reference_source(imported.dataset.source),
@@ -148,7 +155,49 @@ def test_category_recipe_survives_workspace_replay_and_view_restore(
     assert not restore_plots(
         controls, restored.pipeline.current, restored.workspace.plots
     )
-    assert controls.relationship_chart == Mode.MEAN.value
+    assert controls.relationship_chart == mode.value
+
+
+@pytest.mark.parametrize("mode", [Mode.MEAN, Mode.MEDIAN, Mode.SUM])
+def test_legacy_numeric_bars_restore_as_boxes_with_the_same_columns(mode: Mode) -> None:
+    saved = PlotSettings(
+        category_chart=CategorySettings("category", mode, value="value", top=4)
+    )
+    controls = PlotControls()
+    assert restore_plots(controls, data(), decode_record(PlotSettings, encode(saved)))
+    assert controls.category_settings() == CategorySettings(
+        "category", Mode.BOX, value="value", top=4
+    )
+    assert controls.profile_redirect is None
+
+
+def test_legacy_single_column_bars_route_to_profiles() -> None:
+    saved = PlotSettings(category_chart=CategorySettings("group", top=5))
+    controls = PlotControls()
+    dataset = data()
+    assert restore_plots(controls, dataset, saved)
+    assert controls.settings().category_chart is None
+    assert controls.profile_redirect == "group"
+    assert controls.columns[controls.profile_index - 1] == "group"
+    assert controls.top_counts == 5
+    removed = dataset.with_role("group", ColumnRole.TEXT)
+    controls = PlotControls()
+    assert restore_plots(controls, removed, saved)
+    assert controls.profile_redirect is None
+
+
+def test_category_density_settings_restore_with_provenance() -> None:
+    from datelier.distributions import DistributionSettings
+
+    saved = PlotSettings(
+        comparison=DistributionSettings(bandwidth=0.75, seed=17),
+        category_chart=CategorySettings(
+            "category", Mode.VIOLIN, value="value", bandwidth=0.75, seed=17
+        ),
+    )
+    controls = PlotControls()
+    assert not restore_plots(controls, data(), saved)
+    assert controls.settings() == saved
 
 
 def test_numeric_axes_remain_distinct_after_a_role_change() -> None:

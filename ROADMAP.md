@@ -353,4 +353,5 @@ the exclusive category/multiple numeric checklist with saved selections.
 Category–numeric Relationships now require box/violin plots; grouped bars stay
 for category–category comparisons, and single-column counts belong in Profiles.
 [Delivery gates](docs/category-distribution-follow-up.md) cover worker preparation
-followed by native UI and saved-view routing.
+followed by native UI and saved-view routing. Both steps are verified, including
+linked selections, compatible inputs, saved-view migration and reopen behavior.

@@ -22,8 +22,10 @@ def draw_box(
     center = float(index)
     if violin and len(series.kde_y):
         width = series.kde_y / series.kde_y.max() * 0.4
-        xs = np.concatenate((center - width, (center + width)[::-1]))
-        ys = np.concatenate((series.kde_x, series.kde_x[::-1]))
+        xs = np.concatenate(
+            (center - width, (center + width)[::-1], [center - width[0]])
+        )
+        ys = np.concatenate((series.kde_x, series.kde_x[::-1], series.kde_x[:1]))
         implot.plot_line(series.name, xs, ys, implot.Spec(line_color=color))
     else:
         xs = np.array(

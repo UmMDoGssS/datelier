@@ -222,7 +222,10 @@ def run_gui(
             view.reset()
             adjusted = restore_views(session, restored.workspace)
             if adjusted:
-                workspace.jobs.message += " Unavailable plot columns were reset."
+                workspace.jobs.message += (
+                    " Saved plot settings were adjusted"
+                    " to the current columns and charts."
+                )
             selection.bind(restored.inspection.dataset.revision)
             explorer.request(restored.inspection.dataset, plot_controls.settings())
         edited = editor.poll(loader.revision)
