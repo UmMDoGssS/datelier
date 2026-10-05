@@ -106,7 +106,7 @@ class FileSession:
         )
         return session
 
-    def install_restored(self, restored: RestoredWorkspace) -> None:
+    def install_restored(self, restored: RestoredWorkspace) -> bool:
         self.loader.abandon()
         self.loader.active = restored.inspection
         self.loader.status = LoadStatus(
@@ -127,6 +127,7 @@ class FileSession:
             )
         self.selection.bind(restored.inspection.dataset.revision)
         self.explorer.request(restored.inspection.dataset, self.plots.settings())
+        return adjusted
 
     def poll(self) -> None:
         if self.closed:
@@ -178,13 +179,18 @@ class FileSession:
     def install_session_file(self, result: RestoredSessionFile) -> None:
         self.panel_scroll = {name: (x, y) for name, x, y in result.file.panel_scroll}
         if result.restored is not None:
-            self.install_restored(result.restored)
+            adjusted = self.install_restored(result.restored)
             self.selection.choose(
                 result.restored.inspection.dataset.revision, result.file.selection
             )
-            if result.message:
+            message = result.message
+            if adjusted:
+                message += (
+                    " Saved view settings were adjusted to the available columns."
+                )
+            if message:
                 self.loader.status = LoadStatus(
-                    LoadPhase.READY, self.loader.status.path, result.message
+                    LoadPhase.READY, self.loader.status.path, message.strip()
                 )
             self.recovery = None
         elif result.message:

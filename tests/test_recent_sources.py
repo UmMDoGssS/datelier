@@ -30,11 +30,15 @@ def wait(editor: EditorSession) -> None:
     deadline = monotonic() + 5
     while monotonic() < deadline:
         editor.poll()
-        if not editor.opening.busy and all(
-            file.loader.status.phase != LoadPhase.LOADING
-            and not file.workspace.jobs.busy
-            and not file.editor.busy
-            for file in editor.files
+        if (
+            not editor.opening.busy
+            and not editor.workspace_jobs.busy
+            and all(
+                file.loader.status.phase != LoadPhase.LOADING
+                and not file.workspace.jobs.busy
+                and not file.editor.busy
+                for file in editor.files
+            )
         ):
             return
         sleep(0.001)
@@ -146,9 +150,8 @@ def test_saved_and_reopened_workspace_is_recent_and_can_recover_source(
         editor.open_recent(recent)
         wait(editor)
         file = editor.active
-        assert file.workspace.jobs.issue is not None and file.loader.active is None
-        file.workspace.relink_path = str(moved)
-        file.workspace.open(file, relink=True)
+        assert file.recovery is not None and file.loader.active is None
+        editor.recover_source(file.identity, relink=moved)
         wait(editor)
         assert (
             file.loader.active is not None
@@ -157,7 +160,9 @@ def test_saved_and_reopened_workspace_is_recent_and_can_recover_source(
         assert not file.analysis.jobs.busy and not file.analysis.jobs.results
         editor.new_tab()
         editor.open_recent(recent)
-        assert editor.active is file and len(editor.files) == 2
+        wait(editor)
+        assert len(editor.files) == 1 and editor.active.identity == "legacy-source"
+        assert editor.active.recovery is not None
     finally:
         editor.close()
 

@@ -10,6 +10,8 @@ from datelier.analysis.embedding_parameters import LLEParameters
 from datelier.analysis.parameters import DBSCANParameters
 from datelier.analysis.types import Algorithm
 from datelier.gui.app import GuiSession, InspectionEvidence, run_gui
+from datelier.gui.editor_session import EditorSession
+from datelier.gui.tabs import EditorTabs
 from datelier.pipeline.editing import HistoryAction
 from datelier.pipeline.operations import Sort
 
@@ -97,17 +99,18 @@ def main() -> None:
         stage, ready = 0, 0
         selected = False
 
-        def reopen_frame(session: GuiSession, evidence: InspectionEvidence) -> None:
+        def reopen_frame(
+            editor: EditorSession, tabs: EditorTabs, evidence: InspectionEvidence
+        ) -> None:
             nonlocal stage, ready, selected
-            jobs = session.workspace.jobs
-            if stage == 0 and jobs.issue is not None:
+            session = editor.active
+            if stage == 0 and session.recovery is not None:
                 hello_imgui.get_runner_params().docking_params.focus_dockable_window(
                     "Table preview"
                 )
                 ready, stage = evidence.frames, 1
             elif stage == 1 and evidence.frames > ready + 15:
-                session.workspace.relink_path = str(moved)
-                session.workspace.open(session, relink=True)
+                editor.recover_source(session.identity, relink=moved)
                 stage = 2
             active = session.loader.active
             if active is None:
@@ -161,7 +164,7 @@ def main() -> None:
                 hello_imgui.get_runner_params().app_shall_exit = True
 
         second = run_gui(
-            initial_workspace=workspace, smoke_frames=2000, on_frame=reopen_frame
+            initial_workspace=workspace, smoke_frames=2000, on_editor_frame=reopen_frame
         )
         assert stage == 4 and selected
         assert moved.read_bytes() == before

@@ -36,6 +36,7 @@ class PreferenceControls:
         self._submitted: Preferences | None = None
         self._load_layout = True
         self._pending_layout: str | None = None
+        self._pending_visibility: tuple[str, ...] | None = None
         self.reset_requested = False
         self.menu_pixels: dict[str, tuple[float, float]] = {}
 
@@ -64,9 +65,10 @@ class PreferenceControls:
             params.docking_params.layout_condition = (
                 hello_imgui.DockingLayoutCondition.never
             )
+            # A fast asynchronous restore can finish while Hello ImGui still
+            # has its first-frame default layout reset queued.
+            params.docking_params.layout_reset = False
             self._pending_layout = None
-            for window in params.docking_params.dockable_windows:
-                window.is_visible = window.label not in self._saved_hidden
         if self.reset_requested:
             imgui.internal.clear_ini_settings()
             params.docking_params.layout_condition = (
@@ -78,10 +80,20 @@ class PreferenceControls:
             self.value = replace(self.value, layout="", hidden_windows=())
             self.reset_requested = False
             self.message = "Default layout restored."
+        if self._pending_visibility is not None:
+            for window in params.docking_params.dockable_windows:
+                window.is_visible = window.label not in self._pending_visibility
+            self._pending_visibility = None
+
+    def queue_layout(self, layout: str, hidden: tuple[str, ...]) -> None:
+        if layout:
+            self._pending_layout = layout
+        if layout or hidden:
+            self._pending_visibility = hidden
 
     def restore_layout(self) -> None:
         if self._saved_layout:
-            self._pending_layout = self._saved_layout
+            self.queue_layout(self._saved_layout, self._saved_hidden)
         else:
             self.reset_requested = True
 

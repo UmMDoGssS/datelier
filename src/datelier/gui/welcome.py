@@ -7,6 +7,7 @@ from imgui_bundle import imgui
 
 from datelier.gui.editor_session import EditorSession
 from datelier.gui.file_session import FileSession
+from datelier.gui.workspace.session_controls import show_recovery
 from datelier.io.loading import LoadPhase
 from datelier.io.types import ImportFailure
 from datelier.workspace.recent import RecentSource
@@ -18,6 +19,8 @@ class Welcome:
     retry_pixel: tuple[float, float] = (0, 0)
     open_folder_pixel: tuple[float, float] = (0, 0)
     recent_pixels: dict[RecentSource, tuple[float, float]] = field(default_factory=dict)
+    workspace_requested: bool = False
+    recovery_pixel: tuple[float, float] = (0, 0)
 
     def show(self, editor: EditorSession, file: FileSession) -> None:
         imgui.text("Welcome to Datelier")
@@ -33,29 +36,36 @@ class Welcome:
         self.open_folder_pixel = ((lo.x + hi.x) / 2, (lo.y + hi.y) / 2)
         imgui.separator()
         controls = file.controls
-        _, controls.path = imgui.input_text("File path", controls.path)
-        if imgui.button("Open path / retry import"):
-            try:
-                if not controls.path.strip():
-                    raise ValueError("Enter a file path or use Open Files.")
-                selected = controls.selected_format()
-                editor.opening.request(
-                    (Path(controls.path),),
-                    file.identity,
-                    format=selected,
-                    options=controls.options(selected),
-                    retry=True,
-                )
-                controls.error = ""
-            except (ValueError, ImportFailure) as error:
-                controls.error = str(error)
-        lo, hi = imgui.get_item_rect_min(), imgui.get_item_rect_max()
-        self.retry_pixel = ((lo.x + hi.x) / 2, (lo.y + hi.y) / 2)
+        self.recovery_pixel = (0, 0)
+        if file.recovery is not None:
+            imgui.text_wrapped(
+                "Recover the saved source to replay this tab's operations."
+            )
+            self.recovery_pixel = show_recovery(editor, file)
+        else:
+            _, controls.path = imgui.input_text("File path", controls.path)
+            if imgui.button("Open path / retry import"):
+                try:
+                    if not controls.path.strip():
+                        raise ValueError("Enter a file path or use Open Files.")
+                    selected = controls.selected_format()
+                    editor.opening.request(
+                        (Path(controls.path),),
+                        file.identity,
+                        format=selected,
+                        options=controls.options(selected),
+                        retry=True,
+                    )
+                    controls.error = ""
+                except (ValueError, ImportFailure) as error:
+                    controls.error = str(error)
+            lo, hi = imgui.get_item_rect_min(), imgui.get_item_rect_max()
+            self.retry_pixel = ((lo.x + hi.x) / 2, (lo.y + hi.y) / 2)
         if controls.error:
             imgui.text_wrapped(controls.error)
         imgui.text_wrapped(editor.opening.message)
         imgui.text_wrapped(file.loader.status.phase.value)
-        if file.loader.status.message:
+        if file.loader.status.message and file.recovery is None:
             imgui.text_wrapped(file.loader.status.message)
         if file.loader.status.phase == LoadPhase.LOADING and imgui.button(
             "Abandon load"
@@ -64,9 +74,11 @@ class Welcome:
         imgui.text_wrapped(
             "CSV/TSV, JSON/JSONL, Parquet and tabular XML are supported."
         )
-        if file.workspace.path:
+        if editor.workspace_path:
             imgui.separator()
-            file.workspace.show(file, sources=editor.source_paths)
+            imgui.text_wrapped(editor.workspace_jobs.message)
+            if imgui.button("Workspace actions…"):
+                self.workspace_requested = True
         self.recent_pixels.clear()
         if editor.preferences.value.recent:
             imgui.separator()

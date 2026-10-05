@@ -27,7 +27,7 @@ verified package refactor (through `0879793`). The starting tree was clean at
 Every implementation step runs Pyrefly, focused tests, Ruff lint/format,
 applicable native GUI smoke, diff review and a coherent step commit. Each
 milestone additionally requires the full suite and recorded acceptance evidence.
-M9.1 and M9.2 pass with the evidence below. M9.3–M9.4 and Phase 9 remain open.
+M9.1–M9.3 pass with the evidence below. M9.4 and Phase 9 remain open.
 
 ## Step 1 — File ownership and shared workers
 
@@ -375,3 +375,49 @@ Commands retain the earlier offline/cache/Mesa settings. Focused tests:
 and `benchmark_editor_tabs.py`. M9.3 remains open until menu/CLI/recent actions,
 visible per-source recovery and layout restoration use these session APIs and
 pass fresh-process/full-suite acceptance.
+
+
+## Step 9 / M9.3 exit — Session menus, recovery and saved docking
+
+Normal menu, recent-workspace and CLI startup actions now use whole-session
+recipes. The application-owned workspace dialog stays open across restoration;
+failed source tabs expose their own replacement/changed-content controls without
+routing retry through a plain import that would discard their history. Adjusted
+views and selection recovery produce visible messages. Global session jobs and
+source-specific recovery guard edits/exports while sibling files remain usable.
+
+Saved native docking and panel visibility take precedence on restore. A fast
+restore exposed a startup race: Hello ImGui had already queued its default layout
+reset when the saved ini was loaded. Restoration now clears that queued reset.
+The strengthened native assertion compares the restored Table dock to the dock
+recorded by the separate save process, including when Schema is an inactive tab.
+
+Verification on 2026-10-06:
+
+- **534 full-suite tests passed in 18.08s**; **53 focused tests passed in 1.29s**
+  across session/editor/recent/preference/workspace GUI state. New changed-source
+  coverage verifies explicit acceptance, retained sorting, cleared selection,
+  visible unavailable-column adjustment and an unchanged sibling revision.
+- Pyrefly zero errors; Ruff lint/format and diff whitespace checks pass.
+- Fresh-process `session_workspace_smoke.py` passes save **15** / restore **45**
+  frames (PIDs 429120/429262), through the same initial-workspace route as CLI.
+  Native relink-button input restores a moved source while another tab stays
+  usable. Saved dock ID 1 and hidden Analysis restore, order/active tab, independent
+  seeds/bins/history/selection, source bytes and zero implicit ML all pass.
+  [Restored recovery/layout screenshot](evidence/phase9/session-recovery-layout.png)
+  was visually inspected: Table is tabbed with Schema at the left and Analysis
+  is hidden. Synthetic ImGui input is used; physical mouse input is not claimed.
+- Native menu smoke passes **285** frames; legacy workspace migration/relink
+  **31/46**; recent sources **16/83**; preferences default/save/reopen **15/21/68**;
+  Welcome/multi-open **126**; editor switch/reorder/close/New **193**. Preferences
+  also verifies reset/restore, plot defaults, themes and source preservation.
+- The Step 8 lifecycle/resource report remains valid; no new worker pool or
+  retained payload cache was added in this integration step.
+
+Commands use the cache/offline/Mesa settings above: full `pytest`, focused session
+and editor tests, Pyrefly/Ruff/diff checks, `session_workspace_smoke.py`,
+`editor_menu_smoke.py`, `workspace_smoke.py`, `recent_smoke.py`,
+`preferences_smoke.py`, `welcome_smoke.py` and `editor_tabs_smoke.py`.
+M9.3 passes. Its coherent steps are `1d4c576` (storage/migration), `8017e50`
+(worker capture/restore/recovery), and the menu/layout acceptance commit
+accompanying this section. M9.4 is the next outstanding gate.

@@ -103,14 +103,13 @@ def run_stage(root: Path, mode: str) -> None:
                 stage, entered = 3, evidence.frames
             elif stage == 3 and evidence.frames > entered + 6:
                 click(evidence.welcome_recent_pixels[str(workspace)], 4)
-            elif stage == 4 and file.workspace.jobs.issue is not None:
+            elif stage == 4 and file.recovery is not None:
                 assert file.loader.active is None
-                file.workspace.relink_path = str(moved)
-                file.workspace.open(file, relink=True)
+                editor.recover_source(file.identity, relink=moved)
                 stage = 5
             elif stage == 5 and file.loader.active is not None:
                 assert file.loader.active.dataset.table.columns == ["x", "y"]
-                assert file.workspace.jobs.opened == workspace
+                assert editor.workspace_jobs.opened == workspace
                 assert not file.analysis.jobs.busy and not file.analysis.jobs.results
                 stage, entered = 6, evidence.frames
             elif (

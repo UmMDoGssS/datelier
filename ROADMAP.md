@@ -39,7 +39,7 @@ records workflow/resource checks and the clean-wheel install. The personal-use
 v1 scope is complete. Phase 8 remains optional investigation for concrete needs.
 Phases 9–14 are the approved editor and multimodal sequence; Phase 9 passes
 M9.1 independent tabs/shared workers and M9.2 Welcome/recent sources/editor
-controls; its remaining implementation gates remain open and do not change existing feature or usability acceptance.
+controls and M9.3 whole-session persistence; M9.4 comparison gates remain open and do not change existing feature or usability acceptance.
 
 A concrete post-v1 usability need is recorded in the
 [Titanic UX review and proposed repair plan](docs/ux-titanic-review.md): readable
@@ -635,7 +635,8 @@ the corresponding dependency or behavior gates.
 
 [Verified implementation and resources](docs/phase-9.md) cover file ownership,
 native tabs, independent inactive-file jobs, nonblocking closure and M9.2
-Welcome/recent opening/editor controls. M9.3 is the next outstanding milestone.
+Welcome/recent opening/editor controls and whole-session recovery. M9.4 is
+the next outstanding milestone.
 
 - [x] **Deliverables:** application/file session separation; top file tab bar with switching, reordering, closing, and New Tab; independent source/revision, operations, selections, jobs, analysis settings, and views; dockable panels bound to the active file.
 - [x] **Entry gate:** inspect current GuiSession and job/persistence boundaries; define typed file-session ownership and the shared worker lifecycle before introducing tabs.
@@ -653,11 +654,11 @@ Welcome/recent opening/editor controls. M9.3 is the next outstanding milestone.
 
 ### M9.3 — Whole-session workspace persistence
 
-- [ ] **Deliverables:** versioned whole-session recipes containing tab order/active tab, source references, independent operations/analysis settings/views, and comparison settings; migration of existing single-source workspaces; per-source restore/relink diagnostics.
+- [x] **Deliverables:** versioned whole-session recipes containing tab order/active tab, source references, independent operations/analysis settings/views, and comparison settings; migration of existing single-source workspaces; per-source restore/relink diagnostics.
 - [x] **Entry gate:** M9.2 passes; each file session can capture and restore a recipe without fitted artifacts or shared mutable state.
-- [ ] **Exit gate:** save/reopen restores independent file state and layout; old workspaces become one-file sessions; missing/changed sources remain recoverable while other tabs are usable; restoration starts no ML, tokenizer training, or playback.
-- [ ] **Verification evidence:** legacy migration, round-trip, partial recovery and changed-source fixtures; fresh-process native save/reopen/relink; atomic-write/source-preservation and full-suite checks.
-- [ ] **Suggested step commits:** `feat: save whole-session workspaces` → `feat: migrate single-file workspace recipes` → `feat: recover individual workspace sources`.
+- [x] **Exit gate:** save/reopen restores independent file state and layout; old workspaces become one-file sessions; missing/changed sources remain recoverable while other tabs are usable; restoration starts no ML, tokenizer training, or playback.
+- [x] **Verification evidence:** legacy migration, round-trip, partial recovery and changed-source fixtures; fresh-process native save/reopen/relink; atomic-write/source-preservation and full-suite checks.
+- [x] **Suggested step commits:** `feat: save whole-session workspaces` → `feat: migrate single-file workspace recipes` → `feat: recover individual workspace sources`.
 
 ### M9.4 — Cross-file profile comparison
 

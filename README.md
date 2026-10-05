@@ -50,7 +50,8 @@ Try a CSV with at least two varying numeric columns (for example `x` and `y`):
    Click a row or point to see the matching highlight.
 4. In **Analysis**, choose `x` and `y`, then **Run PCA**. Analysis is optional and
    always requires an explicit command; the other algorithms have sample settings.
-5. In **Workspace**, enter a new `.datelier` path and **Save workspace**. Close
+5. Choose **File → Workspace actions…**, enter a new `.datelier` path and
+   **Save workspace**. Close
    and reopen with `datelier --workspace /path/to/session.datelier` (prefix with
    `uv run --no-dev` when using the checkout).
 6. Check the restored table/history/settings. Fitted analysis results are
@@ -139,10 +140,11 @@ Referenced workspace recipes are available; fitted results remain session-only.
 
 Choose **File → Workspace actions…**. Enter a destination path such
 as `/path/to/session.datelier`, then choose **Save workspace**. Existing files
-require **Replace existing workspace**. Save records the source reference and
-fingerprint, import options, undo/redo history, analysis settings and views.
-It does not bundle source data or fitted results. Sources must still match the
-imported size/mtime when saving.
+require **Replace existing workspace**. Save records all tabs and their order,
+the active tab, independent source references/fingerprints, import options,
+undo/redo histories, analysis settings, views and selections (up to 10,000 row
+IDs per file), plus docking and panel visibility. It does not bundle source data
+or fitted results. Sources must still match the imported size/mtime when saving.
 
 Use **Open workspace**, or launch directly:
 
@@ -150,13 +152,15 @@ Use **Open workspace**, or launch directly:
 uv run datelier --workspace /path/to/session.datelier
 ```
 
-Restore checks the source and replays recipes in the background. Failures keep
-the active data/history. If a source moved, enter **Replacement source** and
-choose **Relink / retry source**. Content changes require **Accept changed source
-content** before replaying against the new data. Relative sources may move
-alongside their workspace. Available column views/settings restore; unavailable
-plot columns reset. Restoring never launches ML; use an explicit Run command.
-Selections and fitted results last for the session.
+Restore checks sources and replays recipes in the background. A missing or
+changed source gets its own recovery tab while other files remain usable. Enter
+**Replacement source** there and choose **Relink / retry source**. Content changes
+require **Accept changed source content** before replaying; acceptance clears
+that file’s saved selection. Relative sources may move alongside their workspace.
+Available column views/settings restore; unavailable plot columns reset with a
+message. Legacy single-source workspaces open as one-file sessions. An invalid
+workspace leaves the current editor intact. Restoring never launches ML; use an
+explicit Run command. Fitted results last for the session.
 
 The **Preferences** menu offers Dark, Light and Classic themes, **Save
 preferences**, **Restore saved layout**, **Reset layout** and **Reset plot

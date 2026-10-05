@@ -37,6 +37,7 @@ class InspectionEvidence:
     welcome_frames: int = 0
     welcome_open_files_pixel: tuple[float, float] = (0, 0)
     welcome_open_folder_pixel: tuple[float, float] = (0, 0)
+    welcome_recovery_pixel: tuple[float, float] = (0, 0)
     welcome_retry_pixel: tuple[float, float] = (0, 0)
     welcome_recent_pixels: dict[str, tuple[float, float]] = field(default_factory=dict)
 
@@ -84,10 +85,13 @@ def run_gui(
             evidence.welcome_open_files_pixel = welcome.open_files_pixel
             evidence.welcome_open_folder_pixel = welcome.open_folder_pixel
             evidence.welcome_retry_pixel = welcome.retry_pixel
+            evidence.welcome_recovery_pixel = welcome.recovery_pixel
             evidence.welcome_recent_pixels = {
                 entry.path: pixel for entry, pixel in welcome.recent_pixels.items()
             }
             return
+        if session.loader.status.message:
+            imgui.text_wrapped(session.loader.status.message)
         session.table.show(session.loader.active, session.pages, session.selection)
         evidence.max_rendered_rows = max(
             evidence.max_rendered_rows, session.table.rendered_rows
@@ -156,7 +160,9 @@ def run_gui(
                     session.editor,
                     loading=session.loader.status.phase == LoadPhase.LOADING
                     or session.exporter.busy
-                    or session.workspace.jobs.busy,
+                    or session.workspace.jobs.busy
+                    or editor.workspace_jobs.session_busy
+                    or editor.workspace_jobs.recovering(session.identity),
                 )
             ),
             "Export table": bind(
@@ -164,7 +170,9 @@ def run_gui(
                     session.editor,
                     session.exporter,
                     loading=session.loader.status.phase == LoadPhase.LOADING
-                    or session.workspace.jobs.busy,
+                    or session.workspace.jobs.busy
+                    or editor.workspace_jobs.session_busy
+                    or editor.workspace_jobs.recovering(session.identity),
                 )
             ),
         },
@@ -192,7 +200,7 @@ def run_gui(
     load_started = perf_counter()
     previous_frame = load_started
     if initial_workspace:
-        editor.active.workspace.open(editor.active)
+        editor.open_workspace(initial_workspace)
     elif initial_path:
         editor.active.loader.request(initial_path)
 
@@ -204,6 +212,12 @@ def run_gui(
         previous_frame = now
         evidence.frames += 1
         editor.poll()
+        if editor.pending_layout is not None:
+            preferences.queue_layout(*editor.pending_layout)
+            editor.pending_layout = None
+        if welcome.workspace_requested:
+            controls.open_dialog("Workspace actions", editor.active)
+            welcome.workspace_requested = False
         controls.show_dialog(editor)
         evidence.menu_pixels = controls.menu_pixels.copy()
         evidence.dialog_pixels = controls.action_pixels.copy()
@@ -211,9 +225,15 @@ def run_gui(
         if paths is not None and editor.browser.owner is not None:
             editor.opening.request(paths, editor.browser.owner)
         session = editor.active
-        if session.loader.status.phase == LoadPhase.LOADING:
+        if (
+            session.loader.status.phase == LoadPhase.LOADING
+            or editor.workspace_jobs.session_busy
+        ):
             evidence.loading_frames += 1
-        elif session.loader.status.phase == LoadPhase.FAILED:
+        elif (
+            session.loader.status.phase == LoadPhase.FAILED
+            or editor.workspace_jobs.message.startswith("Session workspace failed:")
+        ):
             evidence.failed_frames += 1
         if on_frame:
             on_frame(session, evidence)

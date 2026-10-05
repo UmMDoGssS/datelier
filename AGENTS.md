@@ -98,7 +98,8 @@ inspection, text tokenization/statistics, image/box inspection, and audio
 profiles/playback. M9.1 independent tabs/shared workers and M9.2 Welcome/recent
 sources/editor controls pass; [docs/phase-9.md](docs/phase-9.md) records
 correctness, native input, recovery and resources. M9.3 whole-session workspaces
-and subsequent implementation gates remain open.
+pass with independent recovery and fresh-process docking evidence; M9.4
+cross-file comparisons and subsequent implementation gates remain open.
 Phase 8 investigations do not block this approved sequence. Existing v1 evidence
 and unfinished Titanic usability gates retain their status.
 

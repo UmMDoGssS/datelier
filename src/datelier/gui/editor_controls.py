@@ -7,6 +7,7 @@ from imgui_bundle import hello_imgui, imgui
 
 from datelier.gui.editor_session import EditorSession
 from datelier.gui.file_session import FileSession
+from datelier.gui.workspace.session_controls import SessionControls
 from datelier.io.loading import LoadPhase
 from datelier.io.types import ImportFailure, ImportFormat
 
@@ -23,11 +24,14 @@ class EditorControls:
     _open_requested: bool = False
     menu_pixels: dict[str, tuple[float, float]] = field(default_factory=dict)
     action_pixels: dict[str, tuple[float, float]] = field(default_factory=dict)
+    workspace: SessionControls = field(default_factory=SessionControls)
 
     def open_dialog(self, name: str, file: FileSession) -> None:
         if name not in ("Import settings", "Workspace actions"):
             raise ValueError("Unknown editor dialog")
-        self.dialog, self.owner, self._open_requested = name, file.identity, True
+        self.dialog = name
+        self.owner = file.identity if name == "Import settings" else None
+        self._open_requested = True
 
     def _menu_item(self, label: str, *, enabled: bool = True) -> bool:
         selected = imgui.menu_item(label, "", False, enabled)[0]
@@ -110,10 +114,14 @@ class EditorControls:
             or file.editor.busy
             or file.exporter.busy
             or file.workspace.jobs.busy
+            or editor.workspace_jobs.session_busy
+            or editor.workspace_jobs.recovering(file.identity)
         )
         label = (
             "Reimport source (resets history)"
             if file.loader.active is not None
+            else "Import source (discards saved history)"
+            if file.recovery is not None
             else "Open path / retry import"
         )
         if imgui.button(label):
@@ -145,19 +153,23 @@ class EditorControls:
         if not visible:
             self.dialog = self.owner = None
             return
-        file = next(
-            (file for file in editor.files if file.identity == self.owner), None
+        file = (
+            editor.active
+            if title == "Workspace actions"
+            else next(
+                (file for file in editor.files if file.identity == self.owner), None
+            )
         )
         if file is None:
             imgui.close_current_popup()
             self.dialog = self.owner = None
         else:
-            imgui.text_wrapped(f"Tab: {Path(file.controls.path).name or 'Welcome'}")
             if title == "Import settings":
+                imgui.text_wrapped(f"Tab: {Path(file.controls.path).name or 'Welcome'}")
                 self._show_import(editor, file)
             else:
-                file.workspace.show(file, sources=editor.source_paths)
-                self.action_pixels.update(file.workspace.action_pixels)
+                self.workspace.show(editor)
+                self.action_pixels.update(self.workspace.action_pixels)
             imgui.separator()
             if imgui.button("Close dialog"):
                 imgui.close_current_popup()

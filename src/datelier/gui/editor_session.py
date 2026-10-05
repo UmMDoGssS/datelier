@@ -125,6 +125,7 @@ class EditorSession:
             file.identity = result.file.identity
             file.install_session_file(result)
             self.files.append(file)
+            self._remember_file(file)
         self.comparisons = restored.workspace.comparisons
         self.pending_layout = (
             restored.workspace.layout,
@@ -144,26 +145,7 @@ class EditorSession:
                 retry=True,
             )
             return
-        existing = next(
-            (
-                file
-                for file in self.files
-                if file.workspace.jobs.opened == Path(source.path)
-            ),
-            None,
-        )
-        if existing is not None:
-            self.activate(existing.identity)
-            self.preferences.remember(source)
-            return
-        file = self.active
-        if (
-            file.loader.active is not None
-            or file.loader.status.phase == LoadPhase.LOADING
-        ):
-            file = self.new_tab()
-        file.workspace.path = source.path
-        file.workspace.open(file)
+        self.open_workspace(Path(source.path))
 
     def _remember_file(self, file: FileSession) -> None:
         if file.loader.active is None:
@@ -244,6 +226,7 @@ class EditorSession:
                 file for file in self.files if file.identity == result.file.identity
             )
             file.install_session_file(result)
+            self._remember_file(file)
         path = (
             self.workspace_jobs.saved.path
             if self.workspace_jobs.saved is not None

@@ -75,6 +75,13 @@ class SessionJobs:
         self.completed = 0
 
     @property
+    def session_busy(self) -> bool:
+        return self._future is not None
+
+    def recovering(self, identity: str) -> bool:
+        return identity in self._recoveries
+
+    @property
     def busy(self) -> bool:
         return self._future is not None or bool(self._recoveries)
 
@@ -103,6 +110,8 @@ class SessionJobs:
         revision: FileStamp,
         recovery: SourceRecovery,
     ) -> None:
+        if self.session_busy:
+            raise ValueError("Wait for the session workspace job or abandon it")
         previous = self._recoveries.pop(file.file.identity, None)
         if previous is not None:
             previous[1].cancel()

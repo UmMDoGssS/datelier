@@ -53,6 +53,7 @@ def saved_session(tmp_path: Path) -> Path:
         first.editor.request(Sort(("x",)))
         wait(editor)
         first.plots.bins, second.plots.bins = 7, 13
+        first.plots.custom_scatter = True
         first.analysis.controls.seed, second.analysis.controls.seed = 17, 29
         assert first.loader.revision is not None
         first.selection.choose(first.loader.revision, (1,))
@@ -204,4 +205,63 @@ def test_restore_is_obsolete_when_blank_owner_starts_a_new_import(
     finally:
         release.set()
         load_release.set()
+        editor.close()
+
+
+def test_failed_whole_session_open_or_source_destination_retains_usable_tabs(
+    tmp_path: Path,
+) -> None:
+    path = saved_session(tmp_path)
+    editor = EditorSession()
+    try:
+        editor.open_workspace(path)
+        wait(editor)
+        files = tuple(editor.files)
+        active = editor.active
+        revision = active.loader.revision
+        missing = tmp_path / "missing.datelier"
+        editor.open_workspace(missing)
+        wait(editor)
+        assert tuple(editor.files) == files and editor.active is active
+        assert active.loader.revision == revision
+        assert "Session workspace failed" in editor.workspace_jobs.message
+        source = tmp_path / "test.csv"
+        before = source.read_bytes()
+        editor.save_workspace(source, overwrite=True)
+        wait(editor)
+        assert (
+            source.read_bytes() == before
+            and "source data" in editor.workspace_jobs.message
+        )
+        assert tuple(editor.files) == files and active.loader.revision == revision
+    finally:
+        editor.close()
+
+
+def test_changed_source_requires_acceptance_and_reports_view_selection_adjustments(
+    tmp_path: Path,
+) -> None:
+    path = saved_session(tmp_path)
+    source = tmp_path / "train.csv"
+    source.write_text("x\n30\n10\n20\n")
+    editor = EditorSession()
+    try:
+        editor.open_workspace(path)
+        wait(editor)
+        good, _, changed = editor.files
+        assert changed.recovery is not None and changed.recovery.changed
+        revision = good.loader.revision
+        editor.recover_source(changed.identity)
+        wait(editor)
+        assert changed.recovery is not None and changed.loader.active is None
+        editor.recover_source(changed.identity, accept_changed=True)
+        wait(editor)
+        assert changed.loader.active is not None and changed.recovery is None
+        assert changed.loader.active.dataset.table["x"].to_list() == [10, 20, 30]
+        assert (
+            not changed.selection.row_ids
+            and "adjusted" in changed.loader.status.message
+        )
+        assert not changed.plots.custom_scatter and good.loader.revision == revision
+    finally:
         editor.close()

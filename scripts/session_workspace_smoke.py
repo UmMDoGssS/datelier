@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from imgui_bundle import hello_imgui
+from imgui_bundle import hello_imgui, imgui
 
 from datelier.gui.app import InspectionEvidence, run_gui
 from datelier.gui.editor_session import EditorSession
@@ -24,12 +24,42 @@ def run_stage(root: Path, mode: str) -> None:
         root / "session.datelier",
     )
     stage, entered = 0, 0
+    expected_dock = (
+        int(json.loads((root / "layout-evidence.json").read_text())["table_dock"])
+        if mode == "restore"
+        else 0
+    )
     recovered_revision: object = None
+    pointer, previous = (0.0, 0.0), (0.0, 0.0)
+    clicking, click_frame = 0, 0
+
+    def apply_pointer() -> None:
+        nonlocal previous
+        io = imgui.get_io()
+        io.mouse_pos = imgui.ImVec2(*pointer)
+        io.mouse_delta = imgui.ImVec2(
+            pointer[0] - previous[0], pointer[1] - previous[1]
+        )
+        io.want_set_mouse_pos = True
+        previous = pointer
 
     def frame(
         editor: EditorSession, tabs: EditorTabs, evidence: InspectionEvidence
     ) -> None:
-        nonlocal stage, entered, recovered_revision
+        nonlocal stage, entered, recovered_revision, pointer, clicking, click_frame
+        io = imgui.get_io()
+        if clicking:
+            age = evidence.frames - click_frame
+            if clicking == 1 and age > 3:
+                io.add_mouse_button_event(0, True)
+                clicking, click_frame = 2, evidence.frames
+            elif clicking == 2 and age > 3:
+                io.add_mouse_button_event(0, False)
+                clicking, click_frame = 3, evidence.frames
+            elif clicking == 3 and age > 6:
+                clicking = 0
+                stage = 2
+            return
         if mode == "save":
             if stage == 0:
                 editor.opening.request((source, test), editor.active_id)
@@ -50,19 +80,31 @@ def run_stage(root: Path, mode: str) -> None:
                 blank = editor.new_tab()
                 editor.reorder((other.identity, blank.identity, train.identity))
                 editor.activate(train.identity)
+                params = hello_imgui.get_runner_params()
+                imgui.internal.dock_builder_dock_window(
+                    "Table preview", evidence.schema_dock_id
+                )
+                params.docking_params.focus_dockable_window("Table preview")
+                params.docking_params.dockable_window_of_name(
+                    "Analysis"
+                ).is_visible = False
                 stage, entered = 3, evidence.frames
             elif stage == 3 and evidence.frames > entered + 8:
                 assert tabs.native_order == tuple(
                     file.identity for file in editor.files
                 )
-                editor.save_workspace(workspace)
+                assert evidence.table_dock_id == evidence.schema_dock_id
+                editor.save_workspace(
+                    workspace,
+                    layout=imgui.save_ini_settings_to_memory(),
+                    hidden=("Analysis",),
+                )
                 stage = 4
             elif stage == 4 and editor.workspace_jobs.saved is not None:
                 hello_imgui.get_runner_params().app_shall_exit = True
                 stage = 10
         else:
             if stage == 0:
-                editor.open_workspace(workspace)
                 stage = 1
             elif (
                 stage == 1 and not editor.workspace_jobs.busy and len(editor.files) == 3
@@ -72,8 +114,19 @@ def run_stage(root: Path, mode: str) -> None:
                 assert failed.recovery is not None and editor.active is failed
                 assert good.plots.bins == 13 and good.analysis.controls.seed == 29
                 recovered_revision = good.loader.revision
-                editor.recover_source(failed.identity, relink=root / "moved.csv")
-                stage = 2
+                if (
+                    hello_imgui.get_runner_params()
+                    .docking_params.dockable_window_of_name("Analysis")
+                    .is_visible
+                ):
+                    return
+                failed.workspace.relink_path = str(root / "moved.csv")
+                hello_imgui.get_runner_params().callbacks.post_new_frame = apply_pointer
+                stage, entered = 11, evidence.frames
+            elif stage == 11 and evidence.frames > entered + 5:
+                assert evidence.welcome_recovery_pixel != (0, 0)
+                pointer = evidence.welcome_recovery_pixel
+                clicking, click_frame = 1, evidence.frames
             elif stage == 2 and not editor.workspace_jobs.busy:
                 good, _, train = editor.files
                 assert train.loader.active is not None and train.recovery is None
@@ -90,6 +143,11 @@ def run_stage(root: Path, mode: str) -> None:
                 assert tabs.native_order == tuple(
                     file.identity for file in editor.files
                 )
+                assert evidence.table_dock_id == expected_dock, (
+                    evidence.table_dock_id,
+                    expected_dock,
+                    evidence.schema_dock_id,
+                )
                 assert editor.active is editor.files[2]
                 assert editor.active.table.selected_visible_rows == 1
                 assert all(
@@ -99,8 +157,16 @@ def run_stage(root: Path, mode: str) -> None:
                 hello_imgui.get_runner_params().app_shall_exit = True
                 stage = 10
 
-    evidence = run_gui(smoke_frames=1500, on_editor_frame=frame)
+    evidence = run_gui(
+        smoke_frames=1500,
+        on_editor_frame=frame,
+        initial_workspace=workspace if mode == "restore" else None,
+    )
     assert stage == 10, stage
+    if mode == "save":
+        (root / "layout-evidence.json").write_text(
+            json.dumps({"table_dock": evidence.table_dock_id})
+        )
     if mode == "restore":
         pixels = hello_imgui.final_app_window_screenshot()
         height, width = pixels.shape[:2]

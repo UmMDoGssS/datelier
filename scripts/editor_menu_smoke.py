@@ -98,9 +98,9 @@ def main() -> None:
             elif stage == 5:
                 click(menus["Workspace actions…"], 6)
             elif stage == 6:
-                file.workspace.path = str(workspace)
+                editor.workspace_path = str(workspace)
                 click(actions["Save workspace"], 7)
-            elif stage == 7 and file.workspace.jobs.saved is not None:
+            elif stage == 7 and editor.workspace_jobs.saved is not None:
                 click(actions["Close dialog"], 8)
             elif stage == 8:
                 click(menus["File"], 9)
@@ -112,11 +112,11 @@ def main() -> None:
             elif stage == 11:
                 click(menus["Workspace actions…"], 12)
             elif stage == 12:
-                file.workspace.path = str(workspace)
+                editor.workspace_path = str(workspace)
                 click(actions["Open workspace"], 13)
             elif stage == 13 and file.loader.active is not None:
                 assert file.loader.active.dataset.table.columns == ["x", "y"]
-                assert len(editor.files) == 2
+                assert len(editor.files) == 1
                 restored_revision = file.loader.revision
                 click(actions["Close dialog"], 14)
             elif stage == 14:
