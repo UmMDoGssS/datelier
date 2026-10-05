@@ -49,6 +49,7 @@ class FileSession:
     preferences: PreferenceControls  # Borrowed application defaults, never owned.
     identity: str = field(default_factory=lambda: uuid4().hex)
     closed: bool = False
+    panel_scroll: dict[str, tuple[float, float]] = field(default_factory=dict)
 
     @classmethod
     def create(

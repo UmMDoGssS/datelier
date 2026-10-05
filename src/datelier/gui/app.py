@@ -8,11 +8,11 @@ from time import perf_counter
 
 from imgui_bundle import hello_imgui, imgui, immapp
 
-from datelier.core.jobs import SharedWorkers
 from datelier.gui.data.import_controls import show_schema
+from datelier.gui.editor_session import EditorSession
 from datelier.gui.file_session import FileSession
 from datelier.gui.layout import configure_layout
-from datelier.gui.workspace.preferences import PreferenceControls
+from datelier.gui.tabs import EditorTabs
 from datelier.io.loading import DatasetLoader, LoadPhase
 from datelier.workspace.preferences import preference_path
 
@@ -37,25 +37,23 @@ def run_gui(
     smoke_frames: int = 0,
     on_frame: Callable[[GuiSession, InspectionEvidence], None] | None = None,
     dataset_loader: DatasetLoader | None = None,
+    on_editor_frame: Callable[[EditorSession, EditorTabs, InspectionEvidence], None]
+    | None = None,
     initial_workspace: Path | None = None,
     preferences_path: Path | None = None,
 ) -> InspectionEvidence:
     if smoke_frames < 0:
         raise ValueError("Smoke frame count must be nonnegative")
-    workers = SharedWorkers()
-    preferences = PreferenceControls(
+    editor = EditorSession(
         preferences_path
         if preferences_path is not None
         else (preference_path() if not smoke_frames else None),
-        executor=workers,
-    )
-    session = FileSession.create(
-        preferences,
-        executor=workers,
-        source_path=initial_path,
-        workspace_path=initial_workspace,
+        initial_path=initial_path,
+        initial_workspace=initial_workspace,
         loader_override=dataset_loader,
     )
+    preferences = editor.preferences
+    tabs = EditorTabs()
     evidence = InspectionEvidence()
     params = hello_imgui.RunnerParams()
     params.app_window_params.window_title = "Datelier — data inspection"
@@ -66,7 +64,7 @@ def run_gui(
         hello_imgui.DefaultImGuiWindowType.provide_full_screen_dock_space
     )
 
-    def show_table() -> None:
+    def show_table(session: FileSession) -> None:
         evidence.table_dock_id = imgui.get_window_dock_id()
         session.table.show(session.loader.active, session.pages, session.selection)
         evidence.max_rendered_rows = max(
@@ -75,11 +73,11 @@ def run_gui(
         if session.table.prepared_visible_rows and evidence.first_preview_ms is None:
             evidence.first_preview_ms = (perf_counter() - load_started) * 1000
 
-    def schema() -> None:
+    def schema(session: FileSession) -> None:
         evidence.schema_dock_id = imgui.get_window_dock_id()
         show_schema(session.loader, session.editor)
 
-    def explore() -> None:
+    def explore(session: FileSession) -> None:
         session.plots.show(
             session.explorer,
             session.loader.active.dataset if session.loader.active else None,
@@ -93,31 +91,68 @@ def run_gui(
             session.analysis,
         )
 
+    def bind(callback: Callable[[FileSession], None]) -> Callable[[], None]:
+        previous: str | None = None
+
+        def show() -> None:
+            nonlocal previous
+            session = editor.active
+            panel = imgui.internal.get_current_window().name
+            switching = previous != session.identity
+            if switching:
+                x, y = session.panel_scroll.get(panel, (0, 0))
+                imgui.set_scroll_x(x)
+                imgui.set_scroll_y(y)
+                previous = session.identity
+            imgui.push_id(session.identity)
+            try:
+                callback(session)
+            finally:
+                imgui.pop_id()
+            if not switching:
+                session.panel_scroll[panel] = (
+                    imgui.get_scroll_x(),
+                    imgui.get_scroll_y(),
+                )
+
+        return show
+
     configure_layout(
         params,
         {
-            "Explore": explore,
-            "Open dataset": lambda: session.controls.show(session.loader),
-            "Workspace": lambda: session.workspace.show(session),
-            "Table preview": show_table,
-            "Schema and nulls": schema,
-            "Analysis": lambda: session.analysis.show_panel(
-                session.loader.active.dataset if session.loader.active else None,
-                session.plots,
+            "Explore": bind(explore),
+            "Open dataset": bind(lambda session: session.controls.show(session.loader)),
+            "Workspace": bind(lambda session: session.workspace.show(session)),
+            "Table preview": bind(show_table),
+            "Schema and nulls": bind(schema),
+            "Analysis": bind(
+                lambda session: session.analysis.show_panel(
+                    session.loader.active.dataset if session.loader.active else None,
+                    session.plots,
+                )
             ),
-            "Transform and history": lambda: session.operations.show(
-                session.editor,
-                loading=session.loader.status.phase == LoadPhase.LOADING
-                or session.exporter.busy
-                or session.workspace.jobs.busy,
+            "Transform and history": bind(
+                lambda session: session.operations.show(
+                    session.editor,
+                    loading=session.loader.status.phase == LoadPhase.LOADING
+                    or session.exporter.busy
+                    or session.workspace.jobs.busy,
+                )
             ),
-            "Export table": lambda: session.exports.show(
-                session.editor,
-                session.exporter,
-                loading=session.loader.status.phase == LoadPhase.LOADING
-                or session.workspace.jobs.busy,
+            "Export table": bind(
+                lambda session: session.exports.show(
+                    session.editor,
+                    session.exporter,
+                    loading=session.loader.status.phase == LoadPhase.LOADING
+                    or session.workspace.jobs.busy,
+                )
             ),
         },
+    )
+    params.callbacks.add_edge_toolbar(
+        hello_imgui.EdgeToolbarType.top,
+        lambda: tabs.show(editor),
+        hello_imgui.EdgeToolbarOptions(size_em=2.0),
     )
     # Configure this before runner initialization: the default builder otherwise
     # replaces saved docking even when ini settings are loaded before a frame.
@@ -130,14 +165,14 @@ def run_gui(
     params.callbacks.setup_imgui_style = preferences.apply_theme
     params.callbacks.post_init = lambda: preferences.before_frame(params)
     params.callbacks.pre_new_frame = lambda: preferences.before_frame(params)
-    params.callbacks.show_menus = lambda: preferences.show_menu(session, params)
-    params.callbacks.before_exit = lambda: preferences.save(session, params)
+    params.callbacks.show_menus = lambda: preferences.show_menu(editor.active, params)
+    params.callbacks.before_exit = lambda: preferences.save(editor.active, params)
     load_started = perf_counter()
     previous_frame = load_started
     if initial_workspace:
-        session.workspace.open(session)
+        editor.active.workspace.open(editor.active)
     elif initial_path:
-        session.loader.request(initial_path)
+        editor.active.loader.request(initial_path)
 
     def frame() -> None:
         nonlocal previous_frame
@@ -146,14 +181,16 @@ def run_gui(
             evidence.frame_intervals_ms.append((now - previous_frame) * 1000)
         previous_frame = now
         evidence.frames += 1
-        session.poll()
-        preferences.poll()
+        editor.poll()
+        session = editor.active
         if session.loader.status.phase == LoadPhase.LOADING:
             evidence.loading_frames += 1
         elif session.loader.status.phase == LoadPhase.FAILED:
             evidence.failed_frames += 1
         if on_frame:
             on_frame(session, evidence)
+        if on_editor_frame:
+            on_editor_frame(editor, tabs, evidence)
         if smoke_frames and evidence.frames >= smoke_frames:
             hello_imgui.get_runner_params().app_shall_exit = True
 
@@ -164,9 +201,7 @@ def run_gui(
         addons.with_implot3d = True
         immapp.run(params, addons)
     finally:
-        session.close()
-        preferences.close()
-        workers.shutdown(wait=True)
+        editor.close()
         if preferences.message.startswith("Preferences failed:"):
             print(preferences.message, file=sys.stderr)
     return evidence

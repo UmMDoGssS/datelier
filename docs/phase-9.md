@@ -67,3 +67,34 @@ tests/test_workspace_restore.py tests/test_preferences.py` with
 and `LIBGL_ALWAYS_SOFTWARE=1 POLARS_MAX_THREADS=8 uv run --offline
 scripts/workspace_smoke.py`. Native tabs/full suite/lifecycle resources remain
 the next M9.1 gates.
+
+Step 1 committed as `c0d0fbe`.
+
+## Step 2 — Editor tabs and active-file docking
+
+`EditorSession` owns tab order/activation, preferences and the shared pool.
+Each file is polled independently, including while inactive. A native edge
+toolbar provides switching, drag reordering, close buttons/middle-click closure,
+and New Tab; closing the last tab leaves a blank Welcome tab. Stable native IDs
+distinguish duplicate filenames and survive loading/analysis status changes.
+Panel callbacks look up the active file when rendered. Per-file ImGui ID scopes
+and panel scroll positions keep table/plot/control state independent.
+
+Verification on 2026-10-06:
+
+- Two editor-model tests cover reorder/activation/closure, last-tab replacement,
+  rejected closed IDs/invalid orders and duplicate filenames. Seven focused
+  file/shared-worker/editor tests pass. Full suite: **500 passed in 15.75s**.
+- Pyrefly zero errors; Ruff lint/format and diff whitespace checks pass.
+- The existing native workspace smoke passes again: 31 save / 48 restore frames.
+- `scripts/editor_tabs_smoke.py` passes in **191 frames** with synthetic ImGui
+  button/position/delta input applied before the toolbar renders: native switch,
+  drag reorder, middle-click close, New Tab and docked active-file data; independent
+  history, selections, bins/seeds, inactive-file PCA completion and source bytes.
+  This verifies native input/state; physical mouse use is not claimed.
+- [Native editor screenshot](evidence/phase9/editor-tabs.png) records the test
+  dataset beside its independent Welcome tab and selected source row.
+
+The step uses the same Pyrefly/Ruff/full-suite commands as Step 1, plus
+`LIBGL_ALWAYS_SOFTWARE=1 POLARS_MAX_THREADS=8 uv run --offline
+scripts/editor_tabs_smoke.py`. M9.1 closure/resource acceptance remains open.
