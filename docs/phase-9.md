@@ -27,7 +27,7 @@ verified package refactor (through `0879793`). The starting tree was clean at
 Every implementation step runs Pyrefly, focused tests, Ruff lint/format,
 applicable native GUI smoke, diff review and a coherent step commit. Each
 milestone additionally requires the full suite and recorded acceptance evidence.
-All Phase 9 exit gates remain open until evidence is recorded below.
+M9.1 passes with the evidence below. M9.2–M9.4 and Phase 9 remain open.
 
 ## Step 1 — File ownership and shared workers
 
@@ -98,3 +98,49 @@ Verification on 2026-10-06:
 The step uses the same Pyrefly/Ruff/full-suite commands as Step 1, plus
 `LIBGL_ALWAYS_SOFTWARE=1 POLARS_MAX_THREADS=8 uv run --offline
 scripts/editor_tabs_smoke.py`. M9.1 closure/resource acceptance remains open.
+
+## Step 3 / M9.1 exit — Closure and resource cleanup
+
+Closing a file releases its inspection/pipeline, preview pages, embedding plots
+and fitted analysis results. Closed caches/jobs reject later publication and
+new preparation. Native tab bookkeeping drops closed IDs. Cancelling a spawned
+analysis is asynchronous during tab closure; application shutdown waits for
+worker cleanup. Explicitly requested exports retain their existing write
+semantics. Switching tabs never launches ML.
+
+Verification on 2026-10-06:
+
+- **14 focused tests** pass. An executing spawned analysis is observed through
+  its live process/future, its tab closes in under 0.5 s without waiting for the
+  ten-second fixture, the future reports cancellation and its process is
+  removed from active children; a sibling remains usable. An executing preview
+  completes after closure without repopulating its closed cache. Existing
+  loading/obsolete-result, independent history and selection fixtures pass.
+- Full suite: **502 passed in 17.39s**. Pyrefly zero errors; Ruff lint/format and
+  diff checks pass. Native tab smoke passes again in **194 frames**. The saved
+  Step 2 screenshot was visually inspected: distinct test/Welcome tabs, selected
+  source row 2, test-file schema/profile and independent seed 19 render correctly.
+- `scripts/benchmark_editor_tabs.py` declares budgets before running: <=2 s
+  metadata/prepared preview, <=33 ms frame p95 and close, <=1 GiB process peak
+  RSS, <=96 MiB retained growth after warmup, and at most four shared workers.
+  Fixtures: two Parquet files, each 100,000 rows and eight float columns with
+  different names/scales; 30 additional open/render/close cycles. Both files
+  stay usable. [Recorded resource report](evidence/phase9/tab-lifecycle.json):
+  387 frames; initial previews 124.7/159.5 ms; maximum cycle preview 204.4 ms;
+  frame p95 15.21 ms; peak RSS 460.84 MiB; retained growth -1.86 MiB; maximum
+  closure 0.224 ms; two shared workers observed (four allowed). Zero outstanding
+  jobs and zero retained closed sessions after GC; zero worker threads after
+  app exit. Source bytes match; 1,573,727 fixture bytes and the temporary
+  directory are removed at exit. This is a fixture-specific measurement, not
+  a capacity guarantee for arbitrary widths/types or unlimited tabs.
+
+Commands: the focused tests plus `POLARS_MAX_THREADS=8 uv run --offline pytest`,
+Pyrefly/Ruff/diff checks, and the existing native tab smoke. The new resource
+command is `LIBGL_ALWAYS_SOFTWARE=1 POLARS_MAX_THREADS=8 uv run --offline
+scripts/benchmark_editor_tabs.py`; all uv commands use the temporary cache
+setting recorded above. Mesa/Linux remains the verified renderer/platform.
+
+M9.1 passes. Step commits are `c0d0fbe` (file/shared ownership), `ec76f42` (tabs),
+and the closure/evidence commit accompanying this section. M9.2 is next; the
+Open dataset and Workspace panels remain until its editor-controls replacement.
+Whole-session workspace restoration and cross-file profiles remain M9.3/M9.4.

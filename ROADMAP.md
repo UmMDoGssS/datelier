@@ -37,7 +37,8 @@ views; [Phase 5 evidence](docs/phase-5.md) records its passed gates. Phase 6 pro
 end-to-end hardening and local installation; [Phase 7 evidence](docs/phase-7.md)
 records workflow/resource checks and the clean-wheel install. The personal-use
 v1 scope is complete. Phase 8 remains optional investigation for concrete needs.
-Phases 9–14 are the approved editor and multimodal sequence; their implementation
+Phases 9–14 are the approved editor and multimodal sequence; Phase 9 passes
+M9.1 independent tabs and shared worker lifecycle; its remaining implementation
 gates remain open and do not change existing feature or usability acceptance.
 
 A concrete post-v1 usability need is recorded in the
@@ -632,11 +633,15 @@ the corresponding dependency or behavior gates.
 
 ### M9.1 — Independent file sessions and editor tabs
 
-- [ ] **Deliverables:** application/file session separation; top file tab bar with switching, reordering, closing, and New Tab; independent source/revision, operations, selections, jobs, analysis settings, and views; dockable panels bound to the active file.
-- [ ] **Entry gate:** inspect current GuiSession and job/persistence boundaries; define typed file-session ownership and the shared worker lifecycle before introducing tabs.
-- [ ] **Exit gate:** switching between two files retains independent history, selections, controls, and running jobs; closing a loading/analyzing tab cannot publish into another; docking and the existing one-file workflow remain usable.
-- [ ] **Verification evidence:** deterministic two-file identity/history fixtures, rapid-switch/close/stale-result tests, native tab and docking smoke, full suite and tab-lifecycle resource measurements.
-- [ ] **Suggested step commits:** `refactor: isolate file inspection sessions` → `feat: add editor file tabs` → `fix: retire jobs when file tabs close`.
+[Verified implementation and resources](docs/phase-9.md) cover file ownership,
+native tabs, independent inactive-file jobs and nonblocking closure. M9.2 is the
+next outstanding milestone.
+
+- [x] **Deliverables:** application/file session separation; top file tab bar with switching, reordering, closing, and New Tab; independent source/revision, operations, selections, jobs, analysis settings, and views; dockable panels bound to the active file.
+- [x] **Entry gate:** inspect current GuiSession and job/persistence boundaries; define typed file-session ownership and the shared worker lifecycle before introducing tabs.
+- [x] **Exit gate:** switching between two files retains independent history, selections, controls, and running jobs; closing a loading/analyzing tab cannot publish into another; docking and the existing one-file workflow remain usable.
+- [x] **Verification evidence:** deterministic two-file identity/history fixtures, rapid-switch/close/stale-result tests, native tab and docking smoke, full suite and tab-lifecycle resource measurements.
+- [x] **Suggested step commits:** `refactor: isolate file inspection sessions` → `feat: add editor file tabs` → `fix: retire jobs when file tabs close`.
 
 ### M9.2 — Welcome, recent sources, and file opening
 
@@ -850,5 +855,6 @@ checks cover six new phases and 24 milestones; `git diff --check` passes.
 All 132 existing checkboxes retain their status and text apart from corrected
 M6.1/M6.2 evidence-link targets. Only `ROADMAP.md` and `AGENTS.md` changed.
 Application tests, Pyrefly, dependency probes, and GUI/resource gates were not
-run for this documentation-only step; all Phase 9–14 implementation gates
-remain unchecked. The first outstanding implementation gate is M9.1.
+run for that documentation-only step; all Phase 9–14 implementation gates
+were unchecked then. The first implementation gate at approval was M9.1;
+[Phase 9 evidence](docs/phase-9.md) records subsequent implementation progress.

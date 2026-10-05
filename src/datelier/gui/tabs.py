@@ -31,6 +31,10 @@ class EditorTabs:
     new_pixel: tuple[float, float] = (0, 0)
 
     def show(self, editor: EditorSession) -> None:
+        identities = {file.identity for file in editor.files}
+        self.pixels = {
+            key: value for key, value in self.pixels.items() if key in identities
+        }
         flags = (
             imgui.TabBarFlags_.reorderable
             | imgui.TabBarFlags_.tab_list_popup_button

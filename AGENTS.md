@@ -95,7 +95,9 @@ The editor and multimodal expansion is authorized for staged delivery in
 file tabs and whole-session workspaces, cross-file profile comparisons, richer
 interpretations and previews, structured JSON/TOML and NPY/NPZ/checkpoint
 inspection, text tokenization/statistics, image/box inspection, and audio
-profiles/playback. Its implementation and dependency/resource gates remain open.
+profiles/playback. M9.1 independent file tabs and shared worker lifecycle pass;
+[docs/phase-9.md](docs/phase-9.md) records correctness, native input and resources.
+M9.2 Welcome/file opening and subsequent implementation gates remain open.
 Phase 8 investigations do not block this approved sequence. Existing v1 evidence
 and unfinished Titanic usability gates retain their status.
 

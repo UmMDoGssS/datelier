@@ -2,6 +2,7 @@ from pathlib import Path
 from threading import Event
 from time import monotonic, sleep
 
+from datelier.analysis.types import EmbeddingResult, PreparedInput
 from datelier.core.jobs import SharedWorkers
 from datelier.gui.file_session import FileSession
 from datelier.gui.workspace.preferences import PreferenceControls
@@ -77,6 +78,72 @@ def test_files_keep_independent_history_controls_and_colliding_row_ids(
         second.close()
         preferences.close()
         workers.shutdown()
+
+
+def slow_embedding(prepared: PreparedInput) -> EmbeddingResult:
+    """Spawned fixture: cancellation must stop an executing worker."""
+    from datelier.analysis.types import Provenance
+
+    sleep(10)
+    return EmbeddingResult(
+        prepared.revision,
+        prepared.row_ids,
+        prepared.positions,
+        prepared.values[:, :2],
+        Provenance(prepared.request, prepared.summary, (), 0),
+    )
+
+
+def test_closing_analyzing_tab_is_nonblocking_and_reaps_its_worker(
+    tmp_path: Path,
+) -> None:
+    import multiprocessing as mp
+    from concurrent.futures import CancelledError
+
+    import pytest
+
+    from datelier.analysis.jobs import AnalysisJobs
+    from datelier.analysis.types import AnalysisRequest
+    from datelier.gui.editor_session import EditorSession
+
+    source = tmp_path / "source.csv"
+    source.write_text("x,y\n1,2\n3,4\n5,6\n7,8\n")
+    editor = EditorSession()
+    first = editor.new_tab(source)
+    second = editor.new_tab(source)
+    before = {process.pid for process in mp.active_children()}
+    try:
+        wait_for_files(first, second)
+        assert first.loader.active is not None
+        first.analysis.jobs.close()
+        jobs = first.analysis.jobs = AnalysisJobs(
+            slow_embedding, executor=editor.workers
+        )
+        jobs.request(first.loader.active.dataset, AnalysisRequest(("x", "y")))
+        deadline = monotonic() + 5
+        while "fitting" not in jobs.phase and monotonic() < deadline:
+            sleep(0.001)
+        assert "fitting" in jobs.phase
+        future = jobs._future
+        assert future is not None and not future.done()
+        running = {
+            process.pid for process in mp.active_children() if process.pid not in before
+        }
+        assert running
+        started = monotonic()
+        editor.close_tab(first.identity)
+        assert monotonic() - started < 0.5
+        assert first.closed and editor.active is second
+        assert first.loader.active is None and first.editor.pipeline is None
+        with pytest.raises(CancelledError):
+            future.result(5)
+        editor.poll()
+        assert second.loader.active is not None
+        assert not first.analysis.jobs.results and not second.analysis.jobs.results
+        assert not jobs.poll(second.loader.revision)
+        assert running.isdisjoint(process.pid for process in mp.active_children())
+    finally:
+        editor.close()
 
 
 def test_closed_loading_file_never_publishes_into_a_sibling(tmp_path: Path) -> None:

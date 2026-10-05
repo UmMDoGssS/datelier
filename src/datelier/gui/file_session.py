@@ -172,3 +172,7 @@ class FileSession:
         self.explorer.close()
         self.analysis.close(wait=False)
         self.workspace.jobs.close()
+        self.loader.active = None
+        self.editor.pipeline = None
+        self.editor.inspection = None
+        self.panel_scroll.clear()

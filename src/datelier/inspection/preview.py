@@ -14,12 +14,15 @@ class PreviewCache:
         self._pages: OrderedDict[tuple[int, int], PreviewPage] = OrderedDict()
         self._pending: dict[tuple[int, int], Future[PreviewPage]] = {}
         self.error = ""
+        self._closed = False
 
     @property
     def page_count(self) -> int:
         return len(self._pages)
 
     def bind(self, inspection: Inspection) -> None:
+        if self._closed:
+            raise RuntimeError("Preview cache is closed")
         for future in self._pending.values():
             future.cancel()
         self._pending.clear()
@@ -30,6 +33,8 @@ class PreviewCache:
         self._pages[(page.row_start, page.column_start)] = page
 
     def poll(self) -> None:
+        if self._closed:
+            return
         for key, future in tuple(self._pending.items()):
             if not future.done():
                 continue
@@ -48,6 +53,8 @@ class PreviewCache:
                     self._pages.popitem(last=False)
 
     def get(self, row: int, column_start: int = 0) -> PreviewPage | None:
+        if self._closed:
+            return None
         key = (row // PAGE_ROWS * PAGE_ROWS, column_start)
         page = self._pages.get(key)
         if page is not None:
@@ -68,4 +75,8 @@ class PreviewCache:
         self.error = ""
 
     def close(self) -> None:
+        self._closed = True
+        self._inspection = None
+        self._pages.clear()
+        self._pending.clear()
         self._executor.shutdown(wait=False, cancel_futures=True)

@@ -6,8 +6,55 @@ import pytest
 
 from datelier.core.dataset import Dataset, SourceReference
 from datelier.inspection.preview import PreviewCache
-from datelier.inspection.table import PAGE_COLUMNS, PAGE_ROWS, prepare_inspection
+from datelier.inspection.table import (
+    PAGE_COLUMNS,
+    PAGE_ROWS,
+    PreviewPage,
+    prepare_inspection,
+)
 from datelier.io.csv import CsvImport, CsvOptions
+
+
+def test_closing_cache_releases_pages_and_rejects_executing_page(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from threading import Event
+
+    from datelier.core.jobs import SharedWorkers
+    from datelier.inspection import preview
+
+    data = Dataset.from_source(
+        pl.DataFrame({"value": range(200)}), SourceReference(Path("table.csv"), 1, 1)
+    )
+    inspection = prepare_inspection(CsvImport(data, CsvOptions(), ()))
+    started, release = Event(), Event()
+    original = preview.prepare_page
+
+    def blocked(dataset: Dataset, row: int, column: int = 0) -> PreviewPage:
+        started.set()
+        assert release.wait(3)
+        return original(dataset, row, column)
+
+    monkeypatch.setattr(preview, "prepare_page", blocked)
+    workers = SharedWorkers()
+    pages = PreviewCache(executor=workers)
+    try:
+        pages.bind(inspection)
+        pages.get(100)
+        assert started.wait(3)
+        future = pages._pending[(100, 0)]
+        pages.close()
+        assert pages.page_count == 0 and pages._inspection is None
+        release.set()
+        assert future.result(3).row_ids[0] == 100
+        pages.poll()
+        assert pages.get(100) is None and pages.page_count == 0
+        with pytest.raises(RuntimeError, match="closed"):
+            pages.bind(inspection)
+    finally:
+        release.set()
+        pages.close()
+        workers.shutdown()
 
 
 def test_preview_pages_are_bounded_aligned_and_invalidated() -> None:

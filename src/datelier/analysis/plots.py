@@ -59,6 +59,7 @@ class AnalysisPlots:
         self._executor = JobExecutor(executor, max_workers=1, name="embedding")
         self._future: Future[Scatter] | None = None
         self._key: tuple[DatasetRevision, int, int, str | None, int] | None = None
+        self._closed = False
 
     def ensure(
         self,
@@ -69,7 +70,7 @@ class AnalysisPlots:
         clusters: ClusteringResult | None = None,
     ) -> None:
         key = (dataset.revision, id(result), limit, color, id(clusters))
-        if key == self._key:
+        if self._closed or key == self._key:
             return
         if self._future is not None:
             self._future.cancel()
@@ -81,6 +82,8 @@ class AnalysisPlots:
         self.message = "Preparing embedding plot…"
 
     def poll(self, revision: DatasetRevision | None) -> None:
+        if self._closed:
+            return
         if self.active is not None and self.active.revision != revision:
             self.active = None
         future = self._future
@@ -96,4 +99,8 @@ class AnalysisPlots:
             self.message = f"Embedding plot failed: {error}"
 
     def close(self) -> None:
+        self._closed = True
+        self._future = None
+        self._key = None
+        self.active = None
         self._executor.shutdown(wait=False, cancel_futures=True)

@@ -153,6 +153,8 @@ class AnalysisJobs:
             )
 
     def poll(self, revision: DatasetRevision | None) -> bool:
+        if self._closed:
+            return False
         if self.latest is not None and self.latest.revision != revision:
             self.latest = None
         self.results = {
@@ -192,3 +194,6 @@ class AnalysisJobs:
         self.cancel()
         self._closed = True
         self._executor.shutdown(wait=wait, cancel_futures=True)
+        self._future = None
+        self.results.clear()
+        self.latest = None
