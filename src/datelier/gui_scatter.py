@@ -51,6 +51,7 @@ def draw_scatter(
 @dataclass
 class ScatterView:
     area: PlotArea = field(default_factory=PlotArea)
+    area3d: PlotArea = field(default_factory=PlotArea)
     scatter3d: Scatter3DView = field(default_factory=Scatter3DView)
     interaction: ScatterInteraction = field(default_factory=ScatterInteraction)
     fit: bool = False
@@ -101,10 +102,11 @@ class ScatterView:
             points.z_name,
             three_d,
         )
+        area = self.area3d if three_d else self.area
         if self.fit:
-            self.area.fit = True
-        shown = self.area.show(
-            "Scatter plot",
+            area.fit = True
+        shown = area.show(
+            "Scatter 3D plot" if three_d else "Scatter 2D plot",
             key,
             lambda height, fit, axes: (
                 self.scatter3d.show(points, selection, table, fit, height)

@@ -12,7 +12,12 @@ if TYPE_CHECKING:
     from datelier.gui_analysis_controls import AnalysisControls
 
 
-def show_inputs(controls: AnalysisControls, *, dimensions: bool = True) -> None:
+def show_inputs(
+    controls: AnalysisControls,
+    *,
+    dimensions: bool = True,
+    fixed_dimensions: int | None = None,
+) -> None:
     if imgui.button(f"Features ({len(controls.features)})"):
         imgui.open_popup("Analysis features")
     if imgui.begin_popup("Analysis features"):
@@ -44,10 +49,15 @@ def show_inputs(controls: AnalysisControls, *, dimensions: bool = True) -> None:
     _, controls.impute = imgui.checkbox(
         "Fill missing values with median", controls.impute
     )
-    if imgui.begin_table("Analysis dimensions and seed", 2 if dimensions else 1):
+    editable_dimensions = dimensions and fixed_dimensions is None
+    if fixed_dimensions is not None:
+        imgui.text(f"Components: {fixed_dimensions}")
+    if imgui.begin_table(
+        "Analysis dimensions and seed", 2 if editable_dimensions else 1
+    ):
         imgui.table_next_row()
         imgui.table_set_column_index(0)
-        if dimensions:
+        if editable_dimensions:
             changed, dims = combo(
                 "Output dimensions", controls.dimensions - 2, ["2", "3"]
             )

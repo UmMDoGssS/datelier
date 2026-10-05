@@ -42,8 +42,12 @@ class WorkspaceViews:
     color_source: str | None = None
     category_height: float = 0
     profile_selection: tuple[str, ...] | None = None
+    scatter_dimensions: int | None = None
+    scatter3d_height: float = 0
 
     def validate(self) -> None:
+        if self.scatter_dimensions not in (None, 2, 3):
+            raise ValueError("Scatter plots have two or three dimensions")
         if self.profile_selection is not None and len(
             set(self.profile_selection)
         ) != len(self.profile_selection):
@@ -75,6 +79,7 @@ class WorkspaceViews:
                 self.scatter_height,
                 self.relationship_height,
                 self.category_height,
+                self.scatter3d_height,
             )
         ):
             raise ValueError(

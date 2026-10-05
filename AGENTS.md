@@ -80,6 +80,9 @@ the distinction between physical types and user-controlled analysis roles.
 The category distribution clarification is authorized;
 [docs/category-distribution-follow-up.md](docs/category-distribution-follow-up.md)
 tracks box/violin Relationships and single-column count routing to Profiles.
+The scatter views and native legend follow-up is authorized;
+[docs/scatter-views-and-legends.md](docs/scatter-views-and-legends.md) tracks
+separate 2D/3D scatter views, fixed component counts and plot legend verification.
 
 Use this file for durable conventions and `ROADMAP.md` for sequencing,
 deliverables, and acceptance gates. Inspect actual code and configuration

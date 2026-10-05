@@ -232,7 +232,7 @@ def main() -> None:
                 elif stage == 11 and age > 10:
                     assert not np.allclose(rotation, baseline_rotation), "locked camera"
                     baseline_rotation = rotation
-                    session.exploration.scatter_area.expanded = True
+                    session.exploration.scatter3d_area.expanded = True
                     advance(12)
                 elif stage == 12 and age > 10:
                     np.testing.assert_allclose(rotation, baseline_rotation)
@@ -247,9 +247,9 @@ def main() -> None:
                     assert view.selected_points == 1
                     assert sha256(source.read_bytes()).hexdigest() == before
                     hello_imgui.get_runner_params().app_shall_exit = True
-                if stage == 8 and session.exploration.scatter_area.expanded:
+                if stage == 8 and session.exploration.scatter3d_area.expanded:
                     baseline_rotation = rotation
-                    session.exploration.scatter_area.expanded = False
+                    session.exploration.scatter3d_area.expanded = False
                     advance(13)
 
         with (

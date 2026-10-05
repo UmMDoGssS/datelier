@@ -141,7 +141,7 @@ def main() -> None:
                 stage, entered = 3, evidence.frames
             else:
                 # Final view combines the fitted LLE coordinates and DBSCAN colors.
-                session.exploration.scatter_area.expanded = True
+                session.exploration.scatter3d_area.expanded = True
                 stage, entered = 8, evidence.frames
         elif stage == 8 and age > 20:
             hello_imgui.get_runner_params().app_shall_exit = True

@@ -49,6 +49,31 @@ class PlotControls:
     diagonal_mode: int = 0
     profile_redirect: str | None = None
 
+    @property
+    def chart_choice(self) -> str:
+        if self.relationship_chart == "Scatter":
+            return "Scatter 3D" if self.three_d else "Scatter 2D"
+        return self.relationship_chart
+
+    @property
+    def scatter_dimensions(self) -> int:
+        return 3 if self.three_d else 2
+
+    def choose_chart(self, chart: str) -> None:
+        if chart in ("Scatter 2D", "Scatter 3D"):
+            three_d = chart == "Scatter 3D"
+            self.scatter_dirty |= self.three_d != three_d
+            self.three_d = three_d
+            self.relationship_chart = "Scatter"
+            if len(self.numeric) >= 3 and self.z_index in (self.x_index, self.y_index):
+                self.z_index = next(
+                    i
+                    for i in range(len(self.numeric))
+                    if i not in (self.x_index, self.y_index)
+                )
+        else:
+            self.relationship_chart = CategoryRepresentation(chart).value
+
     def bind(self, dataset: Dataset) -> None:
         self.scatter_dirty = False
         self.cluster_result = None
@@ -228,27 +253,19 @@ class PlotControls:
             imgui.text_wrapped(self.error)
 
     def show_axes(self, explorer: Explorer, dataset: Dataset) -> None:
-        if len(self.numeric) < 2:
-            imgui.text("Scatter requires at least two numeric columns.")
+        if len(self.numeric) < self.scatter_dimensions:
+            imgui.text_wrapped(
+                f"{self.scatter_dimensions}D column axes require "
+                f"{self.scatter_dimensions} numeric features."
+            )
             return
         changed = self.scatter_dirty
         axes = ["x_index", "y_index"] + (["z_index"] if self.three_d else [])
-        if imgui.begin_table(
-            "Scatter axes", len(axes), imgui.TableFlags_.sizing_stretch_same
-        ):
-            imgui.table_next_row()
-            for col, attr in enumerate(axes):
-                imgui.table_set_column_index(col)
-                current = getattr(self, attr)
-                picked, index = combo(
-                    "XYZ"[col],
-                    current,
-                    list(self.numeric),
-                )
-                if picked:
-                    self.choose_axis(attr, index)
-                    changed = True
-            imgui.end_table()
+        for col, attr in enumerate(axes):
+            picked, index = combo("XYZ"[col], getattr(self, attr), list(self.numeric))
+            if picked:
+                self.choose_axis(attr, index)
+                changed = True
         if changed:
             self.scatter_dirty = False
             self.custom_scatter = True
@@ -266,27 +283,6 @@ class PlotControls:
                 self.error = str(error)
         if self.error:
             imgui.text_wrapped(self.error)
-
-    def show_dimensions(self) -> None:
-        changed, dimensions = combo(
-            "Dimensions",
-            int(self.three_d and len(self.numeric) >= 3),
-            ["2D", "3D"] if len(self.numeric) >= 3 else ["2D"],
-        )
-        self.three_d = dimensions == 1
-        if (
-            changed
-            and self.three_d
-            and len(self.numeric) >= 3
-            and self.z_index in (self.x_index, self.y_index)
-        ):
-            self.z_index = next(
-                i
-                for i in range(len(self.numeric))
-                if i not in (self.x_index, self.y_index)
-            )
-        if changed:
-            self.scatter_dirty = True
 
     @property
     def cluster_algorithm(self) -> Algorithm | None:

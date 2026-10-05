@@ -114,6 +114,8 @@ class AnalysisControls:
         jobs: AnalysisJobs,
         dataset: Dataset | None,
         selected: Algorithm | None = None,
+        *,
+        fixed_dimensions: int | None = None,
     ) -> None:
         if selected is not None:
             imgui.separator_text(str(selected))
@@ -132,7 +134,13 @@ class AnalysisControls:
         if dataset is None:
             return
         imgui.begin_disabled(jobs.busy)
-        show_inputs(self, dimensions=selected is None or not selected.is_clustering)
+        show_inputs(
+            self,
+            dimensions=selected is None or not selected.is_clustering,
+            fixed_dimensions=fixed_dimensions
+            if selected is None or not selected.is_clustering
+            else None,
+        )
         for algorithm in (selected,) if selected is not None else Algorithm:
             if imgui.tree_node(f"{algorithm} settings"):
                 imgui.push_id(str(algorithm))

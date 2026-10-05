@@ -152,10 +152,9 @@ def run_gui(
             "Workspace": lambda: workspace.show(session),
             "Table preview": show_table,
             "Schema and nulls": schema,
-            "Analysis": lambda: analysis.controls.show(
-                analysis.jobs,
+            "Analysis": lambda: analysis.show_panel(
                 loader.active.dataset if loader.active else None,
-                analysis.selected_algorithm(plot_controls),
+                plot_controls,
             ),
             "Transform and history": lambda: operations.show(
                 editor,
@@ -237,6 +236,7 @@ def run_gui(
             plot_controls.bind(edited.dataset)
             selection.bind(edited.dataset.revision)
             explorer.request(edited.dataset, plot_controls.settings())
+        analysis.sync_dimensions(plot_controls)
         completed = analysis.poll(loader.active.dataset if loader.active else None)
         if completed:
             exploration.tab = "Relationships"

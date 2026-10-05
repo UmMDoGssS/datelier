@@ -26,11 +26,11 @@ def main() -> None:
         result = original(label, index, choices)
         if imgui.internal.get_current_window().name == "Explore":
             labels.add(label)
-            if label == "##Chart type" and "Scatter" in choices:
+            if label == "##Chart type" and "Scatter 2D" in choices:
                 chart_choices = choices
                 low, high = imgui.get_item_rect_min(), imgui.get_item_rect_max()
                 chart_pixel = ((low.x + high.x) / 2, (low.y + high.y) / 2)
-                box_pixel = (chart_pixel[0], high.y + imgui.get_frame_height() * 1.5)
+                box_pixel = (chart_pixel[0], high.y + imgui.get_frame_height() * 2.5)
         return result
 
     def frame(session: GuiSession, evidence: InspectionEvidence) -> None:
@@ -71,7 +71,13 @@ def main() -> None:
         elif stage == 7 and chart is not None and age > 15:
             assert chart.settings.representation == Mode.BOX
             assert chart.labels == ("male", "female") and chart.counts.sum() == 676
-            assert chart_choices == ["Scatter", "Box", "Violin", "Grouped count bars"]
+            assert chart_choices == [
+                "Scatter 2D",
+                "Scatter 3D",
+                "Box",
+                "Violin",
+                "Grouped count bars",
+            ]
             assert "##Value" in labels
             assert (
                 not {"##Coordinates", "##Colors", "##X", "##Y", "##Group by"} & labels

@@ -42,6 +42,10 @@ class ExplorationView:
         return self.scatter.area
 
     @property
+    def scatter3d_area(self) -> PlotArea:
+        return self.scatter.area3d
+
+    @property
     def scatter3d(self) -> Scatter3DView:
         return self.scatter.scatter3d
 
@@ -109,11 +113,9 @@ class ExplorationView:
                     self.categories.controls(plots, explorer, dataset)
                     return
                 if analysis is not None:
-                    points = analysis.scatter_controls(dataset, plots)
+                    points = analysis.scatter_controls(dataset, plots, explorer)
                     if points is not None:
                         self.show_scatter(None, selection, table, points, plots)
-                    elif analysis.source is None:
-                        plots.show_axes(explorer, dataset)
                 else:
                     plots.show_axes(explorer, dataset)
             return
@@ -253,14 +255,10 @@ class ExplorationView:
                 plots.y_index = plots.numeric.index(first.y_name)
         points = None
         if analysis is not None and dataset is not None and plots is not None:
-            points = analysis.scatter_controls(dataset, plots)
+            points = analysis.scatter_controls(dataset, plots, explorer)
             if analysis.source is not None and points is None:
                 return
-        if (
-            plots is not None
-            and dataset is not None
-            and (analysis is None or analysis.source is None)
-        ):
+        if plots is not None and dataset is not None and analysis is None:
             plots.show_axes(explorer, dataset)
         self.show_scatter(dashboard, selection, table, points, plots)
 
@@ -294,11 +292,7 @@ class ExplorationView:
                 plots.custom_scatter = True
         else:
             points = override
-        three_d = (
-            points.z is not None
-            if override is not None
-            else bool(plots and plots.three_d)
-        )
+        three_d = plots.three_d if plots is not None else points.z is not None
         if self.scatter.show(
             points, selection, table, three_d, embedding=override is not None
         ):

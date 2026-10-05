@@ -27,7 +27,7 @@ class CategoryView:
     def controls(
         self, plots: PlotControls, explorer: Explorer, dataset: Dataset
     ) -> bool:
-        choices = ["Scatter"]
+        choices = ["Scatter 2D", "Scatter 3D"]
         if plots.categories:
             if plots.numeric:
                 choices.extend(
@@ -38,12 +38,11 @@ class CategoryView:
                 )
             if len(plots.categories) > 1:
                 choices.append(CategoryRepresentation.GROUPED.value)
-        if plots.relationship_chart not in choices:
-            plots.relationship_chart = "Scatter"
-        changed, index = combo(
-            "Chart type", choices.index(plots.relationship_chart), choices
-        )
-        plots.relationship_chart = choices[index]
+        if plots.chart_choice not in choices:
+            plots.choose_chart("Scatter 2D")
+        changed, index = combo("Chart type", choices.index(plots.chart_choice), choices)
+        if changed:
+            plots.choose_chart(choices[index])
         categorical = plots.relationship_chart != "Scatter"
         if categorical:
             if imgui.begin_table(

@@ -355,3 +355,10 @@ for category–category comparisons, and single-column counts belong in Profiles
 [Delivery gates](docs/category-distribution-follow-up.md) cover worker preparation
 followed by native UI and saved-view routing. Both steps are verified, including
 linked selections, compatible inputs, saved-view migration and reopen behavior.
+
+## Authorized scatter views and native legends
+
+The user requested separate 2D/3D scatter charts with matching reduction output,
+axis selectors beneath Coordinates, and native legends across inspection plots.
+[Delivery gates](docs/scatter-views-and-legends.md) sequence scatter controls and
+saved views before the all-plot legend audit and native verification.

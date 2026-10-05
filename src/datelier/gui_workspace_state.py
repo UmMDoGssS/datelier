@@ -174,6 +174,8 @@ def capture_views(session: GuiSession) -> WorkspaceViews:
         session.plots.color_source,
         view.categories.area.height,
         view.profile.selection.columns,
+        session.plots.scatter_dimensions,
+        view.scatter3d_area.height,
     )
 
 
@@ -195,6 +197,13 @@ def restore_view_settings(session: GuiSession, saved: WorkspaceViews) -> None:
     assert session.loader.active is not None
     dataset = session.loader.active.dataset
     view = session.exploration
+    dimensions = saved.scatter_dimensions or (
+        session.analysis.controls.dimensions
+        if saved.coordinate_source is not None
+        else session.plots.scatter_dimensions
+    )
+    session.plots.three_d = dimensions == 3
+    session.analysis.sync_dimensions(session.plots)
     view.tab = view.active_tab = (
         "Relationships" if saved.tab == "Scatter" else saved.tab
     )
@@ -242,6 +251,11 @@ def restore_view_settings(session: GuiSession, saved: WorkspaceViews) -> None:
         view.profile.area.height = saved.category_height or saved.profile_height
     view.comparison_area.height = saved.comparison_height
     view.scatter_area.height = saved.scatter_height
+    view.scatter3d_area.height = saved.scatter3d_height or (
+        saved.scatter_height
+        if saved.scatter_dimensions is None and dimensions == 3
+        else 0
+    )
     view.relationships.area.height = saved.relationship_height
     view.categories.area.height = saved.category_height
     view.saved_scatter_index = saved.scatter_index

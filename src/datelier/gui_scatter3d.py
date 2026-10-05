@@ -54,11 +54,7 @@ class Scatter3DView:
     ) -> bool:
         z = points.z
         if z is None:
-            imgui.text_wrapped(
-                "This plot has two coordinates. For raw XYZ, choose three axes "
-                "and update the scatter. For an embedding, explicitly rerun "
-                "with three output dimensions."
-            )
+            imgui.text("3D column plots require three numeric features.")
             return False
         start_y = imgui.get_cursor_pos_y()
         if imgui.button("View face"):

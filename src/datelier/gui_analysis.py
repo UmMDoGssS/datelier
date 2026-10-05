@@ -8,6 +8,7 @@ from datelier.analysis_jobs import AnalysisJobs
 from datelier.analysis_plots import AnalysisPlots
 from datelier.analysis_types import Algorithm, ClusteringResult, EmbeddingResult
 from datelier.dataset import Dataset
+from datelier.exploration import Explorer
 from datelier.gui_analysis_controls import AnalysisControls
 from datelier.gui_analysis_form import show_inputs, show_parameters
 from datelier.gui_fields import combo
@@ -37,12 +38,26 @@ class AnalysisSession:
         self.plots.poll(revision)
         return completed and isinstance(self.jobs.latest, EmbeddingResult)
 
-    def scatter_controls(self, dataset: Dataset, plots: PlotControls) -> Scatter | None:
+    def sync_dimensions(self, plots: PlotControls) -> None:
+        self.controls.dimensions = plots.scatter_dimensions
+
+    def show_panel(self, dataset: Dataset | None, plots: PlotControls) -> None:
+        self.sync_dimensions(plots)
+        self.controls.show(
+            self.jobs,
+            dataset,
+            self.selected_algorithm(plots),
+            fixed_dimensions=plots.scatter_dimensions,
+        )
+
+    def scatter_controls(
+        self, dataset: Dataset, plots: PlotControls, explorer: Explorer
+    ) -> Scatter | None:
+        self.sync_dimensions(plots)
         algorithms = [a for a in Algorithm if not a.is_clustering]
         index = algorithms.index(self.source) + 1 if self.source in algorithms else 0
-        columns = 3 if self.source is None else 2
         if imgui.begin_table(
-            "Scatter source", columns, imgui.TableFlags_.sizing_stretch_same
+            "Scatter source", 2, imgui.TableFlags_.sizing_stretch_same
         ):
             imgui.table_next_row()
             imgui.table_set_column_index(0)
@@ -54,12 +69,11 @@ class AnalysisSession:
             if changed:
                 self.source = algorithms[index - 1] if index else None
                 self.panel_source = self.source or plots.cluster_algorithm
+            if self.source is None:
+                plots.show_axes(explorer, dataset)
             imgui.table_set_column_index(1)
             if plots.show_color():
                 self.panel_source = plots.cluster_algorithm or self.source
-            if columns == 3 and self.source is None:
-                imgui.table_set_column_index(2)
-                plots.show_dimensions()
             imgui.end_table()
         cluster_algorithm = plots.cluster_algorithm
         if cluster_algorithm is not None:
@@ -69,6 +83,9 @@ class AnalysisSession:
         result = self.jobs.results.get(self.source)
         self.show_setup(dataset, self.source, dimensions=True)
         if not isinstance(result, EmbeddingResult):
+            return None
+        if result.values.shape[1] != plots.scatter_dimensions:
+            imgui.text(f"Run {self.source} for {plots.chart_choice}.")
             return None
         color = plots.color_column
         self.plots.ensure(
@@ -118,7 +135,11 @@ class AnalysisSession:
             else 0,
         ):
             imgui.begin_disabled(self.jobs.busy)
-            show_inputs(self.controls, dimensions=dimensions)
+            show_inputs(
+                self.controls,
+                dimensions=False,
+                fixed_dimensions=self.controls.dimensions if dimensions else None,
+            )
             if imgui.tree_node("Parameters"):
                 show_parameters(self.controls, algorithm)
                 imgui.tree_pop()

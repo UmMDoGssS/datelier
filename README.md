@@ -211,8 +211,8 @@ KDE/ECDF/violin use at most 2,000 finite values per column, sampled by source ID
 and seed (default 42). Box quartiles/Tukey whiskers are exact; displayed outliers
 use that sample, capped at 150. Empty/constant inputs have explicit explanations.
 
-In **Relationships**, **Chart type** offers Scatter, Box, Violin, and Grouped
-count bars when compatible columns exist. Box/Violin show **Category** and a
+In **Relationships**, **Chart type** offers Scatter 2D, Scatter 3D, Box, Violin,
+and Grouped count bars when compatible columns exist. Box/Violin show **Category** and a
 numeric **Value**; grouped bars show **Category** and a distinct categorical
 **Group by**. Single-column count bars are in Profiles. Older saved count views
 reopen there with their category and plot height; saved mean/median/sum bars
@@ -227,14 +227,18 @@ settings** controls bandwidth and seed. Extreme numeric coordinates use labeled
 scaling. Click a box/violin to select that category's retained finite rows;
 click a grouped bar to select its rows, capped at 10,000 with a visible message.
 
-For Scatter, **Coordinates → Columns** shows X/Y selectors; **Dimensions → 3D**
-adds Z. Choosing an embedding replaces the manual axes with that method's
+Scatter 2D and Scatter 3D have independent plot heights and native view state.
+**Coordinates → Columns** places X/Y selectors beneath Coordinates, with Z in
+Scatter 3D. Choosing a reduction fixes its component count at two or three to
+match the selected plot and replaces the manual axes with that method's
 inputs and Run command. **Colors** chooses Uniform, Column, or a clustering
 method. Only Column shows the column picker: continuous numeric/temporal colors,
 top-12 categorical colors plus Other, and neutral missing values. Clustering
 shows its own settings and explicit Run button. Selected points retain their
 highlight. Column axes and colors update
 in the background when changed. Analysis runs only after an explicit command.
+A fitted reduction with a different component count requires a rerun for the
+chosen plot.
 
 In Correlations, **Features** chooses an ordered numeric list; **Apply features**
 updates the view. **Chart type** switches between a Pearson heatmap (up to 16 features)
@@ -273,7 +277,7 @@ See [Phase 4 evidence](docs/phase-4.md) and
 In Relationships with Scatter selected, choose a method under **Coordinates**
 or **Colors**, then select
 features in its **inputs and settings**. Choose preprocessing, seed and sample
-limit, then press **Run**. Coordinate methods also expose 2D/3D output. Colors
+limit, then press **Run**. The Scatter 2D/3D chart determines coordinate output. Colors
 methods hide output dimensions and use the original analysis feature space.
 The **Analysis** panel follows the source you change or the setup you open.
 Defaults drop missing/nonfinite rows and

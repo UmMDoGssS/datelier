@@ -109,7 +109,7 @@ def main() -> None:
                     plots.custom_scatter = True
                     plots.three_d = args.view == "Scatter3D"
                     view.tab = "Scatter"
-                    area = view.scatter_area
+                    area = view.scatter3d_area if plots.three_d else view.scatter_area
                 elif args.view in ("Heatmap", "Grid"):
                     view.tab = "Correlations"
                     view.relationships.mode = int(args.view == "Grid")
