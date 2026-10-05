@@ -11,7 +11,7 @@ from datelier.plotting import (
     Bars,
     Correlation,
     Scatter,
-    numeric_columns,
+    feature_columns,
     prepare_bars,
     prepare_correlations,
     prepare_scatter,
@@ -114,7 +114,7 @@ def prepare_dashboard(
         prepare_relationships(
             dataset,
             settings.relationship_features
-            or numeric_columns(dataset)[: settings.correlation_columns],
+            or feature_columns(dataset)[: settings.correlation_columns],
             correlations,
             settings.bins,
         ),

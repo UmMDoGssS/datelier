@@ -1,10 +1,12 @@
 """Dataset identity and revision contracts, independent of rendering/imports."""
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from uuid import UUID, uuid4
 
 import polars as pl
+
+from datelier.column_roles import ColumnRole, RoleInfo, allowed_roles, infer_roles
 
 
 @dataclass(frozen=True)
@@ -34,6 +36,29 @@ class Dataset:
     source_row_count: int
     _table: pl.DataFrame = field(repr=False)
     _row_ids: pl.Series = field(repr=False)
+    roles: tuple[RoleInfo, ...] | None = field(default=None, repr=False)
+
+    def __post_init__(self) -> None:
+        if self.roles is None:
+            object.__setattr__(self, "roles", infer_roles(self._table))
+
+    def role(self, name: str) -> RoleInfo:
+        return next(info for info in self.roles or () if info.name == name)
+
+    def columns_for(self, role: ColumnRole) -> tuple[str, ...]:
+        return tuple(info.name for info in self.roles or () if info.role == role)
+
+    def with_role(self, name: str, role: ColumnRole | None) -> Dataset:
+        dtype = self._table.get_column(name).dtype
+        if role is not None and role not in allowed_roles(dtype):
+            raise ValueError(f"{role} is incompatible with {dtype}")
+        roles = tuple(
+            replace(info, override=role) if info.name == name else info
+            for info in self.roles or ()
+        )
+        return replace(
+            self, revision=DatasetRevision(self.revision.dataset_id), roles=roles
+        )
 
     @classmethod
     def from_source(cls, table: pl.DataFrame, source: SourceReference) -> Dataset:
@@ -67,4 +92,5 @@ class Dataset:
             self.source_row_count,
             table.clone(),
             row_ids.clone(),
+            infer_roles(table, self.roles or ()),
         )

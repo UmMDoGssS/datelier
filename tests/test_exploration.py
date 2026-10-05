@@ -50,7 +50,10 @@ def test_sorted_filtered_sampled_identity_and_literal_names() -> None:
     assert points.row_ids.tolist() == [19, 15, 10, 5]
     np.testing.assert_array_equal(points.x, points.row_ids)
     assert not points.x.flags.writeable
-    assert prepare_correlations(transformed)[0].value == pytest.approx(1)
+    assert not prepare_correlations(transformed)  # IDs are excluded by default.
+    assert prepare_correlations(transformed, features=("^x$", "id"))[
+        0
+    ].value == pytest.approx(1)
     with pytest.raises(ValueError):
         prepare_scatter(data, "id", "id")
 

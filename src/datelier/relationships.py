@@ -47,6 +47,7 @@ def prepare_relationships(
         dataset.source_row_count,
         dataset.table[indices],
         dataset.row_ids.gather(indices),
+        dataset.roles,
     )
     for i, name in enumerate(names):
         finite = cohort.table.get_column(name).cast(pl.Float64)

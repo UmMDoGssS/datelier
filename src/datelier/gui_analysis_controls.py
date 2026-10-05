@@ -23,7 +23,7 @@ from datelier.analysis_types import (
 )
 from datelier.dataset import Dataset
 from datelier.gui_analysis_form import show_inputs, show_parameters
-from datelier.plotting import numeric_columns
+from datelier.plotting import feature_columns
 
 
 @dataclass
@@ -62,7 +62,7 @@ class AnalysisControls:
     )
 
     def bind(self, dataset: Dataset) -> None:
-        self.numeric = numeric_columns(dataset)
+        self.numeric = feature_columns(dataset)
         self.features = [n for n in self.features if n in self.numeric]
 
     def request(self, algorithm: Algorithm) -> AnalysisRequest:

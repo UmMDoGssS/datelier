@@ -5,12 +5,12 @@ from dataclasses import dataclass, field
 from imgui_bundle import imgui
 
 from datelier.analysis_types import Algorithm, ClusteringResult
+from datelier.column_roles import ColumnRole
 from datelier.dataset import Dataset
 from datelier.distributions import DistributionSettings
 from datelier.exploration import Explorer, PlotSettings
 from datelier.gui_fields import combo
-from datelier.plotting import numeric_columns
-from datelier.profiling import ProfileKind, profile_kind
+from datelier.plotting import feature_columns
 
 
 @dataclass
@@ -59,16 +59,17 @@ class PlotControls:
         )
         self.columns = tuple(dataset.table.columns)
         self.color_columns = tuple(
-            n
-            for n, t in dataset.table.schema.items()
-            if profile_kind(t) != ProfileKind.UNSUPPORTED
+            info.name
+            for info in dataset.roles or ()
+            if info.role
+            in (ColumnRole.NUMERIC, ColumnRole.CATEGORY, ColumnRole.TEMPORAL)
         )
         self.color_index = (
             self.color_columns.index(previous_color) + 1
             if previous_color in self.color_columns
             else int(self.color_source == "Column" and bool(self.color_columns))
         )
-        self.numeric = numeric_columns(dataset)
+        self.numeric = feature_columns(dataset)
         self.relationship_features = (
             list(self.numeric[:6])
             if self.relationship_features is None

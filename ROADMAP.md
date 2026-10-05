@@ -329,3 +329,11 @@ completed v1 baseline, with exclusive Uniform/Column/method Colors sources.
 and bounded-worker resource/cancellation checks. This work uses the existing
 analysis worker and dependencies; loading or
 restoring a workspace must still never launch ML automatically.
+
+## Authorized categorical inspection follow-up
+
+The user requested a broader Relationships tab, category charts, inferred Text
+and Identifier roles with overrides, and selectable correlation-grid diagonals.
+[Delivery gates](docs/categorical-inspection.md) track three independently
+verified steps and the final acceptance checks. Original Titanic UX gates remain
+separate and open where their evidence is incomplete.

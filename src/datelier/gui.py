@@ -131,7 +131,7 @@ def run_gui(
 
     def schema() -> None:
         evidence.schema_dock_id = imgui.get_window_dock_id()
-        show_schema(loader)
+        show_schema(loader, editor)
 
     def explore() -> None:
         plot_controls.show(explorer, loader.active.dataset if loader.active else None)

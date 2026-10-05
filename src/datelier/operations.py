@@ -5,6 +5,7 @@ from enum import StrEnum
 
 import polars as pl
 
+from datelier.column_roles import ColumnRole
 from datelier.dataset import Dataset
 from datelier.scalars import Scalar
 from datelier.transform_types import (
@@ -51,7 +52,13 @@ class SelectColumns:
     columns: tuple[str, ...]
 
 
-type Operation = Sort | Filter | SelectColumns | Transform
+@dataclass(frozen=True)
+class SetColumnRole:
+    column: str
+    role: ColumnRole | None = None
+
+
+type Operation = Sort | Filter | SelectColumns | SetColumnRole | Transform
 
 
 def require_columns(table: pl.DataFrame, columns: tuple[str, ...]) -> None:
@@ -98,6 +105,9 @@ def apply_operation(dataset: Dataset, operation: Operation) -> Dataset:
     table, ids = dataset.table, dataset.row_ids
     try:
         match operation:
+            case SetColumnRole(column, role):
+                require_columns(table, (column,))
+                return dataset.with_role(column, role)
             case Sort(columns, descending, nulls_last):
                 require_columns(table, columns)
                 # A collision-free internal column travels with rows, never exposed.
@@ -143,6 +153,8 @@ def apply_operation(dataset: Dataset, operation: Operation) -> Dataset:
 
 def describe_operation(operation: Operation) -> str:
     match operation:
+        case SetColumnRole(column, role):
+            return f"Use {role or 'Automatic'} role for {column}"
         case Sort(columns, descending, _):
             direction = "descending" if descending else "ascending"
             return f"Sort {', '.join(columns)} {direction}"

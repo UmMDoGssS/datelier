@@ -59,6 +59,11 @@ def test_empty_constant_all_null_and_unsupported() -> None:
 
 def test_high_cardinality_and_wide_limits() -> None:
     table = pl.DataFrame({"count": [str(i) for i in range(100_001)]})
+    profile = prepare_profiles(dataset(table), top=3, column="count").columns[0]
+    assert profile.kind == ProfileKind.TEXT and profile.distinct_count == 100_001
+    assert not profile.distribution.counts
+    # A repeated value makes this categorical; bounded counting still applies.
+    table = pl.concat([table, pl.DataFrame({"count": ["0"]})])
     profile = prepare_profiles(dataset(table), top=3).columns[0]
     assert profile.distinct_count == 100_000
     assert len(profile.distribution.labels) == 3

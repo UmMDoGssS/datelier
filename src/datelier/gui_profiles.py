@@ -63,7 +63,13 @@ class ProfileView:
                 imgui.combo(
                     "##Chart type",
                     0,
-                    ["Counts" if kind == ProfileKind.CATEGORICAL else "Histogram"],
+                    [
+                        "Counts"
+                        if kind == ProfileKind.CATEGORICAL
+                        else "Excluded"
+                        if kind in (ProfileKind.TEXT, ProfileKind.IDENTIFIER)
+                        else "Histogram"
+                    ],
                 )
             imgui.end_table()
         profile = profiles.columns[self.index]
@@ -72,7 +78,9 @@ class ProfileView:
         shown = False
         if not profile.counted_rows:
             imgui.text_wrapped(
-                "No values to plot."
+                profile.note
+                if profile.kind in (ProfileKind.TEXT, ProfileKind.IDENTIFIER)
+                else "No values to plot."
                 if not profiles.row_count
                 else "No valid values to plot."
             )

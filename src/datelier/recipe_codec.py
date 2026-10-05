@@ -22,7 +22,7 @@ from datelier.analysis_types import (
 from datelier.distributions import DistributionSettings
 from datelier.exploration import PlotSettings
 from datelier.import_types import CsvOptions, JsonOptions, ParquetOptions, XmlOptions
-from datelier.operations import Filter, SelectColumns, Sort
+from datelier.operations import Filter, SelectColumns, SetColumnRole, Sort
 from datelier.transform_types import (
     CastColumn,
     DerivedColumn,
@@ -44,6 +44,7 @@ RECORDS = (
     Sort,
     Filter,
     SelectColumns,
+    SetColumnRole,
     CastColumn,
     FillMissing,
     DropMissing,

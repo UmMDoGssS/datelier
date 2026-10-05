@@ -6,6 +6,7 @@ from enum import StrEnum
 
 import polars as pl
 
+from datelier.column_roles import ColumnRole
 from datelier.dataset import Dataset, DatasetRevision
 
 MAX_PROFILE_COLUMNS = 128
@@ -17,6 +18,8 @@ class ProfileKind(StrEnum):
     CATEGORICAL = "Categorical"
     TEMPORAL = "Temporal"
     UNSUPPORTED = "Unsupported"
+    TEXT = "Text"
+    IDENTIFIER = "Identifier"
 
 
 @dataclass(frozen=True)
@@ -250,10 +253,19 @@ def prepare_profiles(
     table = dataset.table
     profiles = []
     series_list = (
-        (table.get_column(column),) if column is not None else table[:, :column_limit]
+        (table.get_column(column),)
+        if column is not None
+        else (
+            table.get_column(info.name)
+            for info in (dataset.roles or ())
+            if info.role not in (ColumnRole.TEXT, ColumnRole.IDENTIFIER)
+        )
     )
-    for series in series_list:
-        kind = profile_kind(series.dtype)
+    for index, series in enumerate(series_list):
+        if index >= column_limit:
+            break
+        info = dataset.role(series.name)
+        kind = ProfileKind(info.role.value)
         if kind in (ProfileKind.NUMERIC, ProfileKind.TEMPORAL):
             profile = _range_profile(series, kind, bins)
         elif kind == ProfileKind.CATEGORICAL:
@@ -264,7 +276,13 @@ def prepare_profiles(
                 str(series.dtype),
                 kind,
                 series.null_count(),
-                note="This type has no automatic plot.",
+                distinct_count=info.distinct,
+                note=(
+                    f"{kind} excluded from analysis. "
+                    "Change its role in Schema to include it."
+                    if info.role in (ColumnRole.TEXT, ColumnRole.IDENTIFIER)
+                    else "This type has no automatic plot."
+                ),
             )
         profiles.append(profile)
     return Profiles(dataset.revision, table.height, table.width, tuple(profiles))

@@ -24,7 +24,7 @@ from datelier.workspaces import reference_source
 
 def test_plot_names_restore_independently_of_column_order(tmp_path: Path) -> None:
     path = tmp_path / "data.csv"
-    path.write_text("z,y,x,group\n3,2,1,a\n4,3,2,b\n")
+    path.write_text("z,y,x,group\n3,2,1,a\n4,3,2,b\n5,4,3,a\n")
     dataset = load_file(path).dataset
     saved = PlotSettings(
         bins=7,
@@ -171,7 +171,7 @@ def test_color_sources_are_exclusive_and_selection_does_not_run_ml(
     from datelier.gui_analysis import AnalysisSession
 
     path = tmp_path / "data.csv"
-    path.write_text("x,y,group\n1,2,a\n3,4,b\n")
+    path.write_text("x,y,group\n1,2,a\n3,4,b\n5,6,a\n")
     dataset = load_file(path).dataset
     plots = PlotControls()
     plots.bind(dataset)
@@ -272,7 +272,7 @@ def test_finished_clustering_cannot_override_another_color_source(
 
 def test_column_color_survives_removal_of_the_selected_column(tmp_path: Path) -> None:
     path = tmp_path / "data.csv"
-    path.write_text("x,y,group\n1,2,a\n3,4,b\n")
+    path.write_text("x,y,group\n1,2,a\n3,4,b\n5,6,a\n")
     plots = PlotControls()
     plots.bind(load_file(path).dataset)
     plots.choose_color("Column")

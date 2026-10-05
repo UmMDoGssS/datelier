@@ -11,6 +11,7 @@ from numpy.typing import NDArray
 from datelier.analysis_types import ClusteringResult
 from datelier.clustering import prepare_cluster_colors
 from datelier.coloring import PointColors, prepare_colors
+from datelier.column_roles import ColumnRole
 from datelier.dataset import Dataset, DatasetRevision
 from datelier.profiling import ColumnProfile
 
@@ -72,6 +73,10 @@ class Scatter:
 
 def sample_indices(rows: int, limit: int) -> NDArray[np.int64]:
     return np.linspace(0, rows - 1, min(rows, limit), dtype=np.int64)
+
+
+def feature_columns(dataset: Dataset) -> tuple[str, ...]:
+    return dataset.columns_for(ColumnRole.NUMERIC)
 
 
 def numeric_columns(dataset: Dataset) -> tuple[str, ...]:
@@ -159,7 +164,7 @@ def prepare_correlations(
 ) -> tuple[Correlation, ...]:
     if not 2 <= column_limit <= 16:
         raise ValueError("Correlation column limit must be 2–16")
-    names = features or numeric_columns(dataset)[:column_limit]
+    names = features or feature_columns(dataset)[:column_limit]
     if (
         len(names) > 16
         or len(set(names)) != len(names)
