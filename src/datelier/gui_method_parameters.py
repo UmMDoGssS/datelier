@@ -22,6 +22,10 @@ def show_extra_parameters(controls: AnalysisControls, algorithm: Algorithm) -> N
     parameters = controls.extra_parameters[algorithm]
     updates: dict[str, object] = {}
     for item in fields(parameters):
+        if "when" in item.metadata:
+            name, active = cast(tuple[str, object], item.metadata["when"])
+            if getattr(parameters, name) != active:
+                continue
         value: object = getattr(parameters, item.name)
         label = str(item.metadata["label"])
         if isinstance(value, bool):

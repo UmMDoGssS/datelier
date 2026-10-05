@@ -3,7 +3,16 @@
 import numpy as np
 import polars as pl
 
-from datelier.analysis_parameters import HDBSCANParameters, OPTICSParameters
+from datelier.analysis_parameters import (
+    AgglomerativeParameters,
+    BayesianMixtureParameters,
+    BirchParameters,
+    GaussianMixtureParameters,
+    HDBSCANParameters,
+    MiniBatchParameters,
+    OPTICSParameters,
+    SpectralClusteringParameters,
+)
 from datelier.analysis_types import (
     AnalysisRequest,
     InputSummary,
@@ -99,15 +108,30 @@ def prepare_input(dataset: Dataset, request: AnalysisRequest) -> PreparedInput:
             raise ValueError(
                 "Cosine distance is undefined for zero-valued preprocessed rows"
             )
-    if isinstance(params, KMeansParameters) and params.clusters > len(
-        np.unique(values, axis=0)
-    ):
+    if isinstance(
+        params,
+        (
+            KMeansParameters,
+            MiniBatchParameters,
+            GaussianMixtureParameters,
+            BayesianMixtureParameters,
+            AgglomerativeParameters,
+            BirchParameters,
+            SpectralClusteringParameters,
+        ),
+    ) and params.clusters > len(np.unique(values, axis=0)):
         raise ValueError("Cluster count exceeds distinct sampled inputs")
     if (
         isinstance(params, (HDBSCANParameters, OPTICSParameters))
         and max(params.min_samples, params.min_cluster_size) > rows
     ):
         raise ValueError("Minimum neighbors and cluster size exceed the sampled rows")
+    if (
+        isinstance(params, SpectralClusteringParameters)
+        and params.affinity == "nearest_neighbors"
+        and params.neighbors >= rows
+    ):
+        raise ValueError("Spectral clustering needs more sampled rows than neighbors")
     ids, positions = sample["id"].to_numpy(), sample["position"].to_numpy()
     for array in (
         values,
