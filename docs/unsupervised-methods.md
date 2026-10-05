@@ -11,7 +11,7 @@ and UMAP dependencies provide the implementations.
 - [x] Density clustering with distinguishable noise and unassigned rows.
 - [x] Additional centroid, mixture, hierarchical and graph clustering.
 - [x] Additional linear and manifold embeddings, in 2D and 3D.
-- [ ] Full correctness suite, Titanic GUI workflow and saved recipe round trips.
+- [x] Full correctness suite, Titanic GUI workflow and saved recipe round trips.
 
 ## Colors source controls
 
@@ -141,3 +141,53 @@ Analysis navigation with simultaneous clustering/embedding sources (42 frames),
 3D PCA/K-means linked colors (213 frames), and save/relink/restore/redo/2D linked
 selection with DBSCAN/LLE settings and zero implicit fits (31/45 frames).
 The original Titanic exclusive-coordinate GUI check also passes (165 frames).
+
+## Final milestone acceptance
+
+The full suite passes **439 tests** (25.16 s, concurrent with the Titanic GUI
+run). Pyrefly reports zero errors; Ruff lint/format pass (175 files), and diff
+whitespace passes. All 26 methods run through actual GUI Run clicks on Titanic
+in 3D (5,147 frames). Each fits 675 eligible rows from age, fare, sibsp, parch
+and pclass; 175 rows with missing inputs are excluded. Source SHA-256 remains
+`ae179070a631b75d2c3fc7439d624c7fb5e0c8859919dc1d4f96d4d3ed6e854b`.
+The GUI checks Uniform/Column/method exclusivity, the conditional column picker,
+all clustering choices before fitting, linked selection on every method,
+DBSCAN colors on new embeddings and the expanded LLE view.
+
+[Per-method Titanic record](evidence/unsupervised/titanic-methods.json) and
+[inspected LLE/DBSCAN screenshot](evidence/unsupervised/titanic-lle-dbscan.png)
+capture the final behavior. Settings for all methods round-trip in the strict
+codec, and the live save/relink/restore workflow restores modified DBSCAN/LLE
+settings without fitting. The methods use the locked scikit-learn/UMAP set; no
+dependency changes or speculative plugin hooks were introduced.
+
+Fresh parent/spawned-worker resource checks use a 100,000-row, six-feature
+synthetic source, two fits per method, and maximum fitting samples. Combined
+peak figures sum independent process peaks, so they are conservative bounds:
+
+| Case | Fitting rows | Combined peak upper bound | Fit times |
+| --- | ---: | ---: | ---: |
+| DBSCAN, radius 1e6 (dense neighborhoods) | 5,000 | 598.95 MiB | 0.171 / 0.164 s |
+| Kernel PCA, RBF | 3,000 | 345.78 MiB | 0.137 / 0.135 s |
+| Affinity propagation | 2,000 | 399.06 MiB | 1.943 / 1.980 s |
+
+All three pass the existing 2,048 MiB evidence budget. The MDS owned worker
+cancellation check confirms exit within 0.162 s after cancellation, with no
+published result, while its phase reports loading libraries/fitting. These
+fixtures do not establish capacity or runtime guarantees for every width,
+parameter choice or method.
+
+Resource records: [DBSCAN](evidence/unsupervised/dbscan-bound.json),
+[kernel PCA](evidence/unsupervised/kernel-pca-bound.json),
+[affinity propagation](evidence/unsupervised/affinity-bound.json),
+[MDS cancellation](evidence/unsupervised/mds-cancel.json). Reproduce using
+`scripts/benchmark_analysis.py` with `--algorithm`, `--sample-limit`, and optional
+`--dense-neighborhood`/`--cancel`; the recorded fit configurations are explicit.
+GUI acceptance runs use Linux/Mesa software OpenGL. Accelerated rendering and
+other platforms remain unverified. This requested expansion is complete; the
+original Titanic review's broader remaining usability gates stay open.
+
+Primary estimator references consulted alongside installed signatures:
+[clustering](https://scikit-learn.org/stable/modules/clustering.html),
+[manifold learning](https://scikit-learn.org/stable/modules/manifold.html),
+[decomposition](https://scikit-learn.org/stable/api/sklearn.decomposition.html).

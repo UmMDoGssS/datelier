@@ -1,0 +1,10 @@
+{
+  "algorithm": "MDS",
+  "rows": 100000,
+  "sample_limit": 2000,
+  "phase_at_cancel": "Loading libraries / fitting MDS",
+  "start_to_cancel_seconds": 0.2922126759949606,
+  "cancel_to_confirmed_exit_seconds": 0.16223747699405067,
+  "published_results": 0,
+  "message": "Analysis cancelled; worker has stopped."
+}

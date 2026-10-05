@@ -4,7 +4,7 @@ A simple personal Linux desktop tool for inspecting data, targeting Python 3.14+
 The verified v1 scope provides CSV/TSV, JSON/JSONL, Parquet, and tabular XML import,
 responsive previews, schema/null summaries, reversible transformations,
 explicit CSV/Parquet export, richer exploration with linked selections,
-explicit PCA, t-SNE, UMAP and k-means analysis, referenced workspaces,
+26 explicit clustering/embedding methods, referenced workspaces,
 and saved layouts/themes/plot preferences.
 See [ROADMAP.md](ROADMAP.md) for delivery gates and [AGENTS.md](AGENTS.md) for
 contributor conventions.
@@ -204,10 +204,12 @@ use that sample, capped at 150. Empty/constant inputs have explicit explanations
 Categorical and temporal profiles remain available under Individual profiles.
 
 In Scatter, **Coordinates → Columns** shows X/Y selectors; **Dimensions → 3D**
-adds Z. Choosing PCA, t-SNE, or UMAP replaces the manual axes with that method's
-inputs and Run command. **Color** selects another column: continuous
-numeric/temporal colors, top-12 categorical colors plus Other, and neutral missing
-values. Selected points retain their highlight. Column axes and colors update
+adds Z. Choosing an embedding replaces the manual axes with that method's
+inputs and Run command. **Colors** chooses Uniform, Column, or a clustering
+method. Only Column shows the column picker: continuous numeric/temporal colors,
+top-12 categorical colors plus Other, and neutral missing values. Clustering
+shows its own settings and explicit Run button. Selected points retain their
+highlight. Column axes and colors update
 in the background when changed. Analysis runs only after an explicit command.
 
 In Correlations, **Features** chooses an ordered numeric list; **Apply features**
@@ -244,22 +246,49 @@ See [Phase 4 evidence](docs/phase-4.md) and
 
 ## On-demand analysis
 
-In Scatter, choose PCA, t-SNE, or UMAP under **Coordinates**, then select
-features under **Inputs and settings**. Choose preprocessing, dimensions,
-seed and the algorithm's sample limit, then explicitly press its **Run** button.
-The **Analysis** panel follows the selected method; in Columns mode it provides
-K-means controls for cluster colors. K-means omits output-dimension controls.
-Defaults drop missing/nonfinite rows and standardize features; optional median
-imputation and no scaling are available. Constant features are removed and
-reported; unusable data or invalid parameter combinations fail without adjusting
-your settings. Analysis uses source-ID/seed sampling before bounded NumPy conversion.
+In Scatter, choose a method under **Coordinates** or **Colors**, then select
+features in its **inputs and settings**. Choose preprocessing, seed and sample
+limit, then press **Run**. Coordinate methods also expose 2D/3D output. Colors
+methods hide output dimensions and use the original analysis feature space.
+The **Analysis** panel follows the source you change or the setup you open.
+Defaults drop missing/nonfinite rows and
+standardize features; median imputation and original units are available.
+Constants are removed and reported. Invalid inputs/settings fail clearly;
+selection, import and workspace restore never launch analysis.
 
-| Algorithm | Default sample / maximum | Initial settings |
-| --- | ---: | --- |
-| PCA | 10,000 / 100,000 | 2 components, randomized solver, no whitening |
-| t-SNE | 2,000 / 10,000 | 2 components, perplexity 30, 1,000 iterations, PCA initialization, automatic learning rate |
-| UMAP | 5,000 / 50,000 | 2 components, 15 neighbors, minimum distance 0.1, Euclidean metric |
-| K-means | 10,000 / 100,000 | 3 clusters, 10 initializations, 300 iterations |
+| Coordinate methods | Default rows / maximum |
+| --- | ---: |
+| PCA | 10,000 / 100,000 |
+| t-SNE | 2,000 / 10,000 |
+| UMAP | 5,000 / 50,000 |
+| Truncated SVD | 10,000 / 100,000 |
+| FastICA, Factor analysis, NMF | 10,000 / 50,000 |
+| Kernel PCA | 2,000 / 3,000 |
+| Gaussian / Sparse random projection | 10,000 / 100,000 |
+| Isomap | 2,000 / 3,000 |
+| MDS (metric or nonmetric) | 2,000 / 2,000 |
+| Spectral embedding | 2,000 / 5,000 |
+| Locally linear embedding (standard, modified, Hessian, LTSA) | 2,000 / 2,000 |
+
+| Colors methods | Default rows / maximum |
+| --- | ---: |
+| K-means, Mini-batch K-means | 10,000 / 100,000 |
+| DBSCAN | 2,000 / 5,000 |
+| HDBSCAN | 2,000 / 10,000 |
+| OPTICS | 2,000 / 5,000 |
+| Gaussian / Bayesian Gaussian mixture | 10,000 / 50,000 |
+| Agglomerative | 2,000 / 5,000 |
+| Birch | 10,000 / 100,000 |
+| Mean shift | 2,000 / 5,000 |
+| Spectral clustering | 2,000 / 3,000 |
+| Affinity propagation | 2,000 / 2,000 |
+
+Settings show relevant alternatives: spectral affinity uses neighbors or gamma;
+mean shift uses estimated or manual bandwidth; affinity propagation uses
+automatic or manual preference. NMF explicitly exposes minmax input scaling to
+[0, 1]; disabling it requires nonnegative inputs. LLE validates neighborhood
+requirements for the chosen variant. Fit warnings and diagnostics are retained
+in result provenance. See [method details and verification](docs/unsupervised-methods.md).
 
 Settings are visible and seed defaults to 42. Embeddings support two or three
 components; viewing a third component requires an explicit three-component run.
@@ -270,10 +299,11 @@ These sample limits are bounds, not capacity guarantees.
 
 Choose Columns or an embedding in Scatter to switch views without fitting
 again. An unfitted method shows its setup; it never falls back to column axes.
-Changed settings require another command. **Color → K-means clusters** uses the
-completed clustering result on raw or reduced plots. Fitting samples and
-nearest-center predictions in the original fitted feature space are disclosed;
-excluded rows receive neutral colors. Provenance records inputs, exclusions,
+Changed settings require another command. Colors uses the selected completed
+clustering result on raw or reduced plots. K-means and Mini-batch K-means predict
+displayed rows by nearest center; other methods color known fitting identities.
+Noise has a distinct color/legend from unassigned or excluded rows. Fit samples
+and any prediction are disclosed. Provenance records inputs, exclusions,
 sampling, preprocessing, parameters, seed, runtime and library versions.
 
 ## Chart space and axes
@@ -291,9 +321,9 @@ before changing the view, and subsequent wheel zoom and pan remain available.
 coordinates omit numeric editing; heatmaps keep their feature axes. Axis edits
 are session state and reset when the plotted columns or chart type change.
 Loading data, changing settings and editing never launch ML automatically.
-K-means is the only current clustering algorithm; spectral, agglomerative,
-DBSCAN and HDBSCAN remain future additions.
-See [Phase 5 evidence](docs/phase-5.md) for correctness and resource measurements.
+See [Phase 5 evidence](docs/phase-5.md) for baseline correctness/resource
+measurements and [unsupervised expansion](docs/unsupervised-methods.md) for the
+new catalog and verification.
 
 ## Transform and export
 

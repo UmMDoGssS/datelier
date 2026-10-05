@@ -10,8 +10,10 @@ from tempfile import TemporaryDirectory
 from time import perf_counter, sleep
 
 from datelier.analysis_jobs import AnalysisJobs
+from datelier.analysis_parameters import EXTRA_DEFAULTS, DBSCANParameters
 from datelier.analysis_types import (
     DEFAULT_LIMITS,
+    Algorithm,
     AnalysisRequest,
     ClusteringResult,
     KMeansParameters,
@@ -26,26 +28,33 @@ from datelier.feasibility.fixtures import make_table
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--algorithm", choices=["pca", "kmeans", "tsne", "umap"], required=True
+        "--algorithm", choices=[a.name.lower() for a in Algorithm], required=True
     )
     parser.add_argument("--rows", type=int, default=1_000_000)
     parser.add_argument("--columns", type=int, default=6)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--cancel", action="store_true")
+    parser.add_argument("--sample-limit", type=int)
+    parser.add_argument("--dense-neighborhood", action="store_true")
     args = parser.parse_args()
     dataset = Dataset.from_source(
         make_table(args.rows, args.columns), SourceReference(Path("synthetic"), 0, 0)
     )
     parameters = {
+        **{a.name.lower(): p for a, p in EXTRA_DEFAULTS.items()},
         "pca": PCAParameters(),
         "kmeans": KMeansParameters(),
         "tsne": TSNEParameters(),
         "umap": UMAPParameters(),
     }[args.algorithm]
+    if args.dense_neighborhood:
+        if args.algorithm != "dbscan":
+            raise ValueError("Dense-neighborhood measurement requires DBSCAN")
+        parameters = DBSCANParameters(epsilon=1e6)
     request = AnalysisRequest(
         tuple(f"feature_{i}" for i in range(args.columns)),
         parameters,
-        row_limit=DEFAULT_LIMITS[parameters.algorithm],
+        row_limit=args.sample_limit or DEFAULT_LIMITS[parameters.algorithm],
     )
     if args.cancel:
         report = measure_cancellation(dataset, request)
@@ -74,11 +83,19 @@ def main() -> None:
         result = jobs.latest
         assert result is not None
         if isinstance(result, ClusteringResult):
-            assert sum(result.counts) == result.provenance.input.sampled_rows
+            assert (
+                sum(result.counts) + result.noise_count
+                == result.provenance.input.sampled_rows
+            )
         parent = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
         child = resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss / 1024
         report = {
             "algorithm": str(request.algorithm),
+            "parameters": asdict(request.parameters),
+            "preprocessing": asdict(request.preprocessing),
+            "row_limit": request.row_limit,
+            "dimensions": request.dimensions,
+            "seed": request.seed,
             "rows": args.rows,
             "features": args.columns,
             "sample": asdict(result.provenance.input),

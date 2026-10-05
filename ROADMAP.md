@@ -324,6 +324,8 @@ implementation milestones only after its specification is approved.
 
 The concrete user request adds clustering and embedding choices beyond the
 completed v1 baseline, with exclusive Uniform/Column/method Colors sources.
-[Delivery gates and verification](docs/unsupervised-methods.md) track bounded
-steps. This work uses the existing analysis worker and dependencies; loading or
+[Delivery gates and verification](docs/unsupervised-methods.md) record completion:
+26 methods, 439 passing tests, all-method Titanic GUI acceptance, saved recipes
+and bounded-worker resource/cancellation checks. This work uses the existing
+analysis worker and dependencies; loading or
 restoring a workspace must still never launch ML automatically.
