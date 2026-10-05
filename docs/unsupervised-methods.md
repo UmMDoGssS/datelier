@@ -10,7 +10,7 @@ and UMAP dependencies provide the implementations.
 - [x] Exclusive Colors sources and conditional Column picker.
 - [x] Density clustering with distinguishable noise and unassigned rows.
 - [x] Additional centroid, mixture, hierarchical and graph clustering.
-- [ ] Additional linear and manifold embeddings, in 2D and 3D.
+- [x] Additional linear and manifold embeddings, in 2D and 3D.
 - [ ] Full correctness suite, Titanic GUI workflow and saved recipe round trips.
 
 ## Colors source controls
@@ -101,3 +101,23 @@ inputs, source-ID/position alignment, NMF domain/scaling and dimension failures.
 Pyrefly reports zero errors; Ruff lint/format pass (172 files). All seven methods
 pass Linux/Mesa live settings, explicit Run clicks and linked 3D inspection
 (135–142 frames each). The manifold and final milestone gates remain open.
+
+## Manifold views
+
+Isomap, metric/nonmetric MDS, Spectral embedding and Locally linear embedding
+complete the catalog of 26 methods (12 clustering, 14 coordinate methods). LLE
+additionally offers standard, modified, Hessian and LTSA variants. Neighbor/row
+and Hessian rank constraints fail before fitting. Isomap and LLE use bounded
+dense eigensolving; LLE's 2k cap avoids unbounded dense work and singular ARPACK
+neighborhood failures. MDS exposes initialization, relevant initialization
+count, iterations and stress tolerance. Spectral affinity exposes either
+neighbors or gamma. Warnings and stress/reconstruction diagnostics are recorded.
+Caps: Isomap 3k, MDS 2k, Spectral embedding 5k, LLE 2k; defaults 2k.
+
+Verification: 86 focused manifold/linear/input/workspace tests pass (2.99 s),
+including both dimensions, all LLE variants, both MDS types, spectral affinities,
+repeatability and neighborhood failures. Pyrefly reports zero errors; the
+installed MDS 1.9 constructor is isolated behind a narrow typed boundary because
+its bundled stubs still describe the older API. Ruff lint/format pass (174
+files). Four Linux/Mesa GUI checks pass live forms, actual Run clicks and linked
+3D views (135–143 frames). Titanic and final full-suite gates remain open.

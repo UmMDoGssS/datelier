@@ -19,7 +19,20 @@ from datelier.embedding_parameters import EMBEDDING_DEFAULTS, NMFParameters
 from datelier.importing import load_file
 
 
-@pytest.mark.parametrize("algorithm", list(EMBEDDING_DEFAULTS))
+@pytest.mark.parametrize(
+    "algorithm",
+    [
+        a
+        for a in EMBEDDING_DEFAULTS
+        if a
+        not in (
+            Algorithm.ISOMAP,
+            Algorithm.MDS,
+            Algorithm.SPECTRAL_EMBEDDING,
+            Algorithm.LLE,
+        )
+    ],
+)
 @pytest.mark.parametrize("dimensions", [2, 3])
 def test_linear_views_preserve_finite_coordinates_and_ids(
     tmp_path: Path, algorithm: Algorithm, dimensions: int

@@ -26,6 +26,10 @@ class Algorithm(StrEnum):
     NMF = "NMF"
     GAUSSIAN_PROJECTION = "Gaussian random projection"
     SPARSE_PROJECTION = "Sparse random projection"
+    ISOMAP = "Isomap"
+    MDS = "MDS"
+    SPECTRAL_EMBEDDING = "Spectral embedding"
+    LLE = "Locally linear embedding"
 
     @property
     def is_clustering(self) -> bool:

@@ -72,8 +72,83 @@ class SparseProjectionParameters:
     density: float = setting(0.3, "Projection density", 1e-6, 1.0)
 
 
+@dataclass(frozen=True)
+class IsomapParameters:
+    algorithm: ClassVar[Algorithm] = Algorithm.ISOMAP
+    neighbors: int = setting(15, "Neighbors", 2, 100)
+    metric: str = choice("euclidean", "Distance", ("euclidean", "manhattan"))
+
+
+@dataclass(frozen=True)
+class MDSParameters:
+    algorithm: ClassVar[Algorithm] = Algorithm.MDS
+    metric: bool = field(default=True, metadata={"label": "Metric MDS"})
+    initialization: str = choice(
+        "random", "Initialization", ("random", "classical_mds")
+    )
+    initializations: int = field(
+        default=4,
+        metadata={
+            "label": "Initializations",
+            "min": 1,
+            "max": 100,
+            "when": ("initialization", "random"),
+        },
+    )
+    iterations: int = setting(300, "Iterations", 1, 10000)
+    tolerance: float = setting(1e-6, "Stress tolerance", 1e-12, 1.0)
+
+
+@dataclass(frozen=True)
+class SpectralEmbeddingParameters:
+    algorithm: ClassVar[Algorithm] = Algorithm.SPECTRAL_EMBEDDING
+    affinity: str = choice(
+        "nearest_neighbors", "Affinity", ("nearest_neighbors", "rbf")
+    )
+    neighbors: int = field(
+        default=15,
+        metadata={
+            "label": "Neighbors",
+            "min": 2,
+            "max": 100,
+            "when": ("affinity", "nearest_neighbors"),
+        },
+    )
+    gamma: float = field(
+        default=1.0,
+        metadata={
+            "label": "Kernel gamma",
+            "min": 1e-9,
+            "max": 1e6,
+            "when": ("affinity", "rbf"),
+        },
+    )
+
+
+@dataclass(frozen=True)
+class LLEParameters:
+    algorithm: ClassVar[Algorithm] = Algorithm.LLE
+    method: str = choice(
+        "standard", "LLE method", ("standard", "modified", "hessian", "ltsa")
+    )
+    neighbors: int = setting(15, "Neighbors", 2, 100)
+    regularization: float = field(
+        default=0.001,
+        metadata={
+            "label": "Local regularization",
+            "min": 1e-12,
+            "max": 1.0,
+            "when": ("method", "standard"),
+        },
+    )
+
+
 EmbeddingParameters = (
-    SVDParameters
+    IsomapParameters
+    | MDSParameters
+    | SpectralEmbeddingParameters
+    | LLEParameters
+    | SVDParameters
     | ICAParameters
     | FactorAnalysisParameters
     | KernelPCAParameters
@@ -84,6 +159,10 @@ EmbeddingParameters = (
 EMBEDDING_DEFAULTS: dict[Algorithm, EmbeddingParameters] = {
     p.algorithm: p
     for p in (
+        IsomapParameters(),
+        MDSParameters(),
+        SpectralEmbeddingParameters(),
+        LLEParameters(),
         SVDParameters(),
         ICAParameters(),
         FactorAnalysisParameters(),
@@ -94,6 +173,10 @@ EMBEDDING_DEFAULTS: dict[Algorithm, EmbeddingParameters] = {
     )
 }
 EMBEDDING_LIMITS = {
+    Algorithm.ISOMAP: 3000,
+    Algorithm.MDS: 2000,
+    Algorithm.SPECTRAL_EMBEDDING: 5000,
+    Algorithm.LLE: 2000,
     Algorithm.SVD: 100000,
     Algorithm.ICA: 50000,
     Algorithm.FACTOR_ANALYSIS: 50000,

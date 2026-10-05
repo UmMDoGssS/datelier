@@ -15,6 +15,12 @@ from datelier.analysis_types import (
     TSNEParameters,
     UMAPParameters,
 )
+from datelier.embedding_parameters import (
+    IsomapParameters,
+    LLEParameters,
+    MDSParameters,
+    SpectralEmbeddingParameters,
+)
 
 
 def run_analysis(prepared: PreparedInput) -> AnalysisResult:
@@ -91,6 +97,13 @@ def run_analysis(prepared: PreparedInput) -> AnalysisResult:
             ),
             ("numpy", "polars", "scikit-learn", "umap-learn", "numba", "threadpoolctl"),
         )
+    if isinstance(
+        params,
+        (IsomapParameters, MDSParameters, SpectralEmbeddingParameters, LLEParameters),
+    ):
+        from datelier.analysis_manifold import run_manifold
+
+        return run_manifold(prepared)
     if not isinstance(params, PCAParameters):
         from datelier.analysis_linear import run_linear
 

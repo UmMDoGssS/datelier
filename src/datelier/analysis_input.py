@@ -27,8 +27,12 @@ from datelier.dataset import Dataset
 from datelier.embedding_parameters import (
     FactorAnalysisParameters,
     ICAParameters,
+    IsomapParameters,
     KernelPCAParameters,
+    LLEParameters,
+    MDSParameters,
     NMFParameters,
+    SpectralEmbeddingParameters,
     SVDParameters,
 )
 from datelier.plotting import numeric_columns
@@ -158,6 +162,33 @@ def prepare_input(dataset: Dataset, request: AnalysisRequest) -> PreparedInput:
             "NMF needs nonnegative inputs; choose minmax scaling "
             "or disable standardization"
         )
+    if isinstance(
+        params, (IsomapParameters, LLEParameters, SpectralEmbeddingParameters)
+    ):
+        if rows <= request.dimensions + 1:
+            raise ValueError(
+                "Manifold views need more sampled rows than dimensions + 1"
+            )
+        uses_neighbors = (
+            not isinstance(params, SpectralEmbeddingParameters)
+            or params.affinity == "nearest_neighbors"
+        )
+        if uses_neighbors and params.neighbors >= rows:
+            raise ValueError("Neighbors must be smaller than the sampled row count")
+    if isinstance(params, MDSParameters) and rows <= request.dimensions:
+        raise ValueError("MDS needs more sampled rows than dimensions")
+    if isinstance(params, LLEParameters):
+        if request.dimensions > width:
+            raise ValueError("LLE dimensions exceed the varying feature count")
+        minimum = (
+            request.dimensions * (request.dimensions + 3) / 2
+            if params.method == "hessian"
+            else request.dimensions
+        )
+        if params.neighbors <= minimum:
+            raise ValueError(
+                f"{params.method} LLE needs more than {minimum:g} neighbors"
+            )
     ids, positions = sample["id"].to_numpy(), sample["position"].to_numpy()
     for array in (
         values,
