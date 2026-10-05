@@ -7,10 +7,15 @@ import polars as pl
 import pytest
 
 from datelier.core.dataset import Dataset, SourceReference
-from datelier.exploration import Dashboard, Explorer, PlotSettings, prepare_dashboard
+from datelier.inspection.exploration import (
+    Dashboard,
+    Explorer,
+    PlotSettings,
+    prepare_dashboard,
+)
 from datelier.pipeline.history import Pipeline
 from datelier.pipeline.operations import Comparison, Filter, Sort
-from datelier.plotting import prepare_correlations, prepare_scatter
+from datelier.plotting.data import prepare_correlations, prepare_scatter
 
 
 def dataset(table: pl.DataFrame) -> Dataset:
@@ -93,7 +98,7 @@ def wait(explorer: Explorer, data: Dataset) -> None:
 
 
 def test_background_failure_stale_abandon_and_newer_request(monkeypatch) -> None:
-    import datelier.exploration as module
+    import datelier.inspection.exploration as module
 
     old = dataset(pl.DataFrame({"x": [1, 2], "y": [2, 4]}))
     new = dataset(pl.DataFrame({"x": [3, 4], "y": [6, 8]}))

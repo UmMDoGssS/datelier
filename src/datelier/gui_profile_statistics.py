@@ -3,7 +3,7 @@
 from imgui_bundle import imgui
 
 from datelier.gui_profile_colors import profile_color
-from datelier.profiling import ColumnProfile, ProfileKind
+from datelier.inspection.profiles import ColumnProfile, ProfileKind
 
 
 def statistics_height(count: int) -> float:

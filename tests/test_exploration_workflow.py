@@ -13,11 +13,11 @@ from datelier.analysis_types import (
     KMeansParameters,
 )
 from datelier.clustering import predict_clusters
-from datelier.exploration import PlotSettings, prepare_dashboard
+from datelier.inspection.exploration import PlotSettings, prepare_dashboard
 from datelier.io.importing import load_file
 from datelier.pipeline.history import Pipeline
 from datelier.pipeline.operations import Comparison, Filter, Sort
-from datelier.selection import LinkedSelection
+from datelier.plotting.selection import LinkedSelection
 
 
 @pytest.mark.parametrize("suffix", ["csv", "tsv", "json", "jsonl", "parquet", "xml"])

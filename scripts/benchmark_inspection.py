@@ -15,7 +15,7 @@ from time import perf_counter, sleep
 import polars as pl
 
 from datelier.feasibility.fixtures import make_table
-from datelier.inspection import (
+from datelier.inspection.table import (
     PAGE_COLUMNS,
     PAGE_ROWS,
     prepare_inspection,

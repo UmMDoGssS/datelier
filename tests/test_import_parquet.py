@@ -6,7 +6,7 @@ import polars as pl
 import pytest
 from polars.testing import assert_frame_equal
 
-from datelier.inspection import prepare_inspection
+from datelier.inspection.table import prepare_inspection
 from datelier.io.importing import load_file
 from datelier.io.types import ImportFailure, ImportFormat, ParquetOptions
 

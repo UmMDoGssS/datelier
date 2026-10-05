@@ -4,7 +4,7 @@ from time import monotonic, sleep
 
 import pytest
 
-from datelier.inspection import CELL_CHARACTERS, prepare_inspection, prepare_page
+from datelier.inspection.table import CELL_CHARACTERS, prepare_inspection, prepare_page
 from datelier.io.csv import CsvImport, load_csv
 from datelier.io.loading import DatasetLoader, LoadPhase
 from datelier.io.types import CsvOptions, ImportOptions

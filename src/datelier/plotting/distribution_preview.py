@@ -3,7 +3,11 @@
 from concurrent.futures import Future, ThreadPoolExecutor
 
 from datelier.core.dataset import Dataset, DatasetRevision
-from datelier.distributions import Comparison, DistributionSettings, prepare_comparison
+from datelier.plotting.distributions import (
+    Comparison,
+    DistributionSettings,
+    prepare_comparison,
+)
 
 
 class DistributionPreview:

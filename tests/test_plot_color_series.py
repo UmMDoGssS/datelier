@@ -8,11 +8,16 @@ from datelier.analysis_input import prepare_input
 from datelier.analysis_parameters import DBSCANParameters
 from datelier.analysis_types import AnalysisRequest, ClusteringResult
 from datelier.clustering import prepare_cluster_colors
-from datelier.coloring import NEUTRAL, PointColors, continuous_colors, prepare_colors
 from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset, SourceReference
-from datelier.plotting import prepare_scatter
-from datelier.selection import LinkedSelection
+from datelier.plotting.colors import (
+    NEUTRAL,
+    PointColors,
+    continuous_colors,
+    prepare_colors,
+)
+from datelier.plotting.data import prepare_scatter
+from datelier.plotting.selection import LinkedSelection
 
 
 def data(table: pl.DataFrame) -> Dataset:

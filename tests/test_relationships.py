@@ -5,7 +5,7 @@ import polars as pl
 import pytest
 
 from datelier.core.dataset import Dataset, SourceReference
-from datelier.exploration import PlotSettings, prepare_dashboard
+from datelier.inspection.exploration import PlotSettings, prepare_dashboard
 
 
 def test_matrix_symmetry_order_diagonals_and_identity() -> None:

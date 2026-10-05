@@ -19,9 +19,7 @@ from datelier.analysis_types import (
     TSNEParameters,
     UMAPParameters,
 )
-from datelier.category_charts import CategorySettings
-from datelier.distributions import DistributionSettings
-from datelier.exploration import PlotSettings
+from datelier.inspection.exploration import PlotSettings
 from datelier.io.types import CsvOptions, JsonOptions, ParquetOptions, XmlOptions
 from datelier.pipeline.operations import Filter, SelectColumns, SetColumnRole, Sort
 from datelier.pipeline.types import (
@@ -31,6 +29,8 @@ from datelier.pipeline.types import (
     FillMissing,
     Lookup,
 )
+from datelier.plotting.categories import CategorySettings
+from datelier.plotting.distributions import DistributionSettings
 from datelier.workspace_types import Workspace, WorkspaceSource, WorkspaceViews
 
 RECORDS = (

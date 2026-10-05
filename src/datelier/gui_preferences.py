@@ -137,7 +137,7 @@ class PreferenceControls:
         if imgui.menu_item("Reset layout", "", False)[0]:
             self.reset_requested = True
         if imgui.menu_item("Reset plot defaults", "", False)[0]:
-            from datelier.exploration import PlotSettings
+            from datelier.inspection.exploration import PlotSettings
 
             self.value = replace(self.value, plots=PlotSettings())
             if session.loader.active is not None:

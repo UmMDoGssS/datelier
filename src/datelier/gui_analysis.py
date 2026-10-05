@@ -8,12 +8,12 @@ from datelier.analysis_jobs import AnalysisJobs
 from datelier.analysis_plots import AnalysisPlots
 from datelier.analysis_types import Algorithm, ClusteringResult, EmbeddingResult
 from datelier.core.dataset import Dataset
-from datelier.exploration import Explorer
 from datelier.gui_analysis_controls import AnalysisControls
 from datelier.gui_analysis_form import show_inputs, show_parameters
 from datelier.gui_fields import combo
 from datelier.gui_plot_controls import PlotControls
-from datelier.plotting import Scatter
+from datelier.inspection.exploration import Explorer
+from datelier.plotting.data import Scatter
 
 
 @dataclass

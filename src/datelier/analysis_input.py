@@ -36,7 +36,7 @@ from datelier.embedding_parameters import (
     SpectralEmbeddingParameters,
     SVDParameters,
 )
-from datelier.plotting import numeric_columns
+from datelier.plotting.data import numeric_columns
 
 
 def prepare_input(dataset: Dataset, request: AnalysisRequest) -> PreparedInput:

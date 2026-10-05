@@ -21,7 +21,7 @@ from numpy.typing import NDArray
 
 from datelier.feasibility.fixtures import make_table
 from datelier.gui import GuiSession, InspectionEvidence, run_gui
-from datelier.inspection import prepare_inspection, prepare_page
+from datelier.inspection.table import prepare_inspection, prepare_page
 from datelier.io.csv import load_csv
 from datelier.io.exporting import ExportFormat, export_dataset
 from datelier.pipeline.editing import HistoryAction

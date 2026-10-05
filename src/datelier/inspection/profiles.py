@@ -8,7 +8,7 @@ import polars as pl
 
 from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset, DatasetRevision
-from datelier.profile_statistics import NumericStatistics, prepare_numeric_statistics
+from datelier.inspection.statistics import NumericStatistics, prepare_numeric_statistics
 
 MAX_PROFILE_COLUMNS = 128
 COUNT_ROW_LIMIT = 100_000

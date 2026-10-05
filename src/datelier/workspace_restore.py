@@ -3,7 +3,7 @@
 from dataclasses import dataclass, replace
 from pathlib import Path
 
-from datelier.inspection import Inspection, prepare_inspection
+from datelier.inspection.table import Inspection, prepare_inspection
 from datelier.io.importing import load_file
 from datelier.pipeline.history import Pipeline
 from datelier.pipeline.operations import apply_operation

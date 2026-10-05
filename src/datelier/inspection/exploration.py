@@ -4,15 +4,15 @@ from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import dataclass, field
 
 from datelier.analysis_types import ClusteringResult
-from datelier.category_charts import (
+from datelier.core.dataset import Dataset, DatasetRevision
+from datelier.inspection.profile_preview import ProfilePreview
+from datelier.inspection.profiles import Profiles, prepare_profiles
+from datelier.plotting.categories import (
     CategoryChart,
     CategorySettings,
     prepare_category_chart,
 )
-from datelier.core.dataset import Dataset, DatasetRevision
-from datelier.distribution_preview import DistributionPreview
-from datelier.distributions import Comparison, DistributionSettings, prepare_comparison
-from datelier.plotting import (
+from datelier.plotting.data import (
     Bars,
     Correlation,
     Scatter,
@@ -21,9 +21,13 @@ from datelier.plotting import (
     prepare_correlations,
     prepare_scatter,
 )
-from datelier.profile_preview import ProfilePreview
-from datelier.profiling import Profiles, prepare_profiles
-from datelier.relationships import Relationships, prepare_relationships
+from datelier.plotting.distribution_preview import DistributionPreview
+from datelier.plotting.distributions import (
+    Comparison,
+    DistributionSettings,
+    prepare_comparison,
+)
+from datelier.plotting.relationships import Relationships, prepare_relationships
 
 
 @dataclass(frozen=True)

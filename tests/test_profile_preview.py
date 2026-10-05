@@ -5,8 +5,12 @@ from time import monotonic, sleep
 import polars as pl
 
 from datelier.core.dataset import Dataset, SourceReference
-from datelier.distributions import DistributionSettings
-from datelier.profile_preview import ProfileGroup, ProfilePreview, ProfileRequest
+from datelier.inspection.profile_preview import (
+    ProfileGroup,
+    ProfilePreview,
+    ProfileRequest,
+)
+from datelier.plotting.distributions import DistributionSettings
 
 
 def data(offset: int = 0) -> Dataset:
@@ -50,7 +54,7 @@ def test_reuse_error_recovery_revision_and_close() -> None:
 
 
 def test_running_old_selection_and_abandon_cannot_publish(monkeypatch) -> None:
-    import datelier.profile_preview as module
+    import datelier.inspection.profile_preview as module
 
     old, new = data(), data(10)
     started, release = Event(), Event()

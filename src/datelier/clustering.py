@@ -5,8 +5,8 @@ import polars as pl
 from numpy.typing import NDArray
 
 from datelier.analysis_types import ClusteringResult
-from datelier.coloring import NEUTRAL, PALETTE, PointColors, color_series
 from datelier.core.dataset import Dataset
+from datelier.plotting.colors import NEUTRAL, PALETTE, PointColors, color_series
 
 
 def predict_clusters(

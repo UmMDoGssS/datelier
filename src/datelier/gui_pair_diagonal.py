@@ -4,7 +4,7 @@ from imgui_bundle import imgui, implot
 
 from datelier.gui_distributions import draw_box, draw_curve
 from datelier.gui_profiles import draw_histogram
-from datelier.relationships import Relationships
+from datelier.plotting.relationships import Relationships
 
 
 def diagonal_axes(name: str, mode: int) -> tuple[str, str]:

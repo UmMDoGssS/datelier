@@ -7,7 +7,7 @@ from enum import StrEnum
 from pathlib import Path
 
 from datelier.core.dataset import DatasetRevision
-from datelier.inspection import Inspection, prepare_inspection
+from datelier.inspection.table import Inspection, prepare_inspection
 from datelier.io.importing import load_file
 from datelier.io.types import ImportFormat, ImportOptions, ImportResult
 

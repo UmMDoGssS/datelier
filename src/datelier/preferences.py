@@ -7,7 +7,7 @@ from enum import StrEnum
 from pathlib import Path
 from typing import cast
 
-from datelier.exploration import PlotSettings
+from datelier.inspection.exploration import PlotSettings
 from datelier.recipe_codec import decode_record, encode
 from datelier.workspace_types import WorkspaceViews
 from datelier.workspaces import MAX_WORKSPACE_BYTES, atomic_write

@@ -5,14 +5,14 @@ import numpy as np
 import polars as pl
 import pytest
 
-from datelier.category_charts import CategoryRepresentation as Mode
-from datelier.category_charts import CategorySettings, prepare_category_chart
 from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset, SourceReference
-from datelier.exploration import PlotSettings
 from datelier.gui_plot_controls import PlotControls
 from datelier.gui_workspace_state import restore_plots
+from datelier.inspection.exploration import PlotSettings
 from datelier.pipeline.operations import Sort, apply_operation
+from datelier.plotting.categories import CategoryRepresentation as Mode
+from datelier.plotting.categories import CategorySettings, prepare_category_chart
 from datelier.recipe_codec import decode_record, encode
 
 
@@ -187,7 +187,7 @@ def test_legacy_single_column_bars_route_to_profiles() -> None:
 
 
 def test_category_density_settings_restore_with_provenance() -> None:
-    from datelier.distributions import DistributionSettings
+    from datelier.plotting.distributions import DistributionSettings
 
     saved = PlotSettings(
         comparison=DistributionSettings(bandwidth=0.75, seed=17),

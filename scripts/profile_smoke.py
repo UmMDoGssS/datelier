@@ -14,7 +14,7 @@ from imgui_bundle import hello_imgui
 from numpy.typing import NDArray
 
 from datelier.gui import GuiSession, InspectionEvidence, run_gui
-from datelier.profiling import ProfileKind
+from datelier.inspection.profiles import ProfileKind
 
 
 def main() -> None:

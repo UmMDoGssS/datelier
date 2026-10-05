@@ -4,7 +4,8 @@ from pathlib import Path
 import polars as pl
 import pytest
 
-from datelier.inspection import prepare_inspection
+from datelier.inspection.preview import PreviewCache
+from datelier.inspection.table import prepare_inspection
 from datelier.io.exporting import ExportFormat, export_dataset
 from datelier.io.importing import load_file
 from datelier.pipeline.history import Pipeline, replay
@@ -17,7 +18,6 @@ from datelier.pipeline.types import (
     TargetType,
     Unmatched,
 )
-from datelier.preview import PreviewCache
 
 
 @pytest.mark.parametrize("suffix", ["csv", "tsv", "json", "jsonl", "parquet", "xml"])

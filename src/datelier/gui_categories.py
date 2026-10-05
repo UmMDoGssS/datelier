@@ -5,9 +5,7 @@ from dataclasses import dataclass, field
 import numpy as np
 from imgui_bundle import imgui, implot
 
-from datelier.category_charts import CategoryChart, CategoryRepresentation
 from datelier.core.dataset import Dataset
-from datelier.exploration import Explorer
 from datelier.gui_axes import AxisControls
 from datelier.gui_category_distributions import draw_category_distributions
 from datelier.gui_fields import combo
@@ -15,7 +13,9 @@ from datelier.gui_plot_area import PlotArea
 from datelier.gui_plot_controls import PlotControls
 from datelier.gui_scatter_items import legend_hovered
 from datelier.gui_table import TableView
-from datelier.selection import LinkedSelection
+from datelier.inspection.exploration import Explorer
+from datelier.plotting.categories import CategoryChart, CategoryRepresentation
+from datelier.plotting.selection import LinkedSelection
 
 
 @dataclass

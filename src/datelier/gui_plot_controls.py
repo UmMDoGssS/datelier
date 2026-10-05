@@ -5,13 +5,13 @@ from dataclasses import dataclass, field
 from imgui_bundle import imgui
 
 from datelier.analysis_types import Algorithm, ClusteringResult
-from datelier.category_charts import CategoryRepresentation, CategorySettings
 from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset
-from datelier.distributions import DistributionSettings
-from datelier.exploration import Explorer, PlotSettings
 from datelier.gui_fields import combo
-from datelier.plotting import feature_columns
+from datelier.inspection.exploration import Explorer, PlotSettings
+from datelier.plotting.categories import CategoryRepresentation, CategorySettings
+from datelier.plotting.data import feature_columns
+from datelier.plotting.distributions import DistributionSettings
 
 
 @dataclass

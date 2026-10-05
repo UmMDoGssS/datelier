@@ -11,8 +11,8 @@ from datelier.gui_scatter3d import Scatter3DView
 from datelier.gui_scatter_items import draw_color_items, with_color_scale
 from datelier.gui_selection import ScatterInteraction
 from datelier.gui_table import TableView
-from datelier.plotting import Scatter
-from datelier.selection import LinkedSelection
+from datelier.plotting.data import Scatter
+from datelier.plotting.selection import LinkedSelection
 
 
 def draw_scatter(

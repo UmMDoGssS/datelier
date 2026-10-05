@@ -5,9 +5,9 @@ import polars as pl
 import pytest
 
 from datelier.core.dataset import Dataset, SourceReference
-from datelier.inspection import PAGE_COLUMNS, PAGE_ROWS, prepare_inspection
+from datelier.inspection.preview import PreviewCache
+from datelier.inspection.table import PAGE_COLUMNS, PAGE_ROWS, prepare_inspection
 from datelier.io.csv import CsvImport, CsvOptions
-from datelier.preview import PreviewCache
 
 
 def test_preview_pages_are_bounded_aligned_and_invalidated() -> None:
@@ -49,7 +49,7 @@ def test_preview_pages_are_bounded_aligned_and_invalidated() -> None:
 def test_preview_worker_failure_is_visible_and_retryable(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from datelier import preview
+    from datelier.inspection import preview
 
     dataset = Dataset.from_source(
         pl.DataFrame({"value": range(200)}), SourceReference(Path("table.csv"), 1, 1)

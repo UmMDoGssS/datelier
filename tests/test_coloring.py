@@ -4,9 +4,9 @@ from pathlib import Path
 import numpy as np
 import polars as pl
 
-from datelier.coloring import NEUTRAL, prepare_colors
 from datelier.core.dataset import Dataset, SourceReference
-from datelier.plotting import prepare_scatter
+from datelier.plotting.colors import NEUTRAL, prepare_colors
+from datelier.plotting.data import prepare_scatter
 
 
 def test_color_alignment_after_reordering_and_nonfinite() -> None:

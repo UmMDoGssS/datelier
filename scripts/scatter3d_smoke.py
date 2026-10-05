@@ -15,8 +15,8 @@ from datelier.gui import GuiSession, InspectionEvidence, run_gui
 from datelier.gui_scatter3d import Scatter3DView
 from datelier.gui_table import TableView
 from datelier.pipeline.operations import Sort
-from datelier.plotting import Scatter
-from datelier.selection import LinkedSelection
+from datelier.plotting.data import Scatter
+from datelier.plotting.selection import LinkedSelection
 
 
 def main() -> None:

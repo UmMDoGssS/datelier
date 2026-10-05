@@ -2,12 +2,12 @@
 
 from imgui_bundle import imgui, implot
 
-from datelier.category_charts import CategoryChart, CategoryRepresentation
 from datelier.gui_axes import AxisControls
 from datelier.gui_distributions import draw_box
 from datelier.gui_profile_colors import profile_color
 from datelier.gui_table import TableView
-from datelier.selection import LinkedSelection
+from datelier.plotting.categories import CategoryChart, CategoryRepresentation
+from datelier.plotting.selection import LinkedSelection
 
 
 def draw_category_distributions(

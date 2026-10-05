@@ -4,7 +4,7 @@ import math
 from dataclasses import dataclass, replace
 
 from datelier.analysis_types import Algorithm, AnalysisRequest
-from datelier.exploration import PlotSettings
+from datelier.inspection.exploration import PlotSettings
 from datelier.io.types import (
     CsvOptions,
     ImportFormat,

@@ -225,9 +225,9 @@ and count/density meaning. Handle constant/all-null columns explicitly.
 
 Primary areas: [profile rendering](../src/datelier/gui_exploration.py),
 [comparison rendering](../src/datelier/gui_distributions.py),
-[prepared bars](../src/datelier/plotting.py),
-[profiles](../src/datelier/profiling.py),
-[distribution preparation](../src/datelier/distributions.py).
+[prepared bars](../src/datelier/plotting/data.py),
+[profiles](../src/datelier/inspection/profiles.py),
+[distribution preparation](../src/datelier/plotting/distributions.py).
 
 Gate: `sex` shows named bars with 551/299 counts without opening help; age
 switches Histogram → KDE → ECDF without configuring a comparison; age axis

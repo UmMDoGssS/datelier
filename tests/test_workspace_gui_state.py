@@ -9,14 +9,14 @@ from datelier.analysis_types import (
     Preprocessing,
     TSNEParameters,
 )
-from datelier.distributions import DistributionSettings
-from datelier.exploration import PlotSettings
 from datelier.gui_analysis_controls import AnalysisControls
 from datelier.gui_plot_controls import PlotControls
 from datelier.gui_profiles import profile_summary
 from datelier.gui_workspace_state import restore_analysis, restore_plots
+from datelier.inspection.exploration import PlotSettings
+from datelier.inspection.profiles import prepare_profiles
 from datelier.io.importing import load_file
-from datelier.profiling import prepare_profiles
+from datelier.plotting.distributions import DistributionSettings
 from datelier.recipe_codec import decode_record, encode
 from datelier.workspace_types import Workspace, WorkspaceViews
 from datelier.workspaces import reference_source
@@ -298,10 +298,10 @@ def test_pending_default_correlations_preserve_saved_pair_grid(
 ) -> None:
     from imgui_bundle import imgui
 
-    from datelier.exploration import Explorer
     from datelier.gui_exploration import ExplorationView
     from datelier.gui_table import TableView
-    from datelier.selection import LinkedSelection
+    from datelier.inspection.exploration import Explorer
+    from datelier.plotting.selection import LinkedSelection
 
     source = tmp_path / "data.csv"
     source.write_text("x,y\n1,2\n3,4\n5,6\n")

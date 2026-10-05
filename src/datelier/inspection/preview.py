@@ -3,7 +3,7 @@
 from collections import OrderedDict
 from concurrent.futures import Future, ThreadPoolExecutor
 
-from datelier.inspection import PAGE_ROWS, Inspection, PreviewPage, prepare_page
+from datelier.inspection.table import PAGE_ROWS, Inspection, PreviewPage, prepare_page
 
 
 class PreviewCache:

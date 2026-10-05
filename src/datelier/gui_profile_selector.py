@@ -3,7 +3,7 @@
 from imgui_bundle import imgui
 
 from datelier.core.column_roles import ColumnRole
-from datelier.profile_selection import PROFILE_ROLES, ProfileSelection
+from datelier.inspection.profile_selection import PROFILE_ROLES, ProfileSelection
 
 
 def show_selector(selection: ProfileSelection) -> None:

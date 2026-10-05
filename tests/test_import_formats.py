@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from polars.testing import assert_frame_equal
 
-from datelier.inspection import prepare_inspection
+from datelier.inspection.table import prepare_inspection
 from datelier.io.csv import CsvOptions, load_csv, load_tsv
 from datelier.io.importing import load_file
 from datelier.io.types import ImportFailure, ImportFormat
@@ -182,7 +182,7 @@ def test_literal_column_names_cannot_select_other_columns(
 ) -> None:
     import polars as pl
 
-    from datelier.inspection import prepare_page
+    from datelier.inspection.table import prepare_page
 
     expected = pl.DataFrame(
         {"^x$": [1, None], "x": [2, 3], "^y.*$": [4, 5], "y.other": [6, 7]}

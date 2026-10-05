@@ -8,7 +8,7 @@ from numpy.typing import NDArray
 
 from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset
-from datelier.profiling import COUNT_ROW_LIMIT, ProfileKind, profile_kind
+from datelier.inspection.profiles import COUNT_ROW_LIMIT, ProfileKind, profile_kind
 
 NEUTRAL = 0xFF888888
 PALETTE = (

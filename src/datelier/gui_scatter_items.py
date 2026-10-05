@@ -6,8 +6,8 @@ import numpy as np
 from imgui_bundle import imgui, implot, implot3d
 from numpy.typing import NDArray
 
-from datelier.coloring import ColorSeries
-from datelier.plotting import Scatter
+from datelier.plotting.colors import ColorSeries
+from datelier.plotting.data import Scatter
 
 
 def rgba_color(rgba: int) -> imgui.ImVec4:

@@ -7,12 +7,12 @@ import numpy as np
 import polars as pl
 from numpy.typing import NDArray
 
-from datelier.category_distributions import prepare_category_distributions
 from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset, DatasetRevision
-from datelier.distributions import DistributionSettings, NumericDistribution
-from datelier.profiling import COUNT_ROW_LIMIT
-from datelier.selection import SELECTION_LIMIT
+from datelier.inspection.profiles import COUNT_ROW_LIMIT
+from datelier.plotting.category_distributions import prepare_category_distributions
+from datelier.plotting.distributions import DistributionSettings, NumericDistribution
+from datelier.plotting.selection import SELECTION_LIMIT
 
 
 class CategoryRepresentation(StrEnum):

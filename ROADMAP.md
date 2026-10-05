@@ -404,7 +404,7 @@ update source/test/script imports, monkeypatch targets and source links.
 - [x] Document the convention, target layout and open acceptance gates.
 - [x] Move foundation, import/export and pipeline modules; focused tests,
   Pyrefly and Ruff pass.
-- [ ] Move inspection and plotting preparation; focused tests, Pyrefly and Ruff
+- [x] Move inspection and plotting preparation; focused tests, Pyrefly and Ruff
   pass.
 - [ ] Move analysis; spawned publication, cancellation and stale-result checks,
   focused tests, Pyrefly and Ruff pass.
@@ -434,3 +434,11 @@ original Python modules with commit `c5e1add`, ignoring imports: non-import ASTs
 are identical. Local links across all 19 Markdown documents and diff whitespace
 pass. Verification uses `UV_CACHE_DIR=/tmp/datelier-uv-cache`, offline/no-sync uv
 runs, and the existing thread limits for Polars/BLAS with a temporary Numba cache.
+
+Step 3 (2026-10-05): 16 modules moved into `inspection` and `plotting`.
+`uv run pytest` with preview, profiling/profile, distribution, exploration,
+category, relationship, plot-data, coloring, selection, scatter3d and
+complete-workflow tests: **100 passed**. Pyrefly zero errors, Ruff lint/format,
+all 19 documents' local links and diff whitespace pass. Non-import ASTs of all
+189 original Python modules remain identical; monkeypatch imports now target
+the relocated modules. Step 2 commit: `a1f2883`; convention commit: `c5e1add`.

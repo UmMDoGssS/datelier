@@ -8,9 +8,9 @@ from numpy.typing import NDArray
 
 from datelier.gui_scatter_items import draw_color_items, legend_hovered
 from datelier.gui_table import TableView
-from datelier.plotting import Scatter
-from datelier.projection import projected_nearest, projected_rectangle
-from datelier.selection import LinkedSelection
+from datelier.plotting.data import Scatter
+from datelier.plotting.projection import projected_nearest, projected_rectangle
+from datelier.plotting.selection import LinkedSelection
 
 FACE_VIEWS: dict[str, tuple[float, float]] = {
     "Isometric": (30, -45),

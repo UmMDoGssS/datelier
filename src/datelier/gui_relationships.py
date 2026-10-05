@@ -5,7 +5,6 @@ from dataclasses import dataclass, field
 from imgui_bundle import imgui, implot
 
 from datelier.core.dataset import Dataset
-from datelier.exploration import Explorer
 from datelier.gui_axes import AxisControls
 from datelier.gui_distributions import MODES
 from datelier.gui_fields import combo
@@ -15,8 +14,9 @@ from datelier.gui_plot_area import PlotArea
 from datelier.gui_plot_controls import PlotControls
 from datelier.gui_selection import ScatterInteraction
 from datelier.gui_table import TableView
-from datelier.relationships import Relationships
-from datelier.selection import LinkedSelection
+from datelier.inspection.exploration import Explorer
+from datelier.plotting.relationships import Relationships
+from datelier.plotting.selection import LinkedSelection
 
 
 @dataclass

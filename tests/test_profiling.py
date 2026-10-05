@@ -6,8 +6,8 @@ import polars as pl
 import pytest
 
 from datelier.core.dataset import Dataset, SourceReference
-from datelier.plotting import prepare_bars
-from datelier.profiling import ProfileKind, prepare_profiles
+from datelier.inspection.profiles import ProfileKind, prepare_profiles
+from datelier.plotting.data import prepare_bars
 
 
 def dataset(table: pl.DataFrame) -> Dataset:

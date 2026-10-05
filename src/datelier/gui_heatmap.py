@@ -7,7 +7,7 @@ import numpy as np
 from imgui_bundle import imgui, implot
 
 from datelier.gui_axes import AxisControls
-from datelier.relationships import Relationships
+from datelier.plotting.relationships import Relationships
 
 
 @dataclass

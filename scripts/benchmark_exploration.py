@@ -18,16 +18,16 @@ import polars as pl
 from imgui_bundle import hello_imgui
 from numpy.typing import NDArray
 
-from datelier.distributions import DistributionSettings, prepare_comparison
-from datelier.exploration import PlotSettings, prepare_dashboard
 from datelier.feasibility.fixtures import make_table
 from datelier.gui import GuiSession, InspectionEvidence, run_gui
-from datelier.inspection import prepare_inspection, prepare_page
+from datelier.inspection.exploration import PlotSettings, prepare_dashboard
+from datelier.inspection.profiles import prepare_profiles
+from datelier.inspection.table import prepare_inspection, prepare_page
 from datelier.io.csv import load_csv
 from datelier.pipeline.history import Pipeline
 from datelier.pipeline.operations import Comparison, Filter, Sort
-from datelier.profiling import prepare_profiles
-from datelier.selection import LinkedSelection
+from datelier.plotting.distributions import DistributionSettings, prepare_comparison
+from datelier.plotting.selection import LinkedSelection
 
 CASES = ((10_000, 6), (100_000, 6), (1_000_000, 6), (100_000, 64))
 # Declared before measurement; existing frame/page/memory budgets are retained.

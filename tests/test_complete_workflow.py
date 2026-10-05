@@ -22,14 +22,14 @@ from datelier.analysis_types import (
     UMAPParameters,
 )
 from datelier.clustering import prepare_cluster_colors
-from datelier.exploration import PlotSettings, prepare_dashboard
-from datelier.inspection import prepare_inspection
+from datelier.inspection.exploration import PlotSettings, prepare_dashboard
+from datelier.inspection.table import prepare_inspection
 from datelier.io.exporting import ExportFormat, export_dataset
 from datelier.io.importing import load_file
 from datelier.pipeline.history import Pipeline
 from datelier.pipeline.operations import Comparison, Filter, Sort
 from datelier.pipeline.types import DerivedColumn
-from datelier.selection import LinkedSelection
+from datelier.plotting.selection import LinkedSelection
 from datelier.workspace_restore import restore_workspace
 from datelier.workspace_types import Workspace
 from datelier.workspaces import reference_source, save_workspace

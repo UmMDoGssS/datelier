@@ -7,8 +7,8 @@ from unittest.mock import patch
 
 from imgui_bundle import hello_imgui, imgui
 
-from datelier.category_charts import CategoryRepresentation as Mode
 from datelier.gui import GuiSession, InspectionEvidence, run_gui
+from datelier.plotting.categories import CategoryRepresentation as Mode
 
 
 def main() -> None:

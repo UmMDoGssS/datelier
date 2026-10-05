@@ -5,9 +5,9 @@ from math import ceil
 
 from imgui_bundle import imgui
 
-from datelier.inspection import PAGE_COLUMNS, Inspection
-from datelier.preview import PreviewCache
-from datelier.selection import LinkedSelection
+from datelier.inspection.preview import PreviewCache
+from datelier.inspection.table import PAGE_COLUMNS, Inspection
+from datelier.plotting.selection import LinkedSelection
 
 
 @dataclass

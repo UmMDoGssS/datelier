@@ -5,12 +5,12 @@ import polars as pl
 import pytest
 
 from datelier.core.dataset import Dataset, SourceReference
-from datelier.exploration import prepare_dashboard
 from datelier.gui_plot_controls import PlotControls
+from datelier.inspection.exploration import prepare_dashboard
 from datelier.pipeline.history import Pipeline
 from datelier.pipeline.operations import Comparison, Filter, SelectColumns, Sort
-from datelier.plotting import prepare_scatter
-from datelier.selection import LinkedSelection
+from datelier.plotting.data import prepare_scatter
+from datelier.plotting.selection import LinkedSelection
 
 
 def data() -> Dataset:

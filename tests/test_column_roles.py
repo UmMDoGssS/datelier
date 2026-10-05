@@ -7,10 +7,10 @@ from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset, SourceReference
 from datelier.gui_analysis_controls import AnalysisControls
 from datelier.gui_plot_controls import PlotControls
+from datelier.inspection.profiles import ProfileKind, prepare_profiles
 from datelier.pipeline.history import Pipeline
 from datelier.pipeline.operations import OperationFailure, SetColumnRole, Sort
-from datelier.plotting import prepare_correlations
-from datelier.profiling import ProfileKind, prepare_profiles
+from datelier.plotting.data import prepare_correlations
 from datelier.recipe_codec import decode_record, encode
 
 

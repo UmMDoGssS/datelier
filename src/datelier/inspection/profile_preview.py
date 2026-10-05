@@ -5,10 +5,14 @@ from dataclasses import dataclass
 
 from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset, DatasetRevision
-from datelier.distributions import Comparison, DistributionSettings, prepare_comparison
-from datelier.plotting import Bars, prepare_bars
-from datelier.profile_selection import PROFILE_ROLES
-from datelier.profiling import Profiles, prepare_profiles
+from datelier.inspection.profile_selection import PROFILE_ROLES
+from datelier.inspection.profiles import Profiles, prepare_profiles
+from datelier.plotting.data import Bars, prepare_bars
+from datelier.plotting.distributions import (
+    Comparison,
+    DistributionSettings,
+    prepare_comparison,
+)
 
 
 @dataclass(frozen=True)

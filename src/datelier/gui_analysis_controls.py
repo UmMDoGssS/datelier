@@ -23,7 +23,7 @@ from datelier.analysis_types import (
 )
 from datelier.core.dataset import Dataset
 from datelier.gui_analysis_form import show_inputs, show_parameters
-from datelier.plotting import feature_columns
+from datelier.plotting.data import feature_columns
 
 
 @dataclass

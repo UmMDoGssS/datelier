@@ -3,9 +3,9 @@
 import numpy as np
 from imgui_bundle import imgui, implot
 
-from datelier.distributions import Comparison, NumericDistribution
 from datelier.gui_axes import AxisControls
 from datelier.gui_profile_colors import profile_color
+from datelier.plotting.distributions import Comparison, NumericDistribution
 
 MODES = ["Histogram", "KDE", "ECDF", "Box", "Violin"]
 

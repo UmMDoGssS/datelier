@@ -7,12 +7,12 @@ from tempfile import TemporaryDirectory
 
 from imgui_bundle import hello_imgui
 
-from datelier.category_charts import CategoryRepresentation as Mode
-from datelier.category_charts import CategorySettings
-from datelier.distributions import DistributionSettings
-from datelier.exploration import PlotSettings
 from datelier.gui import GuiSession, InspectionEvidence, run_gui
+from datelier.inspection.exploration import PlotSettings
 from datelier.io.importing import load_file
+from datelier.plotting.categories import CategoryRepresentation as Mode
+from datelier.plotting.categories import CategorySettings
+from datelier.plotting.distributions import DistributionSettings
 from datelier.workspace_types import Workspace, WorkspaceViews
 from datelier.workspaces import reference_source, save_workspace
 

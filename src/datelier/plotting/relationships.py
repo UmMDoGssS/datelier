@@ -8,8 +8,8 @@ import polars as pl
 from numpy.typing import NDArray
 
 from datelier.core.dataset import Dataset
-from datelier.distributions import Comparison, DistributionSettings, prepare_comparison
-from datelier.plotting import (
+from datelier.inspection.profiles import ProfileKind, prepare_range_profile
+from datelier.plotting.data import (
     CORRELATION_ROW_LIMIT,
     Bars,
     Correlation,
@@ -18,7 +18,11 @@ from datelier.plotting import (
     prepare_scatter,
     sample_indices,
 )
-from datelier.profiling import ProfileKind, prepare_range_profile
+from datelier.plotting.distributions import (
+    Comparison,
+    DistributionSettings,
+    prepare_comparison,
+)
 
 
 @dataclass(frozen=True)

@@ -7,17 +7,17 @@ from imgui_bundle import imgui, implot
 
 from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset
-from datelier.exploration import Dashboard, Explorer
 from datelier.gui_axes import AxisControls
 from datelier.gui_distributions import MODES, show_comparison
 from datelier.gui_plot_area import PlotArea
 from datelier.gui_profile_colors import profile_color
 from datelier.gui_profile_selector import show_selector
 from datelier.gui_profile_statistics import show_statistics, statistics_height
-from datelier.plotting import Bars
-from datelier.profile_preview import ProfileRequest
-from datelier.profile_selection import ProfileSelection
-from datelier.profiling import COUNT_ROW_LIMIT, ColumnProfile, ProfileKind
+from datelier.inspection.exploration import Dashboard, Explorer
+from datelier.inspection.profile_preview import ProfileRequest
+from datelier.inspection.profile_selection import ProfileSelection
+from datelier.inspection.profiles import COUNT_ROW_LIMIT, ColumnProfile, ProfileKind
+from datelier.plotting.data import Bars
 
 
 def profile_summary(profile: ColumnProfile, rows: int) -> str:

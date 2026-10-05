@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from datelier.distributions import DistributionSettings
-from datelier.exploration import PlotSettings
+from datelier.inspection.exploration import PlotSettings
+from datelier.plotting.distributions import DistributionSettings
 from datelier.preferences import (
     Preferences,
     Theme,

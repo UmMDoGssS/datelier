@@ -6,7 +6,7 @@ from pathlib import Path
 
 from datelier.analysis_types import AnalysisRequest
 from datelier.core.dataset import DatasetRevision
-from datelier.exploration import PlotSettings
+from datelier.inspection.exploration import PlotSettings
 from datelier.io.types import ImportResult
 from datelier.pipeline.history import Pipeline
 from datelier.workspace_restore import RestoredWorkspace, SourceIssue, restore_workspace

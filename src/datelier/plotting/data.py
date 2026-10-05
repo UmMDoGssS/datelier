@@ -10,10 +10,10 @@ from numpy.typing import NDArray
 
 from datelier.analysis_types import ClusteringResult
 from datelier.clustering import prepare_cluster_colors
-from datelier.coloring import PointColors, prepare_colors
 from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset, DatasetRevision
-from datelier.profiling import ColumnProfile
+from datelier.inspection.profiles import ColumnProfile
+from datelier.plotting.colors import PointColors, prepare_colors
 
 CORRELATION_ROW_LIMIT = 10_000
 
