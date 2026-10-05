@@ -70,6 +70,8 @@ gates open; completed v1 capability gates do not imply usability acceptance.
 The user also authorized broader unsupervised inspection methods and explicit
 Colors sources; [docs/unsupervised-methods.md](docs/unsupervised-methods.md) tracks
 that expansion and its verification gates.
+The Schema/profile checklist and statistics follow-up is authorized;
+[docs/profile-comparison.md](docs/profile-comparison.md) tracks its delivery gates.
 The categorical inspection follow-up is also authorized;
 [docs/categorical-inspection.md](docs/categorical-inspection.md) records column
 roles and reversible overrides, Relationships charts, and pair-grid diagonal

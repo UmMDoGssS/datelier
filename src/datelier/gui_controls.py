@@ -201,6 +201,7 @@ def show_schema(loader: DatasetLoader, editor: DatasetEditor) -> None:
         return
     dataset = inspection.dataset
     schema = dataset.table.schema
+    imgui.text(f"Shape: ({len(inspection.schema):,}, {inspection.row_count:,})")
     flags = (
         imgui.TableFlags_.borders
         | imgui.TableFlags_.scroll_y
@@ -210,10 +211,10 @@ def show_schema(loader: DatasetLoader, editor: DatasetEditor) -> None:
     if imgui.begin_table("schema", 5, flags, imgui.ImVec2(-1, -1)):
         for name, weight in (
             ("Column", 1.0),
-            ("Type", 0.6),
-            ("Nulls", 0.4),
-            ("Distinct", 0.5),
-            ("Use as", 1.8),
+            ("Non nulls", 1.15),
+            ("Uniques", 0.85),
+            ("Type", 0.7),
+            ("Interpretation", 1.9),
         ):
             imgui.table_setup_column(name, init_width_or_weight=weight)
         imgui.table_setup_scroll_freeze(0, 1)
@@ -228,9 +229,9 @@ def show_schema(loader: DatasetLoader, editor: DatasetEditor) -> None:
                 for column, text in enumerate(
                     (
                         summary.name,
-                        summary.dtype,
-                        f"{summary.null_count:,}",
+                        f"{info.nonnull:,}",
                         f"{info.distinct:,}" if info.distinct is not None else "—",
+                        summary.dtype,
                     )
                 ):
                     imgui.table_set_column_index(column)

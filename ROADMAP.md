@@ -338,3 +338,10 @@ and Identifier roles with overrides, and selectable correlation-grid diagonals.
 steps: reversible roles, category charts and selectable grid diagonals, with
 457 passing tests and native Titanic/workspace compatibility checks. Original Titanic UX gates remain
 separate and open where their evidence is incomplete.
+
+## Authorized Schema and profile comparison follow-up
+
+The user requested explicit Schema counts and shape, numeric statistics below
+plots, and an exclusive category/multiple numeric profile checklist. Deliver
+the three bounded steps and record evidence in
+[Schema and profile comparison gates](docs/profile-comparison.md).
