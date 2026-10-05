@@ -1,8 +1,9 @@
 """On-demand, revision-aware distribution preparation for one selected column."""
 
-from concurrent.futures import Future, ThreadPoolExecutor
+from concurrent.futures import Executor, Future
 
 from datelier.core.dataset import Dataset, DatasetRevision
+from datelier.core.jobs import JobExecutor
 from datelier.plotting.distributions import (
     Comparison,
     DistributionSettings,
@@ -11,12 +12,10 @@ from datelier.plotting.distributions import (
 
 
 class DistributionPreview:
-    def __init__(self) -> None:
+    def __init__(self, *, executor: Executor | None = None) -> None:
         self.active: Comparison | None = None
         self.message = ""
-        self._executor = ThreadPoolExecutor(
-            max_workers=1, thread_name_prefix="distribution"
-        )
+        self._executor = JobExecutor(executor, max_workers=1, name="distribution")
         self._future: Future[Comparison] | None = None
         self._key: tuple[DatasetRevision, DistributionSettings, int] | None = None
         self._closed = False

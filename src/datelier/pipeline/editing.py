@@ -1,10 +1,11 @@
 """Background editing with revision-bound, atomic pipeline/preview publication."""
 
-from concurrent.futures import Future, ThreadPoolExecutor
+from concurrent.futures import Executor, Future
 from dataclasses import dataclass, replace
 from enum import StrEnum
 
 from datelier.core.dataset import DatasetRevision
+from datelier.core.jobs import JobExecutor
 from datelier.inspection.table import Inspection, prepare_inspection
 from datelier.pipeline.history import Pipeline
 from datelier.pipeline.operations import Operation
@@ -22,11 +23,11 @@ class EditResult:
 
 
 class DatasetEditor:
-    def __init__(self) -> None:
+    def __init__(self, *, executor: Executor | None = None) -> None:
         self.pipeline: Pipeline | None = None
         self.inspection: Inspection | None = None
         self.message = "Open a dataset to edit it."
-        self._executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="edit")
+        self._executor = JobExecutor(executor, max_workers=2, name="edit")
         self._future: Future[EditResult] | None = None
         self._base: DatasetRevision | None = None
         self._closed = False

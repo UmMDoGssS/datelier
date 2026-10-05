@@ -1,10 +1,11 @@
 """Bounded embedding coordinates and column colors prepared off the GUI thread."""
 
-from concurrent.futures import Future, ThreadPoolExecutor
+from concurrent.futures import Executor, Future
 
 from datelier.analysis.cluster_colors import prepare_cluster_colors
 from datelier.analysis.types import ClusteringResult, EmbeddingResult
 from datelier.core.dataset import Dataset, DatasetRevision
+from datelier.core.jobs import JobExecutor
 from datelier.plotting.colors import prepare_colors
 from datelier.plotting.data import Scatter, sample_indices
 
@@ -52,12 +53,10 @@ def prepare_embedding_plot(
 
 
 class AnalysisPlots:
-    def __init__(self) -> None:
+    def __init__(self, *, executor: Executor | None = None) -> None:
         self.active: Scatter | None = None
         self.message = ""
-        self._executor = ThreadPoolExecutor(
-            max_workers=1, thread_name_prefix="embedding"
-        )
+        self._executor = JobExecutor(executor, max_workers=1, name="embedding")
         self._future: Future[Scatter] | None = None
         self._key: tuple[DatasetRevision, int, int, str | None, int] | None = None
 

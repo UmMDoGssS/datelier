@@ -1,11 +1,12 @@
 """Background workspace save/restore with revision-aware publication."""
 
-from concurrent.futures import Future, ThreadPoolExecutor
+from concurrent.futures import Executor, Future
 from dataclasses import dataclass, replace
 from pathlib import Path
 
 from datelier.analysis.types import AnalysisRequest
 from datelier.core.dataset import DatasetRevision
+from datelier.core.jobs import JobExecutor
 from datelier.inspection.exploration import PlotSettings
 from datelier.io.types import ImportResult
 from datelier.pipeline.history import Pipeline
@@ -21,13 +22,11 @@ class SavedWorkspace:
 
 
 class WorkspaceJobs:
-    def __init__(self) -> None:
+    def __init__(self, *, executor: Executor | None = None) -> None:
         self.message = "Save sources, recipes and views in a workspace."
         self.issue: SourceIssue | None = None
         self.saved: SavedWorkspace | None = None
-        self._executor = ThreadPoolExecutor(
-            max_workers=2, thread_name_prefix="workspace"
-        )
+        self._executor = JobExecutor(executor, max_workers=2, name="workspace")
         self._future: Future[RestoredWorkspace | SavedWorkspace] | None = None
         self._revision: DatasetRevision | None = None
         self._closed = False

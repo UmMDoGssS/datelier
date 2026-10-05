@@ -175,6 +175,6 @@ class AnalysisSession:
             )
         imgui.pop_id()
 
-    def close(self) -> None:
-        self.jobs.close()
+    def close(self, *, wait: bool = True) -> None:
+        self.jobs.close(wait=wait)
         self.plots.close()

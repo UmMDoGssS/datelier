@@ -1,13 +1,14 @@
 """Explicit, atomic CSV/Parquet export of a captured dataset revision."""
 
 import os
-from concurrent.futures import Future, ThreadPoolExecutor
+from concurrent.futures import Executor, Future
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
 from datelier.core.dataset import Dataset, DatasetRevision
+from datelier.core.jobs import JobExecutor
 
 
 class ExportFormat(StrEnum):
@@ -77,10 +78,10 @@ def export_dataset(
 
 
 class DatasetExporter:
-    def __init__(self) -> None:
+    def __init__(self, *, executor: Executor | None = None) -> None:
         self.message = "Choose a destination to export the active table."
         self.result: ExportResult | None = None
-        self._executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="export")
+        self._executor = JobExecutor(executor, max_workers=1, name="export")
         self._future: Future[ExportResult] | None = None
         self._closed = False
 

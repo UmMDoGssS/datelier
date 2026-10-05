@@ -1,10 +1,11 @@
 """Automatic dashboard preparation and revision-aware background publication."""
 
-from concurrent.futures import Future, ThreadPoolExecutor
+from concurrent.futures import Executor, Future
 from dataclasses import dataclass, field
 
 from datelier.analysis.types import ClusteringResult
 from datelier.core.dataset import Dataset, DatasetRevision
+from datelier.core.jobs import JobExecutor
 from datelier.inspection.profile_preview import ProfilePreview
 from datelier.inspection.profiles import Profiles, prepare_profiles
 from datelier.plotting.categories import (
@@ -144,12 +145,12 @@ def prepare_dashboard(
 
 
 class Explorer:
-    def __init__(self) -> None:
-        self.distribution = DistributionPreview()
-        self.profiles = ProfilePreview()
+    def __init__(self, *, executor: Executor | None = None) -> None:
+        self.distribution = DistributionPreview(executor=executor)
+        self.profiles = ProfilePreview(executor=executor)
         self.active: Dashboard | None = None
         self.message = "Open a dataset for automatic exploration."
-        self._executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="explore")
+        self._executor = JobExecutor(executor, max_workers=2, name="explore")
         self._future: Future[Dashboard] | None = None
         self._revision: DatasetRevision | None = None
         self._closed = False

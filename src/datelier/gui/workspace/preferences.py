@@ -1,12 +1,13 @@
 """Theme/layout controls and background preference writes."""
 
-from concurrent.futures import Future, ThreadPoolExecutor
+from concurrent.futures import Executor, Future
 from dataclasses import replace
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 from imgui_bundle import hello_imgui, imgui
 
+from datelier.core.jobs import JobExecutor
 from datelier.gui.workspace.state import capture_views, restore_plots
 from datelier.workspace.preferences import (
     Preferences,
@@ -20,16 +21,14 @@ if TYPE_CHECKING:
 
 
 class PreferenceControls:
-    def __init__(self, path: Path | None) -> None:
+    def __init__(self, path: Path | None, *, executor: Executor | None = None) -> None:
         self.path = path
         self.value, self.message = (
             read_preferences(path)
             if path is not None
             else (Preferences(), "Preferences are disabled for this smoke session.")
         )
-        self._executor = ThreadPoolExecutor(
-            max_workers=1, thread_name_prefix="preferences"
-        )
+        self._executor = JobExecutor(executor, max_workers=1, name="preferences")
         self._future: Future[None] | None = None
         self._saved_layout = self.value.layout
         self._saved_hidden = self.value.hidden_windows

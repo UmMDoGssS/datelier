@@ -1,14 +1,15 @@
 """Small revision-bound page cache; string conversion runs in a worker."""
 
 from collections import OrderedDict
-from concurrent.futures import Future, ThreadPoolExecutor
+from concurrent.futures import Executor, Future
 
+from datelier.core.jobs import JobExecutor
 from datelier.inspection.table import PAGE_ROWS, Inspection, PreviewPage, prepare_page
 
 
 class PreviewCache:
-    def __init__(self) -> None:
-        self._executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="preview")
+    def __init__(self, *, executor: Executor | None = None) -> None:
+        self._executor = JobExecutor(executor, max_workers=1, name="preview")
         self._inspection: Inspection | None = None
         self._pages: OrderedDict[tuple[int, int], PreviewPage] = OrderedDict()
         self._pending: dict[tuple[int, int], Future[PreviewPage]] = {}

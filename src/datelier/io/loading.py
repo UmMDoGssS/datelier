@@ -1,12 +1,13 @@
 """Bounded background loading with request/revision-aware publication."""
 
 from collections.abc import Callable
-from concurrent.futures import Future, ThreadPoolExecutor
+from concurrent.futures import Executor, Future
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
 
 from datelier.core.dataset import DatasetRevision
+from datelier.core.jobs import JobExecutor
 from datelier.inspection.table import Inspection, prepare_inspection
 from datelier.io.importing import load_file
 from datelier.io.types import ImportFormat, ImportOptions, ImportResult
@@ -45,11 +46,13 @@ class DatasetLoader:
     def __init__(
         self,
         importer: Callable[[Path, ImportOptions | None], ImportResult] | None = None,
+        *,
+        executor: Executor | None = None,
     ) -> None:
         self.active: Inspection | None = None
         self.status = LoadStatus()
         self._importer = importer
-        self._executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="import")
+        self._executor = JobExecutor(executor, max_workers=2, name="import")
         self._number = 0
         self._request: LoadRequest | None = None
         self._retired: list[Future[Inspection]] = []

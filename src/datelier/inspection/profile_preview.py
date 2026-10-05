@@ -1,10 +1,11 @@
 """Revision-aware selected profiles and shared numeric distributions."""
 
-from concurrent.futures import Future, ThreadPoolExecutor
+from concurrent.futures import Executor, Future
 from dataclasses import dataclass
 
 from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset, DatasetRevision
+from datelier.core.jobs import JobExecutor
 from datelier.inspection.profile_selection import PROFILE_ROLES
 from datelier.inspection.profiles import Profiles, prepare_profiles
 from datelier.plotting.data import Bars, prepare_bars
@@ -55,12 +56,10 @@ def prepare_profile_group(dataset: Dataset, request: ProfileRequest) -> ProfileG
 
 
 class ProfilePreview:
-    def __init__(self) -> None:
+    def __init__(self, *, executor: Executor | None = None) -> None:
         self.active: ProfileGroup | None = None
         self.message = ""
-        self._executor = ThreadPoolExecutor(
-            max_workers=1, thread_name_prefix="profiles"
-        )
+        self._executor = JobExecutor(executor, max_workers=1, name="profiles")
         self._future: Future[ProfileGroup] | None = None
         self._key: tuple[DatasetRevision, ProfileRequest] | None = None
         self._closed = False

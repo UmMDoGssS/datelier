@@ -8,47 +8,15 @@ from time import perf_counter
 
 from imgui_bundle import hello_imgui, imgui, immapp
 
-from datelier.gui.analysis.session import AnalysisSession
-from datelier.gui.data.export import ExportControls
-from datelier.gui.data.import_controls import ImportControls, show_schema
-from datelier.gui.data.operations import OperationControls
-from datelier.gui.data.table import TableView
-from datelier.gui.exploration import ExplorationView
+from datelier.core.jobs import SharedWorkers
+from datelier.gui.data.import_controls import show_schema
+from datelier.gui.file_session import FileSession
 from datelier.gui.layout import configure_layout
-from datelier.gui.plots.controls import PlotControls
-from datelier.gui.workspace.controls import WorkspaceControls
 from datelier.gui.workspace.preferences import PreferenceControls
-from datelier.gui.workspace.state import (
-    restore_plots,
-    restore_view_settings,
-    restore_views,
-)
-from datelier.inspection.exploration import Explorer
-from datelier.inspection.preview import PreviewCache
-from datelier.io.exporting import DatasetExporter
-from datelier.io.loading import DatasetLoader, LoadPhase, LoadStatus
-from datelier.pipeline.editing import DatasetEditor
-from datelier.plotting.selection import LinkedSelection
+from datelier.io.loading import DatasetLoader, LoadPhase
 from datelier.workspace.preferences import preference_path
 
-
-@dataclass
-class GuiSession:
-    loader: DatasetLoader
-    pages: PreviewCache
-    table: TableView
-    controls: ImportControls
-    editor: DatasetEditor
-    operations: OperationControls
-    exporter: DatasetExporter
-    exports: ExportControls
-    explorer: Explorer
-    exploration: ExplorationView
-    plots: PlotControls
-    selection: LinkedSelection
-    analysis: AnalysisSession
-    workspace: WorkspaceControls
-    preferences: PreferenceControls
+GuiSession = FileSession
 
 
 @dataclass
@@ -74,43 +42,19 @@ def run_gui(
 ) -> InspectionEvidence:
     if smoke_frames < 0:
         raise ValueError("Smoke frame count must be nonnegative")
-    loader = dataset_loader if dataset_loader is not None else DatasetLoader()
-    pages = PreviewCache()
-    view = TableView()
-    controls = ImportControls(path=str(initial_path) if initial_path else "")
-    editor = DatasetEditor()
-    operations = OperationControls()
-    exporter = DatasetExporter()
-    exports = ExportControls()
-    explorer = Explorer()
-    exploration = ExplorationView()
-    plot_controls = PlotControls()
-    selection = LinkedSelection()
-    analysis = AnalysisSession()
-    workspace = WorkspaceControls(
-        path=str(initial_workspace) if initial_workspace else ""
-    )
+    workers = SharedWorkers()
     preferences = PreferenceControls(
         preferences_path
         if preferences_path is not None
-        else (preference_path() if not smoke_frames else None)
+        else (preference_path() if not smoke_frames else None),
+        executor=workers,
     )
-    session = GuiSession(
-        loader,
-        pages,
-        view,
-        controls,
-        editor,
-        operations,
-        exporter,
-        exports,
-        explorer,
-        exploration,
-        plot_controls,
-        selection,
-        analysis,
-        workspace,
+    session = FileSession.create(
         preferences,
+        executor=workers,
+        source_path=initial_path,
+        workspace_path=initial_workspace,
+        loader_override=dataset_loader,
     )
     evidence = InspectionEvidence()
     params = hello_imgui.RunnerParams()
@@ -124,48 +68,54 @@ def run_gui(
 
     def show_table() -> None:
         evidence.table_dock_id = imgui.get_window_dock_id()
-        view.show(loader.active, pages, selection)
-        evidence.max_rendered_rows = max(evidence.max_rendered_rows, view.rendered_rows)
-        if view.prepared_visible_rows and evidence.first_preview_ms is None:
+        session.table.show(session.loader.active, session.pages, session.selection)
+        evidence.max_rendered_rows = max(
+            evidence.max_rendered_rows, session.table.rendered_rows
+        )
+        if session.table.prepared_visible_rows and evidence.first_preview_ms is None:
             evidence.first_preview_ms = (perf_counter() - load_started) * 1000
 
     def schema() -> None:
         evidence.schema_dock_id = imgui.get_window_dock_id()
-        show_schema(loader, editor)
+        show_schema(session.loader, session.editor)
 
     def explore() -> None:
-        plot_controls.show(explorer, loader.active.dataset if loader.active else None)
-        exploration.show(
-            explorer,
-            selection,
-            view,
-            plot_controls,
-            loader.active.dataset if loader.active else None,
-            analysis,
+        session.plots.show(
+            session.explorer,
+            session.loader.active.dataset if session.loader.active else None,
+        )
+        session.exploration.show(
+            session.explorer,
+            session.selection,
+            session.table,
+            session.plots,
+            session.loader.active.dataset if session.loader.active else None,
+            session.analysis,
         )
 
     configure_layout(
         params,
         {
             "Explore": explore,
-            "Open dataset": lambda: controls.show(loader),
-            "Workspace": lambda: workspace.show(session),
+            "Open dataset": lambda: session.controls.show(session.loader),
+            "Workspace": lambda: session.workspace.show(session),
             "Table preview": show_table,
             "Schema and nulls": schema,
-            "Analysis": lambda: analysis.show_panel(
-                loader.active.dataset if loader.active else None,
-                plot_controls,
+            "Analysis": lambda: session.analysis.show_panel(
+                session.loader.active.dataset if session.loader.active else None,
+                session.plots,
             ),
-            "Transform and history": lambda: operations.show(
-                editor,
-                loading=loader.status.phase == LoadPhase.LOADING
-                or exporter.busy
-                or workspace.jobs.busy,
+            "Transform and history": lambda: session.operations.show(
+                session.editor,
+                loading=session.loader.status.phase == LoadPhase.LOADING
+                or session.exporter.busy
+                or session.workspace.jobs.busy,
             ),
-            "Export table": lambda: exports.show(
-                editor,
-                exporter,
-                loading=loader.status.phase == LoadPhase.LOADING or workspace.jobs.busy,
+            "Export table": lambda: session.exports.show(
+                session.editor,
+                session.exporter,
+                loading=session.loader.status.phase == LoadPhase.LOADING
+                or session.workspace.jobs.busy,
             ),
         },
     )
@@ -185,9 +135,9 @@ def run_gui(
     load_started = perf_counter()
     previous_frame = load_started
     if initial_workspace:
-        workspace.open(session)
+        session.workspace.open(session)
     elif initial_path:
-        loader.request(initial_path)
+        session.loader.request(initial_path)
 
     def frame() -> None:
         nonlocal previous_frame
@@ -196,60 +146,11 @@ def run_gui(
             evidence.frame_intervals_ms.append((now - previous_frame) * 1000)
         previous_frame = now
         evidence.frames += 1
-        if loader.poll():
-            assert loader.active is not None
-            editor.bind(loader.active)
-            pages.bind(loader.active)
-            view.reset()
-            analysis.controls.bind(loader.active.dataset)
-            restore_plots(plot_controls, loader.active.dataset, preferences.value.plots)
-            restore_view_settings(session, preferences.value.views)
-            selection.bind(loader.active.dataset.revision)
-            explorer.request(loader.active.dataset, plot_controls.settings())
-        if loader.status.phase == LoadPhase.LOADING:
-            editor.abandon()
-            workspace.jobs.abandon()
-        restored = workspace.jobs.poll(loader.revision)
-        if restored is not None:
-            loader.active = restored.inspection
-            loader.status = LoadStatus(
-                LoadPhase.READY, restored.pipeline.source.source.path
-            )
-            editor.bind(restored.inspection)
-            editor.pipeline = restored.pipeline
-            pages.bind(restored.inspection)
-            view.reset()
-            adjusted = restore_views(session, restored.workspace)
-            if adjusted:
-                workspace.jobs.message += (
-                    " Saved plot settings were adjusted"
-                    " to the current columns and charts."
-                )
-            selection.bind(restored.inspection.dataset.revision)
-            explorer.request(restored.inspection.dataset, plot_controls.settings())
-        edited = editor.poll(loader.revision)
-        if edited is not None:
-            loader.active = edited
-            pages.bind(edited)
-            view.reset()
-            analysis.controls.bind(edited.dataset)
-            plot_controls.bind(edited.dataset)
-            selection.bind(edited.dataset.revision)
-            explorer.request(edited.dataset, plot_controls.settings())
-        analysis.sync_dimensions(plot_controls)
-        completed = analysis.poll(loader.active.dataset if loader.active else None)
-        if completed:
-            exploration.tab = "Relationships"
-            plot_controls.relationship_chart = "Scatter"
-        if analysis.sync_colors(plot_controls) and loader.active is not None:
-            explorer.request(loader.active.dataset, plot_controls.settings())
-        explorer.poll(loader.revision)
-        exporter.poll()
+        session.poll()
         preferences.poll()
-        pages.poll()
-        if loader.status.phase == LoadPhase.LOADING:
+        if session.loader.status.phase == LoadPhase.LOADING:
             evidence.loading_frames += 1
-        elif loader.status.phase == LoadPhase.FAILED:
+        elif session.loader.status.phase == LoadPhase.FAILED:
             evidence.failed_frames += 1
         if on_frame:
             on_frame(session, evidence)
@@ -263,14 +164,9 @@ def run_gui(
         addons.with_implot3d = True
         immapp.run(params, addons)
     finally:
-        loader.close()
-        pages.close()
-        editor.close()
-        exporter.close()
-        explorer.close()
-        analysis.close()
-        workspace.jobs.close()
+        session.close()
         preferences.close()
+        workers.shutdown(wait=True)
         if preferences.message.startswith("Preferences failed:"):
             print(preferences.message, file=sys.stderr)
     return evidence

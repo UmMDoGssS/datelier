@@ -2,7 +2,7 @@
 
 import multiprocessing as mp
 from collections.abc import Callable
-from concurrent.futures import CancelledError, Future, ThreadPoolExecutor
+from concurrent.futures import CancelledError, Executor, Future
 from multiprocessing.connection import Connection
 from threading import Event
 from time import perf_counter
@@ -21,6 +21,7 @@ from datelier.analysis.types import (
     PreparedInput,
 )
 from datelier.core.dataset import Dataset, DatasetRevision
+from datelier.core.jobs import JobExecutor
 
 Runner = Callable[[PreparedInput], AnalysisResult]
 
@@ -35,15 +36,15 @@ def _worker(prepared: PreparedInput, runner: Runner, connection: Connection) -> 
 
 
 class AnalysisJobs:
-    def __init__(self, runner: Runner = run_analysis) -> None:
+    def __init__(
+        self, runner: Runner = run_analysis, *, executor: Executor | None = None
+    ) -> None:
         self.results: dict[Algorithm, AnalysisResult] = {}
         self.latest: AnalysisResult | None = None
         self.message = "Select analysis features and explicitly run an algorithm."
         self.phase = "Idle"
         self._runner = runner
-        self._executor = ThreadPoolExecutor(
-            max_workers=1, thread_name_prefix="analysis"
-        )
+        self._executor = JobExecutor(executor, max_workers=1, name="analysis")
         self._future: Future[AnalysisResult] | None = None
         self._cancel = Event()
         self._revision: DatasetRevision | None = None
@@ -187,7 +188,7 @@ class AnalysisJobs:
         self.message = f"{result.provenance.request.algorithm} completed."
         return True
 
-    def close(self) -> None:
+    def close(self, *, wait: bool = True) -> None:
         self.cancel()
         self._closed = True
-        self._executor.shutdown(wait=True, cancel_futures=True)
+        self._executor.shutdown(wait=wait, cancel_futures=True)
