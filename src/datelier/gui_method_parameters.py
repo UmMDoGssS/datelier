@@ -26,6 +26,10 @@ def show_extra_parameters(controls: AnalysisControls, algorithm: Algorithm) -> N
             name, active = cast(tuple[str, object], item.metadata["when"])
             if getattr(parameters, name) != active:
                 continue
+        if "unless" in item.metadata:
+            name, inactive = cast(tuple[str, tuple[str, ...]], item.metadata["unless"])
+            if getattr(parameters, name) in inactive:
+                continue
         value: object = getattr(parameters, item.name)
         label = str(item.metadata["label"])
         if isinstance(value, bool):

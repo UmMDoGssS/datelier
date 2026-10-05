@@ -7,10 +7,9 @@ from warnings import catch_warnings
 import numpy as np
 from numpy.typing import NDArray
 
-from datelier.analysis_provenance import make_provenance
+from datelier.analysis_embedding_result import embedding_result
 from datelier.analysis_types import (
     AnalysisResult,
-    EmbeddingResult,
     PCAParameters,
     PreparedInput,
     TSNEParameters,
@@ -93,7 +92,9 @@ def run_analysis(prepared: PreparedInput) -> AnalysisResult:
             ("numpy", "polars", "scikit-learn", "umap-learn", "numba", "threadpoolctl"),
         )
     if not isinstance(params, PCAParameters):
-        raise NotImplementedError(f"{request.algorithm} runner is not implemented yet")
+        from datelier.analysis_linear import run_linear
+
+        return run_linear(prepared)
     # Estimator imports stay inside the owned worker (never GUI import/startup).
     from sklearn.decomposition import PCA
 
@@ -113,27 +114,4 @@ def run_analysis(prepared: PreparedInput) -> AnalysisResult:
         coordinates,
         started,
         (("Explained variance ratio", str(pca.explained_variance_ratio_.tolist())),),
-    )
-
-
-def embedding_result(
-    prepared: PreparedInput,
-    coordinates: NDArray[np.float64],
-    started: float,
-    details: tuple[tuple[str, str], ...],
-    libraries: tuple[str, ...] = ("numpy", "polars", "scikit-learn", "threadpoolctl"),
-) -> EmbeddingResult:
-    if (
-        coordinates.shape != (len(prepared.row_ids), prepared.request.dimensions)
-        or not np.isfinite(coordinates).all()
-    ):
-        raise ValueError("Analysis produced invalid coordinates")
-    coordinates.flags.writeable = False
-    return EmbeddingResult(
-        prepared.revision,
-        prepared.row_ids,
-        prepared.positions,
-        coordinates,
-        make_provenance(prepared, started, libraries),
-        details,
     )

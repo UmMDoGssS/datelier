@@ -19,6 +19,13 @@ class Algorithm(StrEnum):
     MEAN_SHIFT = "Mean shift"
     SPECTRAL_CLUSTERING = "Spectral clustering"
     AFFINITY_PROPAGATION = "Affinity propagation"
+    SVD = "Truncated SVD"
+    ICA = "FastICA"
+    FACTOR_ANALYSIS = "Factor analysis"
+    KERNEL_PCA = "Kernel PCA"
+    NMF = "NMF"
+    GAUSSIAN_PROJECTION = "Gaussian random projection"
+    SPARSE_PROJECTION = "Sparse random projection"
 
     @property
     def is_clustering(self) -> bool:

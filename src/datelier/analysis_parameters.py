@@ -5,16 +5,12 @@ from dataclasses import dataclass, field, fields
 from typing import ClassVar, cast
 
 from datelier.analysis_algorithm import Algorithm
-
-
-def setting[T](default: T, label: str, minimum: float = 0, maximum: float = 1e6) -> T:
-    return field(
-        default=default, metadata={"label": label, "min": minimum, "max": maximum}
-    )
-
-
-def choice(default: str, label: str, values: tuple[str, ...]) -> str:
-    return field(default=default, metadata={"label": label, "choices": values})
+from datelier.embedding_parameters import (
+    EMBEDDING_DEFAULTS,
+    EMBEDDING_LIMITS,
+    EmbeddingParameters,
+)
+from datelier.parameter_fields import choice, setting
 
 
 @dataclass(frozen=True)
@@ -172,7 +168,8 @@ class AffinityPropagationParameters:
 
 
 ExtraParameters = (
-    DBSCANParameters
+    EmbeddingParameters
+    | DBSCANParameters
     | HDBSCANParameters
     | OPTICSParameters
     | MiniBatchParameters
@@ -184,7 +181,7 @@ ExtraParameters = (
     | SpectralClusteringParameters
     | AffinityPropagationParameters
 )
-EXTRA_DEFAULTS: dict[Algorithm, ExtraParameters] = {
+EXTRA_DEFAULTS: dict[Algorithm, ExtraParameters] = EMBEDDING_DEFAULTS | {
     p.algorithm: p
     for p in (
         DBSCANParameters(),
@@ -201,6 +198,7 @@ EXTRA_DEFAULTS: dict[Algorithm, ExtraParameters] = {
     )
 }
 EXTRA_LIMITS = {
+    **EMBEDDING_LIMITS,
     Algorithm.DBSCAN: 5000,
     Algorithm.HDBSCAN: 10000,
     Algorithm.OPTICS: 5000,
@@ -229,6 +227,10 @@ def validate_parameters(parameters: object) -> None:
         if "when" in metadata:
             name, active = cast(tuple[str, object], metadata["when"])
             if getattr(parameters, name) != active:
+                continue
+        if "unless" in metadata:
+            name, inactive = cast(tuple[str, tuple[str, ...]], metadata["unless"])
+            if getattr(parameters, name) in inactive:
                 continue
         expected = type(item.default)
         if expected in (int, bool, str) and type(value) is not expected:

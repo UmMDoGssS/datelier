@@ -76,3 +76,28 @@ colors, linked selection and source preservation (135–151 frames per method).
 The default affinity preference can produce more exemplars than intuitive
 blobs; the grouping test checks cluster purity rather than imposing a fixed
 cluster count on this method. Embedding and final milestone gates remain open.
+
+## Linear and factorization views
+
+Coordinates now includes Truncated SVD, FastICA, Factor analysis, Kernel PCA,
+NMF, Gaussian random projection and Sparse random projection. All support
+explicit 2D/3D fitting, seed/settings provenance and linked source identities.
+SVD exposes power iterations; ICA exposes contrast/iterations/tolerance; factors
+expose rotation/iterations/tolerance; kernel PCA exposes kernel with conditional
+gamma/degree. NMF exposes minmax/none input scaling and rejects negative input
+when scaling is disabled. Minmax normalizes magnitudes before computing ranges
+to avoid overflow, and records the [0, 1] transformation in the fit details.
+Random projections use explicit output dimensions and seed; sparse projections
+also expose density.
+
+Caps: SVD/projections 100k, ICA/factors/NMF 50k, kernel PCA 3k; defaults 10k except
+kernel PCA 2k. Fitting dimension/rank and NMF domain checks run before estimator
+execution. Parameter families and coordinate result validation have their own
+modules; no new dependencies were needed.
+
+Verification: 55 focused linear/workspace tests pass (1.07 s), including both
+dimensions, repeatability, finite immutable coordinates, unchanged prepared
+inputs, source-ID/position alignment, NMF domain/scaling and dimension failures.
+Pyrefly reports zero errors; Ruff lint/format pass (172 files). All seven methods
+pass Linux/Mesa live settings, explicit Run clicks and linked 3D inspection
+(135–142 frames each). The manifold and final milestone gates remain open.

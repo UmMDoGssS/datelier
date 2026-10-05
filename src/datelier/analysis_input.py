@@ -24,6 +24,13 @@ from datelier.analysis_types import (
     UMAPParameters,
 )
 from datelier.dataset import Dataset
+from datelier.embedding_parameters import (
+    FactorAnalysisParameters,
+    ICAParameters,
+    KernelPCAParameters,
+    NMFParameters,
+    SVDParameters,
+)
 from datelier.plotting import numeric_columns
 from datelier.sampling import seeded_sample
 
@@ -132,6 +139,25 @@ def prepare_input(dataset: Dataset, request: AnalysisRequest) -> PreparedInput:
         and params.neighbors >= rows
     ):
         raise ValueError("Spectral clustering needs more sampled rows than neighbors")
+    if isinstance(
+        params, (SVDParameters, ICAParameters, FactorAnalysisParameters, NMFParameters)
+    ) and request.dimensions > min(rows, width):
+        raise ValueError(
+            "Output dimensions exceed sampled rows or varying feature count"
+        )
+    if isinstance(params, SVDParameters) and width < 2:
+        raise ValueError("Truncated SVD needs at least two varying features")
+    if isinstance(params, KernelPCAParameters) and rows <= request.dimensions:
+        raise ValueError("Kernel PCA needs more sampled rows than output dimensions")
+    if (
+        isinstance(params, NMFParameters)
+        and params.scaling == "none"
+        and np.any(values < 0)
+    ):
+        raise ValueError(
+            "NMF needs nonnegative inputs; choose minmax scaling "
+            "or disable standardization"
+        )
     ids, positions = sample["id"].to_numpy(), sample["position"].to_numpy()
     for array in (
         values,
