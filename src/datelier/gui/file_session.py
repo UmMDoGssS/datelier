@@ -108,6 +108,9 @@ class FileSession:
             return
         if self.loader.poll():
             assert self.loader.active is not None
+            imported = self.loader.active.imported
+            self.controls.path = str(imported.dataset.source.path)
+            self.controls.bind_settings(imported.format, imported.options)
             self.editor.bind(self.loader.active)
             self.pages.bind(self.loader.active)
             self.table.reset()
@@ -126,6 +129,10 @@ class FileSession:
             self.loader.active = restored.inspection
             self.loader.status = LoadStatus(
                 LoadPhase.READY, restored.pipeline.source.source.path
+            )
+            self.controls.path = str(restored.pipeline.source.source.path)
+            self.controls.bind_settings(
+                restored.workspace.format, restored.workspace.options
             )
             self.editor.bind(restored.inspection)
             self.editor.pipeline = restored.pipeline

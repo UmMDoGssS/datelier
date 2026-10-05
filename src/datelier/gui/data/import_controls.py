@@ -1,11 +1,10 @@
-"""Dataset import and schema controls rendered from prepared application state."""
+"""Contextual dataset import settings rendered from prepared application state."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field, fields
 from pathlib import Path
 
 from imgui_bundle import imgui
 
-from datelier.core.column_roles import allowed_roles
 from datelier.io.csv import CsvOptions, ImportFailure
 from datelier.io.importing import detect_format
 from datelier.io.loading import DatasetLoader, LoadPhase
@@ -16,8 +15,6 @@ from datelier.io.types import (
     ParquetOptions,
     XmlOptions,
 )
-from datelier.pipeline.editing import DatasetEditor
-from datelier.pipeline.operations import SetColumnRole
 
 
 @dataclass
@@ -39,6 +36,52 @@ class ImportControls:
     xml_attributes: bool = True
     xml_strip: bool = True
     error: str = ""
+    _bound: tuple[ImportFormat, ImportOptions, tuple[object, ...]] | None = field(
+        default=None, repr=False
+    )
+
+    def _draft(self) -> tuple[object, ...]:
+        return tuple(
+            getattr(self, item.name)
+            for item in fields(self)
+            if item.name
+            not in ("path", "format_index", "options_expanded", "error", "_bound")
+        )
+
+    def bind_settings(self, format: ImportFormat, options: ImportOptions) -> None:
+        self.format_index = list(ImportFormat).index(format) + 1
+        if isinstance(options, CsvOptions):
+            self.separator, self.header = options.separator, options.has_header
+            self.quote = options.quote_char or ""
+            self.text_only, self.dates = (
+                not options.infer_types,
+                options.try_parse_dates,
+            )
+            self.infer_rows = options.infer_schema_length or 0
+            self.skip_rows, self.null_tokens = (
+                options.skip_rows,
+                "|".join(options.null_values),
+            )
+        elif isinstance(options, JsonOptions):
+            self.text_only = options.read_as_text
+        elif isinstance(options, ParquetOptions):
+            self.parquet_columns = "|".join(options.columns or ())
+        else:
+            self.xml_path = options.record_path
+            self.xml_namespaces = "|".join(
+                f"{key}={uri}" for key, uri in options.namespaces
+            )
+            self.xml_attributes, self.xml_strip = (
+                options.include_attributes,
+                options.strip_text,
+            )
+            self.text_only, self.dates = (
+                not options.infer_types,
+                options.try_parse_dates,
+            )
+            self.null_tokens = "|".join(options.null_values)
+        # Retain literal | in names/tokens until the bound controls change.
+        self._bound = format, options, self._draft()
 
     def selected_format(self) -> ImportFormat:
         return (
@@ -48,6 +91,11 @@ class ImportControls:
         )
 
     def options(self, selected: ImportFormat) -> ImportOptions:
+        if self._bound is not None and (selected, self._draft()) == (
+            self._bound[0],
+            self._bound[2],
+        ):
+            return self._bound[1]
         if selected == ImportFormat.XML:
             namespaces: list[tuple[str, str]] = []
             for entry in self.xml_namespaces.split("|"):
@@ -192,66 +240,3 @@ class ImportControls:
             )
             for message in inspection.imported.diagnostics:
                 imgui.text_wrapped(message)
-
-
-def show_schema(loader: DatasetLoader, editor: DatasetEditor) -> None:
-    inspection = loader.active
-    if inspection is None:
-        imgui.text("Open a dataset to inspect its schema and missing values.")
-        return
-    dataset = inspection.dataset
-    schema = dataset.table.schema
-    imgui.text(f"Shape: ({inspection.row_count:,}, {len(inspection.schema):,})")
-    flags = (
-        imgui.TableFlags_.borders
-        | imgui.TableFlags_.scroll_y
-        | imgui.TableFlags_.resizable
-        | imgui.TableFlags_.sizing_stretch_prop
-    )
-    if imgui.begin_table("schema", 5, flags, imgui.ImVec2(-1, -1)):
-        for name, weight in (
-            ("Column", 1.0),
-            ("Non nulls", 1.15),
-            ("Uniques", 0.85),
-            ("Type", 0.7),
-            ("Interpretation", 1.9),
-        ):
-            imgui.table_setup_column(name, init_width_or_weight=weight)
-        imgui.table_setup_scroll_freeze(0, 1)
-        imgui.table_headers_row()
-        clipper = imgui.ListClipper()
-        clipper.begin(len(inspection.schema))
-        while clipper.step():
-            for index in range(clipper.display_start, clipper.display_end):
-                summary = inspection.schema[index]
-                info = dataset.role(summary.name)
-                imgui.table_next_row()
-                for column, text in enumerate(
-                    (
-                        summary.name,
-                        f"{info.nonnull:,}",
-                        f"{info.distinct:,}" if info.distinct is not None else "—",
-                        summary.dtype,
-                    )
-                ):
-                    imgui.table_set_column_index(column)
-                    imgui.text_unformatted(text)
-                imgui.table_set_column_index(4)
-                options = (None, *allowed_roles(schema[summary.name]))
-                labels = [
-                    f"Auto: {info.inferred}".replace("Categorical", "Category").replace(
-                        "Identifier", "ID"
-                    ),
-                    *[str(role) for role in options[1:]],
-                ]
-                imgui.set_next_item_width(-1)
-                imgui.begin_disabled(editor.busy)
-                changed, choice = imgui.combo(
-                    f"##role {summary.name}", options.index(info.override), labels
-                )
-                imgui.end_disabled()
-                if imgui.is_item_hovered():
-                    imgui.set_tooltip(f"{info.role}. {info.reason}")
-                if changed:
-                    editor.request(SetColumnRole(summary.name, options[choice]))
-        imgui.end_table()

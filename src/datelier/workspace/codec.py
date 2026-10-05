@@ -31,11 +31,13 @@ from datelier.pipeline.types import (
 )
 from datelier.plotting.categories import CategorySettings
 from datelier.plotting.distributions import DistributionSettings
+from datelier.workspace.recent import RecentSource
 from datelier.workspace.types import Workspace, WorkspaceSource, WorkspaceViews
 
 RECORDS = (
     *(type(p) for p in EXTRA_DEFAULTS.values()),
     Workspace,
+    RecentSource,
     WorkspaceSource,
     WorkspaceViews,
     CsvOptions,

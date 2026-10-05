@@ -8,7 +8,7 @@ from time import perf_counter
 
 from imgui_bundle import hello_imgui, imgui, immapp
 
-from datelier.gui.data.import_controls import show_schema
+from datelier.gui.data.schema import show_schema
 from datelier.gui.editor_session import EditorSession
 from datelier.gui.file_session import FileSession
 from datelier.gui.layout import configure_layout
@@ -33,6 +33,8 @@ class InspectionEvidence:
     welcome_frames: int = 0
     welcome_open_files_pixel: tuple[float, float] = (0, 0)
     welcome_open_folder_pixel: tuple[float, float] = (0, 0)
+    welcome_retry_pixel: tuple[float, float] = (0, 0)
+    welcome_recent_pixels: dict[str, tuple[float, float]] = field(default_factory=dict)
 
 
 def run_gui(
@@ -76,6 +78,10 @@ def run_gui(
             evidence.welcome_frames += 1
             evidence.welcome_open_files_pixel = welcome.open_files_pixel
             evidence.welcome_open_folder_pixel = welcome.open_folder_pixel
+            evidence.welcome_retry_pixel = welcome.retry_pixel
+            evidence.welcome_recent_pixels = {
+                entry.path: pixel for entry, pixel in welcome.recent_pixels.items()
+            }
             return
         session.table.show(session.loader.active, session.pages, session.selection)
         evidence.max_rendered_rows = max(
@@ -176,8 +182,12 @@ def run_gui(
     params.callbacks.setup_imgui_style = preferences.apply_theme
     params.callbacks.post_init = lambda: preferences.before_frame(params)
     params.callbacks.pre_new_frame = lambda: preferences.before_frame(params)
-    params.callbacks.show_menus = lambda: preferences.show_menu(editor.active, params)
-    params.callbacks.before_exit = lambda: preferences.save(editor.active, params)
+    params.callbacks.show_menus = lambda: preferences.show_menu(
+        editor.active, params, sources=editor.source_paths
+    )
+    params.callbacks.before_exit = lambda: preferences.save(
+        editor.active, params, sources=editor.source_paths
+    )
     load_started = perf_counter()
     previous_frame = load_started
     if initial_workspace:

@@ -1,6 +1,6 @@
 """Welcome and failed-import recovery for the active blank file session."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from imgui_bundle import imgui
@@ -9,12 +9,15 @@ from datelier.gui.editor_session import EditorSession
 from datelier.gui.file_session import FileSession
 from datelier.io.loading import LoadPhase
 from datelier.io.types import ImportFailure
+from datelier.workspace.recent import RecentSource
 
 
 @dataclass
 class Welcome:
     open_files_pixel: tuple[float, float] = (0, 0)
+    retry_pixel: tuple[float, float] = (0, 0)
     open_folder_pixel: tuple[float, float] = (0, 0)
+    recent_pixels: dict[RecentSource, tuple[float, float]] = field(default_factory=dict)
 
     def show(self, editor: EditorSession, file: FileSession) -> None:
         imgui.text("Welcome to Datelier")
@@ -46,6 +49,8 @@ class Welcome:
                 controls.error = ""
             except (ValueError, ImportFailure) as error:
                 controls.error = str(error)
+        lo, hi = imgui.get_item_rect_min(), imgui.get_item_rect_max()
+        self.retry_pixel = ((lo.x + hi.x) / 2, (lo.y + hi.y) / 2)
         if controls.error:
             imgui.text_wrapped(controls.error)
         imgui.text_wrapped(editor.opening.message)
@@ -59,3 +64,21 @@ class Welcome:
         imgui.text_wrapped(
             "CSV/TSV, JSON/JSONL, Parquet and tabular XML are supported."
         )
+        if file.workspace.path:
+            imgui.separator()
+            file.workspace.show(file)
+        self.recent_pixels.clear()
+        if editor.preferences.value.recent:
+            imgui.separator()
+            imgui.text("Recent sources")
+            for index, source in enumerate(editor.preferences.value.recent):
+                path = Path(source.path)
+                if imgui.selectable(
+                    f"{source.source_kind}: {path.name} — {path.parent}##recent{index}",
+                    False,
+                )[0]:
+                    editor.open_recent(source)
+                lo, hi = imgui.get_item_rect_min(), imgui.get_item_rect_max()
+                self.recent_pixels[source] = ((lo.x + hi.x) / 2, (lo.y + hi.y) / 2)
+                if imgui.is_item_hovered():
+                    imgui.set_tooltip(source.path)

@@ -9,6 +9,7 @@ from typing import cast
 
 from datelier.inspection.exploration import PlotSettings
 from datelier.workspace.codec import decode_record, encode
+from datelier.workspace.recent import MAX_RECENT, RecentSource, remember
 from datelier.workspace.storage import MAX_WORKSPACE_BYTES, atomic_write
 from datelier.workspace.types import WorkspaceViews
 
@@ -28,6 +29,7 @@ class Preferences:
     plots: PlotSettings = PlotSettings()
     views: WorkspaceViews = WorkspaceViews()
     hidden_windows: tuple[str, ...] = ()
+    recent: tuple[RecentSource, ...] = ()
 
 
 def preference_path() -> Path:
@@ -109,7 +111,17 @@ def read_preferences(path: Path) -> tuple[Preferences, str]:
         if isinstance(hidden, list)
         else ()
     )
-    return Preferences(theme, layout, plots, views, hidden_windows), " ".join(
+    recent: tuple[RecentSource, ...] = ()
+    entries = raw.get("recent", [])
+    if isinstance(entries, list):
+        for entry in reversed(entries[:MAX_RECENT]):
+            try:
+                recent = remember(recent, decode_record(RecentSource, entry))
+            except ValueError, TypeError, UnicodeError:
+                notes.append("Invalid recent entry skipped.")
+    else:
+        notes.append("Invalid recent sources reset.")
+    return Preferences(theme, layout, plots, views, hidden_windows, recent), " ".join(
         notes
     ) or "Preferences restored."
 
@@ -132,6 +144,8 @@ def save_preferences(
     preferences.views.validate()
     if preferences.plots.clusters is not None:
         raise ValueError("Preferences cannot contain fitted ML results")
+    if len(preferences.recent) > MAX_RECENT:
+        raise ValueError("Too many recent sources")
     content = json.dumps(
         {
             "version": 1,
@@ -141,6 +155,7 @@ def save_preferences(
             "plots": encode(preferences.plots),
             "views": encode(preferences.views),
             "hidden_windows": preferences.hidden_windows,
+            "recent": encode(preferences.recent),
         },
         indent=2,
         allow_nan=False,

@@ -15,6 +15,7 @@ from datelier.workspace.preferences import (
     read_preferences,
     save_preferences,
 )
+from datelier.workspace.recent import RecentSource, remember
 
 if TYPE_CHECKING:
     from datelier.gui.app import GuiSession
@@ -83,7 +84,16 @@ class PreferenceControls:
         else:
             self.reset_requested = True
 
-    def save(self, session: GuiSession, params: hello_imgui.RunnerParams) -> None:
+    def remember(self, source: RecentSource) -> None:
+        self.value = replace(self.value, recent=remember(self.value.recent, source))
+
+    def save(
+        self,
+        session: GuiSession,
+        params: hello_imgui.RunnerParams,
+        *,
+        sources: tuple[Path, ...] = (),
+    ) -> None:
         if self.path is None:
             return
         plots = (
@@ -95,10 +105,14 @@ class PreferenceControls:
         hidden = tuple(
             w.label for w in params.docking_params.dockable_windows if not w.is_visible
         )
-        self.value = Preferences(
-            self.value.theme, imgui.save_ini_settings_to_memory(), plots, views, hidden
+        self.value = replace(
+            self.value,
+            layout=imgui.save_ini_settings_to_memory(),
+            plots=plots,
+            views=views,
+            hidden_windows=hidden,
         )
-        sources = (
+        sources = sources or (
             (session.loader.active.dataset.source.path,)
             if session.loader.active
             else ()
@@ -125,7 +139,13 @@ class PreferenceControls:
         except Exception as error:
             self.message = f"Preferences failed: {error}"
 
-    def show_menu(self, session: GuiSession, params: hello_imgui.RunnerParams) -> None:
+    def show_menu(
+        self,
+        session: GuiSession,
+        params: hello_imgui.RunnerParams,
+        *,
+        sources: tuple[Path, ...] = (),
+    ) -> None:
         if not imgui.begin_menu("Preferences"):
             return
         for theme in Theme:
@@ -135,7 +155,7 @@ class PreferenceControls:
                 self.apply_theme(theme)
         imgui.separator()
         if imgui.menu_item("Save preferences", "", False)[0]:
-            self.save(session, params)
+            self.save(session, params, sources=sources)
         if imgui.menu_item("Restore saved layout", "", False)[0]:
             self.restore_layout()
         if imgui.menu_item("Reset layout", "", False)[0]:

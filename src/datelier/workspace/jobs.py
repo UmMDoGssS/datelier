@@ -21,13 +21,20 @@ class SavedWorkspace:
     workspace: Workspace
 
 
+@dataclass(frozen=True)
+class OpenedWorkspace:
+    path: Path
+    restored: RestoredWorkspace
+
+
 class WorkspaceJobs:
     def __init__(self, *, executor: Executor | None = None) -> None:
         self.message = "Save sources, recipes and views in a workspace."
         self.issue: SourceIssue | None = None
         self.saved: SavedWorkspace | None = None
+        self.opened: Path | None = None
         self._executor = JobExecutor(executor, max_workers=2, name="workspace")
-        self._future: Future[RestoredWorkspace | SavedWorkspace] | None = None
+        self._future: Future[OpenedWorkspace | SavedWorkspace] | None = None
         self._revision: DatasetRevision | None = None
         self._closed = False
 
@@ -47,10 +54,17 @@ class WorkspaceJobs:
             raise ValueError("Workspace jobs are closed")
         self.abandon()
         self.issue = None
+        self.saved = None
         self._revision = revision
-        self._future = self._executor.submit(
-            restore_workspace, path, relink=relink, accept_changed=accept_changed
-        )
+
+        def work() -> OpenedWorkspace:
+            canonical = path.expanduser().resolve()
+            restored = restore_workspace(
+                canonical, relink=relink, accept_changed=accept_changed
+            )
+            return OpenedWorkspace(canonical, restored)
+
+        self._future = self._executor.submit(work)
         self.message = "Checking source and restoring workspace…"
 
     def request_save(
@@ -117,7 +131,8 @@ class WorkspaceJobs:
         self.message = (
             "Workspace restored. Analysis settings loaded; run ML explicitly."
         )
-        return result
+        self.opened = result.path
+        return result.restored
 
     def abandon(self) -> None:
         if self._future is not None:

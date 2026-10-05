@@ -190,3 +190,39 @@ or `--capture picker` and `--output /tmp/<name>.ppm`.
 M9.2 remains open: recent files/workspaces and contextual import/workspace menu
 actions must replace the old Open dataset/Workspace panels. Its full suite and
 layout/menu/recent-source recovery acceptance remain to be recorded.
+
+
+## Step 5 / M9.2 in progress — Recent sources and exact import settings
+
+Preferences now retain up to 20 recent file/workspace references in most-recent
+order. File entries retain their successful format/options; edits do not promote
+an entry, and reopening an existing source focuses/promotes it without replay.
+Invalid recent entries recover independently of theme/layout/view preferences.
+Import controls bind exact successful recipes, preserving literal separators in
+option values until the user changes the controls. Schema rendering now lives
+in its own data module. Preference writes protect every open/requested source,
+including inactive files and sources awaiting relinking.
+
+Welcome renders recent entries and retains missing-file paths/settings for retry.
+Recent workspace failures expose path/relink controls; successful saves/restores
+enter the list. Whole-session recipes remain M9.3 work.
+
+Verification on 2026-10-06: **42 focused tests passed in 0.82s** across recent
+recipes, preferences, opening and legacy workspace restoration. Coverage includes
+bounded MRU ordering, custom-delimiter reopening, section recovery, missing-file
+retry with independent siblings, workspace source relinking, exact bound CSV,
+JSONL, Parquet/XML options, and all-source preference protection. Pyrefly zero
+errors; Ruff lint/format and diff checks pass.
+
+Native `scripts/recent_smoke.py` launches separate save and reopen processes.
+It clicks recent file/workspace entries, observes a moved-file failure, clicks
+its path retry with the retained semicolon settings, and relinks the workspace
+source. It verifies original source bytes and zero implicit ML. The save process
+uses 16 frames; reopen uses 83 frames. [Recovered source](evidence/phase9/recent-recovery.png) is visually checked.
+Input is synthetic ImGui input; source move and workspace relink are fixture/frame
+hooks. Commands use the same uv cache/Mesa settings as earlier steps, focused
+`pytest tests/test_recent_sources.py tests/test_preferences.py tests/test_opening.py
+tests/test_workspace_restore.py`, Pyrefly/Ruff and native `scripts/recent_smoke.py`.
+
+M9.2 remains open pending contextual editor/menu replacement, layout migration/
+recovery and its full regression suite.
