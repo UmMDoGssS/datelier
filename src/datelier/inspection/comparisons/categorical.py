@@ -27,6 +27,19 @@ def category_label(key: str | None, string: bool) -> str:
     return value if len(value) <= 80 else value[:77] + "…"
 
 
+def category_values(series: pl.Series) -> pl.Series:
+    # Numeric equality treats signed zero as one category. Normalize before
+    # rendering keys so the counts and on-demand selections agree.
+    if series.dtype.is_float():
+        series = (
+            series.rename("value")
+            .to_frame()
+            .select(pl.when(pl.col("value") == 0).then(0).otherwise(pl.col("value")))
+            .to_series()
+        )
+    return series.cast(pl.String)
+
+
 def categorical_comparison(
     inputs: tuple[ComparisonInput, ...], settings: ComparisonSettings
 ) -> PreparedComparison:
@@ -35,10 +48,10 @@ def categorical_comparison(
     if len(families) != 1:
         raise ValueError(
             "Categorical mappings require compatible physical types "
-            "(strings, booleans, integers or the same float type)"
+            "(strings, booleans, integers or the same float/decimal type)"
         )
     counts = tuple(
-        s.cast(pl.String).rename("key").value_counts().rename({"count": "n"})
+        category_values(s).rename("key").value_counts().rename({"count": "n"})
         for s in originals
     )
     pooled = (
@@ -61,6 +74,11 @@ def categorical_comparison(
         labels += ("Other (remaining values)",)
     summaries: list[SeriesSummary] = []
     for source, original, frame in zip(inputs, originals, counts, strict=True):
+        nonfinite = (
+            len(original) - original.null_count() - int(original.is_finite().sum())
+            if original.dtype.is_float()
+            else 0
+        )
         visible = frame.filter(
             pl.col("key").is_in(
                 pl.Series(keys, dtype=pl.String).implode(), nulls_equal=True
@@ -89,7 +107,7 @@ def categorical_comparison(
                 len(original),
                 len(original),
                 original.null_count(),
-                0,
+                nonfinite,
                 original.drop_nulls().n_unique(),
                 category_label(mode[0], "string" in families)
                 if mode[0] is not None
@@ -105,7 +123,8 @@ def categorical_comparison(
         keys=keys,
         other=other,
         note=(
-            "Exact category counts, including nulls. Common order uses pooled "
+            "Exact category counts; nulls and nonfinite values remain categories. "
+            "Common order uses pooled "
             "frequency; ties sort by value. Other combines the remaining "
             "categories. Proportions divide by all rows in each file."
         ),

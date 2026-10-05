@@ -5,7 +5,10 @@ import polars as pl
 from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset
 from datelier.inspection.comparison_settings import ComparisonSettings
-from datelier.inspection.comparisons.categorical import categorical_comparison
+from datelier.inspection.comparisons.categorical import (
+    categorical_comparison,
+    category_values,
+)
 from datelier.inspection.comparisons.numeric import numeric_comparison
 from datelier.inspection.comparisons.types import (
     ComparisonInput,
@@ -57,7 +60,7 @@ def select_bin(
             & ((values >= lower) if bin_index == 0 else (values > lower))
         )
     else:
-        values = column.cast(pl.String)
+        values = category_values(column)
         if result.other and bin_index == len(result.keys):
             mask = ~values.is_in(
                 pl.Series(result.keys, dtype=pl.String).implode(), nulls_equal=True

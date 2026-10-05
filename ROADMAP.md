@@ -37,9 +37,11 @@ views; [Phase 5 evidence](docs/phase-5.md) records its passed gates. Phase 6 pro
 end-to-end hardening and local installation; [Phase 7 evidence](docs/phase-7.md)
 records workflow/resource checks and the clean-wheel install. The personal-use
 v1 scope is complete. Phase 8 remains optional investigation for concrete needs.
-Phases 9–14 are the approved editor and multimodal sequence; Phase 9 passes
-M9.1 independent tabs/shared workers and M9.2 Welcome/recent sources/editor
-controls and M9.3 whole-session persistence; M9.4 comparison gates remain open and do not change existing feature or usability acceptance.
+Phases 9–14 are the approved editor and multimodal sequence. Phase 9 passes
+independent tabs/shared workers, Welcome/recent sources/editor controls,
+whole-session persistence/recovery and cross-file comparisons; Phase 10 and
+later implementation gates remain open. These gates do not change existing
+feature or usability acceptance.
 
 A concrete post-v1 usability need is recorded in the
 [Titanic UX review and proposed repair plan](docs/ux-titanic-review.md): readable
@@ -629,14 +631,14 @@ the corresponding dependency or behavior gates.
 
 ## Phase 9 — Editor tabs and whole-session workspaces
 
-- [ ] **Phase complete.** **Entry:** M7.2 and the source package refactor pass; existing workspace compatibility tests are available. **Exit:** M9.1–M9.4 pass, including independent training/test workflows and fresh-process session restoration.
+- [x] **Phase complete.** **Entry:** M7.2 and the source package refactor pass; existing workspace compatibility tests are available. **Exit:** M9.1–M9.4 pass, including independent training/test workflows and fresh-process session restoration.
 
 ### M9.1 — Independent file sessions and editor tabs
 
 [Verified implementation and resources](docs/phase-9.md) cover file ownership,
 native tabs, independent inactive-file jobs, nonblocking closure and M9.2
-Welcome/recent opening/editor controls and whole-session recovery. M9.4 is
-the next outstanding milestone.
+Welcome/recent opening/editor controls, whole-session recovery and cross-file
+comparisons. Phase 10 is the next outstanding phase.
 
 - [x] **Deliverables:** application/file session separation; top file tab bar with switching, reordering, closing, and New Tab; independent source/revision, operations, selections, jobs, analysis settings, and views; dockable panels bound to the active file.
 - [x] **Entry gate:** inspect current GuiSession and job/persistence boundaries; define typed file-session ownership and the shared worker lifecycle before introducing tabs.
@@ -662,11 +664,11 @@ the next outstanding milestone.
 
 ### M9.4 — Cross-file profile comparison
 
-- [ ] **Deliverables:** dockable comparison view with explicit field mappings, numeric distribution overlays, categorical counts and adjacent statistics; shared bins/category ordering, source labels/colors, count/density normalization and saved comparison settings.
+- [x] **Deliverables:** dockable comparison view with explicit field mappings, numeric distribution overlays, categorical counts and adjacent statistics; shared bins/category ordering, source labels/colors, count/density normalization and saved comparison settings.
 - [x] **Entry gate:** M9.3 passes; prepared profiles and comparisons can identify every contributing file/view/revision.
-- [ ] **Exit gate:** unequal-size training/test distributions compare correctly; mismatched names can be mapped; incompatible types show diagnostics; edits invalidate only affected comparison results and linked selections stay in their originating file.
-- [ ] **Verification evidence:** known-distribution and category fixtures, shared-bin/normalization tests, cross-file selection/stale-result tests, native comparison and fresh-process restore, measured multi-file resources.
-- [ ] **Suggested step commits:** `feat: prepare cross-file profile comparisons` → `feat: compare profiles across editor files`.
+- [x] **Exit gate:** unequal-size training/test distributions compare correctly; mismatched names can be mapped; incompatible types show diagnostics; edits invalidate only affected comparison results and linked selections stay in their originating file.
+- [x] **Verification evidence:** known-distribution and category fixtures, shared-bin/normalization tests, cross-file selection/stale-result tests, native comparison and fresh-process restore, measured multi-file resources.
+- [x] **Suggested step commits:** `feat: prepare cross-file profile comparisons` → `feat: compare profiles across editor files`.
 
 ## Phase 10 — Interpretations, conditional previews, and record inspection
 

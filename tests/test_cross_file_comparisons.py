@@ -1,5 +1,6 @@
 from collections.abc import Sequence
 from dataclasses import replace
+from decimal import Decimal
 from pathlib import Path
 
 import numpy as np
@@ -128,6 +129,33 @@ def test_sorted_selection_is_bound_to_its_source_and_revision() -> None:
     assert not test.row_ids
     with pytest.raises(ValueError, match="changed"):
         select_bin(result, 0, 0, apply_operation(a, Sort(("x",), descending=True)))
+
+
+def test_numeric_category_roles_keep_signed_zero_and_nonfinite_quality() -> None:
+    a = data("a", [0.0, -0.0, float("nan"), float("inf"), None]).with_role(
+        "a", ColumnRole.CATEGORY
+    )
+    b = data("b", [0.0, 0.0]).with_role("b", ColumnRole.CATEGORY)
+    result = compare(a, b)
+    assert result.keys[0] == "0.0"
+    assert result.series[0].counts[0] == 2
+    assert result.series[0].nulls == 1 and result.series[0].nonfinite == 2
+    assert result.series[0].counts.sum() == 5
+    assert select_bin(result, 0, 0, a).row_ids == (0, 1)
+
+
+def test_decimal_category_roles_preserve_exact_values_and_missing_counts() -> None:
+    a = data(
+        "a", [Decimal("1.20"), Decimal("1.20"), None], pl.Decimal(18, 2)
+    ).with_role("a", ColumnRole.CATEGORY)
+    b = data("b", [Decimal("2.30"), Decimal("2.30")], pl.Decimal(18, 2)).with_role(
+        "b", ColumnRole.CATEGORY
+    )
+    result = compare(a, b)
+    assert result.keys == ("1.20", "2.30", None)
+    assert [s.counts.tolist() for s in result.series] == [[2, 0, 1], [0, 2, 0]]
+    assert all(s.nonfinite == 0 for s in result.series)
+    assert select_bin(result, 0, 0, a).row_ids == (0, 1)
 
 
 @pytest.mark.parametrize("case", ["roles", "family", "column", "finite", "one"])

@@ -1,13 +1,17 @@
 """Application-owned file order, activation and shared worker lifetime."""
 
+from dataclasses import replace
 from pathlib import Path
 
+from datelier.core.dataset import Dataset
 from datelier.core.jobs import SharedWorkers
 from datelier.gui.file_browser import FileBrowser
 from datelier.gui.file_session import FileSession
 from datelier.gui.workspace.capture import capture_session
 from datelier.gui.workspace.preferences import PreferenceControls
 from datelier.inspection.comparison_settings import ComparisonSettings
+from datelier.inspection.comparisons.jobs import ComparisonJobs
+from datelier.inspection.comparisons.types import PreparedComparison
 from datelier.io.loading import DatasetLoader, LoadPhase
 from datelier.io.opening import OpeningJobs, OpeningRequest
 from datelier.workspace.recent import RecentKind, RecentSource
@@ -29,6 +33,7 @@ class EditorSession:
         self.browser = FileBrowser(self.workers, Path.cwd())
         self.opening = OpeningJobs(self.workers)
         self.workspace_jobs = SessionJobs(self.workers)
+        self.comparison_jobs = ComparisonJobs(executor=self.workers)
         self.comparisons: tuple[ComparisonSettings, ...] = ()
         self.order_reset = False
         self.pending_layout: tuple[str, tuple[str, ...]] | None = None
@@ -51,6 +56,23 @@ class EditorSession:
     @property
     def active(self) -> FileSession:
         return next(file for file in self.files if file.identity == self.active_id)
+
+    @property
+    def datasets(self) -> dict[str, Dataset]:
+        return {
+            file.identity: file.loader.active.dataset
+            for file in self.files
+            if file.loader.active is not None
+        }
+
+    def select_comparison(
+        self, result: PreparedComparison, series: int, bin_index: int
+    ) -> None:
+        source = result.series[series].origin
+        dataset = self.datasets.get(source.file_id)
+        if dataset is None:
+            raise ValueError("The mapped file is unavailable")
+        self.comparison_jobs.request_selection(result, series, bin_index, dataset)
 
     @property
     def source_paths(self) -> tuple[Path, ...]:
@@ -113,6 +135,7 @@ class EditorSession:
         )
 
     def _install_session(self, restored: RestoredSession) -> None:
+        self.comparison_jobs.clear()
         self.browser.cancel()
         self.opening.abandon()
         for file in self.files:
@@ -187,6 +210,15 @@ class EditorSession:
             return
         file = self.files.pop(index)
         file.close()
+        self.comparisons = tuple(
+            replace(
+                recipe,
+                sources=tuple(
+                    source for source in recipe.sources if source.file_id != identity
+                ),
+            )
+            for recipe in self.comparisons
+        )
         self._recent_files.pop(identity, None)
         self._recent_workspaces.pop(identity, None)
         if self.browser.owner == identity:
@@ -241,6 +273,18 @@ class EditorSession:
         for request, paths in self.opening.poll({file.identity for file in self.files}):
             self._open_resolved(request, paths)
         self.preferences.poll()
+        datasets = self.datasets
+        self.comparison_jobs.sync(self.comparisons, datasets)
+        selection = self.comparison_jobs.poll_selection(datasets)
+        if selection is not None:
+            file = next(
+                file for file in self.files if file.identity == selection.origin.file_id
+            )
+            if file.selection.choose(selection.origin.revision, selection.row_ids):
+                self.activate(file.identity)
+                if selection.first_position is not None:
+                    file.table.target_row = selection.first_position + 1
+                    file.table.jump = True
 
     def _open_resolved(self, request: OpeningRequest, paths: tuple[Path, ...]) -> None:
         owner = next(file for file in self.files if file.identity == request.owner)
@@ -294,5 +338,6 @@ class EditorSession:
         self.browser.close()
         self.opening.close()
         self.workspace_jobs.close()
+        self.comparison_jobs.close()
         self.preferences.close()
         self.workers.shutdown(wait=True)

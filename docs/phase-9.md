@@ -27,7 +27,7 @@ verified package refactor (through `0879793`). The starting tree was clean at
 Every implementation step runs Pyrefly, focused tests, Ruff lint/format,
 applicable native GUI smoke, diff review and a coherent step commit. Each
 milestone additionally requires the full suite and recorded acceptance evidence.
-M9.1–M9.3 pass with the evidence below. M9.4 and Phase 9 remain open.
+M9.1–M9.4 and Phase 9 pass with the evidence below. Phase 10 is next.
 
 ## Step 1 — File ownership and shared workers
 
@@ -456,3 +456,90 @@ pass. This foundation adds no GUI behavior; native comparison and resource gates
 remain open for the next step. Commands use the earlier cache/offline settings:
 `pytest tests/test_cross_file_comparisons.py tests/test_comparison_jobs.py
  tests/test_session_workspaces.py`, Pyrefly/Ruff and diff checks.
+
+
+## Step 11 / M9.4 exit — Dockable cross-file profiles and session acceptance
+
+Compare files is an application-owned dockable panel beside Explore, available
+through View. Users create independent comparisons, map one column per file,
+set labels/colors and common bins/category limits, choose Count or Density /
+proportion, and apply with Update comparison. Preparation uses the existing
+shared pool; only small prepared arrays, metadata and summaries render in frames.
+Unapplied edits are marked. Update also retries a busy-worker failure. Numeric
+histograms render an explicit step-shaped fill/outline, with a native per-source
+legend; categories render common-order horizontal grouped bars. A scrollable
+adjacent statistics table uses the same labels/colors.
+
+A selected source and bin/category request worker-prepared row selection. The
+editor activates that file, jumps to its first match and updates only its
+revision-bound selection, reporting the full count and 10,000-row selection cap.
+Closure removes its mappings so the remaining session can still be saved.
+Restore prepares basic comparisons from saved mappings but never starts ML.
+Numeric category overrides retain nonfinite quality counts and collapse signed
+zero consistently for counting/selection. Equal numeric row IDs across files
+remain independent.
+
+Verification on 2026-10-06, Linux/Python 3.14.7/Mesa software OpenGL:
+
+- **21 focused tests passed in 0.70s** for comparisons/jobs/editor integration;
+  **555 full-suite tests passed in 16.29s**. Added integration covers native-facing
+  selection routing after sorting, sibling selection preservation, save/reopen,
+  source/revision changes, closure and valid remaining-session save. Added
+  failure fixtures cover saturated-worker retry and numeric categorical roles
+  with signed zeros, nulls, NaN and infinity, plus exact Decimal categories
+  (Polars cannot apply is_finite directly to Decimal). The foundation fixtures remain
+  passing. Batch Pyrefly zero errors; Ruff lint/format and diff checks pass.
+- Fresh-process `session_comparison_smoke.py` passes native Update and selection
+  button input, explicit mismatched columns, labels/colors, shared numeric bins,
+  unequal 4/2-row files, common category counts/tail, incompatible-role diagnostics,
+  saved mappings/scales and independent selections. Save **92** / restore **105**
+  frames (PIDs 441000/441112); **85/93** rendered comparison frames. Configuration
+  and floating-panel placement use frame hooks; buttons use synthetic ImGui
+  mouse position/delta/events. Source bytes match; implicit ML runs are zero.
+- [Numeric overlay](evidence/phase9/comparison-numeric.png) and
+  [categorical comparison](evidence/phase9/comparison-categories.png) were visually
+  inspected. The numeric fixtures have equal normalized shapes, so the overlays
+  coincide despite unequal raw counts. Visual QA caught an invisible stairs fill;
+  the explicit shaded outline fixes it. Category counts and adjacent colored
+  statistics are visible. Original `comparison_smoke.py` remains a separate
+  one-file renderer regression, not replaced by the new cross-file script.
+- `benchmark_comparisons.py` declares budgets before running: <=2 s selected
+  preparation, <=33 ms frame p95, <=1 GiB peak RSS, <=96 MiB retained growth after
+  warmup and <=4 workers. Fixtures are two Parquet files of **100,000/60,000 rows**,
+  four columns each (one differently named/scaled numeric feature, one 40-value
+  category and two supporting columns), two comparisons and 20 bin/category-limit/
+  normalization updates. [Recorded report](evidence/phase9/comparison-resources.json):
+  **103 frames / 31 visible comparison frames**; initial preparation **35.08 ms**,
+  maximum **46.97 ms**; frame p95 **12.99 ms**; peak RSS **436.61 MiB**; retained
+  growth **-19.89 MiB**; three workers; zero outstanding jobs/retained closed tabs.
+  Zero worker threads after exit. Source bytes match; **386,460 fixture bytes**
+  and the temporary directory are removed. No payload/temp-array cache or spill
+  files are added. Cleanup waits until the closing frame releases its active-file
+  local reference. These are fixture-specific results, not arbitrary capacity
+  or accelerated-rendering claims.
+- Native regressions with the new panel pass: session recovery/layout **15/45**
+  (saved dock/hidden Analysis verified in different processes), preferences
+  default/save/restore **15/21/67**, tabs **194**, editor menus **285**, Welcome
+  **126**; legacy workspace **31/46** and recent sources **16/83**. The original
+  comparison renderer passes **131** frames / all five modes / error recovery
+  after its fixture explicitly selects the current Column Colors source.
+
+Commands use the existing offline/cache/Mesa settings: focused
+`pytest tests/test_cross_file_comparisons.py tests/test_comparison_jobs.py
+ tests/test_editor_comparisons.py`, full `pytest`, Pyrefly/Ruff/diff;
+`session_comparison_smoke.py`, `benchmark_comparisons.py`, original
+`comparison_smoke.py`, `session_workspace_smoke.py`, `preferences_smoke.py`,
+`editor_tabs_smoke.py`, `editor_menu_smoke.py`, `welcome_smoke.py`,
+`workspace_smoke.py` and `recent_smoke.py`.
+
+The 343-line editor coordinator was reviewed at the repository’s 300-line review
+trigger: it owns application ordering/opening/publication and borrows separate
+job, persistence, file and GUI subsystems. Comparison computation and rendering
+are cohesive subpackages; no table-wide work was moved into that coordinator.
+No dependencies or lockfile changes are needed for Phase 9.
+
+M9.4 and Phase 9 pass. The comparison steps are `f4ff952` (typed preparation/
+identity/jobs) and the GUI/session/native/resource acceptance commit accompanying
+this section. Completed session steps remain separate coherent commits. Phase 10
+interpretations/previews and every later multimodal gate remain open; existing
+unfinished Titanic usability gates retain their previous status.

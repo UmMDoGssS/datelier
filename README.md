@@ -5,7 +5,8 @@ The verified v1 scope provides CSV/TSV, JSON/JSONL, Parquet, and tabular XML imp
 responsive previews, schema/null summaries, reversible transformations,
 explicit CSV/Parquet export, richer exploration with linked selections,
 26 explicit clustering/embedding methods, referenced workspaces,
-and saved layouts/themes/plot preferences.
+and saved layouts/themes/plot preferences. The completed Phase 9 adds independent
+editor tabs, whole-session workspaces and cross-file profile comparisons.
 See [ROADMAP.md](ROADMAP.md) for delivery gates and [AGENTS.md](AGENTS.md) for
 contributor conventions.
 
@@ -174,6 +175,31 @@ restores all panels without changing your dataset or history. Settings live in
 recover with defaults and a status message. Global plot defaults apply on dataset
 import; workspace settings take precedence when reopening. Zoom/pan and 3D
 camera position last for the session. See [Phase 6 evidence](docs/phase-6.md).
+
+## Compare files
+
+Open the training and test files, then choose **Compare files** (beside Explore,
+or through **View**). Choose **New comparison**, expand **Mappings and scales**,
+and check each file to map its column explicitly. Column names can differ.
+Set source labels/colors, shared bins or top categories, then **Update comparison**.
+You can keep up to 32 comparisons, each mapping at most 32 files.
+
+Numeric columns share histogram bins; categorical columns share an order based
+on pooled counts, with the remaining categories combined as **Other**. **Count**
+shows rows. **Density / proportion** gives each numeric distribution unit area,
+or divides category counts by that file’s row count, so unequal file sizes are
+comparable. Numeric null/nonfinite values are excluded and reported; category
+counts retain them. Summaries appear beside the chart in a scrollable table.
+Incompatible roles/types or unavailable columns show a diagnostic. Change a
+column’s analysis role in **Schema and nulls** when needed.
+
+Choose **Selection source**, then click a bin/category or use **Select matching
+source rows**. Selection activates that file and selects up to its first 10,000
+matching rows; the message reports the full match count. Other files keep their
+selections. Edits refresh comparisons that use that file. Applied mappings,
+labels, colors and scales save with the whole-session workspace; fitted results
+are still excluded. See [Phase 9 evidence](docs/phase-9.md) for native checks and
+fixture-specific resource measurements.
 
 ## Exploration
 

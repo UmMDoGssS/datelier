@@ -50,7 +50,10 @@ def main() -> None:
                 modes.append(session.exploration.profile_mode)
                 if len(modes) == 5:
                     session.plots.custom_scatter = True
-                    session.plots.color_index = 2
+                    session.plots.choose_color("Column")
+                    session.plots.color_index = (
+                        session.plots.color_columns.index("y") + 1
+                    )
                     session.explorer.request(active.dataset, session.plots.settings())
                     session.exploration.tab = "Scatter"
                     stage, ready = 3, evidence.frames

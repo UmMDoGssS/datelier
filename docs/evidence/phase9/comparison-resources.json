@@ -1,0 +1,30 @@
+{
+  "budgets": {
+    "prepare_ms": 2000,
+    "frame_p95_ms": 33,
+    "peak_rss_mib": 1024,
+    "retained_growth_mib": 96,
+    "workers": 4
+  },
+  "rows": [
+    100000,
+    60000
+  ],
+  "columns_per_file": 4,
+  "comparisons": 2,
+  "update_cycles": 20,
+  "frames": 103,
+  "comparison_frames": 31,
+  "initial_prepare_ms": 35.083592985756695,
+  "max_prepare_ms": 46.9691609905567,
+  "frame_p95_ms": 12.986351596191525,
+  "peak_rss_mib": 436.609375,
+  "retained_growth_mib": -19.890625,
+  "workers": 3,
+  "outstanding_jobs": 0,
+  "fixture_disk_bytes": 386460,
+  "retained_closed_sessions": 0,
+  "source_bytes_unchanged": true,
+  "temporary_directory_removed": true,
+  "worker_threads_after_exit": 0
+}

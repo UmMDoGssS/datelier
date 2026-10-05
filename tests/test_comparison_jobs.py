@@ -181,3 +181,29 @@ def test_invalid_mapping_error_and_missing_file_do_not_schedule() -> None:
         assert jobs.states[0].result is None and "unavailable" in jobs.states[0].message
     finally:
         jobs.close()
+
+
+def test_update_retries_a_saturated_worker_failure_without_changing_recipe() -> None:
+    release, entered = Event(), Event()
+
+    def hold() -> None:
+        entered.set()
+        assert release.wait(5)
+
+    with SharedWorkers(workers=1, capacity=1) as workers:
+        held = workers.submit(hold)
+        assert entered.wait(5)
+        jobs = ComparisonJobs(executor=workers)
+        try:
+            recipes, data = (recipe("train", "test"),), sources()
+            jobs.sync(recipes, data)
+            jobs.sync(recipes, data)
+            assert "Retry" in jobs.states[0].message and jobs.states[0].result is None
+            release.set()
+            held.result(timeout=5)
+            jobs.retry(recipes[0])
+            wait(jobs, recipes, data)
+            assert jobs.states[0].result is not None
+        finally:
+            release.set()
+            jobs.close()

@@ -140,6 +140,11 @@ class ComparisonJobs:
         )
         return selection
 
+    def retry(self, recipe: ComparisonSettings) -> None:
+        state = self._entries.pop(recipe, None)
+        if state is not None and state.future is not None:
+            state.future.cancel()
+
     def clear(self) -> None:
         for entry in self._entries.values():
             if entry.future is not None:

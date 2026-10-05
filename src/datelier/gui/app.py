@@ -9,6 +9,7 @@ from weakref import ReferenceType, ref
 
 from imgui_bundle import hello_imgui, imgui, immapp
 
+from datelier.gui.comparisons.view import ComparisonView
 from datelier.gui.data.schema import show_schema
 from datelier.gui.editor_controls import EditorControls
 from datelier.gui.editor_session import EditorSession
@@ -40,6 +41,10 @@ class InspectionEvidence:
     welcome_recovery_pixel: tuple[float, float] = (0, 0)
     welcome_retry_pixel: tuple[float, float] = (0, 0)
     welcome_recent_pixels: dict[str, tuple[float, float]] = field(default_factory=dict)
+    comparison_frames: int = 0
+    comparison_apply_pixel: tuple[float, float] = (0, 0)
+    comparison_select_pixel: tuple[float, float] = (0, 0)
+    comparison_settings_pixel: tuple[float, float] = (0, 0)
 
 
 def run_gui(
@@ -67,6 +72,7 @@ def run_gui(
     tabs = EditorTabs()
     controls = EditorControls()
     welcome = Welcome()
+    comparisons = ComparisonView()
     evidence = InspectionEvidence()
     params = hello_imgui.RunnerParams()
     params.app_window_params.window_title = "Datelier — data inspection"
@@ -102,6 +108,13 @@ def run_gui(
     def schema(session: FileSession) -> None:
         evidence.schema_dock_id = imgui.get_window_dock_id()
         show_schema(session.loader, session.editor)
+
+    def compare_files() -> None:
+        comparisons.show(editor)
+        evidence.comparison_frames = comparisons.plot_frames
+        evidence.comparison_apply_pixel = comparisons.controls.apply_pixel
+        evidence.comparison_select_pixel = comparisons.select_pixel
+        evidence.comparison_settings_pixel = comparisons.settings_pixel
 
     def explore(session: FileSession) -> None:
         session.plots.show(
@@ -147,6 +160,7 @@ def run_gui(
         params,
         {
             "Explore": bind(explore),
+            "Compare files": compare_files,
             "Table preview": bind(show_table),
             "Schema and nulls": bind(schema),
             "Analysis": bind(
