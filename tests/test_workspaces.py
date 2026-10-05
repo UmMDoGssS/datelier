@@ -15,17 +15,17 @@ from datelier.analysis_types import (
     TSNEParameters,
     UMAPParameters,
 )
-from datelier.import_types import (
+from datelier.io.importing import load_file
+from datelier.io.types import (
     CsvOptions,
     ImportFormat,
     JsonOptions,
     ParquetOptions,
     XmlOptions,
 )
-from datelier.importing import load_file
-from datelier.operations import Comparison, Filter, SelectColumns, Sort
-from datelier.pipeline import replay
-from datelier.transform_types import (
+from datelier.pipeline.history import replay
+from datelier.pipeline.operations import Comparison, Filter, SelectColumns, Sort
+from datelier.pipeline.types import (
     CastColumn,
     DerivedColumn,
     DropMissing,
@@ -122,7 +122,7 @@ def test_import_options_preserved(
 ) -> None:
     from typing import cast
 
-    from datelier.import_types import ImportOptions
+    from datelier.io.types import ImportOptions
 
     workspace = replace(
         recipe(tmp_path), format=format, options=cast(ImportOptions, options)

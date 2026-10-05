@@ -4,7 +4,7 @@ import polars as pl
 import pytest
 
 from datelier.analysis_types import Algorithm
-from datelier.dataset import Dataset, SourceReference
+from datelier.core.dataset import Dataset, SourceReference
 from datelier.exploration import PlotSettings
 from datelier.gui_analysis import AnalysisSession
 from datelier.gui_plot_controls import PlotControls

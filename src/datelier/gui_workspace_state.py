@@ -11,8 +11,8 @@ from datelier.analysis_types import (
     UMAPParameters,
 )
 from datelier.category_charts import CategoryRepresentation
-from datelier.column_roles import ColumnRole
-from datelier.dataset import Dataset
+from datelier.core.column_roles import ColumnRole
+from datelier.core.dataset import Dataset
 from datelier.exploration import PlotSettings
 from datelier.gui_analysis_controls import AnalysisControls
 from datelier.gui_plot_controls import PlotControls

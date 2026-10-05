@@ -3,7 +3,7 @@ from pathlib import Path
 import polars as pl
 import pytest
 
-from datelier.dataset import Dataset, SourceReference
+from datelier.core.dataset import Dataset, SourceReference
 
 
 def make_dataset() -> Dataset:

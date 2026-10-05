@@ -8,8 +8,8 @@ import polars as pl
 from numpy.typing import NDArray
 
 from datelier.category_distributions import prepare_category_distributions
-from datelier.column_roles import ColumnRole
-from datelier.dataset import Dataset, DatasetRevision
+from datelier.core.column_roles import ColumnRole
+from datelier.core.dataset import Dataset, DatasetRevision
 from datelier.distributions import DistributionSettings, NumericDistribution
 from datelier.profiling import COUNT_ROW_LIMIT
 from datelier.selection import SELECTION_LIMIT

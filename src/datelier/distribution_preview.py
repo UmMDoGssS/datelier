@@ -2,7 +2,7 @@
 
 from concurrent.futures import Future, ThreadPoolExecutor
 
-from datelier.dataset import Dataset, DatasetRevision
+from datelier.core.dataset import Dataset, DatasetRevision
 from datelier.distributions import Comparison, DistributionSettings, prepare_comparison
 
 

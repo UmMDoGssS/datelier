@@ -9,7 +9,7 @@ from datelier.category_charts import (
     CategorySettings,
     prepare_category_chart,
 )
-from datelier.dataset import Dataset, DatasetRevision
+from datelier.core.dataset import Dataset, DatasetRevision
 from datelier.distribution_preview import DistributionPreview
 from datelier.distributions import Comparison, DistributionSettings, prepare_comparison
 from datelier.plotting import (

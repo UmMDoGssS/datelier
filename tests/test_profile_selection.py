@@ -3,8 +3,8 @@ from pathlib import Path
 import polars as pl
 import pytest
 
-from datelier.column_roles import ColumnRole
-from datelier.dataset import Dataset, SourceReference
+from datelier.core.column_roles import ColumnRole
+from datelier.core.dataset import Dataset, SourceReference
 from datelier.distributions import DistributionSettings
 from datelier.profile_preview import ProfileRequest, prepare_profile_group
 from datelier.profile_selection import ProfileSelection

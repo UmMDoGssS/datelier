@@ -11,8 +11,8 @@ from numpy.typing import NDArray
 from datelier.analysis_types import ClusteringResult
 from datelier.clustering import prepare_cluster_colors
 from datelier.coloring import PointColors, prepare_colors
-from datelier.column_roles import ColumnRole
-from datelier.dataset import Dataset, DatasetRevision
+from datelier.core.column_roles import ColumnRole
+from datelier.core.dataset import Dataset, DatasetRevision
 from datelier.profiling import ColumnProfile
 
 CORRELATION_ROW_LIMIT = 10_000

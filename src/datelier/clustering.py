@@ -6,7 +6,7 @@ from numpy.typing import NDArray
 
 from datelier.analysis_types import ClusteringResult
 from datelier.coloring import NEUTRAL, PALETTE, PointColors, color_series
-from datelier.dataset import Dataset
+from datelier.core.dataset import Dataset
 
 
 def predict_clusters(

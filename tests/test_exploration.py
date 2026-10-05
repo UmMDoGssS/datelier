@@ -6,10 +6,10 @@ import numpy as np
 import polars as pl
 import pytest
 
-from datelier.dataset import Dataset, SourceReference
+from datelier.core.dataset import Dataset, SourceReference
 from datelier.exploration import Dashboard, Explorer, PlotSettings, prepare_dashboard
-from datelier.operations import Comparison, Filter, Sort
-from datelier.pipeline import Pipeline
+from datelier.pipeline.history import Pipeline
+from datelier.pipeline.operations import Comparison, Filter, Sort
 from datelier.plotting import prepare_correlations, prepare_scatter
 
 

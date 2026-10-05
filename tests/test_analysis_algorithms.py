@@ -7,7 +7,7 @@ from datelier.analysis import run_analysis
 from datelier.analysis_input import prepare_input
 from datelier.analysis_plots import prepare_embedding_plot
 from datelier.analysis_types import AnalysisRequest, EmbeddingResult, PCAParameters
-from datelier.dataset import Dataset, SourceReference
+from datelier.core.dataset import Dataset, SourceReference
 
 
 def test_pca_subspace_repeatability_and_linked_plot() -> None:

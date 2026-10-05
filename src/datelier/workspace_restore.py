@@ -3,10 +3,10 @@
 from dataclasses import dataclass, replace
 from pathlib import Path
 
-from datelier.importing import load_file
 from datelier.inspection import Inspection, prepare_inspection
-from datelier.operations import apply_operation
-from datelier.pipeline import Pipeline
+from datelier.io.importing import load_file
+from datelier.pipeline.history import Pipeline
+from datelier.pipeline.operations import apply_operation
 from datelier.workspace_types import Workspace
 from datelier.workspaces import fingerprint, read_workspace
 

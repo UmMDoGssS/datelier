@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 
 from imgui_bundle import imgui, implot
 
-from datelier.dataset import Dataset
+from datelier.core.dataset import Dataset
 from datelier.exploration import Explorer
 from datelier.gui_axes import AxisControls
 from datelier.gui_distributions import MODES

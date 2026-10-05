@@ -6,8 +6,8 @@ from enum import StrEnum
 
 import polars as pl
 
-from datelier.column_roles import ColumnRole
-from datelier.dataset import Dataset, DatasetRevision
+from datelier.core.column_roles import ColumnRole
+from datelier.core.dataset import Dataset, DatasetRevision
 from datelier.profile_statistics import NumericStatistics, prepare_numeric_statistics
 
 MAX_PROFILE_COLUMNS = 128

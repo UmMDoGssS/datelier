@@ -23,7 +23,8 @@ from datelier.analysis_types import (
     TSNEParameters,
     UMAPParameters,
 )
-from datelier.dataset import Dataset
+from datelier.core.dataset import Dataset
+from datelier.core.sampling import seeded_sample
 from datelier.embedding_parameters import (
     FactorAnalysisParameters,
     ICAParameters,
@@ -36,7 +37,6 @@ from datelier.embedding_parameters import (
     SVDParameters,
 )
 from datelier.plotting import numeric_columns
-from datelier.sampling import seeded_sample
 
 
 def prepare_input(dataset: Dataset, request: AnalysisRequest) -> PreparedInput:

@@ -5,7 +5,7 @@ import math
 
 import polars as pl
 
-from datelier.operations import OperationFailure
+from datelier.pipeline.operations import OperationFailure
 
 HELP = (
     'Use col("name"), scalar literals, + - * / // %, comparisons, and/or/not. '

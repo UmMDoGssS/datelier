@@ -4,13 +4,12 @@ from pathlib import Path
 import polars as pl
 import pytest
 
-from datelier.exporting import ExportFormat, export_dataset
-from datelier.importing import load_file
 from datelier.inspection import prepare_inspection
-from datelier.operations import Comparison, Filter, SelectColumns, Sort
-from datelier.pipeline import Pipeline, replay
-from datelier.preview import PreviewCache
-from datelier.transform_types import (
+from datelier.io.exporting import ExportFormat, export_dataset
+from datelier.io.importing import load_file
+from datelier.pipeline.history import Pipeline, replay
+from datelier.pipeline.operations import Comparison, Filter, SelectColumns, Sort
+from datelier.pipeline.types import (
     CastColumn,
     DerivedColumn,
     FillMissing,
@@ -18,6 +17,7 @@ from datelier.transform_types import (
     TargetType,
     Unmatched,
 )
+from datelier.preview import PreviewCache
 
 
 @pytest.mark.parametrize("suffix", ["csv", "tsv", "json", "jsonl", "parquet", "xml"])

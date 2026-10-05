@@ -6,10 +6,10 @@ from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
 
-from datelier.dataset import DatasetRevision
-from datelier.import_types import ImportFormat, ImportOptions, ImportResult
-from datelier.importing import load_file
+from datelier.core.dataset import DatasetRevision
 from datelier.inspection import Inspection, prepare_inspection
+from datelier.io.importing import load_file
+from datelier.io.types import ImportFormat, ImportOptions, ImportResult
 
 
 class LoadPhase(StrEnum):

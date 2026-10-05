@@ -4,16 +4,16 @@ from time import monotonic, sleep
 import polars as pl
 import pytest
 
-from datelier.exporting import (
+from datelier.io.csv import load_csv
+from datelier.io.exporting import (
     DatasetExporter,
     ExportFailure,
     ExportFormat,
     export_dataset,
 )
-from datelier.import_csv import load_csv
-from datelier.operations import Comparison, Filter, SelectColumns, Sort
-from datelier.pipeline import Pipeline
-from datelier.transform_types import DerivedColumn
+from datelier.pipeline.history import Pipeline
+from datelier.pipeline.operations import Comparison, Filter, SelectColumns, Sort
+from datelier.pipeline.types import DerivedColumn
 
 
 def pipeline(path: Path) -> Pipeline:

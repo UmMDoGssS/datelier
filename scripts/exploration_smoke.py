@@ -13,7 +13,7 @@ from imgui_bundle import hello_imgui, imgui
 from numpy.typing import NDArray
 
 from datelier.gui import GuiSession, InspectionEvidence, run_gui
-from datelier.operations import Sort
+from datelier.pipeline.operations import Sort
 
 
 def main() -> None:

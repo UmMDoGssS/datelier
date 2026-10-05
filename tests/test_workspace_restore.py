@@ -7,10 +7,10 @@ from time import monotonic, sleep
 
 import pytest
 
-from datelier.import_types import ImportFormat, ImportOptions, ImportResult
-from datelier.importing import load_file
-from datelier.operations import Comparison, Filter, Sort
-from datelier.pipeline import Pipeline
+from datelier.io.importing import load_file
+from datelier.io.types import ImportFormat, ImportOptions, ImportResult
+from datelier.pipeline.history import Pipeline
+from datelier.pipeline.operations import Comparison, Filter, Sort
 from datelier.workspace_jobs import WorkspaceJobs
 from datelier.workspace_restore import RestoredWorkspace, SourceIssue, restore_workspace
 from datelier.workspace_types import Workspace
@@ -36,7 +36,7 @@ def saved_recipe(tmp_path: Path) -> tuple[Path, Path]:
 def await_job(jobs: WorkspaceJobs, revision: object = None) -> RestoredWorkspace | None:
     from typing import cast
 
-    from datelier.dataset import DatasetRevision
+    from datelier.core.dataset import DatasetRevision
 
     deadline = monotonic() + 5
     result = None
@@ -235,13 +235,13 @@ def test_each_import_format_reopens_with_exact_options_and_replay(
 ) -> None:
     import polars as pl
 
-    from datelier.import_types import (
+    from datelier.io.types import (
         CsvOptions,
         JsonOptions,
         ParquetOptions,
         XmlOptions,
     )
-    from datelier.transform_types import DerivedColumn
+    from datelier.pipeline.types import DerivedColumn
 
     table = pl.DataFrame({"x": [3, 1, 2], "y": [9, 5, 7]})
     source = tmp_path / "source.data"  # saved format overrides extension

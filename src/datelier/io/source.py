@@ -7,8 +7,8 @@ from typing import BinaryIO
 
 import polars as pl
 
-from datelier.dataset import Dataset, SourceReference
-from datelier.import_types import (
+from datelier.core.dataset import Dataset, SourceReference
+from datelier.io.types import (
     ImportFailure,
     ImportFormat,
     ImportOptions,

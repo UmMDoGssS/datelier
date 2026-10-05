@@ -6,9 +6,9 @@ import polars as pl
 import pytest
 from polars.testing import assert_frame_equal
 
-from datelier.import_types import ImportFailure, ImportFormat, ParquetOptions
-from datelier.importing import load_file
 from datelier.inspection import prepare_inspection
+from datelier.io.importing import load_file
+from datelier.io.types import ImportFailure, ImportFormat, ParquetOptions
 
 
 def test_parquet_preserves_types_nulls_values_identity_and_source(

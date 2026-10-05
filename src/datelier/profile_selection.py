@@ -2,8 +2,8 @@
 
 from dataclasses import dataclass
 
-from datelier.column_roles import ColumnRole, RoleInfo
-from datelier.dataset import Dataset
+from datelier.core.column_roles import ColumnRole, RoleInfo
+from datelier.core.dataset import Dataset
 
 PROFILE_ROLES = (ColumnRole.NUMERIC, ColumnRole.CATEGORY, ColumnRole.TEMPORAL)
 

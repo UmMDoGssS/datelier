@@ -5,7 +5,7 @@ import numpy as np
 import polars as pl
 
 from datelier.coloring import NEUTRAL, prepare_colors
-from datelier.dataset import Dataset, SourceReference
+from datelier.core.dataset import Dataset, SourceReference
 from datelier.plotting import prepare_scatter
 
 

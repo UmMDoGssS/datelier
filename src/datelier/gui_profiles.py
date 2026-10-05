@@ -5,8 +5,8 @@ from dataclasses import dataclass, field, replace
 import numpy as np
 from imgui_bundle import imgui, implot
 
-from datelier.column_roles import ColumnRole
-from datelier.dataset import Dataset
+from datelier.core.column_roles import ColumnRole
+from datelier.core.dataset import Dataset
 from datelier.exploration import Dashboard, Explorer
 from datelier.gui_axes import AxisControls
 from datelier.gui_distributions import MODES, show_comparison

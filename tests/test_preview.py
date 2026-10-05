@@ -4,9 +4,9 @@ from time import monotonic, sleep
 import polars as pl
 import pytest
 
-from datelier.dataset import Dataset, SourceReference
-from datelier.import_csv import CsvImport, CsvOptions
+from datelier.core.dataset import Dataset, SourceReference
 from datelier.inspection import PAGE_COLUMNS, PAGE_ROWS, prepare_inspection
+from datelier.io.csv import CsvImport, CsvOptions
 from datelier.preview import PreviewCache
 
 

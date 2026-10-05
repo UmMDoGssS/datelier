@@ -10,9 +10,15 @@ import numpy as np
 from imgui_bundle import hello_imgui
 from numpy.typing import NDArray
 
-from datelier.editing import HistoryAction
 from datelier.gui import GuiSession, InspectionEvidence, run_gui
-from datelier.operations import Comparison, Filter, Operation, SelectColumns, Sort
+from datelier.pipeline.editing import HistoryAction
+from datelier.pipeline.operations import (
+    Comparison,
+    Filter,
+    Operation,
+    SelectColumns,
+    Sort,
+)
 
 
 def main() -> None:

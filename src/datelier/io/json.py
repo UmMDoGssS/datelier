@@ -8,10 +8,10 @@ from typing import BinaryIO, cast
 
 import polars as pl
 
-from datelier.import_records import records_to_table
-from datelier.import_source import read_source
-from datelier.import_types import ImportFormat, ImportResult, JsonOptions
-from datelier.json_records import array_records
+from datelier.io.json_records import array_records
+from datelier.io.records import records_to_table
+from datelier.io.source import read_source
+from datelier.io.types import ImportFormat, ImportResult, JsonOptions
 
 type JsonScalar = str | int | float | bool | None
 

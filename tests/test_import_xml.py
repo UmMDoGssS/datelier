@@ -5,9 +5,9 @@ import polars as pl
 import pytest
 from polars.testing import assert_frame_equal
 
-from datelier.import_types import ImportFailure, XmlOptions
-from datelier.importing import load_file
 from datelier.inspection import prepare_inspection
+from datelier.io.importing import load_file
+from datelier.io.types import ImportFailure, XmlOptions
 
 
 def xml_file(tmp_path: Path, text: str) -> Path:
@@ -165,7 +165,7 @@ def test_xml_options_validation() -> None:
 def test_xml_batches_preserve_order_late_types_and_empty_records(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    import datelier.import_records as batches
+    import datelier.io.records as batches
 
     monkeypatch.setattr(batches, "BATCH_RECORDS", 2)
     monkeypatch.setattr(batches, "BLOCK_BATCHES", 2)

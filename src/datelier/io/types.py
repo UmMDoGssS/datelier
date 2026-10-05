@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
 
-from datelier.dataset import Dataset
+from datelier.core.dataset import Dataset
 
 
 class ImportFormat(StrEnum):

@@ -7,9 +7,9 @@ from unittest.mock import patch
 
 from imgui_bundle import hello_imgui, imgui
 
-from datelier.column_roles import ColumnRole
-from datelier.editing import HistoryAction
+from datelier.core.column_roles import ColumnRole
 from datelier.gui import GuiSession, InspectionEvidence, run_gui
+from datelier.pipeline.editing import HistoryAction
 
 
 def main() -> None:

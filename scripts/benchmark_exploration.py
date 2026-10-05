@@ -22,10 +22,10 @@ from datelier.distributions import DistributionSettings, prepare_comparison
 from datelier.exploration import PlotSettings, prepare_dashboard
 from datelier.feasibility.fixtures import make_table
 from datelier.gui import GuiSession, InspectionEvidence, run_gui
-from datelier.import_csv import load_csv
 from datelier.inspection import prepare_inspection, prepare_page
-from datelier.operations import Comparison, Filter, Sort
-from datelier.pipeline import Pipeline
+from datelier.io.csv import load_csv
+from datelier.pipeline.history import Pipeline
+from datelier.pipeline.operations import Comparison, Filter, Sort
 from datelier.profiling import prepare_profiles
 from datelier.selection import LinkedSelection
 

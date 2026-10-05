@@ -6,7 +6,7 @@ import numpy as np
 from imgui_bundle import imgui, implot
 
 from datelier.category_charts import CategoryChart, CategoryRepresentation
-from datelier.dataset import Dataset
+from datelier.core.dataset import Dataset
 from datelier.exploration import Explorer
 from datelier.gui_axes import AxisControls
 from datelier.gui_category_distributions import draw_category_distributions

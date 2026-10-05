@@ -6,8 +6,8 @@ import numpy as np
 import polars as pl
 from numpy.typing import NDArray
 
-from datelier.column_roles import ColumnRole
-from datelier.dataset import Dataset
+from datelier.core.column_roles import ColumnRole
+from datelier.core.dataset import Dataset
 from datelier.profiling import COUNT_ROW_LIMIT, ProfileKind, profile_kind
 
 NEUTRAL = 0xFF888888

@@ -402,7 +402,7 @@ Verify, review and commit each step before starting the next. At every move,
 update source/test/script imports, monkeypatch targets and source links.
 
 - [x] Document the convention, target layout and open acceptance gates.
-- [ ] Move foundation, import/export and pipeline modules; focused tests,
+- [x] Move foundation, import/export and pipeline modules; focused tests,
   Pyrefly and Ruff pass.
 - [ ] Move inspection and plotting preparation; focused tests, Pyrefly and Ruff
   pass.
@@ -424,3 +424,13 @@ the existing `feasibility` package stays intact. The existing suite collects
 Step 1 (2026-10-05): convention and refactor sequence reviewed; local Markdown
 links in `AGENTS.md`/`ROADMAP.md` and `git diff --check` pass. No application code
 changed, so application checks are not required for this documentation step.
+
+Step 2 (2026-10-05): 23 modules moved into `core`, `io`, and `pipeline`.
+`uv run pytest` with dataset/column-role, all `test_import_*.py`, loading,
+transforms, expressions, pipeline, editing, exporting and transformation-workflow
+tests: **205 passed**. `uv run pyrefly check`: zero errors; `uv run ruff check .`
+and `uv run ruff format --check .` pass. A relocation audit compares all 189
+original Python modules with commit `c5e1add`, ignoring imports: non-import ASTs
+are identical. Local links across all 19 Markdown documents and diff whitespace
+pass. Verification uses `UV_CACHE_DIR=/tmp/datelier-uv-cache`, offline/no-sync uv
+runs, and the existing thread limits for Polars/BLAS with a temporary Numba cache.

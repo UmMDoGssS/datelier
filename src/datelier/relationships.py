@@ -7,7 +7,7 @@ import numpy as np
 import polars as pl
 from numpy.typing import NDArray
 
-from datelier.dataset import Dataset
+from datelier.core.dataset import Dataset
 from datelier.distributions import Comparison, DistributionSettings, prepare_comparison
 from datelier.plotting import (
     CORRELATION_ROW_LIMIT,

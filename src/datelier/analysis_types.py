@@ -14,7 +14,7 @@ from datelier.analysis_parameters import (
     ExtraParameters,
     validate_parameters,
 )
-from datelier.dataset import DatasetRevision
+from datelier.core.dataset import DatasetRevision
 
 
 @dataclass(frozen=True)

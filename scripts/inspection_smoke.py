@@ -14,12 +14,12 @@ import numpy as np
 from imgui_bundle import hello_imgui, imgui
 from numpy.typing import NDArray
 
-from datelier.dataset import DatasetRevision
+from datelier.core.dataset import DatasetRevision
 from datelier.feasibility.fixtures import make_table
 from datelier.gui import GuiSession, InspectionEvidence, run_gui
-from datelier.import_csv import CsvImport, load_csv
-from datelier.import_types import CsvOptions, ImportOptions
-from datelier.loading import DatasetLoader, LoadPhase
+from datelier.io.csv import CsvImport, load_csv
+from datelier.io.loading import DatasetLoader, LoadPhase
+from datelier.io.types import CsvOptions, ImportOptions
 
 
 def main() -> None:

@@ -2,11 +2,11 @@ from pathlib import Path
 from threading import Event
 from time import monotonic, sleep
 
-from datelier.editing import DatasetEditor, HistoryAction
-from datelier.import_csv import load_csv
 from datelier.inspection import Inspection, prepare_inspection
-from datelier.operations import Comparison, Filter, Sort
-from datelier.pipeline import Pipeline
+from datelier.io.csv import load_csv
+from datelier.pipeline.editing import DatasetEditor, HistoryAction
+from datelier.pipeline.history import Pipeline
+from datelier.pipeline.operations import Comparison, Filter, Sort
 
 
 def wait_edit(editor: DatasetEditor, active: Inspection) -> Inspection | None:
@@ -87,7 +87,7 @@ def test_stale_and_abandoned_edits_cannot_publish(tmp_path: Path, monkeypatch) -
 def test_preview_preparation_failure_does_not_publish_candidate(
     tmp_path: Path, monkeypatch
 ) -> None:
-    import datelier.editing as editing
+    import datelier.pipeline.editing as editing
 
     path = tmp_path / "data.csv"
     path.write_text("v\n2\n1\n")

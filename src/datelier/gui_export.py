@@ -5,8 +5,8 @@ from pathlib import Path
 
 from imgui_bundle import imgui
 
-from datelier.editing import DatasetEditor
-from datelier.exporting import DatasetExporter, ExportFormat
+from datelier.io.exporting import DatasetExporter, ExportFormat
+from datelier.pipeline.editing import DatasetEditor
 
 
 @dataclass

@@ -6,7 +6,7 @@ from collections.abc import Iterator
 from typing import BinaryIO
 from xml.etree import ElementTree as ET
 
-from datelier.import_types import XmlOptions
+from datelier.io.types import XmlOptions
 
 
 class RecordPath:

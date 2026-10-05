@@ -4,10 +4,10 @@ from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import dataclass, replace
 from enum import StrEnum
 
-from datelier.dataset import DatasetRevision
+from datelier.core.dataset import DatasetRevision
 from datelier.inspection import Inspection, prepare_inspection
-from datelier.operations import Operation
-from datelier.pipeline import Pipeline
+from datelier.pipeline.history import Pipeline
+from datelier.pipeline.operations import Operation
 
 
 class HistoryAction(StrEnum):

@@ -15,14 +15,14 @@ from time import perf_counter, sleep
 import polars as pl
 
 from datelier.feasibility.fixtures import make_table
-from datelier.import_csv import load_csv
 from datelier.inspection import (
     PAGE_COLUMNS,
     PAGE_ROWS,
     prepare_inspection,
     prepare_page,
 )
-from datelier.loading import DatasetLoader, LoadPhase
+from datelier.io.csv import load_csv
+from datelier.io.loading import DatasetLoader, LoadPhase
 
 CASES = ((10_000, 6), (100_000, 6), (1_000_000, 6), (100_000, 64))
 

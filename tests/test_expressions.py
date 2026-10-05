@@ -3,10 +3,10 @@ from pathlib import Path
 import polars as pl
 import pytest
 
-from datelier.dataset import Dataset, SourceReference
-from datelier.operations import Comparison, Filter, OperationFailure, Sort
-from datelier.pipeline import Pipeline, replay
-from datelier.transform_types import DerivedColumn
+from datelier.core.dataset import Dataset, SourceReference
+from datelier.pipeline.history import Pipeline, replay
+from datelier.pipeline.operations import Comparison, Filter, OperationFailure, Sort
+from datelier.pipeline.types import DerivedColumn
 
 
 def start() -> Pipeline:

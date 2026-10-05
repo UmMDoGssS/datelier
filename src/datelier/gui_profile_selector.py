@@ -2,7 +2,7 @@
 
 from imgui_bundle import imgui
 
-from datelier.column_roles import ColumnRole
+from datelier.core.column_roles import ColumnRole
 from datelier.profile_selection import PROFILE_ROLES, ProfileSelection
 
 

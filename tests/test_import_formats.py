@@ -3,10 +3,10 @@ from pathlib import Path
 import pytest
 from polars.testing import assert_frame_equal
 
-from datelier.import_csv import CsvOptions, load_csv, load_tsv
-from datelier.import_types import ImportFailure, ImportFormat
-from datelier.importing import load_file
 from datelier.inspection import prepare_inspection
+from datelier.io.csv import CsvOptions, load_csv, load_tsv
+from datelier.io.importing import load_file
+from datelier.io.types import ImportFailure, ImportFormat
 
 
 def test_tsv_matches_csv_and_prepares_preview(tmp_path: Path) -> None:
@@ -101,7 +101,7 @@ def test_each_format_failure_preserves_active_inspection(
 ) -> None:
     from time import monotonic, sleep
 
-    from datelier.loading import DatasetLoader, LoadPhase
+    from datelier.io.loading import DatasetLoader, LoadPhase
 
     valid = tmp_path / "valid.csv"
     valid.write_text("id\n9\n")

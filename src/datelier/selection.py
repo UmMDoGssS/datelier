@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 import numpy as np
 from numpy.typing import NDArray
 
-from datelier.dataset import DatasetRevision
+from datelier.core.dataset import DatasetRevision
 from datelier.plotting import Scatter
 
 SELECTION_LIMIT = 10_000

@@ -5,11 +5,11 @@ from typing import BinaryIO
 
 import polars as pl
 
-from datelier.import_source import read_source, validate_utf8
-from datelier.import_types import CsvOptions as CsvOptions
-from datelier.import_types import ImportFailure as ImportFailure
-from datelier.import_types import ImportFormat
-from datelier.import_types import ImportResult as CsvImport
+from datelier.io.source import read_source, validate_utf8
+from datelier.io.types import CsvOptions as CsvOptions
+from datelier.io.types import ImportFailure as ImportFailure
+from datelier.io.types import ImportFormat
+from datelier.io.types import ImportResult as CsvImport
 
 
 def load_csv(path: Path, options: CsvOptions | None = None) -> CsvImport:

@@ -4,11 +4,11 @@ import numpy as np
 import polars as pl
 import pytest
 
-from datelier.dataset import Dataset, SourceReference
+from datelier.core.dataset import Dataset, SourceReference
 from datelier.exploration import prepare_dashboard
 from datelier.gui_plot_controls import PlotControls
-from datelier.operations import Comparison, Filter, SelectColumns, Sort
-from datelier.pipeline import Pipeline
+from datelier.pipeline.history import Pipeline
+from datelier.pipeline.operations import Comparison, Filter, SelectColumns, Sort
 from datelier.plotting import prepare_scatter
 from datelier.selection import LinkedSelection
 

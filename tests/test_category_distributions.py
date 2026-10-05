@@ -6,8 +6,8 @@ import pytest
 
 from datelier.category_charts import CategoryRepresentation as Mode
 from datelier.category_charts import CategorySettings, prepare_category_chart
-from datelier.dataset import Dataset, SourceReference
-from datelier.operations import Sort, apply_operation
+from datelier.core.dataset import Dataset, SourceReference
+from datelier.pipeline.operations import Sort, apply_operation
 from datelier.recipe_codec import decode_record, encode
 
 

@@ -8,11 +8,11 @@ from xml.etree import ElementTree as ET
 
 import polars as pl
 
-from datelier.import_records import records_to_table
-from datelier.import_source import read_source
-from datelier.import_types import ImportFormat, ImportResult, XmlOptions
-from datelier.xml_records import RecordPath, selected_records, validate_xml_source
-from datelier.xml_types import infer_xml_types
+from datelier.io.records import records_to_table
+from datelier.io.source import read_source
+from datelier.io.types import ImportFormat, ImportResult, XmlOptions
+from datelier.io.xml_records import RecordPath, selected_records, validate_xml_source
+from datelier.io.xml_types import infer_xml_types
 
 
 def _record(

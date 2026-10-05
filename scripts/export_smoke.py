@@ -11,10 +11,10 @@ import polars as pl
 from imgui_bundle import hello_imgui
 from numpy.typing import NDArray
 
-from datelier.exporting import ExportFormat
 from datelier.gui import GuiSession, InspectionEvidence, run_gui
-from datelier.operations import Sort
-from datelier.transform_types import DerivedColumn
+from datelier.io.exporting import ExportFormat
+from datelier.pipeline.operations import Sort
+from datelier.pipeline.types import DerivedColumn
 
 
 def main() -> None:

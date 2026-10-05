@@ -2,8 +2,8 @@
 
 from dataclasses import dataclass
 
-from datelier.dataset import Dataset
-from datelier.operations import Operation, OperationFailure, apply_operation
+from datelier.core.dataset import Dataset
+from datelier.pipeline.operations import Operation, OperationFailure, apply_operation
 
 
 def replay(source: Dataset, operations: tuple[Operation, ...]) -> Dataset:

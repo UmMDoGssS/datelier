@@ -22,9 +22,9 @@ from datelier.analysis_types import (
 from datelier.category_charts import CategorySettings
 from datelier.distributions import DistributionSettings
 from datelier.exploration import PlotSettings
-from datelier.import_types import CsvOptions, JsonOptions, ParquetOptions, XmlOptions
-from datelier.operations import Filter, SelectColumns, SetColumnRole, Sort
-from datelier.transform_types import (
+from datelier.io.types import CsvOptions, JsonOptions, ParquetOptions, XmlOptions
+from datelier.pipeline.operations import Filter, SelectColumns, SetColumnRole, Sort
+from datelier.pipeline.types import (
     CastColumn,
     DerivedColumn,
     DropMissing,

@@ -7,12 +7,12 @@ import pytest
 
 from datelier.category_charts import CategoryRepresentation as Mode
 from datelier.category_charts import CategorySettings, prepare_category_chart
-from datelier.column_roles import ColumnRole
-from datelier.dataset import Dataset, SourceReference
+from datelier.core.column_roles import ColumnRole
+from datelier.core.dataset import Dataset, SourceReference
 from datelier.exploration import PlotSettings
 from datelier.gui_plot_controls import PlotControls
 from datelier.gui_workspace_state import restore_plots
-from datelier.operations import Sort, apply_operation
+from datelier.pipeline.operations import Sort, apply_operation
 from datelier.recipe_codec import decode_record, encode
 
 
@@ -123,7 +123,7 @@ def test_category_recipe_survives_workspace_replay_and_view_restore(
     tmp_path: Path,
     mode: Mode,
 ) -> None:
-    from datelier.importing import load_file
+    from datelier.io.importing import load_file
     from datelier.workspace_restore import restore_workspace
     from datelier.workspace_types import Workspace, WorkspaceViews
     from datelier.workspaces import reference_source, save_workspace

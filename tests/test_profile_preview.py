@@ -4,7 +4,7 @@ from time import monotonic, sleep
 
 import polars as pl
 
-from datelier.dataset import Dataset, SourceReference
+from datelier.core.dataset import Dataset, SourceReference
 from datelier.distributions import DistributionSettings
 from datelier.profile_preview import ProfileGroup, ProfilePreview, ProfileRequest
 

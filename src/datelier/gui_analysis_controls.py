@@ -21,7 +21,7 @@ from datelier.analysis_types import (
     TSNEParameters,
     UMAPParameters,
 )
-from datelier.dataset import Dataset
+from datelier.core.dataset import Dataset
 from datelier.gui_analysis_form import show_inputs, show_parameters
 from datelier.plotting import feature_columns
 

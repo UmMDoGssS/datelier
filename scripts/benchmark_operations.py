@@ -19,15 +19,21 @@ import polars as pl
 from imgui_bundle import hello_imgui
 from numpy.typing import NDArray
 
-from datelier.editing import HistoryAction
-from datelier.exporting import ExportFormat, export_dataset
 from datelier.feasibility.fixtures import make_table
 from datelier.gui import GuiSession, InspectionEvidence, run_gui
-from datelier.import_csv import load_csv
 from datelier.inspection import prepare_inspection, prepare_page
-from datelier.operations import Comparison, Filter, Operation, Sort, describe_operation
-from datelier.pipeline import Pipeline, replay
-from datelier.transform_types import (
+from datelier.io.csv import load_csv
+from datelier.io.exporting import ExportFormat, export_dataset
+from datelier.pipeline.editing import HistoryAction
+from datelier.pipeline.history import Pipeline, replay
+from datelier.pipeline.operations import (
+    Comparison,
+    Filter,
+    Operation,
+    Sort,
+    describe_operation,
+)
+from datelier.pipeline.types import (
     DerivedColumn,
     FillMissing,
     Lookup,

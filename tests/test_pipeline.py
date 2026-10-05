@@ -3,15 +3,15 @@ from pathlib import Path
 import polars as pl
 import pytest
 
-from datelier.dataset import Dataset, SourceReference
-from datelier.operations import (
+from datelier.core.dataset import Dataset, SourceReference
+from datelier.pipeline.history import Pipeline, replay
+from datelier.pipeline.operations import (
     Comparison,
     Filter,
     OperationFailure,
     SelectColumns,
     Sort,
 )
-from datelier.pipeline import Pipeline, replay
 
 
 def source() -> Dataset:

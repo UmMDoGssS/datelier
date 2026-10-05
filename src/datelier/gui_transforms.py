@@ -5,10 +5,10 @@ from dataclasses import dataclass
 
 from imgui_bundle import imgui
 
-from datelier.editing import DatasetEditor
+from datelier.core.scalars import Scalar
 from datelier.gui_values import scalar_input
-from datelier.scalars import Scalar
-from datelier.transform_types import (
+from datelier.pipeline.editing import DatasetEditor
+from datelier.pipeline.types import (
     CastColumn,
     DropMissing,
     FillMissing,

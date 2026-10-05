@@ -21,7 +21,7 @@ from datelier.analysis_types import (
     TSNEParameters,
     UMAPParameters,
 )
-from datelier.dataset import Dataset, SourceReference
+from datelier.core.dataset import Dataset, SourceReference
 from datelier.feasibility.fixtures import make_table
 
 

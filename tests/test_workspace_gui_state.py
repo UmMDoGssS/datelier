@@ -15,7 +15,7 @@ from datelier.gui_analysis_controls import AnalysisControls
 from datelier.gui_plot_controls import PlotControls
 from datelier.gui_profiles import profile_summary
 from datelier.gui_workspace_state import restore_analysis, restore_plots
-from datelier.importing import load_file
+from datelier.io.importing import load_file
 from datelier.profiling import prepare_profiles
 from datelier.recipe_codec import decode_record, encode
 from datelier.workspace_types import Workspace, WorkspaceViews
@@ -155,7 +155,7 @@ def test_manual_axes_can_swap_without_duplicate_coordinates() -> None:
 def test_profile_summary_accounts_for_missing_and_nonfinite(tmp_path: Path) -> None:
     import polars as pl
 
-    from datelier.dataset import Dataset, SourceReference
+    from datelier.core.dataset import Dataset, SourceReference
 
     data = Dataset.from_source(
         pl.DataFrame({"x": [1.0, 2.0, None, float("inf")]}),

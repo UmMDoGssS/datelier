@@ -13,7 +13,7 @@ from datelier.analysis_input import prepare_input
 from datelier.analysis_parameters import EXTRA_DEFAULTS
 from datelier.analysis_types import LIMITS, Algorithm, AnalysisRequest, ClusteringResult
 from datelier.clustering import predict_clusters
-from datelier.importing import load_file
+from datelier.io.importing import load_file
 
 METHODS = [
     Algorithm.MINIBATCH_KMEANS,

@@ -5,18 +5,18 @@ from dataclasses import dataclass, field
 
 from imgui_bundle import imgui
 
-from datelier.editing import DatasetEditor, HistoryAction
-from datelier.expressions import HELP
 from datelier.gui_transforms import TransformControls
 from datelier.gui_values import scalar_input
-from datelier.operations import (
+from datelier.pipeline.editing import DatasetEditor, HistoryAction
+from datelier.pipeline.expressions import HELP
+from datelier.pipeline.operations import (
     Comparison,
     Filter,
     SelectColumns,
     Sort,
     describe_operation,
 )
-from datelier.transform_types import DerivedColumn
+from datelier.pipeline.types import DerivedColumn
 
 
 @dataclass

@@ -8,10 +8,10 @@ from imgui_bundle import hello_imgui
 
 from datelier.analysis_parameters import DBSCANParameters
 from datelier.analysis_types import Algorithm
-from datelier.editing import HistoryAction
 from datelier.embedding_parameters import LLEParameters
 from datelier.gui import GuiSession, InspectionEvidence, run_gui
-from datelier.operations import Sort
+from datelier.pipeline.editing import HistoryAction
+from datelier.pipeline.operations import Sort
 
 
 def main() -> None:

@@ -11,9 +11,9 @@ from numpy.typing import NDArray
 from scipy.stats import gaussian_kde
 from threadpoolctl import threadpool_limits
 
-from datelier.dataset import Dataset
+from datelier.core.dataset import Dataset
+from datelier.core.sampling import seeded_sample
 from datelier.plotting import numeric_columns
-from datelier.sampling import seeded_sample
 
 # BLAS thread limits are process-wide. Serialize these short density sections
 # so overlapping obsolete/current preparation jobs cannot restore each other's

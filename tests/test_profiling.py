@@ -5,7 +5,7 @@ import numpy as np
 import polars as pl
 import pytest
 
-from datelier.dataset import Dataset, SourceReference
+from datelier.core.dataset import Dataset, SourceReference
 from datelier.plotting import prepare_bars
 from datelier.profiling import ProfileKind, prepare_profiles
 

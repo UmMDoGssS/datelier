@@ -3,8 +3,8 @@
 from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import dataclass
 
-from datelier.column_roles import ColumnRole
-from datelier.dataset import Dataset, DatasetRevision
+from datelier.core.column_roles import ColumnRole
+from datelier.core.dataset import Dataset, DatasetRevision
 from datelier.distributions import Comparison, DistributionSettings, prepare_comparison
 from datelier.plotting import Bars, prepare_bars
 from datelier.profile_selection import PROFILE_ROLES

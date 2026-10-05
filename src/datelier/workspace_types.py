@@ -5,7 +5,7 @@ from dataclasses import dataclass, replace
 
 from datelier.analysis_types import Algorithm, AnalysisRequest
 from datelier.exploration import PlotSettings
-from datelier.import_types import (
+from datelier.io.types import (
     CsvOptions,
     ImportFormat,
     ImportOptions,
@@ -13,7 +13,7 @@ from datelier.import_types import (
     ParquetOptions,
     XmlOptions,
 )
-from datelier.operations import Operation
+from datelier.pipeline.operations import Operation
 
 
 @dataclass(frozen=True)

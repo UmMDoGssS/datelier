@@ -14,9 +14,9 @@ from datelier.analysis_types import (
 )
 from datelier.clustering import predict_clusters
 from datelier.exploration import PlotSettings, prepare_dashboard
-from datelier.importing import load_file
-from datelier.operations import Comparison, Filter, Sort
-from datelier.pipeline import Pipeline
+from datelier.io.importing import load_file
+from datelier.pipeline.history import Pipeline
+from datelier.pipeline.operations import Comparison, Filter, Sort
 from datelier.selection import LinkedSelection
 
 

@@ -5,8 +5,8 @@ from typing import BinaryIO
 
 import polars as pl
 
-from datelier.import_source import read_source
-from datelier.import_types import ImportFormat, ImportResult, ParquetOptions
+from datelier.io.source import read_source
+from datelier.io.types import ImportFormat, ImportResult, ParquetOptions
 
 
 def load_parquet(path: Path, options: ParquetOptions | None = None) -> ImportResult:

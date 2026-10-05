@@ -16,8 +16,8 @@ from numpy.typing import NDArray
 
 from datelier.feasibility.fixtures import make_table
 from datelier.gui import GuiSession, InspectionEvidence, run_gui
-from datelier.import_types import ImportFormat
-from datelier.loading import LoadPhase
+from datelier.io.loading import LoadPhase
+from datelier.io.types import ImportFormat
 
 
 def main() -> None:

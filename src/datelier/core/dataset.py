@@ -6,7 +6,7 @@ from uuid import UUID, uuid4
 
 import polars as pl
 
-from datelier.column_roles import ColumnRole, RoleInfo, allowed_roles, infer_roles
+from datelier.core.column_roles import ColumnRole, RoleInfo, allowed_roles, infer_roles
 
 
 @dataclass(frozen=True)

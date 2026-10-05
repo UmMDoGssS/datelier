@@ -9,8 +9,8 @@ from datelier.analysis_parameters import DBSCANParameters
 from datelier.analysis_types import AnalysisRequest, ClusteringResult
 from datelier.clustering import prepare_cluster_colors
 from datelier.coloring import NEUTRAL, PointColors, continuous_colors, prepare_colors
-from datelier.column_roles import ColumnRole
-from datelier.dataset import Dataset, SourceReference
+from datelier.core.column_roles import ColumnRole
+from datelier.core.dataset import Dataset, SourceReference
 from datelier.plotting import prepare_scatter
 from datelier.selection import LinkedSelection
 

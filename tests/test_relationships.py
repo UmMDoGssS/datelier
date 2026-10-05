@@ -4,7 +4,7 @@ import numpy as np
 import polars as pl
 import pytest
 
-from datelier.dataset import Dataset, SourceReference
+from datelier.core.dataset import Dataset, SourceReference
 from datelier.exploration import PlotSettings, prepare_dashboard
 
 

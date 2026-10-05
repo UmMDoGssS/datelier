@@ -8,9 +8,7 @@ from time import perf_counter
 
 from imgui_bundle import hello_imgui, imgui, immapp
 
-from datelier.editing import DatasetEditor
 from datelier.exploration import Explorer
-from datelier.exporting import DatasetExporter
 from datelier.gui_analysis import AnalysisSession
 from datelier.gui_controls import ImportControls, show_schema
 from datelier.gui_exploration import ExplorationView
@@ -26,7 +24,9 @@ from datelier.gui_workspace_state import (
     restore_view_settings,
     restore_views,
 )
-from datelier.loading import DatasetLoader, LoadPhase, LoadStatus
+from datelier.io.exporting import DatasetExporter
+from datelier.io.loading import DatasetLoader, LoadPhase, LoadStatus
+from datelier.pipeline.editing import DatasetEditor
 from datelier.preferences import preference_path
 from datelier.preview import PreviewCache
 from datelier.selection import LinkedSelection

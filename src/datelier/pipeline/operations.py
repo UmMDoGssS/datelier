@@ -5,10 +5,10 @@ from enum import StrEnum
 
 import polars as pl
 
-from datelier.column_roles import ColumnRole
-from datelier.dataset import Dataset
-from datelier.scalars import Scalar
-from datelier.transform_types import (
+from datelier.core.column_roles import ColumnRole
+from datelier.core.dataset import Dataset
+from datelier.core.scalars import Scalar
+from datelier.pipeline.types import (
     CastColumn,
     DerivedColumn,
     DropMissing,
@@ -139,7 +139,7 @@ def apply_operation(dataset: Dataset, operation: Operation) -> Dataset:
                 | Lookup()
                 | DerivedColumn()
             ):
-                from datelier.transforms import apply_transform
+                from datelier.pipeline.transforms import apply_transform
 
                 table, ids = apply_transform(table, ids, operation)
         return dataset.with_rows(table, ids)

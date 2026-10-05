@@ -12,7 +12,7 @@ from datelier.category_charts import CategorySettings
 from datelier.distributions import DistributionSettings
 from datelier.exploration import PlotSettings
 from datelier.gui import GuiSession, InspectionEvidence, run_gui
-from datelier.importing import load_file
+from datelier.io.importing import load_file
 from datelier.workspace_types import Workspace, WorkspaceViews
 from datelier.workspaces import reference_source, save_workspace
 

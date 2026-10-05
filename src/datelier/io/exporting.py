@@ -7,7 +7,7 @@ from enum import StrEnum
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
-from datelier.dataset import Dataset, DatasetRevision
+from datelier.core.dataset import Dataset, DatasetRevision
 
 
 class ExportFormat(StrEnum):

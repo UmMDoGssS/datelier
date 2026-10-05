@@ -13,8 +13,8 @@ from imgui_bundle import hello_imgui
 from numpy.typing import NDArray
 
 from datelier.gui import GuiSession, InspectionEvidence, run_gui
-from datelier.import_types import ImportFormat, XmlOptions
-from datelier.loading import LoadPhase
+from datelier.io.loading import LoadPhase
+from datelier.io.types import ImportFormat, XmlOptions
 
 
 def main() -> None:

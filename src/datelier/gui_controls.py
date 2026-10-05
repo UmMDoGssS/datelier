@@ -5,19 +5,19 @@ from pathlib import Path
 
 from imgui_bundle import imgui
 
-from datelier.column_roles import allowed_roles
-from datelier.editing import DatasetEditor
-from datelier.import_csv import CsvOptions, ImportFailure
-from datelier.import_types import (
+from datelier.core.column_roles import allowed_roles
+from datelier.io.csv import CsvOptions, ImportFailure
+from datelier.io.importing import detect_format
+from datelier.io.loading import DatasetLoader, LoadPhase
+from datelier.io.types import (
     ImportFormat,
     ImportOptions,
     JsonOptions,
     ParquetOptions,
     XmlOptions,
 )
-from datelier.importing import detect_format
-from datelier.loading import DatasetLoader, LoadPhase
-from datelier.operations import SetColumnRole
+from datelier.pipeline.editing import DatasetEditor
+from datelier.pipeline.operations import SetColumnRole
 
 
 @dataclass

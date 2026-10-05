@@ -20,7 +20,7 @@ from datelier.analysis_types import (
     EmbeddingResult,
     PreparedInput,
 )
-from datelier.dataset import Dataset, DatasetRevision
+from datelier.core.dataset import Dataset, DatasetRevision
 
 Runner = Callable[[PreparedInput], AnalysisResult]
 

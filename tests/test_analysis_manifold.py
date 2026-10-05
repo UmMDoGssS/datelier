@@ -15,7 +15,7 @@ from datelier.embedding_parameters import (
     MDSParameters,
     SpectralEmbeddingParameters,
 )
-from datelier.importing import load_file
+from datelier.io.importing import load_file
 
 PARAMETERS = [
     IsomapParameters(),

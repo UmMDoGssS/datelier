@@ -16,10 +16,10 @@ from imgui_bundle import hello_imgui
 
 import datelier
 from datelier.analysis_types import Algorithm
-from datelier.exporting import ExportFormat
 from datelier.gui import GuiSession, InspectionEvidence, run_gui
-from datelier.operations import Comparison, Filter, Sort
-from datelier.transform_types import DerivedColumn
+from datelier.io.exporting import ExportFormat
+from datelier.pipeline.operations import Comparison, Filter, Sort
+from datelier.pipeline.types import DerivedColumn
 
 
 def expected_table(source: Path) -> pl.DataFrame:

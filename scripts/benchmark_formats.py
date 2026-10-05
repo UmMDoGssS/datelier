@@ -16,9 +16,9 @@ from xml.sax.saxutils import escape
 import polars as pl
 
 from datelier.feasibility.fixtures import make_table
-from datelier.import_types import ImportFormat
-from datelier.importing import load_file
 from datelier.inspection import prepare_inspection, prepare_page
+from datelier.io.importing import load_file
+from datelier.io.types import ImportFormat
 
 CASES = ((10_000, 6), (100_000, 6), (1_000_000, 6), (100_000, 64))
 

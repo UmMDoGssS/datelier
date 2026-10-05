@@ -6,8 +6,8 @@ from imgui_bundle import imgui
 
 from datelier.analysis_types import Algorithm, ClusteringResult
 from datelier.category_charts import CategoryRepresentation, CategorySettings
-from datelier.column_roles import ColumnRole
-from datelier.dataset import Dataset
+from datelier.core.column_roles import ColumnRole
+from datelier.core.dataset import Dataset
 from datelier.distributions import DistributionSettings
 from datelier.exploration import Explorer, PlotSettings
 from datelier.gui_fields import combo

@@ -4,8 +4,8 @@ from dataclasses import dataclass
 
 import polars as pl
 
-from datelier.dataset import Dataset, DatasetRevision
-from datelier.import_types import ImportResult
+from datelier.core.dataset import Dataset, DatasetRevision
+from datelier.io.types import ImportResult
 
 PAGE_ROWS = 100
 PAGE_COLUMNS = 16

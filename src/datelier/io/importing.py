@@ -2,10 +2,10 @@
 
 from pathlib import Path
 
-from datelier.import_csv import load_csv, load_tsv
-from datelier.import_json import load_json
-from datelier.import_parquet import load_parquet
-from datelier.import_types import (
+from datelier.io.csv import load_csv, load_tsv
+from datelier.io.json import load_json
+from datelier.io.parquet import load_parquet
+from datelier.io.types import (
     CsvOptions,
     ImportFailure,
     ImportFormat,
@@ -15,7 +15,7 @@ from datelier.import_types import (
     ParquetOptions,
     XmlOptions,
 )
-from datelier.import_xml import load_xml
+from datelier.io.xml import load_xml
 
 
 def detect_format(path: Path) -> ImportFormat:

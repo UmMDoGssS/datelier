@@ -3,12 +3,12 @@ from pathlib import Path
 import polars as pl
 import pytest
 
-from datelier.column_roles import ColumnRole
-from datelier.dataset import Dataset, SourceReference
+from datelier.core.column_roles import ColumnRole
+from datelier.core.dataset import Dataset, SourceReference
 from datelier.gui_analysis_controls import AnalysisControls
 from datelier.gui_plot_controls import PlotControls
-from datelier.operations import OperationFailure, SetColumnRole, Sort
-from datelier.pipeline import Pipeline
+from datelier.pipeline.history import Pipeline
+from datelier.pipeline.operations import OperationFailure, SetColumnRole, Sort
 from datelier.plotting import prepare_correlations
 from datelier.profiling import ProfileKind, prepare_profiles
 from datelier.recipe_codec import decode_record, encode
@@ -96,7 +96,7 @@ def test_explicit_categories_and_empty_text_are_not_misclassified() -> None:
 
 
 def test_role_overrides_survive_workspace_restore(tmp_path: Path) -> None:
-    from datelier.importing import load_file
+    from datelier.io.importing import load_file
     from datelier.workspace_restore import restore_workspace
     from datelier.workspace_types import Workspace
     from datelier.workspaces import reference_source, save_workspace

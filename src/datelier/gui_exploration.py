@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 
 from imgui_bundle import imgui
 
-from datelier.dataset import Dataset
+from datelier.core.dataset import Dataset
 from datelier.exploration import Dashboard, Explorer
 from datelier.gui_analysis import AnalysisSession
 from datelier.gui_categories import CategoryView
