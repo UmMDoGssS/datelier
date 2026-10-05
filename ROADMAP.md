@@ -38,8 +38,8 @@ end-to-end hardening and local installation; [Phase 7 evidence](docs/phase-7.md)
 records workflow/resource checks and the clean-wheel install. The personal-use
 v1 scope is complete. Phase 8 remains optional investigation for concrete needs.
 Phases 9–14 are the approved editor and multimodal sequence; Phase 9 passes
-M9.1 independent tabs and shared worker lifecycle; its remaining implementation
-gates remain open and do not change existing feature or usability acceptance.
+M9.1 independent tabs/shared workers and M9.2 Welcome/recent sources/editor
+controls; its remaining implementation gates remain open and do not change existing feature or usability acceptance.
 
 A concrete post-v1 usability need is recorded in the
 [Titanic UX review and proposed repair plan](docs/ux-titanic-review.md): readable
@@ -634,8 +634,8 @@ the corresponding dependency or behavior gates.
 ### M9.1 — Independent file sessions and editor tabs
 
 [Verified implementation and resources](docs/phase-9.md) cover file ownership,
-native tabs, independent inactive-file jobs and nonblocking closure. M9.2 is the
-next outstanding milestone.
+native tabs, independent inactive-file jobs, nonblocking closure and M9.2
+Welcome/recent opening/editor controls. M9.3 is the next outstanding milestone.
 
 - [x] **Deliverables:** application/file session separation; top file tab bar with switching, reordering, closing, and New Tab; independent source/revision, operations, selections, jobs, analysis settings, and views; dockable panels bound to the active file.
 - [x] **Entry gate:** inspect current GuiSession and job/persistence boundaries; define typed file-session ownership and the shared worker lifecycle before introducing tabs.
@@ -645,11 +645,11 @@ next outstanding milestone.
 
 ### M9.2 — Welcome, recent sources, and file opening
 
-- [ ] **Deliverables:** Welcome on startup and blank tabs, recent files/workspaces, Open Files/Open Folder with multi-file selection; contextual import settings and menu workspace actions replacing Open dataset and Workspace panels.
+- [x] **Deliverables:** Welcome on startup and blank tabs, recent files/workspaces, Open Files/Open Folder with multi-file selection; contextual import settings and menu workspace actions replacing Open dataset and Workspace panels.
 - [x] **Entry gate:** M9.1 passes; file opening targets a specific session and failures cannot replace another tab's source.
-- [ ] **Exit gate:** startup/New Tab show Welcome; multiple chosen files open independent tabs; Open Folder lists supported tabular files, with media collections added in M10.4; reopening a source focuses it; recent missing sources and failed imports offer actionable recovery; import options and workspace actions remain accessible.
-- [ ] **Verification evidence:** recent-source persistence/failure fixtures, multi-open and duplicate-open tests, native welcome/file-picker/menu workflows and layout reset/recovery checks.
-- [ ] **Suggested step commits:** `feat: open files from welcome tabs` → `feat: remember recent files and workspaces` → `refactor: move import and workspace actions into editor controls`.
+- [x] **Exit gate:** startup/New Tab show Welcome; multiple chosen files open independent tabs; Open Folder lists supported tabular files, with media collections added in M10.4; reopening a source focuses it; recent missing sources and failed imports offer actionable recovery; import options and workspace actions remain accessible.
+- [x] **Verification evidence:** recent-source persistence/failure fixtures, multi-open and duplicate-open tests, native welcome/file-picker/menu workflows and layout reset/recovery checks.
+- [x] **Suggested step commits:** `feat: open files from welcome tabs` → `feat: remember recent files and workspaces` → `refactor: move import and workspace actions into editor controls`.
 
 ### M9.3 — Whole-session workspace persistence
 

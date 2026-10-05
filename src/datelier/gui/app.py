@@ -9,6 +9,7 @@ from time import perf_counter
 from imgui_bundle import hello_imgui, imgui, immapp
 
 from datelier.gui.data.schema import show_schema
+from datelier.gui.editor_controls import EditorControls
 from datelier.gui.editor_session import EditorSession
 from datelier.gui.file_session import FileSession
 from datelier.gui.layout import configure_layout
@@ -30,6 +31,8 @@ class InspectionEvidence:
     table_dock_id: int = 0
     schema_dock_id: int = 0
     frame_intervals_ms: list[float] = field(default_factory=list)
+    menu_pixels: dict[str, tuple[float, float]] = field(default_factory=dict)
+    dialog_pixels: dict[str, tuple[float, float]] = field(default_factory=dict)
     welcome_frames: int = 0
     welcome_open_files_pixel: tuple[float, float] = (0, 0)
     welcome_open_folder_pixel: tuple[float, float] = (0, 0)
@@ -60,6 +63,7 @@ def run_gui(
     )
     preferences = editor.preferences
     tabs = EditorTabs()
+    controls = EditorControls()
     welcome = Welcome()
     evidence = InspectionEvidence()
     params = hello_imgui.RunnerParams()
@@ -138,8 +142,6 @@ def run_gui(
         params,
         {
             "Explore": bind(explore),
-            "Open dataset": bind(lambda session: session.controls.show(session.loader)),
-            "Workspace": bind(lambda session: session.workspace.show(session)),
             "Table preview": bind(show_table),
             "Schema and nulls": bind(schema),
             "Analysis": bind(
@@ -182,9 +184,7 @@ def run_gui(
     params.callbacks.setup_imgui_style = preferences.apply_theme
     params.callbacks.post_init = lambda: preferences.before_frame(params)
     params.callbacks.pre_new_frame = lambda: preferences.before_frame(params)
-    params.callbacks.show_menus = lambda: preferences.show_menu(
-        editor.active, params, sources=editor.source_paths
-    )
+    params.callbacks.show_menus = lambda: controls.show_menu(editor, params)
     params.callbacks.before_exit = lambda: preferences.save(
         editor.active, params, sources=editor.source_paths
     )
@@ -203,6 +203,9 @@ def run_gui(
         previous_frame = now
         evidence.frames += 1
         editor.poll()
+        controls.show_dialog(editor)
+        evidence.menu_pixels = controls.menu_pixels.copy()
+        evidence.dialog_pixels = controls.action_pixels.copy()
         paths = editor.browser.show()
         if paths is not None and editor.browser.owner is not None:
             editor.opening.request(paths, editor.browser.owner)

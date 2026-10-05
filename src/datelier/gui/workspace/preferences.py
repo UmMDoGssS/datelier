@@ -37,6 +37,7 @@ class PreferenceControls:
         self._load_layout = True
         self._pending_layout: str | None = None
         self.reset_requested = False
+        self.menu_pixels: dict[str, tuple[float, float]] = {}
 
     def apply_theme(self, theme: Theme | None = None) -> None:
         selected = theme if theme is not None else self.value.theme
@@ -146,21 +147,30 @@ class PreferenceControls:
         *,
         sources: tuple[Path, ...] = (),
     ) -> None:
-        if not imgui.begin_menu("Preferences"):
+        def pixel(label: str) -> None:
+            lo, hi = imgui.get_item_rect_min(), imgui.get_item_rect_max()
+            self.menu_pixels[label] = ((lo.x + hi.x) / 2, (lo.y + hi.y) / 2)
+
+        def item(label: str, selected: bool = False) -> bool:
+            clicked = imgui.menu_item(label, "", selected)[0]
+            pixel(label)
+            return clicked
+
+        opened = imgui.begin_menu("Preferences")
+        pixel("Preferences")
+        if not opened:
             return
         for theme in Theme:
-            if imgui.menu_item(theme.value + " theme", "", self.value.theme == theme)[
-                0
-            ]:
+            if item(theme.value + " theme", self.value.theme == theme):
                 self.apply_theme(theme)
         imgui.separator()
-        if imgui.menu_item("Save preferences", "", False)[0]:
+        if item("Save preferences"):
             self.save(session, params, sources=sources)
-        if imgui.menu_item("Restore saved layout", "", False)[0]:
+        if item("Restore saved layout"):
             self.restore_layout()
-        if imgui.menu_item("Reset layout", "", False)[0]:
+        if item("Reset layout"):
             self.reset_requested = True
-        if imgui.menu_item("Reset plot defaults", "", False)[0]:
+        if item("Reset plot defaults"):
             from datelier.inspection.exploration import PlotSettings
 
             self.value = replace(self.value, plots=PlotSettings())

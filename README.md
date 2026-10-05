@@ -84,10 +84,13 @@ uv run datelier
 uv run datelier /path/to/data.csv
 ```
 
-Enter a local dataset path and choose **Open dataset**. **Auto** detects the
-format from its extension; use **Format** to override it. Expand **Import
-options** for settings specific to that format. Imports run in the background;
-failures retain the previous dataset.
+Welcome offers **Open Files**, **Open Folder**, a path/retry action and recent
+files/workspaces. Multiple selected files open independent tabs; reopening a
+source focuses its tab. Tabs switch, reorder and close, and **New Tab** opens
+Welcome. Choose **File → Import settings…** for contextual format/options.
+**Auto** detects the format from its extension; use **Format** to override it.
+**Reimport source (resets history)** applies changed options to that tab.
+Imports run in the background; failed reimports retain the previous dataset.
 **Abandon load** ignores the result while an executing parser may still finish.
 
 Supported inputs and settings:
@@ -134,7 +137,7 @@ Referenced workspace recipes are available; fitted results remain session-only.
 
 ## Workspaces
 
-Open the **Workspace** tab next to Open dataset. Enter a destination path such
+Choose **File → Workspace actions…**. Enter a destination path such
 as `/path/to/session.datelier`, then choose **Save workspace**. Existing files
 require **Replace existing workspace**. Save records the source reference and
 fingerprint, import options, undo/redo history, analysis settings and views.
@@ -158,7 +161,9 @@ Selections and fitted results last for the session.
 The **Preferences** menu offers Dark, Light and Classic themes, **Save
 preferences**, **Restore saved layout**, **Reset layout** and **Reset plot
 defaults**. Preferences also save on exit, including docking, panel visibility,
-plot defaults and views. Use **View** to reopen closed panels. Layout reset
+plot defaults, views and recent sources. Older layouts with the removed import/
+workspace panels reset while preserving other preferences. Use **View** to reopen
+closed panels. Layout reset
 restores all panels without changing your dataset or history. Settings live in
 `$XDG_CONFIG_HOME/datelier/preferences.json`, or
 `~/.config/datelier/preferences.json` by default. Missing/outdated/invalid settings

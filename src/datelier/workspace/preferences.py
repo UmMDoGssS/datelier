@@ -10,7 +10,11 @@ from typing import cast
 from datelier.inspection.exploration import PlotSettings
 from datelier.workspace.codec import decode_record, encode
 from datelier.workspace.recent import MAX_RECENT, RecentSource, remember
-from datelier.workspace.storage import MAX_WORKSPACE_BYTES, atomic_write
+from datelier.workspace.storage import (
+    MAX_WORKSPACE_BYTES,
+    atomic_write,
+    protect_sources,
+)
 from datelier.workspace.types import WorkspaceViews
 
 MAX_LAYOUT_BYTES = 256 * 1024
@@ -79,6 +83,8 @@ def read_preferences(path: Path) -> tuple[Preferences, str]:
         or raw.get("layout_version", 1) != 1
         or not isinstance(layout, str)
         or not valid_layout(layout)
+        or "[Window][Open dataset]" in layout
+        or "[Window][Workspace]" in layout
     ):
         layout = ""
         notes.append("Outdated or unusable layout reset.")
@@ -130,14 +136,7 @@ def save_preferences(
     path: Path, preferences: Preferences, *, sources: tuple[Path, ...] = ()
 ) -> None:
     path = path.expanduser().resolve()
-    if any(
-        path == source.resolve()
-        or path.exists()
-        and source.exists()
-        and path.samefile(source)
-        for source in sources
-    ):
-        raise ValueError("Preferences cannot overwrite source data")
+    protect_sources(path, sources)
     if not valid_layout(preferences.layout):
         raise ValueError("Unusable dock layout")
     preferences.plots.validate()

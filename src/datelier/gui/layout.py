@@ -6,17 +6,14 @@ from imgui_bundle import hello_imgui, imgui
 
 DOCKS = (
     ("MainDockSpace", "ImportSpace", imgui.Dir.left, 0.3),
-    ("ImportSpace", "SchemaSpace", imgui.Dir.down, 0.55),
     ("MainDockSpace", "EditSpace", imgui.Dir.right, 0.32),
     ("MainDockSpace", "PlotSpace", imgui.Dir.down, 0.58),
     ("EditSpace", "AnalysisSpace", imgui.Dir.down, 0.65),
 )
 PANELS = {
     "Explore": "PlotSpace",
-    "Open dataset": "ImportSpace",
-    "Workspace": "ImportSpace",
     "Table preview": "MainDockSpace",
-    "Schema and nulls": "SchemaSpace",
+    "Schema and nulls": "ImportSpace",
     "Analysis": "AnalysisSpace",
     "Transform and history": "EditSpace",
     "Export table": "EditSpace",

@@ -102,7 +102,7 @@ def main() -> None:
             jobs = session.workspace.jobs
             if stage == 0 and jobs.issue is not None:
                 hello_imgui.get_runner_params().docking_params.focus_dockable_window(
-                    "Workspace"
+                    "Table preview"
                 )
                 ready, stage = evidence.frames, 1
             elif stage == 1 and evidence.frames > ready + 15:

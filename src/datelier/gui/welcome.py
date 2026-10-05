@@ -66,7 +66,7 @@ class Welcome:
         )
         if file.workspace.path:
             imgui.separator()
-            file.workspace.show(file)
+            file.workspace.show(file, sources=editor.source_paths)
         self.recent_pixels.clear()
         if editor.preferences.value.recent:
             imgui.separator()

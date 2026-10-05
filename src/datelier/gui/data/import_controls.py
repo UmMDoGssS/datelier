@@ -5,9 +5,8 @@ from pathlib import Path
 
 from imgui_bundle import imgui
 
-from datelier.io.csv import CsvOptions, ImportFailure
+from datelier.io.csv import CsvOptions
 from datelier.io.importing import detect_format
-from datelier.io.loading import DatasetLoader, LoadPhase
 from datelier.io.types import (
     ImportFormat,
     ImportOptions,
@@ -188,55 +187,3 @@ class ImportControls:
         _, self.infer_rows = imgui.input_int("Infer rows (0 = all)", self.infer_rows)
         _, self.skip_rows = imgui.input_int("Skip records", self.skip_rows)
         _, self.null_tokens = imgui.input_text("Null tokens (|)", self.null_tokens)
-
-    def show(self, loader: DatasetLoader) -> None:
-        imgui.push_item_width(imgui.get_content_region_avail().x * 0.5)
-        _, self.path = imgui.input_text("Path", self.path)
-        _, self.format_index = imgui.combo(
-            "Format",
-            self.format_index,
-            ["Auto", *[str(value) for value in ImportFormat]],
-        )
-        try:
-            selected = self.selected_format()
-        except ImportFailure:
-            selected = None
-        imgui.set_next_item_open(self.options_expanded, imgui.Cond_.always)
-        self.options_expanded = imgui.collapsing_header("Import options")
-        if self.options_expanded:
-            self.show_options(selected)
-        if imgui.button("Open dataset"):
-            try:
-                if not self.path.strip():
-                    raise ValueError("Enter a dataset path.")
-                selected = self.selected_format()
-                loader.request(Path(self.path), self.options(selected), format=selected)
-                self.error = ""
-            except (ValueError, ImportFailure) as error:
-                self.error = str(error)
-        imgui.pop_item_width()
-        if loader.status.phase == LoadPhase.LOADING:
-            imgui.same_line()
-            if imgui.button("Abandon load"):
-                loader.abandon()
-        imgui.separator()
-        imgui.text_unformatted(loader.status.phase.value)
-        if loader.status.path:
-            imgui.text_wrapped(f"Requested source: {loader.status.path}")
-        if loader.status.message:
-            imgui.text_wrapped(loader.status.message)
-        if self.error:
-            imgui.text_wrapped(self.error)
-        if loader.retired_running:
-            imgui.text_wrapped(
-                "An abandoned import is still finishing in the background."
-            )
-        if loader.active:
-            inspection = loader.active
-            imgui.separator()
-            imgui.text_wrapped(f"Showing: {inspection.dataset.source.path}")
-            imgui.text(
-                f"{inspection.row_count:,} rows, {len(inspection.schema)} columns"
-            )
-            for message in inspection.imported.diagnostics:
-                imgui.text_wrapped(message)

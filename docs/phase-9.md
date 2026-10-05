@@ -27,7 +27,7 @@ verified package refactor (through `0879793`). The starting tree was clean at
 Every implementation step runs Pyrefly, focused tests, Ruff lint/format,
 applicable native GUI smoke, diff review and a coherent step commit. Each
 milestone additionally requires the full suite and recorded acceptance evidence.
-M9.1 passes with the evidence below. M9.2–M9.4 and Phase 9 remain open.
+M9.1 and M9.2 pass with the evidence below. M9.3–M9.4 and Phase 9 remain open.
 
 ## Step 1 — File ownership and shared workers
 
@@ -226,3 +226,53 @@ tests/test_workspace_restore.py`, Pyrefly/Ruff and native `scripts/recent_smoke.
 
 M9.2 remains open pending contextual editor/menu replacement, layout migration/
 recovery and its full regression suite.
+
+
+## Step 6 / M9.2 exit — Editor menus and contextual dialogs
+
+File menus now expose New/Close Tab, Open Files/Open Folder, recent sources,
+Import settings and Workspace actions. Source-bound import/workspace dialogs
+replace the Open dataset/Workspace dock panels. Reimport explicitly resets the
+owning tab's history only after a successful import; failures retain its last
+usable data/recipe. The dialog retains its owner when active tabs change and
+closes if its owner disappears. Blank-tab Welcome keeps workspace recovery
+controls visible. Workspace writes protect sibling sources and aliases in the
+worker, in addition to their own referenced source.
+
+The left dock now contains Schema/profile interpretation controls. Older layouts
+containing either removed panel recover to the new default layout with a visible
+preferences message, retaining theme, plot/views and recent sources. Saved current
+layouts still restore, reset and recover independently of the file recipes.
+README opening/workspace instructions reflect the menu workflow.
+
+Verification on 2026-10-06:
+
+- **67 focused tests passed in 0.86s** for contextual reimport/failure retention,
+  sibling-source write protection, legacy layout recovery, recent sources and
+  existing preference/workspace behavior.
+- **Full suite: 517 passed in 23.53s.** Batch Pyrefly zero errors; Ruff lint/format
+  and diff whitespace checks pass.
+- Native `scripts/editor_menu_smoke.py`: **285 frames**, synthetic clicks through
+  File/import, workspace save/reopen, New Tab and Preferences/Reset layout;
+  legacy-panel layout recovery, semicolon options, usable independent tabs,
+  source bytes and zero implicit ML. Fixture values are entered through frame
+  hooks; the native action buttons/menu items receive ImGui input. The smoke
+  waits for the changing contextual form before choosing button coordinates.
+- Fresh-process `scripts/preferences_smoke.py`: default restore 15 frames;
+  save 21/reopen 68; saved dock/hide/theme restoration, reset and restore,
+  independent workspace settings/history and linked selection pass.
+- Existing native `scripts/workspace_smoke.py`: save 31/reopen 48; relink, redo,
+  views and unfitted settings pass. Its recovery focuses Table preview/Welcome
+  instead of the removed Workspace panel.
+- Welcome smoke 126 frames, recent smoke 16/83, tab smoke 204 frames all pass
+  after the topology change. Sources remain byte-identical. The
+  [new native layout](evidence/phase9/editor-menu.png) was visually inspected:
+  File menu, two independent custom-source tabs, schema and table/profile docks,
+  and source-specific settings render without the two retired panels.
+
+Commands retain the earlier offline uv/cache/Mesa settings; focused tests are
+`tests/test_editor_controls.py tests/test_recent_sources.py tests/test_preferences.py
+ tests/test_workspaces.py tests/test_workspace_restore.py`. The full suite and
+all named native scripts run as separate commands/processes. Mesa/Linux remains
+the verified renderer/platform. M9.2 passes; whole-session recipes/migration/
+partial recovery and cross-file profiles remain M9.3/M9.4.

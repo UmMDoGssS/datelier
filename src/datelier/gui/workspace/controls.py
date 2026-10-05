@@ -23,6 +23,7 @@ class WorkspaceControls:
     overwrite: bool = False
     accept_changed: bool = False
     error: str = ""
+    action_pixels: dict[str, tuple[float, float]] = field(default_factory=dict)
 
     def open(self, session: GuiSession, *, relink: bool = False) -> None:
         if not self.path.strip():
@@ -40,7 +41,7 @@ class WorkspaceControls:
         )
         self.error = ""
 
-    def save(self, session: GuiSession) -> None:
+    def save(self, session: GuiSession, *, sources: tuple[Path, ...] = ()) -> None:
         pipeline, inspection = session.editor.pipeline, session.loader.active
         if pipeline is None or inspection is None or not self.path.strip():
             self.error = "Open a dataset and enter a workspace path."
@@ -54,24 +55,29 @@ class WorkspaceControls:
                 session.plots.settings(),
                 capture_views(session),
                 overwrite=self.overwrite,
+                sources=sources,
             )
             self.error = ""
         except ValueError as error:
             self.error = str(error)
 
-    def show(self, session: GuiSession) -> None:
+    def show(self, session: GuiSession, *, sources: tuple[Path, ...] = ()) -> None:
         imgui.text_wrapped(self.jobs.message)
         _, self.path = imgui.input_text("Workspace path", self.path)
         imgui.begin_disabled(self.jobs.busy or session.exporter.busy)
         if imgui.button("Open workspace"):
             self.accept_changed = False
             self.open(session)
+        lo, hi = imgui.get_item_rect_min(), imgui.get_item_rect_max()
+        self.action_pixels["Open workspace"] = ((lo.x + hi.x) / 2, (lo.y + hi.y) / 2)
         imgui.same_line()
         imgui.begin_disabled(
             session.editor.busy or session.loader.status.phase == LoadPhase.LOADING
         )
         if imgui.button("Save workspace"):
-            self.save(session)
+            self.save(session, sources=sources)
+        lo, hi = imgui.get_item_rect_min(), imgui.get_item_rect_max()
+        self.action_pixels["Save workspace"] = ((lo.x + hi.x) / 2, (lo.y + hi.y) / 2)
         imgui.end_disabled()
         _, self.overwrite = imgui.checkbox("Replace existing workspace", self.overwrite)
         imgui.end_disabled()

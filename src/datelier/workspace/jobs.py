@@ -11,7 +11,7 @@ from datelier.inspection.exploration import PlotSettings
 from datelier.io.types import ImportResult
 from datelier.pipeline.history import Pipeline
 from datelier.workspace.restore import RestoredWorkspace, SourceIssue, restore_workspace
-from datelier.workspace.storage import reference_source, save_workspace
+from datelier.workspace.storage import protect_sources, reference_source, save_workspace
 from datelier.workspace.types import Workspace, WorkspaceViews
 
 
@@ -77,6 +77,7 @@ class WorkspaceJobs:
         views: WorkspaceViews,
         *,
         overwrite: bool = False,
+        sources: tuple[Path, ...] = (),
     ) -> None:
         if self._closed or self.busy:
             raise ValueError("Saving requires idle workspace jobs")
@@ -86,6 +87,7 @@ class WorkspaceJobs:
 
         def work() -> SavedWorkspace:
             destination = path.expanduser().resolve()
+            protect_sources(destination, sources)
             if destination.exists() and not overwrite:
                 raise ValueError("Workspace exists; enable Replace existing workspace")
             workspace = Workspace(
@@ -98,7 +100,7 @@ class WorkspaceJobs:
                 replace(plots, clusters=None),
                 views,
             )
-            save_workspace(destination, workspace)
+            save_workspace(destination, workspace, sources=sources)
             return SavedWorkspace(destination, workspace)
 
         self._future = self._executor.submit(work)

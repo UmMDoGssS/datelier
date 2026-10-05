@@ -64,11 +64,23 @@ def atomic_write(path: Path, content: str) -> None:
             temporary.unlink(missing_ok=True)
 
 
-def save_workspace(path: Path, workspace: Workspace) -> None:
+def protect_sources(path: Path, sources: tuple[Path, ...]) -> None:
+    if any(
+        path == source.expanduser().resolve()
+        or path.exists()
+        and source.exists()
+        and path.samefile(source)
+        for source in sources
+    ):
+        raise ValueError("A saved file cannot overwrite source data")
+
+
+def save_workspace(
+    path: Path, workspace: Workspace, *, sources: tuple[Path, ...] = ()
+) -> None:
     path = path.expanduser().resolve()
     source = Path(workspace.source.path).expanduser().resolve()
-    if path == source or path.exists() and path.samefile(source):
-        raise ValueError("A workspace cannot overwrite its source data")
+    protect_sources(path, (source, *sources))
     workspace.validate()
     relative = replace(workspace.source, path=os.path.relpath(source, path.parent))
     text = json.dumps(
