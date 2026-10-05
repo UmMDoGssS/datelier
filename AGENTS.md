@@ -77,6 +77,9 @@ The categorical inspection follow-up is also authorized;
 roles and reversible overrides, Relationships charts, and pair-grid diagonal
 representations. Keep statistical preparation out of GUI callbacks and retain
 the distinction between physical types and user-controlled analysis roles.
+The category distribution clarification is authorized;
+[docs/category-distribution-follow-up.md](docs/category-distribution-follow-up.md)
+tracks box/violin Relationships and single-column count routing to Profiles.
 
 Use this file for durable conventions and `ROADMAP.md` for sequencing,
 deliverables, and acceptance gates. Inspect actual code and configuration

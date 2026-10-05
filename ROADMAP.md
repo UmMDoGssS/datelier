@@ -347,3 +347,10 @@ the three bounded steps and record evidence in
 [Schema and profile comparison gates](docs/profile-comparison.md). All three
 steps are verified: Schema counts/shape, worker-prepared statistics tables, and
 the exclusive category/multiple numeric checklist with saved selections.
+
+## Authorized category distribution clarification
+
+Category–numeric Relationships now require box/violin plots; grouped bars stay
+for category–category comparisons, and single-column counts belong in Profiles.
+[Delivery gates](docs/category-distribution-follow-up.md) cover worker preparation
+followed by native UI and saved-view routing.

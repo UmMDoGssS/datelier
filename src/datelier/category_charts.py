@@ -7,8 +7,10 @@ import numpy as np
 import polars as pl
 from numpy.typing import NDArray
 
+from datelier.category_distributions import prepare_category_distributions
 from datelier.column_roles import ColumnRole
 from datelier.dataset import Dataset, DatasetRevision
+from datelier.distributions import DistributionSettings, NumericDistribution
 from datelier.profiling import COUNT_ROW_LIMIT
 from datelier.selection import SELECTION_LIMIT
 
@@ -19,6 +21,8 @@ class CategoryRepresentation(StrEnum):
     MEAN = "Mean bars"
     MEDIAN = "Median bars"
     SUM = "Sum bars"
+    BOX = "Box"
+    VIOLIN = "Violin"
 
 
 @dataclass(frozen=True)
@@ -28,8 +32,11 @@ class CategorySettings:
     value: str | None = None
     group: str | None = None
     top: int = 12
+    bandwidth: float = 1.0
+    seed: int = 42
 
     def validate(self) -> None:
+        DistributionSettings(bandwidth=self.bandwidth, seed=self.seed).validate()
         if not self.category or not 1 <= self.top <= 30:
             raise ValueError("Choose a category and 1–30 visible categories")
         if self.representation == CategoryRepresentation.GROUPED:
@@ -39,7 +46,7 @@ class CategorySettings:
             if self.value is not None or self.group is not None:
                 raise ValueError("Counts use one category column")
         elif not self.value or self.group is not None:
-            raise ValueError("Choose a numeric value column for aggregation")
+            raise ValueError("Choose a numeric value column")
 
 
 @dataclass(frozen=True)
@@ -58,10 +65,21 @@ class CategoryChart:
     excluded_values: int
     other_categories: int
     other_groups: int
+    distributions: tuple[NumericDistribution, ...] = ()
+    distribution_scale: float = 1.0
 
     @property
     def value_label(self) -> str:
         representation = self.settings.representation
+        if representation in (
+            CategoryRepresentation.BOX,
+            CategoryRepresentation.VIOLIN,
+        ):
+            return (
+                f"{self.settings.value} / {self.distribution_scale:.6g}"
+                if self.distribution_scale != 1
+                else str(self.settings.value)
+            )
         if representation in (
             CategoryRepresentation.COUNTS,
             CategoryRepresentation.GROUPED,
@@ -130,6 +148,29 @@ def prepare_category_chart(
     group_codes, groups, other_groups = _codes(frame, "group", 5)
     frame = frame.with_columns(category_codes.alias("c"), group_codes.alias("g"))
     representation = settings.representation
+    if representation in (CategoryRepresentation.BOX, CategoryRepresentation.VIOLIN):
+        assert settings.value is not None
+        distributions = prepare_category_distributions(
+            dataset, frame, labels, settings.value, settings.bandwidth, settings.seed
+        )
+        return CategoryChart(
+            dataset.revision,
+            settings,
+            labels,
+            (settings.value,),
+            distributions.values,
+            distributions.counts,
+            (distributions.row_ids,),
+            (distributions.first_positions,),
+            frame.height,
+            table.height,
+            dataset.table.height,
+            table.height - frame.height,
+            other,
+            0,
+            distributions.series,
+            distributions.scale,
+        )
     magnitude = frame.get_column("value").abs().max() if settings.value else None
     scale = (
         float(magnitude) if isinstance(magnitude, (float, int)) and magnitude else 1.0
