@@ -121,3 +121,23 @@ installed MDS 1.9 constructor is isolated behind a narrow typed boundary because
 its bundled stubs still describe the older API. Ruff lint/format pass (174
 files). Four Linux/Mesa GUI checks pass live forms, actual Run clicks and linked
 3D views (135–143 frames). Titanic and final full-suite gates remain open.
+
+## Final control and restore fixes
+
+Unfitted clustering setup starts collapsed in Scatter, leaving the raw plot and
+Run button visible. The full controls remain in Analysis and can be opened
+inline. Opening an embedding's setup while cluster colors are selected now
+focuses that embedding in Analysis; source changes and completed embeddings
+update the panel context. Changing embedding dimensions no longer claims that a
+clustering fit is stale. Removing a selected color column immediately binds
+Column mode to an available column before plot preparation.
+
+All 26 setting records now pass a full registered-codec Workspace round trip,
+including non-default DBSCAN/LLE settings and unfitted source choices. Tests
+verify completed clustering cannot overwrite Uniform/Column and revision
+changes clear fitted colors. Nineteen focused control/worker tests pass
+(2.94 s); Pyrefly and Ruff lint/format pass. Native Linux/Mesa checks pass hidden
+Analysis navigation with simultaneous clustering/embedding sources (42 frames),
+3D PCA/K-means linked colors (213 frames), and save/relink/restore/redo/2D linked
+selection with DBSCAN/LLE settings and zero implicit fits (31/45 frames).
+The original Titanic exclusive-coordinate GUI check also passes (165 frames).

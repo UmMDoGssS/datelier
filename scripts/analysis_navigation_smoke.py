@@ -15,6 +15,7 @@ from datelier.gui import GuiSession, InspectionEvidence, run_gui
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--hidden", action="store_true")
+    parser.add_argument("--cluster-context", action="store_true")
     args = parser.parse_args()
     stage, entered = 0, 0
     with TemporaryDirectory(prefix="datelier-analysis-navigation-") as folder:
@@ -37,6 +38,8 @@ def main() -> None:
                 window.is_visible = not args.hidden
                 session.exploration.tab = "Scatter"
                 session.analysis.source = Algorithm.PCA
+                if args.cluster_context:
+                    session.plots.choose_color("DBSCAN")
                 stage, entered = 1, evidence.frames
             elif stage == 1 and age > 15:
                 io.mouse_pos = imgui.ImVec2(*session.analysis.inputs_pixel)
@@ -49,6 +52,9 @@ def main() -> None:
                 io.add_mouse_button_event(0, False)
                 stage, entered = 4, evidence.frames
             elif stage == 4 and age > 15:
+                assert (
+                    session.analysis.selected_algorithm(session.plots) == Algorithm.PCA
+                )
                 assert not session.analysis.jobs.results
                 assert not session.analysis.jobs.busy
                 assert any(
@@ -64,6 +70,7 @@ def main() -> None:
                 {
                     "frames": evidence.frames,
                     "hidden": args.hidden,
+                    "cluster_context": args.cluster_context,
                     "navigation_without_fit": True,
                     "no_implicit_ml": True,
                 }

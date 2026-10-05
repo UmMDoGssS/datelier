@@ -6,8 +6,10 @@ from tempfile import TemporaryDirectory
 
 from imgui_bundle import hello_imgui
 
+from datelier.analysis_parameters import DBSCANParameters
 from datelier.analysis_types import Algorithm
 from datelier.editing import HistoryAction
+from datelier.embedding_parameters import LLEParameters
 from datelier.gui import GuiSession, InspectionEvidence, run_gui
 from datelier.operations import Sort
 
@@ -33,9 +35,11 @@ def main() -> None:
                 session.editor.request(HistoryAction.UNDO)
                 stage = 2
             elif stage == 2 and not session.editor.busy:
+                session.plots.three_d = False
                 session.plots.custom_scatter = True
                 session.plots.x_index, session.plots.y_index = 1, 0
                 session.plots.compare_columns = ["x", "y"]
+                session.plots.choose_color("Column")
                 session.plots.color_index = (
                     session.plots.color_columns.index("group") + 1
                 )
@@ -44,7 +48,14 @@ def main() -> None:
                 session.analysis.controls.seed = 17
                 session.analysis.controls.clusters = 2
                 session.analysis.controls.pca_whiten = True
-                session.analysis.source = Algorithm.TSNE
+                session.analysis.controls.extra_parameters[Algorithm.DBSCAN] = (
+                    DBSCANParameters(epsilon=0.75)
+                )
+                session.analysis.controls.extra_parameters[Algorithm.LLE] = (
+                    LLEParameters(method="modified", neighbors=20)
+                )
+                session.plots.choose_color("DBSCAN")
+                session.analysis.source = Algorithm.LLE
                 session.exploration.tab = "Correlations"
                 session.exploration.relationships.mode = 1
                 session.exploration.profile_mode = 2
@@ -120,7 +131,14 @@ def main() -> None:
                 assert session.exploration.relationships.mode == 1
                 assert session.exploration.active_tab == "Correlations"
                 assert session.exploration.profile_mode == 2
-                assert session.analysis.source == Algorithm.TSNE
+                assert session.analysis.source == Algorithm.LLE
+                assert session.plots.color_source == "DBSCAN"
+                assert session.analysis.controls.extra_parameters[
+                    Algorithm.DBSCAN
+                ] == DBSCANParameters(epsilon=0.75)
+                assert session.analysis.controls.extra_parameters[
+                    Algorithm.LLE
+                ] == LLEParameters(method="modified", neighbors=20)
                 assert session.exploration.profile.area.height == 230
                 assert session.exploration.comparison_area.height == 240
                 assert session.exploration.scatter_area.height == 250
@@ -134,7 +152,11 @@ def main() -> None:
                 session.selection.choose(active.dataset.revision, (1,))
                 ready, stage = evidence.frames, 4
             elif stage == 4 and evidence.frames > ready + 20:
-                assert session.exploration.interaction.selected_points == 1
+                assert session.exploration.interaction.selected_points == 1, (
+                    session.plots.three_d,
+                    session.analysis.source,
+                    session.exploration.scatter_area.rendered_height,
+                )
                 selected = True
                 hello_imgui.get_runner_params().app_shall_exit = True
 

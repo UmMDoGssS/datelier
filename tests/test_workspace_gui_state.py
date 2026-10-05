@@ -200,3 +200,94 @@ def test_unfitted_color_source_is_saved_without_fitted_artifacts() -> None:
     saved = WorkspaceViews(color_source="K-means")
     saved.validate()
     assert decode_record(WorkspaceViews, encode(saved)) == saved
+
+
+def test_every_method_recipe_round_trips_through_strict_codec(tmp_path: Path) -> None:
+    from datelier.analysis_parameters import DBSCANParameters
+    from datelier.embedding_parameters import LLEParameters
+
+    path = tmp_path / "data.csv"
+    path.write_text("x,y,z\n1,2,3\n3,4,5\n6,8,9\n")
+    imported = load_file(path)
+    before = AnalysisControls(features=["z", "x", "y"], dimensions=3, seed=19)
+    before.extra_parameters[Algorithm.DBSCAN] = DBSCANParameters(epsilon=0.75)
+    before.extra_parameters[Algorithm.LLE] = LLEParameters(
+        method="hessian", neighbors=20
+    )
+    requests = tuple(before.request(a) for a in Algorithm)
+    saved = Workspace(
+        reference_source(imported.dataset.source),
+        imported.format,
+        imported.options,
+        analysis=requests,
+        views=WorkspaceViews(coordinate_source=Algorithm.LLE, color_source="DBSCAN"),
+    )
+    saved.validate()
+    decoded = decode_record(Workspace, encode(saved))
+    decoded.validate()
+    assert decoded == saved
+    after = AnalysisControls()
+    restore_analysis(after, decoded, imported.dataset)
+    assert tuple(after.request(a) for a in Algorithm) == requests
+
+
+def test_finished_clustering_cannot_override_another_color_source(
+    tmp_path: Path,
+) -> None:
+    from datelier.analysis import run_analysis
+    from datelier.analysis_input import prepare_input
+    from datelier.analysis_types import ClusteringResult, KMeansParameters
+    from datelier.gui_analysis import AnalysisSession
+
+    path = tmp_path / "data.csv"
+    path.write_text("x,y,group\n0,1,a\n1,0,a\n9,10,b\n10,9,b\n")
+    dataset = load_file(path).dataset
+    result = run_analysis(
+        prepare_input(dataset, AnalysisRequest(("x", "y"), KMeansParameters(2)))
+    )
+    assert isinstance(result, ClusteringResult)
+    analysis = AnalysisSession()
+    plots = PlotControls()
+    plots.bind(dataset)
+    try:
+        plots.choose_color("K-means")
+        analysis.jobs.results[Algorithm.KMEANS] = result
+        assert analysis.sync_colors(plots)
+        assert plots.settings().clusters is result
+        plots.choose_color("Uniform")
+        assert not analysis.sync_colors(plots)
+        assert plots.settings().clusters is None and plots.color_source == "Uniform"
+        plots.choose_color("Column")
+        assert not analysis.sync_colors(plots)
+        assert plots.settings().clusters is None and plots.color_column is not None
+        plots.choose_color("K-means")
+        assert analysis.sync_colors(plots)
+        plots.bind(load_file(path).dataset)
+        analysis.poll(load_file(path).dataset)
+        analysis.sync_colors(plots)
+        assert plots.color_source == "K-means" and plots.cluster_result is None
+    finally:
+        analysis.close()
+
+
+def test_column_color_survives_removal_of_the_selected_column(tmp_path: Path) -> None:
+    path = tmp_path / "data.csv"
+    path.write_text("x,y,group\n1,2,a\n3,4,b\n")
+    plots = PlotControls()
+    plots.bind(load_file(path).dataset)
+    plots.choose_color("Column")
+    plots.color_index = plots.color_columns.index("group") + 1
+    path.write_text("x,y\n1,2\n3,4\n")
+    plots.bind(load_file(path).dataset)
+    assert plots.color_source == "Column" and plots.settings().color_column == "x"
+
+
+def test_coordinate_dimension_changes_do_not_invalidate_clustering_settings() -> None:
+    controls = AnalysisControls(features=["x", "y", "z"])
+    clustering = controls.request(Algorithm.DBSCAN)
+    embedding = controls.request(Algorithm.PCA)
+    controls.dimensions = 3
+    assert controls.matches_result(clustering)
+    assert not controls.matches_result(embedding)
+    controls.features.remove("z")
+    assert not controls.matches_result(clustering)

@@ -66,7 +66,7 @@ class PlotControls:
         self.color_index = (
             self.color_columns.index(previous_color) + 1
             if previous_color in self.color_columns
-            else 0
+            else int(self.color_source == "Column" and bool(self.color_columns))
         )
         self.numeric = numeric_columns(dataset)
         self.relationship_features = (

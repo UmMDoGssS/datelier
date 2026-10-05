@@ -21,6 +21,7 @@ class AnalysisSession:
     jobs: AnalysisJobs = field(default_factory=AnalysisJobs)
     plots: AnalysisPlots = field(default_factory=AnalysisPlots)
     source: Algorithm | None = None
+    panel_source: Algorithm | None = None
     inputs_pixel: tuple[float, float] = (0, 0)
     coordinates_pixel: tuple[float, float] = (0, 0)
     run_pixel: tuple[float, float] = (0, 0)
@@ -32,6 +33,7 @@ class AnalysisSession:
             latest = self.jobs.latest
             if isinstance(latest, EmbeddingResult):
                 self.source = latest.provenance.request.algorithm
+                self.panel_source = self.source
         self.plots.poll(revision)
         return completed and isinstance(self.jobs.latest, EmbeddingResult)
 
@@ -51,8 +53,10 @@ class AnalysisSession:
             self.coordinates_pixel = (pos.x + size.x / 2, pos.y + size.y / 2)
             if changed:
                 self.source = algorithms[index - 1] if index else None
+                self.panel_source = self.source or plots.cluster_algorithm
             imgui.table_set_column_index(1)
-            plots.show_color()
+            if plots.show_color():
+                self.panel_source = plots.cluster_algorithm or self.source
             if columns == 3 and self.source is None:
                 imgui.table_set_column_index(2)
                 plots.show_dimensions()
@@ -66,10 +70,6 @@ class AnalysisSession:
         self.show_setup(dataset, self.source, dimensions=True)
         if not isinstance(result, EmbeddingResult):
             return None
-        if self.controls.request(self.source) != result.provenance.request:
-            imgui.text_wrapped(
-                f"Inputs changed; run {self.source} to update this result."
-            )
         color = plots.color_column
         self.plots.ensure(
             dataset,
@@ -88,7 +88,12 @@ class AnalysisSession:
         return self.plots.active
 
     def selected_algorithm(self, plots: PlotControls) -> Algorithm:
-        return plots.cluster_algorithm or self.source or Algorithm.KMEANS
+        return (
+            self.panel_source
+            or plots.cluster_algorithm
+            or self.source
+            or Algorithm.KMEANS
+        )
 
     def sync_colors(self, plots: PlotControls) -> bool:
         algorithm = plots.cluster_algorithm
@@ -108,7 +113,9 @@ class AnalysisSession:
         imgui.push_id(str(algorithm))
         if imgui.collapsing_header(
             f"{algorithm} inputs and settings##{state}",
-            flags=imgui.TreeNodeFlags_.default_open if result is None else 0,
+            flags=imgui.TreeNodeFlags_.default_open
+            if result is None and not algorithm.is_clustering
+            else 0,
         ):
             imgui.begin_disabled(self.jobs.busy)
             show_inputs(self.controls, dimensions=dimensions)
@@ -120,6 +127,7 @@ class AnalysisSession:
             pos, size = imgui.get_item_rect_min(), imgui.get_item_rect_size()
             self.inputs_pixel = (pos.x + size.x / 2, pos.y + size.y / 2)
             if open_inputs:
+                self.panel_source = algorithm
                 hello_imgui.get_runner_params().docking_params.focus_dockable_window(
                     "Analysis"
                 )
@@ -140,7 +148,7 @@ class AnalysisSession:
             imgui.text_wrapped(self.jobs.message)
         if result is None:
             imgui.text(f"Run {algorithm} to fit the selected features")
-        elif self.controls.request(algorithm) != result.provenance.request:
+        elif not self.controls.matches_result(result.provenance.request):
             imgui.text_wrapped(
                 f"Inputs changed; run {algorithm} to update this result."
             )

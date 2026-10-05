@@ -1,6 +1,6 @@
 """Explicit analysis controls, completed-result switching, and provenance."""
 
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, replace
 
 from imgui_bundle import imgui
 
@@ -102,6 +102,12 @@ class AnalysisControls:
             limit,
             self.dimensions,
         )
+
+    def matches_result(self, request: AnalysisRequest) -> bool:
+        current = self.request(request.algorithm)
+        if request.algorithm.is_clustering:
+            current = replace(current, dimensions=request.dimensions)
+        return current == request
 
     def show(
         self,
@@ -208,10 +214,7 @@ class AnalysisControls:
                         "Center in fitted feature space: "
                         + str(result.fit.centers[self.center_index].tolist())
                     )
-                if (
-                    self.features != list(provenance.request.features)
-                    or self.request(algorithm) != provenance.request
-                ):
+                if not self.matches_result(provenance.request):
                     imgui.text_wrapped("Settings changed; run again to apply them.")
 
     def start(self, jobs: AnalysisJobs, dataset: Dataset, algorithm: Algorithm) -> None:
