@@ -12,7 +12,10 @@ Supported v1 imports are CSV/TSV, JSON/JSONL, Parquet, and tabular XML. Export
 targets are CSV and Parquet. Workspaces save source references and recipes,
 not bundled data snapshots. ML requires an explicit command. Third-party
 plugins, arbitrary Python mappings, additional platforms, larger-than-memory
-execution, images, and text are post-v1 investigations.
+table execution, images, text, and audio are outside the completed v1 baseline.
+The requested editor and multimodal expansion now has concrete delivery gates
+in [Phases 9–14](#authorized-editor-and-multimodal-expansion); other post-v1
+directions remain optional investigations.
 
 The repository has a Python 3.14+ `uv`-managed `src/` package, configured
 Pyrefly/pytest/Ruff, and a locked application stack. Phase 0 is verified with
@@ -34,6 +37,8 @@ views; [Phase 5 evidence](docs/phase-5.md) records its passed gates. Phase 6 pro
 end-to-end hardening and local installation; [Phase 7 evidence](docs/phase-7.md)
 records workflow/resource checks and the clean-wheel install. The personal-use
 v1 scope is complete. Phase 8 remains optional investigation for concrete needs.
+Phases 9–14 are the approved editor and multimodal sequence; their implementation
+gates remain open and do not change existing feature or usability acceptance.
 
 A concrete post-v1 usability need is recorded in the
 [Titanic UX review and proposed repair plan](docs/ux-titanic-review.md): readable
@@ -67,7 +72,9 @@ public publishing, release automation and product infrastructure are not goals.
 - Phase entry requires the previous phase's exit plus milestone-specific
   prerequisites. Phase exit requires every milestone in that phase to pass.
   Phase 8 investigations are independent and optional; each requires the local
-  v1 install gate and a concrete personal-use need.
+  v1 install gate and a concrete personal-use need. Phase 9 starts from M7.2 and
+  the verified source package refactor, independently of Phase 8 completion;
+  Phases 10–14 then follow their preceding phase's exit gates.
 - Each code step requires Pyrefly, relevant tests, Ruff checks once established,
   and applicable GUI smoke checks. Each implementation milestone exit also
   requires the full test suite and its listed verification. Documentation-only
@@ -233,7 +240,7 @@ workspace persistence schema.
 - [x] **Deliverables:** versioned workspace files with source references, import options, operation recipes, analysis settings, and views; source detection/relinking.
 - [x] **Entry gate:** operations, plot configuration, and analysis settings have typed representations and reproducible behavior.
 - [x] **Exit gate:** save/reopen restores the intended workspace; missing/changed sources are detected; relinking works; loading settings does not automatically rerun ML.
-- [x] **Verification evidence:** [M6.1 evidence](docs/phase-6.md#m61-referenced-source-workspace-persistence): 312 full-suite tests, Pyrefly/Ruff, strict recipe/source/replay/job tests and live save/restart/relink/redo/selection checks pass; no implicit ML.
+- [x] **Verification evidence:** [M6.1 evidence](docs/phase-6.md#m61--referenced-source-workspace-persistence): 312 full-suite tests, Pyrefly/Ruff, strict recipe/source/replay/job tests and live save/restart/relink/redo/selection checks pass; no implicit ML.
 - [x] **Step commits:** `3e5464c` versioned recipes → `7d9d494` background restore/relink → `2b513b4` GUI controls, CLI and M6.1 acceptance evidence.
 
 ### M6.2 — Saved layouts, themes, and plot preferences
@@ -241,7 +248,7 @@ workspace persistence schema.
 - [x] **Deliverables:** dock layout persistence, configurable themes, saved plot preferences, usable restoration controls.
 - [x] **Entry gate:** M6.1 passes and docking/plot controls are already functional.
 - [x] **Exit gate:** layout/theme/preferences persist across restart; workspace restoration preserves valid views; unusable layouts can be reset without losing dataset recipes.
-- [x] **Verification evidence:** [M6.2 evidence](docs/phase-6.md#m62-saved-layouts-themes-and-plot-preferences): 333 full-suite tests, Pyrefly/Ruff, independent preference recovery, three fresh-process rearrange/restart/default/reset/restore GUI checks and linked-selection/gesture regressions pass.
+- [x] **Verification evidence:** [M6.2 evidence](docs/phase-6.md#m62--saved-layouts-themes-and-plot-preferences): 333 full-suite tests, Pyrefly/Ruff, independent preference recovery, three fresh-process rearrange/restart/default/reset/restore GUI checks and linked-selection/gesture regressions pass.
 - [x] **Step commit:** `29ce51e` — dock layout module, versioned preference storage, theme/menu/default restoration, fresh-process GUI gate and final evidence form one verified customization step.
 
 ## Phase 7 — Personal-use hardening and installation
@@ -272,6 +279,13 @@ These milestones produce proposals, not v1 commitments or permission to build
 an undefined feature. Investigate each direction separately and define its
 implementation milestones only after its specification is approved.
 
+The requested format, image, and text workflows now have an approved delivery
+sequence in [Phases 9–14](#authorized-editor-and-multimodal-expansion). M8.2,
+M8.5, and M8.6 remain historical investigation entries with their existing
+unchecked evidence gates; they do not require duplicate proposals or another
+approval before the concrete milestones below can begin. Platform, general
+out-of-core table execution, and public extension directions remain optional.
+
 ### M8.1 — Windows/macOS distribution
 
 - [ ] **Deliverables:** platform compatibility and packaging proposals for Windows and macOS, assessed separately.
@@ -281,6 +295,10 @@ implementation milestones only after its specification is approved.
 - [ ] **Suggested step commits:** `docs: assess windows distribution` → `docs: assess macos distribution` → `docs: specify platform rollout`.
 
 ### M8.2 — Additional data formats
+
+The requested structured JSON/TOML and NPY/NPZ/PyTorch inputs are specified in
+[Phase 11](#phase-11--structured-objects-arrays-and-checkpoints). Further formats
+still require a concrete need.
 
 - [ ] **Deliverables:** evidence-backed priorities and importer proposals for formats beyond v1.
 - [ ] **Entry gate:** M7.2 passes and concrete format/use-case requests exist.
@@ -306,6 +324,10 @@ implementation milestones only after its specification is approved.
 
 ### M8.5 — Image inspection
 
+The requested image/heatmap and detection-box workflows are specified in
+[Phase 13](#phase-13--images-heatmaps-and-detection-annotations), using Phase 10's
+lazy preview and record-inspection foundation.
+
 - [ ] **Deliverables:** image-dataset inspection proposal grounded in representative analyst workflows.
 - [ ] **Entry gate:** M7.2 passes and concrete image use cases and representative data are available.
 - [ ] **Exit gate:** an approved specification defines input/data identity, previews, inspection interactions, analysis scope, resource constraints, and delivery gates.
@@ -313,6 +335,9 @@ implementation milestones only after its specification is approved.
 - [ ] **Suggested step commits:** `docs: investigate image inspection` → `docs: specify image workbench milestones`.
 
 ### M8.6 — Text inspection
+
+The requested tokenization, statistics, and token-span inspection are specified
+in [Phase 12](#phase-12--text-profiling-and-token-inspection).
 
 - [ ] **Deliverables:** text-dataset inspection proposal grounded in representative analyst workflows.
 - [ ] **Entry gate:** M7.2 passes and concrete text use cases and representative data are available.
@@ -516,3 +541,314 @@ LIBGL_ALWAYS_SOFTWARE=1 /tmp/datelier-refactor-install/bin/python /tmp/datelier-
 LIBGL_ALWAYS_SOFTWARE=1 /tmp/datelier-refactor-install/bin/datelier --smoke-frames 20
 LIBGL_ALWAYS_SOFTWARE=1 /tmp/datelier-refactor-install/bin/datelier --feasibility --smoke-frames 20
 ```
+
+## Authorized editor and multimodal expansion
+
+The user approved the following six delivery phases after choosing independent
+file tabs with cross-file comparisons, whole-session workspaces, checkpoint
+inspection, nearby-folder discovery, local tokenizer import/training, direct
+media files/folders, explicit expensive collection analysis, confirmable array
+mappings, and annotation inspection/comparison. This extends the personal Linux
+workbench beyond v1. It does not authorize model construction/inference,
+annotation editing, a general out-of-core table engine, public plugins, or
+additional platform support.
+
+The immediate roadmap/contributor-guide update is documentation only. The
+milestones below require implementation, verification, evidence, and coherent
+step commits before any checkbox is checked. Each suggested commit sequence is
+a set of bounded slices to verify individually under AGENTS.md.
+
+### Shared contracts and defaults
+
+- **File sessions and record views:** an application session owns independent
+  file sessions, each with source identity, revisions, operations, selections,
+  analysis settings, and views. Object/array files can contain named record
+  views within their file tab. Keep Polars authoritative for tabular records and
+  supporting columns; reference media/array payloads through typed adapters.
+- **Identity and publication:** namespace source-record identity by file/view.
+  Tag jobs/results with that identity, revision, settings, and source identity.
+  Closing or superseding a view rejects its late results; numeric row IDs from
+  different files must never share a selection accidentally.
+- **Lazy preparation:** show source metadata and the initial table/object/array
+  browser before expensive work. Resolve references, decode visible previews,
+  and prepare selected profiles outside frame callbacks. Whole-collection
+  text/media analysis, tokenizer training, and playback require explicit actions.
+  Existing automatic basic tabular exploration remains available.
+- **Resources:** use a shared bounded scheduler rather than multiplying worker
+  pools per tab. Prioritize visible records and selected views, with configurable
+  byte-bounded CPU/GPU caches and managed temporary storage. Eviction changes
+  retained data, not available features. Prefer chunking or slower background
+  computation when a complete result exceeds a preview/cache budget; label
+  sampling and approximation and retain an exact-analysis action.
+- **Interpretation and preservation:** retain physical types and original
+  values. Explain inferred roles and keep overrides replayable, undoable, and
+  saved. Reference discovery does not rewrite cells. Changing display scales,
+  tokenization, or image normalization must not silently modify source data.
+- **Startup and persistence:** startup and New Tab show Welcome; reopening an
+  already-open source focuses its tab. Save references and recipes, including
+  tokenizer artifacts, without bundling media, decompressed caches, or fitted
+  ML results. Restoring opens metadata without training or playback.
+- **Chosen presentation defaults:** text folders use one document per file,
+  with an explicit line-record option. Numeric shading uses a percentile scale
+  with marked extremes and a selectable linear min/max scale. Comparisons map
+  fields explicitly per file, share bins/category ordering, and expose count
+  versus density normalization; selections remain associated with their source.
+
+### Verification requirements for Phases 9–14
+
+- Verify Python 3.14/Linux dependency feasibility before the owning subsystem:
+  Pillow for image decoding; Hugging Face Tokenizers for BPE/Unigram;
+  SoundFile/SoundDevice/SciPy for audio; CPU PyTorch as an explicit installation
+  extra. Verify system decoder/playback requirements in the clean-install gate.
+  Add dependencies with uv and keep the lockfile consistent; preserve existing
+  GUI/Polars boundaries and isolate untyped dependency APIs.
+- Every code step requires Pyrefly, focused behavioral tests, Ruff lint/format,
+  applicable native GUI smoke checks, diff review, and a step commit. Every
+  milestone exit also requires the full suite and its listed acceptance cases.
+  Record commands, versions, fixture details, observations, and material limits
+  before marking gates passed. Documentation-only slices use document checks.
+- Include duplicate filenames/stems, empty/malformed sources, missing/changed
+  assets, mismatched arrays, null/nonfinite values, incompatible interpretations,
+  cross-file row-ID collisions, stale jobs, and closure during background work.
+  Verify source preservation and workspace migration/recovery throughout.
+- Preserve existing single-table responsiveness/resource gates, including the
+  recorded 33 ms frame-p95 target. Establish fixture-specific multimodal and
+  multi-file budgets before judging their acceptance: metadata/first-preview
+  latency, selected-profile latency, frame p95, CPU/GPU cache retention, peak
+  memory, temporary-disk use, and cleanup after switching/closing views. Longer
+  background calculations are acceptable when capability remains accessible;
+  unmeasured dependency or performance gates remain open.
+
+Implementation references: [NumPy NPZ member-loading semantics](https://numpy.org/doc/stable/reference/generated/numpy.lib.npyio.NpzFile.html),
+[PyTorch checkpoint serialization](https://docs.pytorch.org/docs/stable/notes/serialization.html),
+[BPE/Unigram trainers](https://huggingface.co/docs/tokenizers/api/trainers),
+and [Ultralytics detection formats](https://docs.ultralytics.com/datasets/detect/).
+These guide feasibility checks; they are not evidence that Datelier has passed
+the corresponding dependency or behavior gates.
+
+## Phase 9 — Editor tabs and whole-session workspaces
+
+- [ ] **Phase complete.** **Entry:** M7.2 and the source package refactor pass; existing workspace compatibility tests are available. **Exit:** M9.1–M9.4 pass, including independent training/test workflows and fresh-process session restoration.
+
+### M9.1 — Independent file sessions and editor tabs
+
+- [ ] **Deliverables:** application/file session separation; top file tab bar with switching, reordering, closing, and New Tab; independent source/revision, operations, selections, jobs, analysis settings, and views; dockable panels bound to the active file.
+- [ ] **Entry gate:** inspect current GuiSession and job/persistence boundaries; define typed file-session ownership and the shared worker lifecycle before introducing tabs.
+- [ ] **Exit gate:** switching between two files retains independent history, selections, controls, and running jobs; closing a loading/analyzing tab cannot publish into another; docking and the existing one-file workflow remain usable.
+- [ ] **Verification evidence:** deterministic two-file identity/history fixtures, rapid-switch/close/stale-result tests, native tab and docking smoke, full suite and tab-lifecycle resource measurements.
+- [ ] **Suggested step commits:** `refactor: isolate file inspection sessions` → `feat: add editor file tabs` → `fix: retire jobs when file tabs close`.
+
+### M9.2 — Welcome, recent sources, and file opening
+
+- [ ] **Deliverables:** Welcome on startup and blank tabs, recent files/workspaces, Open Files/Open Folder with multi-file selection; contextual import settings and menu workspace actions replacing Open dataset and Workspace panels.
+- [ ] **Entry gate:** M9.1 passes; file opening targets a specific session and failures cannot replace another tab's source.
+- [ ] **Exit gate:** startup/New Tab show Welcome; multiple chosen files open independent tabs; Open Folder lists supported tabular files, with media collections added in M10.4; reopening a source focuses it; recent missing sources and failed imports offer actionable recovery; import options and workspace actions remain accessible.
+- [ ] **Verification evidence:** recent-source persistence/failure fixtures, multi-open and duplicate-open tests, native welcome/file-picker/menu workflows and layout reset/recovery checks.
+- [ ] **Suggested step commits:** `feat: open files from welcome tabs` → `feat: remember recent files and workspaces` → `refactor: move import and workspace actions into editor controls`.
+
+### M9.3 — Whole-session workspace persistence
+
+- [ ] **Deliverables:** versioned whole-session recipes containing tab order/active tab, source references, independent operations/analysis settings/views, and comparison settings; migration of existing single-source workspaces; per-source restore/relink diagnostics.
+- [ ] **Entry gate:** M9.2 passes; each file session can capture and restore a recipe without fitted artifacts or shared mutable state.
+- [ ] **Exit gate:** save/reopen restores independent file state and layout; old workspaces become one-file sessions; missing/changed sources remain recoverable while other tabs are usable; restoration starts no ML, tokenizer training, or playback.
+- [ ] **Verification evidence:** legacy migration, round-trip, partial recovery and changed-source fixtures; fresh-process native save/reopen/relink; atomic-write/source-preservation and full-suite checks.
+- [ ] **Suggested step commits:** `feat: save whole-session workspaces` → `feat: migrate single-file workspace recipes` → `feat: recover individual workspace sources`.
+
+### M9.4 — Cross-file profile comparison
+
+- [ ] **Deliverables:** dockable comparison view with explicit field mappings, numeric distribution overlays, categorical counts and adjacent statistics; shared bins/category ordering, source labels/colors, count/density normalization and saved comparison settings.
+- [ ] **Entry gate:** M9.3 passes; prepared profiles and comparisons can identify every contributing file/view/revision.
+- [ ] **Exit gate:** unequal-size training/test distributions compare correctly; mismatched names can be mapped; incompatible types show diagnostics; edits invalidate only affected comparison results and linked selections stay in their originating file.
+- [ ] **Verification evidence:** known-distribution and category fixtures, shared-bin/normalization tests, cross-file selection/stale-result tests, native comparison and fresh-process restore, measured multi-file resources.
+- [ ] **Suggested step commits:** `feat: prepare cross-file profile comparisons` → `feat: compare profiles across editor files`.
+
+## Phase 10 — Interpretations, conditional previews, and record inspection
+
+- [ ] **Phase complete.** **Entry:** Phase 9 passes. **Exit:** M10.1–M10.4 pass with nonblocking reference discovery, aligned record inspection, and restored preview settings.
+
+### M10.1 — Richer column interpretations
+
+- [ ] **Deliverables:** local path, image, audio, and external-text interpretations with explanatory inference and reversible overrides; exact first-source-column ID heuristic after recognizable media/text interpretations; retained named-ID detection elsewhere.
+- [ ] **Entry gate:** inspect existing roles, replay, profiles, and feature eligibility; preserve the distinction between physical dtype, interpretation, and referenced payload.
+- [ ] **Exit gate:** at import, a nonempty, fully unique non-null integer/string first source column becomes Identifier unless recognizable media/text wins; empty/duplicate/null-containing columns do not satisfy that rule; floats are not IDs merely through uniqueness; overrides replay without changing values/row identity.
+- [ ] **Verification evidence:** ordinary IDs, unique prose, image/audio/text paths, empty/null/duplicate and misleading-name fixtures; worker-only inference, undo/redo, feature eligibility and legacy workspace checks. Existing conservative-ID evidence remains historical.
+- [ ] **Suggested step commits:** `feat: infer media and path interpretations` → `feat: interpret unique first-column identifiers`.
+
+### M10.2 — Nearby reference discovery and lazy previews
+
+- [ ] **Deliverables:** exact absolute/dataset-relative resolution followed by indexed filename/stem matching; background indexing of the dataset directory and parent's subtree; editable roots/extension filters, progress, retry and explicit ambiguous-match mappings; lazy image thumbnails and text excerpts.
+- [ ] **Entry gate:** M10.1 passes; Pillow/Python 3.14 decoding and GUI texture creation/lifetime pass a small Linux probe; shared prioritized jobs and cache invalidation are established.
+- [ ] **Exit gate:** metadata preview appears without waiting for indexing/decoding; nearby stems resolve when unambiguous, duplicates remain explicit choices, missing/unreadable assets have diagnostics; unchanged cells and revision/source-aware cache results survive switching/relinking.
+- [ ] **Verification evidence:** duplicate stems across roots/extensions, relative/absolute paths, symlink/root changes, corrupt/missing/changed assets; native scroll/thumbnail smoke, decode/index cancellation or abandonment, CPU/GPU retention and latency measurements.
+- [ ] **Suggested step commits:** `feat: index nearby media references` → `feat: resolve ambiguous file references` → `feat: prepare lazy cell previews`.
+
+### M10.3 — Conditional table presentation
+
+- [ ] **Deliverables:** prepared typed cell presentation metadata, numeric blue-to-red shading with percentile/linear/custom scales and marked extremes, stable categorical colors, emphasized nulls, interpretation badges and saved per-view controls.
+- [ ] **Entry gate:** M10.2 passes; presentation uses prepared values/roles rather than parsing rendered strings or computing table-wide statistics in frames.
+- [ ] **Exit gate:** nulls differ from literal NULL strings; constant/nonfinite and high-cardinality columns have readable outcomes; selection remains distinguishable; theme changes, sort/filter/undo and workspace restoration retain correct styles and bounded rendering.
+- [ ] **Verification evidence:** typed-null/category/numeric-extreme fixtures, palette/scale behavior, native light/dark and linked-selection checks, virtualization/resource gates and preference/workspace round trips.
+- [ ] **Suggested step commits:** `feat: prepare typed conditional cell styles` → `feat: color table previews by interpretation`.
+
+### M10.4 — Shared Inspect view and direct media sources
+
+- [ ] **Deliverables:** gallery and focused-record views for row ranges, linked selections and seeded random samples, with any chosen supporting columns; virtual record collections from individual media files/folders and configurable text file-versus-line records.
+- [ ] **Entry gate:** M10.3 passes; stable file/view/record identities and lazy reference previews are available.
+- [ ] **Exit gate:** Inspect follows the correct records after sort/filter/sample and cross-file switching; supporting-column choices are not limited by the preview page width; folder manifests and missing records restore predictably. Full modality tools arrive in Phases 12–14.
+- [ ] **Verification evidence:** seeded range/sample identity and supporting-column fixtures, folder/line provenance and changed-source recovery, native gallery/detail navigation and tab-closure cleanup.
+- [ ] **Suggested step commits:** `feat: open media files and folders as records` → `feat: inspect selected records with supporting columns`.
+
+## Phase 11 — Structured objects, arrays, and checkpoints
+
+- [ ] **Phase complete.** **Entry:** Phase 10 passes. **Exit:** M11.1–M11.4 pass; structure, mappings and source-record identity survive workspace restoration without eager payload loading.
+
+### M11.1 — Structured JSON and TOML browsing
+
+- [ ] **Deliverables:** expandable object trees, scalar previews and navigation for arbitrary JSON/TOML; retained flat JSON table imports; selected record nodes opened as named table views while the original object remains browsable.
+- [ ] **Entry gate:** file sessions support typed source kinds and named record views; existing JSON correctness and nested-input diagnostics are covered.
+- [ ] **Exit gate:** nested objects/arrays are preserved rather than silently flattened; selected compatible records enter the table pipeline with stable node/record provenance; incompatible/mixed structures produce actionable diagnostics and do not alter other views.
+- [ ] **Verification evidence:** nested/scalar/empty/malformed JSON/TOML fixtures, table extraction and source preservation, native tree/navigation/table workflows, old JSON regressions and workspace node-view restoration.
+- [ ] **Suggested step commits:** `feat: browse structured json and toml` → `feat: inspect object records as table views`.
+
+### M11.2 — Lazy NPY and NPZ array browsing
+
+- [ ] **Deliverables:** member names, shapes, dtypes and storage sizes before payload loading; vector plots, matrix heatmaps and higher-dimensional slice controls; selected compressed NPZ members decompressed in workers to reusable temporary NPY storage and memory-mapped slices where needed.
+- [ ] **Entry gate:** M11.1 passes; verify NumPy header/member access, mapping, temporary-storage lifecycle and renderer boundaries on representative arrays.
+- [ ] **Exit gate:** opening an archive does not materialize every member; selecting/slicing preserves dtype and raw values; compressed members remain inspectable through explicit background preparation; corruption, unsupported payloads and disk failures have recoverable diagnostics.
+- [ ] **Verification evidence:** compressed/uncompressed, empty/structured/string/nonfinite and higher-dimensional fixtures; unselected-member loading checks; native slice/heatmap workflow, cache/disk cleanup and memory/latency measurements.
+- [ ] **Suggested step commits:** `feat: browse numpy array metadata` → `feat: cache selected npz members for slicing` → `feat: inspect array slices and heatmaps`.
+
+### M11.3 — Confirmable array record mappings
+
+- [ ] **Deliverables:** suggested record axes, image/channel and audio layouts, aligned supporting arrays, and confirmation/edit controls; named record views with persisted mappings and stable source-index identity.
+- [ ] **Entry gate:** M11.2 passes; arrays and scalar supporting columns share references without copying media into the Polars table.
+- [ ] **Exit gate:** images[N,H,W,C] plus labels[N] form correctly aligned records only after confirmation; alternate layouts/record axes are configurable; unequal lengths are diagnosed without truncation; filtering/sampling/undo and workspace reopen retain alignment.
+- [ ] **Verification evidence:** NHWC/NCHW and grayscale/heatmap/waveform fixtures, axis ambiguity and length mismatches, mapping round trips, native confirmation and supporting-column/linked-selection checks.
+- [ ] **Suggested step commits:** `feat: configure array record mappings` → `feat: link array payloads with supporting records`.
+
+### M11.4 — PyTorch checkpoint inspection
+
+- [ ] **Deliverables:** CPU inspection of compatible .pt/.pth/.ckpt tensor containers and state dictionaries, nested metadata, shapes/dtypes and tensor plots/slices; explicit PyTorch installation extra and restricted loading with weights_only=True and map_location="cpu"; saved tensor/view locators.
+- [ ] **Entry gate:** M11.3 passes; verify CPU PyTorch clean install and checkpoint/tensor loading on Python 3.14/Linux, including metadata-first or mapped access where supported.
+- [ ] **Exit gate:** supported checkpoint contents are inspectable without model construction/inference or unrestricted unpickling; unsupported objects have clear diagnostics; selected tensor values and views restore correctly and cannot overwrite sources or publish stale results.
+- [ ] **Verification evidence:** nested state-dict/tensor/metadata and unsupported-checkpoint fixtures, CPU placement/value correctness, native tensor navigation, absent-extra diagnostics, checkpoint resource and clean-install checks.
+- [ ] **Suggested step commits:** `build: add optional cpu checkpoint inspection` → `feat: browse pytorch checkpoints and tensors`.
+
+## Phase 12 — Text profiling and token inspection
+
+- [ ] **Phase complete.** **Entry:** Phase 11 passes. **Exit:** M12.1–M12.4 pass; multilingual text statistics and token spans are correct and cross-file comparisons use compatible tokenization.
+
+### M12.1 — Configurable tokenization
+
+- [ ] **Deliverables:** character (Unicode code points), whitespace, word, BPE and Unigram modes; visible normalization and token-count settings; local tokenizer configuration loading and source-preserving token offsets.
+- [ ] **Entry gate:** verify Hugging Face Tokenizers on Python 3.14/Linux; inline/external text records have encoding diagnostics and stable identity.
+- [ ] **Exit gate:** modes tokenize known multilingual fixtures with documented units and normalization; null/empty/decoding errors have distinct outcomes; imported tokenizer identity and settings are reproducible and no downloads/training occur implicitly.
+- [ ] **Verification evidence:** Unicode, punctuation, whitespace, empty/null and imported-tokenizer fixtures; offset/normalization tests, native tokenizer controls and saved-setting recovery.
+- [ ] **Suggested step commits:** `build: establish local tokenization support` → `feat: configure text tokenization modes`.
+
+### M12.2 — Explicit local BPE and Unigram training
+
+- [ ] **Deliverables:** explicit training on selected text records, visible training settings, local tokenizer artifacts and training-source provenance; cancellable or safely abandoned jobs; imported/trained configuration persistence.
+- [ ] **Entry gate:** M12.1 passes; training records and normalization are selectable without hidden corpus inclusion.
+- [ ] **Exit gate:** training begins only on command, produces reusable BPE/Unigram tokenizers and records its inputs/settings; failures/abandonment leave prior settings intact; reopening references the saved artifact without retraining or downloading.
+- [ ] **Verification evidence:** small deterministic training corpora, selected-row provenance and artifact round trips, missing/changed tokenizer recovery, worker lifecycle and native explicit-training checks.
+- [ ] **Suggested step commits:** `feat: train local text tokenizers` → `feat: retain tokenizer provenance and references`.
+
+### M12.3 — Text statistics and profiles
+
+- [ ] **Deliverables:** document/token totals; length mean/std/min/max/median/quantiles; vocabulary size, token/document frequencies, hapax counts/ratios, type-token ratio and Shannon entropy in bits; length distributions and token-frequency views with visible corpus scope.
+- [ ] **Entry gate:** M12.2 passes; statistical preparation runs in workers and keys results by text/tokenizer/settings/revision.
+- [ ] **Exit gate:** hand-calculated corpus statistics match; nulls, empty documents, decoding failures and special-token handling are reported explicitly; complete collection calculations require a command and exact statistics remain accessible when preview displays are bounded.
+- [ ] **Verification evidence:** known count/hapax/entropy/length fixtures, empty-corpus outcomes, settings/revision invalidation, native profile/statistics displays and corpus resource measurements.
+- [ ] **Suggested step commits:** `feat: calculate corpus token statistics` → `feat: profile text lengths and token frequencies`.
+
+### M12.4 — Token inspection and cross-file text comparison
+
+- [ ] **Deliverables:** full text, token pieces/IDs, offsets and highlighted spans beside supporting columns in Inspect; cross-file length/statistic/token-frequency comparisons using a shared tokenizer configuration.
+- [ ] **Entry gate:** M12.3 passes; prepared text/tokens and comparison results retain the correct source-record identity.
+- [ ] **Exit gate:** token spans map to original multilingual text, long text remains navigable, incompatible tokenizers cannot silently produce equivalent-looking comparisons, and record choices/comparison settings restore without training.
+- [ ] **Verification evidence:** original-span and long-text fixtures, shared/incompatible tokenizer comparisons, native token highlighting and linked selection, fresh-process workspace and resource checks.
+- [ ] **Suggested step commits:** `feat: inspect token spans and text records` → `feat: compare text profiles across files`.
+
+## Phase 13 — Images, heatmaps, and detection annotations
+
+- [ ] **Phase complete.** **Entry:** Phase 12 passes. **Exit:** M13.1–M13.4 pass; images, numeric heatmaps and box overlays retain correct values, provenance and geometry.
+
+### M13.1 — Image inspection and collection profiles
+
+- [ ] **Deliverables:** full-resolution zoom/pan, channel controls and pixel readouts, dimensions/aspect ratios, color/channel distributions and explicit collection summaries; support files/folders, metadata-table references and mapped image arrays.
+- [ ] **Entry gate:** lazy previews, Inspect navigation and array mappings pass; verify original-resolution decoding and texture lifecycle independently of frame rendering.
+- [ ] **Exit gate:** original image dimensions/pixels and collection statistics match known fixtures; supporting columns remain aligned; corrupt/missing assets are counted visibly; complete statistics remain available without requiring every image to stay decoded.
+- [ ] **Verification evidence:** grayscale/RGB/RGBA, orientation, varied-size and array-backed images; known color distributions, native zoom/pan/pixel inspection, exact/sampled provenance and decode/cache resource gates.
+- [ ] **Suggested step commits:** `feat: inspect full-resolution images` → `feat: profile image dimensions and colors`.
+
+### M13.2 — Numeric heatmap inspection
+
+- [ ] **Deliverables:** numeric image-like array inspection with selectable colormaps/ranges, channels/slices, nonfinite indicators and raw-value readouts; display normalization independent of source values/statistics.
+- [ ] **Entry gate:** M13.1 passes; Phase 11's array slicing and image navigation share prepared data without treating arbitrary numeric arrays as encoded RGB automatically.
+- [ ] **Exit gate:** signed/float/constant/nonfinite arrays show correct ranges and raw values; changing display normalization does not mutate data or statistical results; mapped record identity remains correct.
+- [ ] **Verification evidence:** known-value heatmaps, negative/constant/nonfinite fixtures, slice/readout correctness, native colormap/range navigation and restored settings.
+- [ ] **Suggested step commits:** `feat: inspect numeric image heatmaps` → `feat: configure heatmap display ranges`.
+
+### M13.3 — Detection annotation adapters and image association
+
+- [ ] **Deliverables:** Pascal VOC XML, YOLO detection text, COCO JSON and Ultralytics dataset manifests/labels; shared pixel-coordinate boxes retaining original coordinates, classes, optional scores and provenance; explicit image-key/path mappings.
+- [ ] **Entry gate:** M13.2 passes; verify format coordinate conventions and minimal manifest-parser dependencies against representative fixtures without adding model inference.
+- [ ] **Exit gate:** each named format resolves known boxes to the correct image; normalized/pixel and indexing conversions are explicit; class mappings, missing labels, invalid boxes and ambiguous image associations have diagnostics rather than silent reassignment.
+- [ ] **Verification evidence:** equivalent cross-format boxes, normalized edge cases, duplicate stems/class mappings, missing/invalid/out-of-bounds annotations and source-preservation tests.
+- [ ] **Suggested step commits:** `feat: load voc and yolo box annotations` → `feat: load coco and ultralytics detection datasets` → `feat: associate annotations with image records`.
+
+### M13.4 — Box overlays, annotation profiles, and image comparisons
+
+- [ ] **Deliverables:** selectable box/class/score overlays with multiple annotation sources; class counts, box size/aspect-ratio and annotation-quality profiles; cross-file image dimension/color comparisons with saved inspection settings.
+- [ ] **Entry gate:** M13.3 passes; image-space geometry and source-record identities are available to rendering without annotation parsing in frames.
+- [ ] **Exit gate:** overlays stay aligned under zoom/pan and orientation transforms; multiple sources can be inspected on one image; profiles and linked selections match known annotations; workspaces restore mappings without editing annotation files.
+- [ ] **Verification evidence:** native cross-format geometry and source-toggle smoke, overlay picking and row alignment, known annotation statistics, fresh-process image/box comparison restore and resource checks.
+- [ ] **Suggested step commits:** `feat: overlay and compare detection annotations` → `feat: profile boxes and compare image collections`.
+
+## Phase 14 — Audio inspection and integrated acceptance
+
+- [ ] **Phase complete.** **Entry:** Phase 13 passes. **Exit:** M14.1–M14.4 pass, including actual Linux playback, correct signal views, mixed-source session recovery, and clean installation.
+
+### M14.1 — Lazy audio loading and signal profiles
+
+- [ ] **Deliverables:** common local audio inputs including WAV/FLAC/OGG/MP3 and mapped waveform arrays; header-first sample rate/channel/duration metadata; amplitude/RMS, clipping and silence statistics; sample-rate configuration when arrays lack it.
+- [ ] **Entry gate:** verify SoundFile/SoundDevice/SciPy and decoder/system requirements on Python 3.14/Linux; establish worker-side block decoding and preserved original signal metadata.
+- [ ] **Exit gate:** files and arrays expose correct duration/channels/rate and known signal statistics; missing-rate arrays require configuration; malformed/unsupported inputs have diagnostics; headers and visible previews do not trigger full collection decoding.
+- [ ] **Verification evidence:** mono/stereo, varied-rate, silence/clipping, corrupt/missing and array-backed fixtures; codec feasibility, known signal values, worker lifecycle and memory/latency measurements.
+- [ ] **Suggested step commits:** `build: establish linux audio inspection dependencies` → `feat: load audio metadata and waveform records` → `feat: profile audio signal statistics`.
+
+### M14.2 — Waveform, spectrogram, and mel views
+
+- [ ] **Deliverables:** worker-prepared waveform envelopes, spectrograms and mel spectrograms; channel/time-range, FFT/window/hop, mel-band/frequency-limit and scale controls; bounded display preparation with full-resolution access.
+- [ ] **Entry gate:** M14.1 passes; signal conversion/preparation has explicit provenance and never silently changes original sample rates.
+- [ ] **Exit gate:** known tones/impulses produce correct time/frequency/mel representations; channel/window/range changes invalidate affected work only; long recordings remain navigable and settings/provenance restore accurately.
+- [ ] **Verification evidence:** reference signal/frequency and mel-filter fixtures, envelope extrema and time-axis alignment, native waveform/mel controls, long-recording resource and stale-result gates.
+- [ ] **Suggested step commits:** `feat: prepare waveform and spectral views` → `feat: inspect configurable mel spectrograms`.
+
+### M14.3 — Listening and cross-file audio comparison
+
+- [ ] **Deliverables:** play/pause/stop, seeking, volume and selected-range playback in Inspect with supporting columns; cross-file audio-statistic profiles and saved view controls; no autoplay.
+- [ ] **Entry gate:** M14.2 passes; a bounded playback-buffer/device lifecycle is established independently of GUI rendering.
+- [ ] **Exit gate:** actual Linux playback follows the selected record/range and reports device failures; seeking/stop/tab closure release playback resources; loading/restoring never starts sound; audio comparisons retain source identity and compatible units.
+- [ ] **Verification evidence:** playback lifecycle/device-error and range-buffer tests, actual listening/seek/pause/volume observations on reference Linux hardware, native supporting-column/comparison workflows and workspace restore.
+- [ ] **Suggested step commits:** `feat: listen to selected audio records` → `feat: compare audio profiles across files`.
+
+### M14.4 — Integrated multimodal and local-install acceptance
+
+- [ ] **Deliverables:** representative mixed text/image/audio and NPZ-backed workflows, training/test comparisons, session recovery/relinking, closure/cache-eviction hardening and updated local installation/usage documentation.
+- [ ] **Entry gate:** M14.3 and every preceding Phase 9–14 milestone pass; all required dependency and fixture-specific resource budgets are recorded.
+- [ ] **Exit gate:** full suite, Pyrefly/Ruff, fresh-process mixed-session and legacy workspace workflows, native modality controls, source preservation and resource/cleanup gates pass; clean Linux install verifies both the base application and checkpoint extra with documented codec/playback requirements.
+- [ ] **Verification evidence:** commands/commits/versions, fixtures and manual GUI/listening observations, single-table regression and multimodal CPU/GPU/memory/disk reports, repeated-tab lifecycle runs, clean-wheel workflows and documented material limitations. Existing unfinished Titanic usability gates remain separate.
+- [ ] **Suggested step commits:** `fix: harden mixed-source inspection lifecycles` → `docs: document editor and multimodal workflows` → `test: verify multimodal session and local-install acceptance`.
+
+### Roadmap planning verification
+
+Documentation checks pass: Python local-link/anchor and fenced-code audits cover
+all 19 Markdown documents and 212 local references; milestone-field/status
+checks cover six new phases and 24 milestones; `git diff --check` passes.
+All 132 existing checkboxes retain their status and text apart from corrected
+M6.1/M6.2 evidence-link targets. Only `ROADMAP.md` and `AGENTS.md` changed.
+Application tests, Pyrefly, dependency probes, and GUI/resource gates were not
+run for this documentation-only step; all Phase 9–14 implementation gates
+remain unchecked. The first outstanding implementation gate is M9.1.

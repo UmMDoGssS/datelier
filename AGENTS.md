@@ -4,8 +4,11 @@
 
 Datelier is a simple personal desktop data inspection workbench. Keep changes
 practical; public release infrastructure and decorative polish are not goals.
-Start with tabular data; image and text inspection are later directions. Prioritize
-useful inspection, responsive interactions, and customization over decorative UI.
+Build on the completed tabular baseline. The authorized post-v1 direction adds
+editor sessions, structured files, and text/image/audio inspection through
+Phases 9–14 of [ROADMAP.md](ROADMAP.md#authorized-editor-and-multimodal-expansion).
+Prioritize useful inspection, responsive interactions, and customization over
+decorative UI.
 
 The v1 target is Linux, Python 3.14+, and datasets that fit in memory. Use Polars
 for tabular operations and Dear ImGui/ImPlot through
@@ -26,9 +29,12 @@ V1 includes:
 - Saved workspaces, dockable panels, themes, plot controls, and linked
   table/plot selections.
 
-Third-party plugins, arbitrary Python mappings, larger-than-memory execution,
-additional platforms, and image/text inspection are outside v1. Do not build
-speculative infrastructure for them.
+Third-party plugins, arbitrary Python mappings, larger-than-memory table
+execution, additional platforms, and image/text/audio inspection are outside
+the completed v1 scope. Phases 9–14 authorize the concrete editor and multimodal
+expansion; other directions remain optional investigations. Lazy media loading
+and temporary array caches do not authorize a general out-of-core table engine.
+Do not build speculative infrastructure for unrequested directions.
 
 ## Repository state and sources of truth
 
@@ -84,6 +90,15 @@ The scatter views and native legend follow-up is authorized;
 [docs/scatter-views-and-legends.md](docs/scatter-views-and-legends.md) tracks
 separate 2D/3D scatter views, fixed component counts and plot legend verification.
 
+The editor and multimodal expansion is authorized for staged delivery in
+[ROADMAP.md](ROADMAP.md#authorized-editor-and-multimodal-expansion): independent
+file tabs and whole-session workspaces, cross-file profile comparisons, richer
+interpretations and previews, structured JSON/TOML and NPY/NPZ/checkpoint
+inspection, text tokenization/statistics, image/box inspection, and audio
+profiles/playback. Its implementation and dependency/resource gates remain open.
+Phase 8 investigations do not block this approved sequence. Existing v1 evidence
+and unfinished Titanic usability gates retain their status.
+
 Use this file for durable conventions and `ROADMAP.md` for sequencing,
 deliverables, and acceptance gates. Inspect actual code and configuration
 before relying on either document's description of current implementation.
@@ -107,9 +122,20 @@ Keep both documents aligned when an authorized decision changes direction.
 - Associate derived data and background jobs with dataset revisions. Reject
   stale results and invalidate affected profiles, plots, and analysis when
   the dataset or pipeline changes.
+- Namespace records, selections, jobs, and prepared results by file and record
+  view as well as revision. Equal source-row numbers in different files do not
+  identify the same record. Closing a tab must prevent its jobs publishing into
+  another tab.
+- Keep physical types, analysis interpretations, and media/array references
+  distinct. Inference must explain its evidence; overrides are reversible and
+  persisted. Resolving a reference must not rewrite the original cell value.
 - Save source references, import options, operation recipes, analysis settings,
   and views in versioned workspace files. Detect changed/missing sources and
   support relinking. V1 workspaces do not bundle data snapshots by default.
+- Whole-session workspaces must preserve independent file/view recipes and
+  migrate existing single-source workspaces. Reference media and tokenizer
+  artifacts; do not bundle decoded caches or fitted ML results. Preserve usable
+  tabs when another source needs recovery or relinking.
 - Restrict user expressions to the supported expression interface. Do not
   introduce arbitrary Python execution as a shortcut for mapping.
 
@@ -117,6 +143,11 @@ Keep both documents aligned when an authorized decision changes direction.
 
 - Render from prepared state. Keep file reads, table-wide computation, and ML
   outside frame callbacks. Use background jobs and virtualized table rendering.
+- Open metadata before decoding media/array payloads. Use shared bounded jobs
+  and configurable caches, prioritizing visible records and selected profiles.
+  Whole-collection text/media analysis and tokenizer training require explicit
+  commands. Cache limits govern retained data rather than remove capabilities;
+  use chunking, background work, or temporary storage when needed.
 - Show loading, progress where available, errors, and completion. Support
   cancellation where feasible, otherwise safe abandonment that cannot publish
   obsolete results. Do not claim a job has stopped if it is still executing.
@@ -125,6 +156,8 @@ Keep both documents aligned when an authorized decision changes direction.
   configure it. Clearly label sampling, approximation, and truncation.
 - Run PCA, t-SNE, UMAP, and k-means only after an explicit user command.
   Loading a dataset or restoring a workspace must not silently run ML.
+  Tokenizer training and audio playback must likewise never start implicitly
+  during loading or restoration.
 - Expose feature selection, preprocessing, parameters, and random seeds.
   Record them with results and preserve row alignment after excluding inputs.
 - Support docking, saved layouts, themes, configurable plots, zoom/pan, and
