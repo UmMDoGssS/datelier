@@ -1,6 +1,5 @@
 """Explicit, isolated estimator boundary with complete settings provenance."""
 
-from importlib.metadata import version
 from time import perf_counter
 from typing import cast
 from warnings import catch_warnings
@@ -8,15 +7,12 @@ from warnings import catch_warnings
 import numpy as np
 from numpy.typing import NDArray
 
+from datelier.analysis_provenance import make_provenance
 from datelier.analysis_types import (
     AnalysisResult,
-    ClusteringResult,
     EmbeddingResult,
-    KMeansFit,
-    KMeansParameters,
     PCAParameters,
     PreparedInput,
-    Provenance,
     TSNEParameters,
     UMAPParameters,
 )
@@ -28,34 +24,10 @@ def run_analysis(prepared: PreparedInput) -> AnalysisResult:
     started = perf_counter()
     request = prepared.request
     params = request.parameters
-    if isinstance(params, KMeansParameters):
-        from sklearn.cluster import KMeans
+    if request.algorithm.is_clustering:
+        from datelier.analysis_clustering import run_clustering
 
-        estimator = KMeans(
-            n_clusters=params.clusters,
-            n_init=params.initializations,
-            max_iter=params.iterations,
-            random_state=request.seed,
-        )
-        with threadpool_limits(limits=1):
-            labels = cast(
-                NDArray[np.int64], estimator.fit_predict(prepared.values)
-            ).astype(np.int64)
-        centers = cast(NDArray[np.float64], estimator.cluster_centers_).astype(
-            np.float64
-        )
-        inertia = float(estimator.inertia_)
-        if not np.isfinite(centers).all() or not np.isfinite(inertia):
-            raise ValueError("Clustering overflow; enable standardization")
-        labels.flags.writeable = centers.flags.writeable = False
-        return ClusteringResult(
-            prepared.revision,
-            prepared.row_ids,
-            labels,
-            make_provenance(prepared, started),
-            tuple(int(v) for v in np.bincount(labels, minlength=params.clusters)),
-            KMeansFit(prepared.model, centers, inertia),
-        )
+        return run_clustering(prepared)
     if isinstance(params, TSNEParameters):
         from sklearn.manifold import TSNE
 
@@ -164,17 +136,4 @@ def embedding_result(
         coordinates,
         make_provenance(prepared, started, libraries),
         details,
-    )
-
-
-def make_provenance(
-    prepared: PreparedInput,
-    started: float,
-    libraries: tuple[str, ...] = ("numpy", "polars", "scikit-learn", "threadpoolctl"),
-) -> Provenance:
-    return Provenance(
-        prepared.request,
-        prepared.summary,
-        tuple((name, version(name)) for name in libraries),
-        perf_counter() - started,
     )

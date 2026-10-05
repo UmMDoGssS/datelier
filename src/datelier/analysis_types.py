@@ -2,24 +2,19 @@
 
 import math
 from dataclasses import dataclass
-from enum import StrEnum
 from typing import ClassVar
 
 import numpy as np
 from numpy.typing import NDArray
 
+from datelier.analysis_algorithm import Algorithm as Algorithm
+from datelier.analysis_parameters import (
+    EXTRA_DEFAULT_LIMITS,
+    EXTRA_LIMITS,
+    ExtraParameters,
+    validate_parameters,
+)
 from datelier.dataset import DatasetRevision
-
-
-class Algorithm(StrEnum):
-    PCA = "PCA"
-    TSNE = "t-SNE"
-    UMAP = "UMAP"
-    KMEANS = "K-means"
-
-    @property
-    def is_clustering(self) -> bool:
-        return self == Algorithm.KMEANS
 
 
 @dataclass(frozen=True)
@@ -54,14 +49,18 @@ class KMeansParameters:
     iterations: int = 300
 
 
-Parameters = PCAParameters | TSNEParameters | UMAPParameters | KMeansParameters
+Parameters = (
+    PCAParameters | TSNEParameters | UMAPParameters | KMeansParameters | ExtraParameters
+)
 LIMITS = {
+    **EXTRA_LIMITS,
     Algorithm.PCA: 100_000,
     Algorithm.KMEANS: 100_000,
     Algorithm.TSNE: 10_000,
     Algorithm.UMAP: 50_000,
 }
 DEFAULT_LIMITS = {
+    **EXTRA_DEFAULT_LIMITS,
     Algorithm.PCA: 10_000,
     Algorithm.KMEANS: 10_000,
     Algorithm.TSNE: 2_000,
@@ -102,6 +101,7 @@ class AnalysisRequest:
             )
         if self.dimensions not in (2, 3):
             raise ValueError("Embedding dimensions must be two or three")
+        validate_parameters(self.parameters)
         params = self.parameters
         if isinstance(params, PCAParameters) and params.solver not in (
             "randomized",
@@ -241,6 +241,8 @@ class ClusteringResult:
     counts: tuple[int, ...]
     # Label-only results need no prediction capability or fitted centers.
     fit: KMeansFit | None = None
+    noise_count: int = 0
+    details: tuple[tuple[str, str], ...] = ()
 
 
 AnalysisResult = EmbeddingResult | ClusteringResult

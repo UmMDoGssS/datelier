@@ -80,7 +80,7 @@ def test_kmeans_fit_sample_and_displayed_prediction_alignment() -> None:
     labels_only = replace(result, fit=None)
     assigned = predict_clusters(dataset, np.arange(240, dtype=np.uint64), labels_only)
     np.testing.assert_array_equal(assigned[result.row_ids], result.labels)
-    assert (assigned[np.setdiff1d(np.arange(240), result.row_ids)] == -1).all()
+    assert (assigned[np.setdiff1d(np.arange(240), result.row_ids)] == -2).all()
     colors_only = prepare_cluster_colors(
         dataset, np.arange(240, dtype=np.uint64), labels_only
     )

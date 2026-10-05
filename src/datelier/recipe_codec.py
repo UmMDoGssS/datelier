@@ -10,6 +10,7 @@ from dataclasses import fields, is_dataclass
 from enum import Enum
 from typing import TypeAliasType, cast, get_args, get_origin, get_type_hints
 
+from datelier.analysis_parameters import EXTRA_DEFAULTS
 from datelier.analysis_types import (
     AnalysisRequest,
     KMeansParameters,
@@ -32,6 +33,7 @@ from datelier.transform_types import (
 from datelier.workspace_types import Workspace, WorkspaceSource, WorkspaceViews
 
 RECORDS = (
+    *(type(p) for p in EXTRA_DEFAULTS.values()),
     Workspace,
     WorkspaceSource,
     WorkspaceViews,

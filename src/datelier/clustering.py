@@ -1,4 +1,4 @@
-"""K-means predictions for bounded displayed rows, outside GUI callbacks."""
+"""Cluster assignments and predictions for bounded displayed rows."""
 
 import numpy as np
 import polars as pl
@@ -22,7 +22,7 @@ def predict_clusters(
         # remain excluded rather than inventing a prediction rule.
         known = dict(zip(result.row_ids.tolist(), result.labels.tolist(), strict=True))
         labels = np.array(
-            [known.get(int(i), -1) for i in dataset.row_ids.gather(positions)],
+            [known.get(int(i), -2) for i in dataset.row_ids.gather(positions)],
             dtype=np.int64,
         )
         labels.flags.writeable = False
@@ -49,7 +49,7 @@ def predict_clusters(
         keep = original_valid[eligible]
         values = values[keep]
         eligible &= original_valid
-    labels = np.full(len(positions), -1, dtype=np.int64)
+    labels = np.full(len(positions), -2, dtype=np.int64)
     # Bounded n×k distances rather than n×k×features temporary copies.
     with np.errstate(over="ignore", invalid="ignore"):
         distances = (
@@ -74,7 +74,11 @@ def prepare_cluster_colors(
     palette = {label: PALETTE[i] for i, label in enumerate(leading)}
     rgba = np.array(
         [
-            NEUTRAL if label < 0 else palette.get(int(label), 0xFFBBBBBB)
+            0xFF7777DD
+            if label == -1
+            else NEUTRAL
+            if label < 0
+            else palette.get(int(label), 0xFFBBBBBB)
             for label in labels
         ],
         dtype=np.uint32,
@@ -85,10 +89,17 @@ def prepare_cluster_colors(
     legend = tuple(
         (f"Cluster {i} (fit {result.counts[i]:,})", palette[i]) for i in leading
     )
+    extra = []
+    if len(result.counts) > len(leading):
+        extra.append(("Other clusters", 0xFFBBBBBB))
+    if result.noise_count:
+        extra.append((f"Noise (fit {result.noise_count:,})", 0xFF7777DD))
+    if np.any(labels == -2):
+        extra.append(("Unassigned / excluded", NEUTRAL))
     return PointColors(
         str(result.provenance.request.algorithm),
         rgba,
-        (*legend, ("Other clusters", 0xFFBBBBBB), ("Excluded", NEUTRAL)),
+        (*legend, *extra),
         f"Fit on {len(result.row_ids):,} sampled rows; "
         + (
             "displayed labels are nearest-center "

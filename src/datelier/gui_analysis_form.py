@@ -6,6 +6,7 @@ from imgui_bundle import imgui
 
 from datelier.analysis_types import Algorithm
 from datelier.gui_fields import combo, field
+from datelier.gui_method_parameters import show_extra_parameters
 
 if TYPE_CHECKING:
     from datelier.gui_analysis_controls import AnalysisControls
@@ -97,7 +98,7 @@ def show_parameters(controls: AnalysisControls, algorithm: Algorithm) -> None:
         _, controls.umap_metric = combo(
             "Metric", controls.umap_metric, ["euclidean", "cosine"]
         )
-    else:
+    elif algorithm == Algorithm.KMEANS:
         _, controls.kmeans_limit = imgui.input_int(
             field("Rows (max 100k)"), controls.kmeans_limit
         )
@@ -110,3 +111,6 @@ def show_parameters(controls: AnalysisControls, algorithm: Algorithm) -> None:
         _, controls.kmeans_iterations = imgui.input_int(
             field("Iterations"), controls.kmeans_iterations
         )
+
+    else:
+        show_extra_parameters(controls, algorithm)

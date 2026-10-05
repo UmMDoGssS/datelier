@@ -111,9 +111,9 @@ class Workspace:
             raise ValueError("Import options do not match the saved format")
         if len(self.history) > 1_000 or not 0 <= self.cursor <= len(self.history):
             raise ValueError("Workspace history or cursor exceeds supported bounds")
-        if len(self.analysis) > 4 or len({r.algorithm for r in self.analysis}) != len(
-            self.analysis
-        ):
+        if len(self.analysis) > len(Algorithm) or len(
+            {r.algorithm for r in self.analysis}
+        ) != len(self.analysis):
             raise ValueError("Save at most one setting recipe per analysis algorithm")
         for request in self.analysis:
             # Empty features are valid saved controls, but cannot launch analysis.

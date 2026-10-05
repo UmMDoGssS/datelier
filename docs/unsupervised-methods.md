@@ -8,7 +8,7 @@ and UMAP dependencies provide the implementations.
 ## Delivery gates
 
 - [x] Exclusive Colors sources and conditional Column picker.
-- [ ] Density clustering with distinguishable noise and unassigned rows.
+- [x] Density clustering with distinguishable noise and unassigned rows.
 - [ ] Additional centroid, mixture, hierarchical and graph clustering.
 - [ ] Additional linear and manifold embeddings, in 2D and 3D.
 - [ ] Full correctness suite, Titanic GUI workflow and saved recipe round trips.
@@ -27,3 +27,24 @@ errors; Ruff lint/format pass. Linux/Mesa live GUI checks pass for hidden Analys
 navigation without fitting (42 frames) and explicit 3D PCA/K-means, colors on raw
 and embedded axes, linked selection and source preservation (219 frames).
 Remaining method gates are open.
+
+## Density clustering
+
+DBSCAN exposes radius, minimum neighbors and distance; HDBSCAN exposes minimum
+cluster size/neighbors, hierarchy selection and optional single-cluster output;
+OPTICS exposes minimum size/neighbors, steepness and distance. Caps are 5,000 /
+10,000 / 5,000 fitting rows, with defaults of 2,000. Noise (-1) has a separate
+color/legend from unassigned/excluded (-2). Label-only methods color fitted
+identities, without invented predictions for unseen rows. Warnings, counts,
+settings, input summary and library versions remain available in provenance.
+New method records round-trip through the strict registered recipe codec.
+
+Verification: 56 focused density/input/analysis/workspace tests pass (11.57 s),
+including repeatability, sample identity alignment, separate noise/unassigned
+colors and invalid settings. Pyrefly reports zero errors with one narrow
+HDBSCAN stub omission suppression (the installed public API is present); Ruff
+lint/format pass (166 files). Linux/Mesa GUI checks render all parameters, click
+Run before any fit, color raw 3D axes and preserve linked selection/source data:
+DBSCAN 141 frames, HDBSCAN 138 frames, OPTICS 141 frames. The final layout was
+visually inspected. Clustering outcomes depend on settings; OPTICS/HDBSCAN need
+not identify the same noise or clusters as DBSCAN. Remaining gates stay open.

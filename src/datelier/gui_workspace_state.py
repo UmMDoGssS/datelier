@@ -3,6 +3,7 @@
 from dataclasses import replace
 from typing import TYPE_CHECKING
 
+from datelier.analysis_parameters import EXTRA_DEFAULTS
 from datelier.analysis_types import (
     KMeansParameters,
     PCAParameters,
@@ -112,6 +113,9 @@ def restore_analysis(
             controls.clusters = params.clusters
             controls.initializations = params.initializations
             controls.kmeans_iterations = params.iterations
+        elif request.algorithm in EXTRA_DEFAULTS:
+            controls.extra_parameters[request.algorithm] = params
+            controls.extra_limits[request.algorithm] = request.row_limit
 
 
 def capture_views(session: GuiSession) -> WorkspaceViews:

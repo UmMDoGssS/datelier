@@ -5,6 +5,11 @@ from dataclasses import asdict, dataclass, field
 from imgui_bundle import imgui
 
 from datelier.analysis_jobs import AnalysisJobs
+from datelier.analysis_parameters import (
+    EXTRA_DEFAULT_LIMITS,
+    EXTRA_DEFAULTS,
+    ExtraParameters,
+)
 from datelier.analysis_types import (
     Algorithm,
     AnalysisRequest,
@@ -49,6 +54,13 @@ class AnalysisControls:
     min_distance: float = 0.1
     umap_metric: int = 0
 
+    extra_parameters: dict[Algorithm, ExtraParameters] = field(
+        default_factory=EXTRA_DEFAULTS.copy
+    )
+    extra_limits: dict[Algorithm, int] = field(
+        default_factory=EXTRA_DEFAULT_LIMITS.copy
+    )
+
     def bind(self, dataset: Dataset) -> None:
         self.numeric = numeric_columns(dataset)
         self.features = [n for n in self.features if n in self.numeric]
@@ -80,7 +92,8 @@ class AnalysisControls:
             )
             limit = self.umap_limit
         else:
-            raise ValueError("This algorithm is not implemented yet")
+            params = self.extra_parameters[algorithm]
+            limit = self.extra_limits[algorithm]
         return AnalysisRequest(
             tuple(self.features),
             params,
@@ -113,7 +126,7 @@ class AnalysisControls:
         if dataset is None:
             return
         imgui.begin_disabled(jobs.busy)
-        show_inputs(self, dimensions=selected != Algorithm.KMEANS)
+        show_inputs(self, dimensions=selected is None or not selected.is_clustering)
         for algorithm in (selected,) if selected is not None else Algorithm:
             if imgui.tree_node(f"{algorithm} settings"):
                 imgui.push_id(str(algorithm))
@@ -171,6 +184,13 @@ class AnalysisControls:
                 imgui.text_wrapped(f"Fit runtime: {provenance.runtime_seconds:.3f}s")
                 imgui.text_wrapped(str(provenance.versions))
                 if isinstance(result, EmbeddingResult):
+                    for name, value in result.details:
+                        imgui.text_wrapped(f"{name}: {value}")
+                if isinstance(result, ClusteringResult):
+                    imgui.text(
+                        f"{len(result.counts)} clusters · "
+                        f"{result.noise_count:,} noise points"
+                    )
                     for name, value in result.details:
                         imgui.text_wrapped(f"{name}: {value}")
                 if isinstance(result, ClusteringResult) and result.fit is not None:
