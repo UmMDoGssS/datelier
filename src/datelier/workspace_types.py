@@ -39,6 +39,7 @@ class WorkspaceViews:
     comparison_height: float = 0
     scatter_height: float = 0
     relationship_height: float = 0
+    color_source: str | None = None
 
     def validate(self) -> None:
         if self.tab not in ("Profiles", "Scatter", "Correlations"):
@@ -51,8 +52,15 @@ class WorkspaceViews:
             raise ValueError("Target row must be positive")
         if not 0 <= self.profile_mode < 5:
             raise ValueError("Unknown profile chart type")
-        if self.coordinate_source == Algorithm.KMEANS:
+        if self.coordinate_source is not None and self.coordinate_source.is_clustering:
             raise ValueError("Clustering does not supply scatter coordinates")
+        if self.color_source not in (
+            None,
+            "Uniform",
+            "Column",
+            *(a.value for a in Algorithm if a.is_clustering),
+        ):
+            raise ValueError("Unknown color source")
         if any(
             not math.isfinite(h) or h != 0 and h < 170
             for h in (

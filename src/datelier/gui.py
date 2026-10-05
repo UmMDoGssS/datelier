@@ -8,7 +8,6 @@ from time import perf_counter
 
 from imgui_bundle import hello_imgui, imgui, immapp
 
-from datelier.analysis_types import Algorithm, ClusteringResult
 from datelier.editing import DatasetEditor
 from datelier.exploration import Explorer
 from datelier.exporting import DatasetExporter
@@ -156,7 +155,7 @@ def run_gui(
             "Analysis": lambda: analysis.controls.show(
                 analysis.jobs,
                 loader.active.dataset if loader.active else None,
-                analysis.source or Algorithm.KMEANS,
+                analysis.selected_algorithm(plot_controls),
             ),
             "Transform and history": lambda: operations.show(
                 editor,
@@ -238,15 +237,8 @@ def run_gui(
         completed = analysis.poll(loader.active.dataset if loader.active else None)
         if completed:
             exploration.tab = "Scatter"
-        cluster = analysis.jobs.results.get(Algorithm.KMEANS)
-        if (
-            isinstance(cluster, ClusteringResult)
-            and cluster is not plot_controls.cluster_result
-        ):
-            plot_controls.cluster_result = cluster
-            plot_controls.cluster_color = True
-            if loader.active is not None:
-                explorer.request(loader.active.dataset, plot_controls.settings())
+        if analysis.sync_colors(plot_controls) and loader.active is not None:
+            explorer.request(loader.active.dataset, plot_controls.settings())
         explorer.poll(loader.revision)
         exporter.poll()
         preferences.poll()

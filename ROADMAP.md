@@ -319,3 +319,11 @@ implementation milestones only after its specification is approved.
 - [ ] **Exit gate:** an approved specification defines records/encoding, previews, inspection interactions, analysis scope, resource constraints, and delivery gates.
 - [ ] **Verification evidence:** dataset/workflow findings, encoding and preview feasibility, reuse of workbench components, and proposal decisions.
 - [ ] **Suggested step commits:** `docs: investigate text inspection` → `docs: specify text workbench milestones`.
+
+## Authorized unsupervised inspection expansion
+
+The concrete user request adds clustering and embedding choices beyond the
+completed v1 baseline, with exclusive Uniform/Column/method Colors sources.
+[Delivery gates and verification](docs/unsupervised-methods.md) track bounded
+steps. This work uses the existing analysis worker and dependencies; loading or
+restoring a workspace must still never launch ML automatically.

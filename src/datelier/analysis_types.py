@@ -17,6 +17,10 @@ class Algorithm(StrEnum):
     UMAP = "UMAP"
     KMEANS = "K-means"
 
+    @property
+    def is_clustering(self) -> bool:
+        return self == Algorithm.KMEANS
+
 
 @dataclass(frozen=True)
 class PCAParameters:

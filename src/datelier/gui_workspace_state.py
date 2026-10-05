@@ -59,6 +59,7 @@ def restore_plots(
         if saved.color_column in controls.color_columns
         else 0
     )
+    controls.choose_color("Column" if controls.color_index else "Uniform")
     controls.compare_columns = [
         n for n in saved.comparison.columns if n in controls.numeric
     ]
@@ -129,6 +130,7 @@ def capture_views(session: GuiSession) -> WorkspaceViews:
         view.comparison_area.height,
         view.scatter_area.height,
         view.relationships.area.height,
+        session.plots.color_source,
     )
 
 
@@ -153,6 +155,8 @@ def restore_view_settings(session: GuiSession, saved: WorkspaceViews) -> None:
     view.profile_index = saved.profile_index
     view.profile_mode = saved.profile_mode
     session.analysis.source = saved.coordinate_source
+    if saved.color_source is not None:
+        session.plots.choose_color(saved.color_source)
     view.profile.area.height = saved.profile_height
     view.comparison_area.height = saved.comparison_height
     view.scatter_area.height = saved.scatter_height

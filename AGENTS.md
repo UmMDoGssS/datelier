@@ -67,6 +67,9 @@ The concrete Titanic inspection UX follow-up is authorized and underway;
 [docs/ux-implementation.md](docs/ux-implementation.md) tracks verified slices
 against [docs/ux-titanic-review.md](docs/ux-titanic-review.md). Keep unfinished UX
 gates open; completed v1 capability gates do not imply usability acceptance.
+The user also authorized broader unsupervised inspection methods and explicit
+Colors sources; [docs/unsupervised-methods.md](docs/unsupervised-methods.md) tracks
+that expansion and its verification gates.
 
 Use this file for durable conventions and `ROADMAP.md` for sequencing,
 deliverables, and acceptance gates. Inspect actual code and configuration

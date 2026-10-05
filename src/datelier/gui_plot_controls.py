@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 
 from imgui_bundle import imgui
 
-from datelier.analysis_types import ClusteringResult
+from datelier.analysis_types import Algorithm, ClusteringResult
 from datelier.dataset import Dataset
 from datelier.distributions import DistributionSettings
 from datelier.exploration import Explorer, PlotSettings
@@ -35,7 +35,7 @@ class PlotControls:
     color_index: int = 0
     color_columns: tuple[str, ...] = ()
     relationship_features: list[str] | None = None
-    cluster_color: bool = False
+    color_source: str = "Uniform"
     cluster_result: ClusteringResult | None = None
     three_d: bool = False
     z_index: int = 2
@@ -44,7 +44,6 @@ class PlotControls:
     def bind(self, dataset: Dataset) -> None:
         self.scatter_dirty = False
         self.cluster_result = None
-        self.cluster_color = False
         previous_x = self.numeric[self.x_index] if self.numeric else ""
         previous_y = self.numeric[self.y_index] if self.numeric else ""
         previous_z = (
@@ -123,7 +122,7 @@ class PlotControls:
                 self.bandwidth,
                 self.seed,
             ),
-            self.color_columns[self.color_index - 1] if self.color_index else None,
+            self.color_column,
             tuple(self.relationship_features or ()),
             self.cluster_result if self.cluster_color else None,
             self.numeric[self.z_index]
@@ -249,23 +248,59 @@ class PlotControls:
         if changed:
             self.scatter_dirty = True
 
-    def show_color(self) -> bool:
-        choices = ["Uniform", *self.color_columns]
-        if self.cluster_result is not None:
-            choices.append("K-means clusters")
-        selected = (
-            len(choices) - 1
-            if self.cluster_color and self.cluster_result is not None
-            else self.color_index
+    @property
+    def cluster_algorithm(self) -> Algorithm | None:
+        return next(
+            (a for a in Algorithm if a.is_clustering and a.value == self.color_source),
+            None,
         )
-        changed, index = combo("Color", selected, choices)
-        if changed:
+
+    @property
+    def cluster_color(self) -> bool:
+        return self.cluster_algorithm is not None
+
+    @property
+    def color_column(self) -> str | None:
+        if self.color_source == "Column" and self.color_index:
+            return self.color_columns[self.color_index - 1]
+        return None
+
+    def choose_color(self, source: str) -> None:
+        choices = [
+            "Uniform",
+            "Column",
+            *(a.value for a in Algorithm if a.is_clustering),
+        ]
+        if source not in choices:
+            raise ValueError("Unknown color source")
+        if source != self.color_source:
+            self.color_source = source
+            self.cluster_result = None
             self.scatter_dirty = True
-            self.cluster_color = (
-                self.cluster_result is not None and index == len(choices) - 1
-            )
-            if not self.cluster_color:
-                self.color_index = index
+        if source == "Column" and not self.color_index and self.color_columns:
+            self.color_index = 1
+
+    def show_color(self) -> bool:
+        choices = [
+            "Uniform",
+            "Column",
+            *(a.value for a in Algorithm if a.is_clustering),
+        ]
+        changed, index = combo("Colors", choices.index(self.color_source), choices)
+        if changed:
+            self.choose_color(choices[index])
+        if self.color_source == "Column":
+            if self.color_columns:
+                picked, index = combo(
+                    "Color column",
+                    max(0, self.color_index - 1),
+                    list(self.color_columns),
+                )
+                self.color_index = index + 1
+                self.scatter_dirty |= picked
+                changed |= picked
+            else:
+                imgui.text("No supported color columns")
         return changed
 
     def choose_axis(self, attr: str, index: int) -> None:

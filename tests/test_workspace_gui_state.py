@@ -163,3 +163,40 @@ def test_profile_summary_accounts_for_missing_and_nonfinite(tmp_path: Path) -> N
     )
     profile = prepare_profiles(data).columns[0]
     assert profile_summary(profile, 4) == "2 included · 1 missing (25.0%) · 1 nonfinite"
+
+
+def test_color_sources_are_exclusive_and_selection_does_not_run_ml(
+    tmp_path: Path,
+) -> None:
+    from datelier.gui_analysis import AnalysisSession
+
+    path = tmp_path / "data.csv"
+    path.write_text("x,y,group\n1,2,a\n3,4,b\n")
+    dataset = load_file(path).dataset
+    plots = PlotControls()
+    plots.bind(dataset)
+    analysis = AnalysisSession()
+    try:
+        plots.choose_color("Column")
+        plots.color_index = plots.color_columns.index("group") + 1
+        assert plots.settings().color_column == "group"
+        plots.choose_color("K-means")
+        assert plots.cluster_algorithm == Algorithm.KMEANS
+        assert plots.settings().color_column is None
+        assert plots.settings().clusters is None
+        assert analysis.selected_algorithm(plots) == Algorithm.KMEANS
+        assert not analysis.jobs.busy and not analysis.jobs.results
+        plots.choose_color("Uniform")
+        assert plots.settings().color_column is None
+        plots.choose_color("Column")
+        assert plots.color_column == "group"
+        plots.bind(dataset)
+        assert plots.color_source == "Column" and plots.color_column == "group"
+    finally:
+        analysis.close()
+
+
+def test_unfitted_color_source_is_saved_without_fitted_artifacts() -> None:
+    saved = WorkspaceViews(color_source="K-means")
+    saved.validate()
+    assert decode_record(WorkspaceViews, encode(saved)) == saved

@@ -61,6 +61,7 @@ def main() -> None:
                     else session.exploration.interaction.selected_points
                 ) == 1
                 assert source.read_bytes() == original
+                session.plots.choose_color("K-means")
                 analysis.controls.kmeans_limit = 30
                 analysis.controls.start(analysis.jobs, active.dataset, Algorithm.KMEANS)
                 stage, entered = 3, evidence.frames
