@@ -8,7 +8,6 @@ from datelier.dataset import Dataset
 from datelier.exploration import Dashboard, Explorer
 from datelier.gui_analysis import AnalysisSession
 from datelier.gui_categories import CategoryView
-from datelier.gui_distributions import MODES, show_comparison
 from datelier.gui_plot_area import PlotArea
 from datelier.gui_plot_controls import PlotControls
 from datelier.gui_profiles import ProfileView
@@ -64,6 +63,8 @@ class ExplorationView:
 
     @profile_index.setter
     def profile_index(self, value: int) -> None:
+        if value != self.profile.index:
+            self.profile.selection.columns = None
         self.profile.index = value
 
     @property
@@ -90,7 +91,13 @@ class ExplorationView:
             if plots is not None and dataset is not None:
                 if self.active_tab == "Correlations":
                     self.relationships.controls(
-                        len(plots.relationship_features or ()), plots, explorer, dataset
+                        len(
+                            plots.relationship_features
+                            or plots.numeric[: plots.correlation_columns]
+                        ),
+                        plots,
+                        explorer,
+                        dataset,
                     )
                     return
                 if self.active_tab == "Profiles" and self.tab not in (
@@ -147,32 +154,15 @@ class ExplorationView:
     def show_profile(
         self, explorer: Explorer, dashboard: Dashboard, dataset: Dataset | None
     ) -> None:
-        if dashboard.comparison is not None:
-            _, self.comparison_mode = imgui.combo(
-                "Numeric comparison",
-                self.comparison_mode,
-                [*MODES, "Individual profiles"],
-            )
-            if self.comparison_mode < 5:
-                key = (dashboard.revision, self.comparison_mode, dashboard.settings)
-                comparison = dashboard.comparison
-                if self.comparison_area.show(
-                    "Comparison plot",
-                    key,
-                    lambda height, fit, axes: show_comparison(
-                        comparison,
-                        self.comparison_mode,
-                        fit,
-                        height=height,
-                        axes=axes,
-                    ),
-                    numeric_axes=(False, True)
-                    if self.comparison_mode in (3, 4)
-                    else (True, True),
-                ):
-                    self.plot_frames += 1
-                if not imgui.collapsing_header("Individual column details"):
-                    return
+        if (
+            self.profile.selection.columns is None
+            and dashboard.comparison is not None
+            and self.comparison_mode < 5
+        ):
+            self.profile.selection.columns = dashboard.settings.comparison.columns
+            self.profile.mode = self.comparison_mode
+            if not self.profile.area.height:
+                self.profile.area.height = self.comparison_area.height
         if self.profile.show(explorer, dashboard, dataset):
             self.plot_frames += 1
 
@@ -198,6 +188,7 @@ class ExplorationView:
             if y is None:
                 plots.profile_index = plots.columns.index(x) + 1
                 self.profile_index = 0
+                self.profile.selection.columns = (x,)
                 self.comparison_mode = 5
                 self.tab = "Profiles"
             else:

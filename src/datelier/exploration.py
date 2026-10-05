@@ -21,6 +21,7 @@ from datelier.plotting import (
     prepare_correlations,
     prepare_scatter,
 )
+from datelier.profile_preview import ProfilePreview
 from datelier.profiling import Profiles, prepare_profiles
 from datelier.relationships import Relationships, prepare_relationships
 
@@ -141,6 +142,7 @@ def prepare_dashboard(
 class Explorer:
     def __init__(self) -> None:
         self.distribution = DistributionPreview()
+        self.profiles = ProfilePreview()
         self.active: Dashboard | None = None
         self.message = "Open a dataset for automatic exploration."
         self._executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="explore")
@@ -165,6 +167,7 @@ class Explorer:
 
     def poll(self, revision: DatasetRevision | None) -> bool:
         self.distribution.poll(revision)
+        self.profiles.poll(revision)
         if self.active is not None and self.active.revision != revision:
             self.active = None
         future = self._future
@@ -185,6 +188,7 @@ class Explorer:
 
     def abandon(self) -> None:
         self.distribution.clear()
+        self.profiles.clear()
         if self._future is not None:
             self._future.cancel()
             self._future = None
@@ -193,6 +197,7 @@ class Explorer:
 
     def close(self) -> None:
         self.distribution.close()
+        self.profiles.close()
         self.abandon()
         self._closed = True
         self._executor.shutdown(wait=False, cancel_futures=True)

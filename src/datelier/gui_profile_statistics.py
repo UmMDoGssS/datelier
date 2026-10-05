@@ -2,7 +2,8 @@
 
 from imgui_bundle import imgui
 
-from datelier.profiling import ColumnProfile
+from datelier.gui_profile_colors import profile_color
+from datelier.profiling import ColumnProfile, ProfileKind
 
 
 def statistics_height(count: int) -> float:
@@ -17,6 +18,7 @@ def _format(value: int | float | None) -> str:
 
 def show_statistics(profiles: tuple[ColumnProfile, ...]) -> None:
     numeric = any(profile.statistics is not None for profile in profiles)
+    temporal = bool(profiles) and profiles[0].kind == ProfileKind.TEMPORAL
     mode_heading = (
         "Mode (2 d.p.)"
         if any(p.statistics and p.statistics.rounded_mode for p in profiles)
@@ -42,6 +44,8 @@ def show_statistics(profiles: tuple[ColumnProfile, ...]) -> None:
             "Mode count",
         )
         if numeric
+        else ("Column", "Non nulls", "Uniques", "Nulls", "Min", "Max")
+        if temporal
         else ("Column", "Non nulls", "Uniques", "Nulls", "Mode", "Mode count")
     )
     flags = (
@@ -101,6 +105,15 @@ def show_statistics(profiles: tuple[ColumnProfile, ...]) -> None:
                     profile.nonnull_count,
                     profile.unique_count,
                     profile.null_count,
+                    profile.minimum or "—",
+                    profile.maximum or "—",
+                )
+                if temporal
+                else (
+                    profile.name,
+                    profile.nonnull_count,
+                    profile.unique_count,
+                    profile.null_count,
                     profile.distribution.labels[0]
                     if profile.distribution.labels
                     else "—",
@@ -112,9 +125,12 @@ def show_statistics(profiles: tuple[ColumnProfile, ...]) -> None:
             imgui.table_next_row()
             for column, value in enumerate(values):
                 imgui.table_set_column_index(column)
-                imgui.text_unformatted(
-                    value if isinstance(value, str) else _format(value)
-                )
+                if column == 0 and stats is not None:
+                    imgui.text_colored(profile_color(profile.name), profile.name)
+                else:
+                    imgui.text_unformatted(
+                        value if isinstance(value, str) else _format(value)
+                    )
                 if stats is not None and column == 13 and imgui.is_item_hovered():
                     imgui.set_tooltip(
                         f"{stats.mode_ties:,} tied modes; smallest shown. "

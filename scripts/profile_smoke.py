@@ -70,7 +70,7 @@ def main() -> None:
                     args.mode != "Histogram"
                     and profile.kind == ProfileKind.NUMERIC
                     and profile.counted_rows
-                    and session.explorer.distribution.active is None
+                    and session.explorer.profiles.active is None
                 ):
                     return
                 assert sum(bars.counts) == profile.counted_rows

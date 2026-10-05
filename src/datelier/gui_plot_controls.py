@@ -190,9 +190,6 @@ class PlotControls:
     def show(self, explorer: Explorer, dataset: Dataset | None) -> None:
         if dataset is None or not imgui.collapsing_header("Plot settings"):
             return
-        _, self.profile_columns = imgui.slider_int(
-            "Profile columns", self.profile_columns, 1, 128
-        )
         _, self.bins = imgui.slider_int("Histogram bins", self.bins, 1, 100)
         _, self.top_counts = imgui.slider_int("Top counts", self.top_counts, 1, 100)
         _, self.correlation_columns = imgui.slider_int(
@@ -201,30 +198,13 @@ class PlotControls:
         _, self.point_limit = imgui.slider_int(
             "Scatter points", self.point_limit, 1, 10_000
         )
-        _, self.profile_index = imgui.combo(
-            "Profile focus", self.profile_index, ["Leading columns", *self.columns]
-        )
-        imgui.text_wrapped(
-            "Choose any column for a focused profile. Correlations use at most "
-            "120 pairs and 10,000 input rows. Counts use at most 100,000 input rows."
-        )
-        if imgui.tree_node("Numeric comparisons (up to eight columns)"):
-            for name in self.numeric:
-                chosen = name in self.compare_columns
-                imgui.begin_disabled(not chosen and len(self.compare_columns) >= 8)
-                changed, checked = imgui.checkbox(name + "##comparison", chosen)
-                imgui.end_disabled()
-                if changed:
-                    if checked:
-                        self.compare_columns.append(name)
-                    else:
-                        self.compare_columns.remove(name)
-            _, self.standardize = imgui.checkbox("Z-score comparison", self.standardize)
+        if imgui.tree_node("Distribution settings"):
+            _, self.standardize = imgui.checkbox("Z-score plots", self.standardize)
             _, self.density = imgui.checkbox("Histogram density", self.density)
             _, self.bandwidth = imgui.slider_float(
                 "KDE bandwidth", self.bandwidth, 0.1, 5
             )
-            _, self.seed = imgui.input_int("Comparison seed", self.seed)
+            _, self.seed = imgui.input_int("Distribution seed", self.seed)
             imgui.tree_pop()
         if imgui.button("Apply plot settings"):
             try:

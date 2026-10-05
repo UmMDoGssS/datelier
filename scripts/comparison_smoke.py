@@ -41,12 +41,13 @@ def main() -> None:
                 return
             if stage == 0:
                 session.plots.compare_columns = ["x", "y"]
+                session.exploration.profile.selection.columns = ("x", "y")
                 session.explorer.request(active.dataset, session.plots.settings())
                 stage = 1
             elif stage == 1 and dashboard.comparison is not None:
                 ready, stage = evidence.frames, 2
             elif stage == 2 and evidence.frames > ready + 15:
-                modes.append(session.exploration.comparison_mode)
+                modes.append(session.exploration.profile_mode)
                 if len(modes) == 5:
                     session.plots.custom_scatter = True
                     session.plots.color_index = 2
@@ -54,7 +55,7 @@ def main() -> None:
                     session.exploration.tab = "Scatter"
                     stage, ready = 3, evidence.frames
                 else:
-                    session.exploration.comparison_mode += 1
+                    session.exploration.profile_mode += 1
                     ready = evidence.frames
 
             elif stage == 3 and evidence.frames > ready + 20:

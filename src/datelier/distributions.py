@@ -30,8 +30,8 @@ class DistributionSettings:
     seed: int = 42
 
     def validate(self) -> None:
-        if len(self.columns) > 8 or len(set(self.columns)) != len(self.columns):
-            raise ValueError("Choose at most eight distinct numeric profile columns")
+        if len(set(self.columns)) != len(self.columns):
+            raise ValueError("Choose distinct numeric profile columns")
         if not math.isfinite(self.bandwidth) or not 0.1 <= self.bandwidth <= 5:
             raise ValueError("KDE bandwidth multiplier must be 0.1–5")
         if not 0 <= self.seed <= 2**32 - 1:

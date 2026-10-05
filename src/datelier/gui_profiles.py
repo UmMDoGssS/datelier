@@ -1,18 +1,22 @@
 """Render prepared profiles in value space or with explicit category names."""
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
 import numpy as np
 from imgui_bundle import imgui, implot
 
+from datelier.column_roles import ColumnRole
 from datelier.dataset import Dataset
-from datelier.distributions import DistributionSettings
 from datelier.exploration import Dashboard, Explorer
 from datelier.gui_axes import AxisControls
 from datelier.gui_distributions import MODES, show_comparison
 from datelier.gui_plot_area import PlotArea
+from datelier.gui_profile_colors import profile_color
+from datelier.gui_profile_selector import show_selector
 from datelier.gui_profile_statistics import show_statistics, statistics_height
 from datelier.plotting import Bars
+from datelier.profile_preview import ProfileRequest
+from datelier.profile_selection import ProfileSelection
 from datelier.profiling import COUNT_ROW_LIMIT, ColumnProfile, ProfileKind
 
 
@@ -34,109 +38,114 @@ class ProfileView:
     index: int = 0
     mode: int = 0
     area: PlotArea = field(default_factory=PlotArea)
+    selection: ProfileSelection = field(default_factory=ProfileSelection)
 
     def show(
         self, explorer: Explorer, dashboard: Dashboard, dataset: Dataset | None
     ) -> bool:
-        profiles = dashboard.profiles
-        if not profiles.columns:
-            imgui.text_wrapped(
-                "No analyzable columns. Change a column's role in Schema to include it."
-            )
+        if dataset is None:
             return False
-        names = [p.name for p in profiles.columns]
-        self.index = min(self.index, len(names) - 1)
+        automatic = dashboard.profiles.columns
+        self.index = min(self.index, max(0, len(automatic) - 1))
+        default = automatic[self.index].name if automatic else None
+        self.selection.bind(dataset, default)
         if imgui.begin_table(
             "Profile controls", 2, imgui.TableFlags_.sizing_stretch_prop
         ):
-            imgui.table_setup_column("Column", init_width_or_weight=0.65)
+            imgui.table_setup_column("Columns", init_width_or_weight=0.65)
             imgui.table_setup_column("Chart type", init_width_or_weight=0.35)
             imgui.table_next_row()
             imgui.table_set_column_index(0)
-            imgui.text("Column")
-            imgui.set_next_item_width(-1)
-            _, self.index = imgui.combo("##Profile column", self.index, names)
+            imgui.text("Columns")
+            show_selector(self.selection)
             imgui.table_set_column_index(1)
             imgui.text("Chart type")
+            selected = self.selection.columns or ()
+            numeric = (
+                bool(selected) and dataset.role(selected[0]).role == ColumnRole.NUMERIC
+            )
             imgui.set_next_item_width(-1)
-            kind = profiles.columns[self.index].kind
-            if kind == ProfileKind.NUMERIC:
+            if numeric:
                 _, self.mode = imgui.combo("##Chart type", self.mode, MODES)
             else:
+                imgui.begin_disabled()
                 imgui.combo(
                     "##Chart type",
                     0,
                     [
                         "Counts"
-                        if kind == ProfileKind.CATEGORICAL
-                        else "Excluded"
-                        if kind in (ProfileKind.TEXT, ProfileKind.IDENTIFIER)
+                        if selected
+                        and dataset.role(selected[0]).role == ColumnRole.CATEGORY
                         else "Histogram"
                     ],
                 )
+                imgui.end_disabled()
             imgui.end_table()
-        profile = profiles.columns[self.index]
-        imgui.text_wrapped(profile_summary(profile, profiles.row_count))
-        key = (dashboard.revision, profile.name, self.mode, dashboard.settings)
-        shown = False
+        selected = self.selection.columns or ()
+        if not selected:
+            explorer.profiles.clear()
+            imgui.text("Choose columns to inspect.")
+            return False
+        request = ProfileRequest(
+            replace(dashboard.settings.comparison, columns=selected),
+            dashboard.settings.bins,
+            dashboard.settings.top_counts,
+        )
+        explorer.profiles.ensure(dataset, request)
+        group = explorer.profiles.active
+        if group is None:
+            imgui.text_wrapped(explorer.profiles.message)
+            return False
+        profiles = group.profiles.columns
         statistics_shown = False
 
         def footer() -> None:
             nonlocal statistics_shown
             statistics_shown = True
-            show_statistics((profile,))
+            show_statistics(profiles)
 
-        if not profile.counted_rows:
-            imgui.text_wrapped(
-                profile.note
-                if profile.kind in (ProfileKind.TEXT, ProfileKind.IDENTIFIER)
-                else "No values to plot."
-                if not profiles.row_count
-                else "No valid values to plot."
+        numeric = profiles[0].kind == ProfileKind.NUMERIC
+        if (
+            profiles[0].kind == ProfileKind.CATEGORICAL
+            and group.profiles.row_count > COUNT_ROW_LIMIT
+        ):
+            imgui.text(f"Counts and mode: first {COUNT_ROW_LIMIT:,} rows.")
+        key = (dataset.revision, request, self.mode if numeric else 0)
+        shown = False
+        if (
+            numeric
+            and group.comparison is not None
+            and any(p.counted_rows for p in profiles)
+        ):
+            prepared = group.comparison
+            shown = self.area.show(
+                "Profile plot",
+                key,
+                lambda height, fit, axes: show_comparison(
+                    prepared,
+                    self.mode,
+                    fit,
+                    title="##Profile distributions",
+                    details=False,
+                    height=height,
+                    axes=axes,
+                    colored=True,
+                ),
+                numeric_axes=(False, True) if self.mode in (3, 4) else (True, True),
+                footer=footer,
+                footer_height=statistics_height(len(profiles)),
             )
         elif (
-            profile.kind == ProfileKind.NUMERIC
-            and self.mode > 0
-            and dataset is not None
+            len(profiles) == 1
+            and profiles[0].counted_rows
+            and (not numeric or self.mode == 0)
         ):
-            settings = dashboard.settings.comparison
-            explorer.distribution.ensure(
-                dataset,
-                DistributionSettings(
-                    (profile.name,), bandwidth=settings.bandwidth, seed=settings.seed
-                ),
-                dashboard.settings.bins,
-            )
-            if explorer.distribution.active is not None:
-                prepared = explorer.distribution.active
-                shown = self.area.show(
-                    "Profile plot",
-                    key,
-                    lambda height, fit, axes: show_comparison(
-                        prepared,
-                        self.mode,
-                        fit,
-                        title=profile.name,
-                        details=False,
-                        height=height,
-                        axes=axes,
-                    ),
-                    numeric_axes=(False, True) if self.mode in (3, 4) else (True, True),
-                    footer=footer,
-                    footer_height=statistics_height(1),
-                )
-            else:
-                imgui.text_wrapped(explorer.distribution.message)
-        else:
+            profile = profiles[0]
             shown = self.area.show(
                 "Profile plot",
                 key,
                 lambda height, fit, axes: draw_profile(
-                    profile,
-                    dashboard.bars[self.index],
-                    height,
-                    axes,
-                    fit,
+                    profile, group.bars[0], height, axes, fit
                 ),
                 numeric_axes=(True, False)
                 if profile.kind == ProfileKind.CATEGORICAL
@@ -146,43 +155,29 @@ class ProfileView:
                 footer=footer,
                 footer_height=statistics_height(1),
             )
+        else:
+            imgui.text_wrapped(group.message or "No finite values to plot.")
         if not statistics_shown:
             footer()
         if imgui.collapsing_header("Details##profile"):
-            imgui.text(f"{profile.kind} · {profile.dtype}")
-            if profile.minimum:
-                imgui.text_wrapped(f"Range: {profile.minimum} to {profile.maximum}")
-            if profile.mean is not None:
-                imgui.text(f"Mean: {profile.mean:.6g}")
-            if profile.distinct_count is not None:
-                imgui.text(f"Distinct counted values: {profile.distinct_count:,}")
-            imgui.text_wrapped(profile.note)
-            if self.mode > 0 and profile.kind == ProfileKind.NUMERIC:
-                settings = dashboard.settings.comparison
-                imgui.text(
-                    f"KDE bandwidth {settings.bandwidth:g} · seed {settings.seed}"
+            if group.message:
+                imgui.text_wrapped(group.message)
+            for profile in profiles:
+                imgui.text_wrapped(f"{profile.name}: " + profile.note)
+            if group.comparison is not None and self.mode in (1, 2, 4):
+                imgui.text_wrapped(
+                    f"Curves use at most 2,000 finite values per column; "
+                    f"seed {request.distribution.seed}, "
+                    f"KDE bandwidth {request.distribution.bandwidth:g}."
                 )
-                prepared = explorer.distribution.active
-                if prepared is not None and prepared.series[0].name == profile.name:
-                    series = prepared.series[0]
-                    imgui.text(
-                        f"{series.sample_count:,} values for curves; "
-                        f"{len(series.outliers):,} outlier points shown."
-                    )
-            for label, count in zip(
-                dashboard.bars[self.index].labels,
-                dashboard.bars[self.index].counts,
-                strict=True,
-            ):
-                imgui.text_wrapped(f"{label}: {int(count):,}")
         return shown
 
 
-def draw_histogram(name: str, bars: Bars) -> None:
+def draw_histogram(name: str, bars: Bars, color: imgui.ImVec4 | None = None) -> None:
     """Use every bin boundary; counts retain their original interval widths."""
     if not len(bars.counts):
         return
-    style = implot.Spec()
+    style = implot.Spec(line_color=color, fill_color=color)
     style.flags = implot.StairsFlags_.pre_step | implot.StairsFlags_.shaded
     implot.plot_stairs(
         name,
@@ -238,7 +233,13 @@ def draw_profile(
             )
         if axes is not None:
             axes.apply()
-        draw_histogram("Rows", bars)
+        draw_histogram(
+            "Rows",
+            bars,
+            profile_color(profile.name)
+            if profile.kind == ProfileKind.NUMERIC
+            else None,
+        )
     if axes is not None:
         axes.observe()
     implot.end_plot()

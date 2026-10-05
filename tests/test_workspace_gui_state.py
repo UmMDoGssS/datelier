@@ -291,3 +291,32 @@ def test_coordinate_dimension_changes_do_not_invalidate_clustering_settings() ->
     assert not controls.matches_result(embedding)
     controls.features.remove("z")
     assert not controls.matches_result(clustering)
+
+
+def test_pending_default_correlations_preserve_saved_pair_grid(
+    tmp_path: Path, monkeypatch
+) -> None:
+    from imgui_bundle import imgui
+
+    from datelier.exploration import Explorer
+    from datelier.gui_exploration import ExplorationView
+    from datelier.gui_table import TableView
+    from datelier.selection import LinkedSelection
+
+    source = tmp_path / "data.csv"
+    source.write_text("x,y\n1,2\n3,4\n5,6\n")
+    dataset = load_file(source).dataset
+    plots = PlotControls()
+    plots.bind(dataset)
+    plots.relationship_features = []  # A legacy empty recipe uses numeric defaults.
+    view = ExplorationView(active_tab="Correlations")
+    view.relationships.mode = 1
+    monkeypatch.setattr(imgui, "get_window_dock_id", lambda: 0)
+    monkeypatch.setattr(imgui, "text_wrapped", lambda _text: None)
+    monkeypatch.setattr(imgui, "begin_table", lambda *_args: False)
+    explorer = Explorer()
+    try:
+        view.show(explorer, LinkedSelection(), TableView(), plots, dataset)
+        assert view.relationships.mode == 1
+    finally:
+        explorer.close()

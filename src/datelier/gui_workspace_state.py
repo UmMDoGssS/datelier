@@ -10,6 +10,7 @@ from datelier.analysis_types import (
     TSNEParameters,
     UMAPParameters,
 )
+from datelier.column_roles import ColumnRole
 from datelier.dataset import Dataset
 from datelier.exploration import PlotSettings
 from datelier.gui_analysis_controls import AnalysisControls
@@ -152,6 +153,7 @@ def capture_views(session: GuiSession) -> WorkspaceViews:
         view.relationships.area.height,
         session.plots.color_source,
         view.categories.area.height,
+        view.profile.selection.columns,
     )
 
 
@@ -161,6 +163,11 @@ def restore_views(session: GuiSession, workspace: Workspace) -> bool:
     adjusted = restore_plots(session.plots, dataset, workspace.plots)
     restore_analysis(session.analysis.controls, workspace, dataset)
     restore_view_settings(session, workspace.views)
+    if workspace.views.profile_selection is not None:
+        adjusted |= (
+            session.exploration.profile.selection.columns
+            != workspace.views.profile_selection
+        )
     return adjusted
 
 
@@ -177,10 +184,34 @@ def restore_view_settings(session: GuiSession, saved: WorkspaceViews) -> None:
     )
     view.profile_index = saved.profile_index
     view.profile_mode = saved.profile_mode
+    view.profile.selection.columns = saved.profile_selection
+    legacy_comparison = (
+        saved.profile_selection is None
+        and session.plots.compare_columns
+        and saved.comparison_mode < 5
+    )
+    if legacy_comparison:
+        view.profile.selection.columns = tuple(session.plots.compare_columns)
+        view.profile_mode = saved.comparison_mode
+    legacy_names = tuple(
+        i.name
+        for i in dataset.roles or ()
+        if i.role not in (ColumnRole.TEXT, ColumnRole.IDENTIFIER)
+    )
+    default = (
+        session.plots.columns[session.plots.profile_index - 1]
+        if session.plots.profile_index
+        else legacy_names[min(saved.profile_index, len(legacy_names) - 1)]
+        if legacy_names
+        else None
+    )
+    view.profile.selection.bind(dataset, default)
     session.analysis.source = saved.coordinate_source
     if saved.color_source is not None:
         session.plots.choose_color(saved.color_source)
-    view.profile.area.height = saved.profile_height
+    view.profile.area.height = saved.profile_height or (
+        saved.comparison_height if legacy_comparison else 0
+    )
     view.comparison_area.height = saved.comparison_height
     view.scatter_area.height = saved.scatter_height
     view.relationships.area.height = saved.relationship_height

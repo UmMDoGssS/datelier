@@ -169,11 +169,11 @@ camera position last for the session. See [Phase 6 evidence](docs/phase-6.md).
 ## Exploration
 
 The **Explore** panel automatically prepares numeric, categorical, and temporal
-profiles after import and successful edits. Choose **Profiles**, **Scatter**, or
-**Correlations**. Numeric profiles show finite ranges, means, and distributions;
-quality counts identify null/nonfinite values. Temporal bins use units relative
-to the minimum, with a precise range. Expand **Bin boundaries / category labels**
-to read each bar's interval or category.
+profiles after import and successful edits. Choose **Profiles**, **Relationships**,
+or **Correlations**. Schema shows `Shape: (cols, rows)` above **Column**, **Non
+nulls**, **Uniques**, **Type**, and **Interpretation**. Non-null and unique counts
+exclude nulls; NaNs and infinities remain non-null values. Interpretation allows
+reversible overrides of inferred column roles.
 
 Automatic work profiles the first 32 columns, selects the first six numeric
 columns, and suggests up to three scatter pairs. Correlations use at most 10,000
@@ -183,27 +183,35 @@ evenly spaced input rows with pairwise finite values. Scatter plots show up to
 120 characters. Sampling and exclusions are labeled. Numeric plot coordinates
 use Float64, so very large integers and high-precision decimals may round.
 
-Expand **Plot settings** to change bins, top counts, profile limits and scatter
-point limits. **Profile focus** can choose any column, including one beyond the
-automatic limit. In **Profiles**, select a column and use **Chart type** to
-switch directly between Histogram, KDE, ECDF, Box, and Violin for numeric
-columns. Categories have named count bars; temporal histograms use formatted
-date/time ticks. The included/missing summary stays visible, while **Details**
-contains statistics and sampling settings. Single-column curves are prepared
-on demand in the background; their chart type is saved with the workspace.
+Expand **Plot settings** to change bins, top counts and scatter point limits.
+In **Profiles**, the **Columns** checklist accepts one category/date or any
+number of numeric columns, including columns beyond the automatic preparation
+limit. **All numeric**, **Clear**, and **Done** manage the checklist. Selecting a
+category replaces the numeric group; selecting a numeric column replaces the
+category. **Chart type** switches between Histogram, KDE, ECDF, Box, and Violin.
+Categories have named count bars; temporal histograms use formatted date/time
+ticks. The selection and chart type are saved with workspaces and preferences.
 
-For multi-column comparisons, select up to eight columns under **Numeric
-comparisons**, apply settings, and choose the comparison chart type in Profiles.
-Histogram/KDE/ECDF curves overlay with selectable legends; boxes/violins appear
-beside one another. Histograms share bins and default to density. Original units
-are the default; optional z-scores use each column's full finite mean/deviation.
+The **Statistics** table below the plot has one row per column, with names frozen
+while scrolling. Numeric rows show mean, sample std (ddof=1), min, 25%/50%/75%,
+max, non-null/unique/null counts, NaNs, total non-finite counts, mode and its
+frequency. Moments and quantiles exclude non-finite values; floats round to two
+decimal places for mode, and the smallest tied mode is shown. Undefined or
+unrepresentable statistics display a dash. Statistics always use original units.
+Categories show counts and mode; dates show ranges. Sampled counts/modes are
+labeled. All computation runs in background workers.
+
+Numeric Histogram/KDE/ECDF curves overlay with selectable legends and matching
+statistics-row colors; boxes/violins appear beside one another. Histograms share
+bins and default to density. **Distribution settings** offers histogram density,
+z-score plots, bandwidth, and seed. Original units are the default; optional
+z-scores use each column's full finite mean/deviation.
 KDE uses Gaussian kernels with Scott bandwidth and a visible multiplier.
 KDE/ECDF/violin use at most 2,000 finite values per column, sampled by source ID
 and seed (default 42). Box quartiles/Tukey whiskers are exact; displayed outliers
 use that sample, capped at 150. Empty/constant inputs have explicit explanations.
-Categorical and temporal profiles remain available under Individual profiles.
 
-In Scatter, **Coordinates → Columns** shows X/Y selectors; **Dimensions → 3D**
+In Relationships, **Coordinates → Columns** shows X/Y selectors; **Dimensions → 3D**
 adds Z. Choosing an embedding replaces the manual axes with that method's
 inputs and Run command. **Colors** chooses Uniform, Column, or a clustering
 method. Only Column shows the column picker: continuous numeric/temporal colors,

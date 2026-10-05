@@ -249,6 +249,7 @@ def prepare_profiles(
     bins: int = 20,
     top: int = 12,
     column: str | None = None,
+    columns: tuple[str, ...] | None = None,
 ) -> Profiles:
     if (
         not 1 <= column_limit <= MAX_PROFILE_COLUMNS
@@ -257,9 +258,15 @@ def prepare_profiles(
     ):
         raise ValueError("Profile limits: 1–128 columns, 1–100 bins/counts")
     table = dataset.table
+    if columns is not None and (
+        column is not None or len(set(columns)) != len(columns)
+    ):
+        raise ValueError("Choose distinct profile columns or a single focus")
     profiles = []
     series_list = (
-        (table.get_column(column),)
+        (table.get_column(name) for name in columns)
+        if columns is not None
+        else (table.get_column(column),)
         if column is not None
         else (
             table.get_column(info.name)
@@ -268,7 +275,7 @@ def prepare_profiles(
         )
     )
     for index, series in enumerate(series_list):
-        if index >= column_limit:
+        if columns is None and index >= column_limit:
             break
         info = dataset.role(series.name)
         kind = ProfileKind(info.role.value)

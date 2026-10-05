@@ -116,7 +116,8 @@ def main() -> None:
                     area = view.relationships.area
                 elif args.view == "Comparison":
                     plots.compare_columns = names[:2]
-                    area = view.comparison_area
+                    view.profile.selection.columns = tuple(names[:2])
+                    area = view.profile.area
                 else:
                     view.profile_index = plots.columns.index(names[0])
                     view.profile_mode = 2
@@ -179,7 +180,7 @@ def main() -> None:
                 assert np.allclose(limits(session, area), baseline_limits)
                 if args.view == "Scatter3D":
                     assert np.allclose(camera, baseline_camera)
-                if args.view == "Scatter":
+                if args.view in ("Scatter", "Profile", "Comparison"):
                     io.mouse_pos = imgui.ImVec2(*area.axes.open_pixel)
                     io.want_set_mouse_pos = True
                     stage, entered = 9, evidence.frames
@@ -193,8 +194,12 @@ def main() -> None:
                 stage, entered = 11, evidence.frames
             elif stage == 11 and age > 5:
                 assert area is not None
-                area.axes.draft = [[1, 40], [0, 100] if args.source else [-2, 2]]
-                area.axes.draft_scales = [2, 1]
+                profile_plot = args.view in ("Profile", "Comparison")
+                area.axes.draft = [
+                    [1, 40],
+                    [0, 1] if profile_plot else [0, 100] if args.source else [-2, 2],
+                ]
+                area.axes.draft_scales = [2, 0] if profile_plot else [2, 1]
                 io.mouse_pos = imgui.ImVec2(*area.axes.apply_pixel)
                 io.want_set_mouse_pos = True
                 stage, entered = 12, evidence.frames
@@ -206,8 +211,20 @@ def main() -> None:
                 stage, entered = 14, evidence.frames
             elif stage == 14 and age > 5:
                 assert area is not None
-                expected = ((1, 40), (0, 100) if args.source else (-2, 2))
+                expected = (
+                    (1, 40),
+                    (0, 1)
+                    if args.view in ("Profile", "Comparison")
+                    else (0, 100)
+                    if args.source
+                    else (-2, 2),
+                )
                 assert np.allclose(area.axes.limits, expected), area.axes
+                if args.view in ("Profile", "Comparison"):
+                    assert area.axes.scales == [2, 0]
+                    baseline_limits = limits(session, area)
+                    stage, entered = 17, evidence.frames
+                    return
                 io.mouse_pos = imgui.ImVec2(*view.interaction.center_pixel)
                 io.want_set_mouse_pos = True
                 stage, entered = 15, evidence.frames
@@ -244,7 +261,7 @@ def main() -> None:
             "drag_resize": True,
             "expanded_view": True,
             "view_preserved": True,
-            "axis_ranges_and_scales": args.view == "Scatter",
+            "axis_ranges_and_scales": args.view in ("Scatter", "Profile", "Comparison"),
             "source_preserved": True,
         }
         args.output.with_suffix(".json").write_text(json.dumps(report, indent=2) + "\n")

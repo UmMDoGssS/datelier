@@ -344,4 +344,6 @@ separate and open where their evidence is incomplete.
 The user requested explicit Schema counts and shape, numeric statistics below
 plots, and an exclusive category/multiple numeric profile checklist. Deliver
 the three bounded steps and record evidence in
-[Schema and profile comparison gates](docs/profile-comparison.md).
+[Schema and profile comparison gates](docs/profile-comparison.md). All three
+steps are verified: Schema counts/shape, worker-prepared statistics tables, and
+the exclusive category/multiple numeric checklist with saved selections.

@@ -41,8 +41,13 @@ class WorkspaceViews:
     relationship_height: float = 0
     color_source: str | None = None
     category_height: float = 0
+    profile_selection: tuple[str, ...] | None = None
 
     def validate(self) -> None:
+        if self.profile_selection is not None and len(
+            set(self.profile_selection)
+        ) != len(self.profile_selection):
+            raise ValueError("Profile selection must contain distinct column names")
         if self.tab not in ("Profiles", "Scatter", "Relationships", "Correlations"):
             raise ValueError("Unknown exploration view")
         if not 0 <= self.comparison_mode <= 5 or self.relationship_mode not in (0, 1):
