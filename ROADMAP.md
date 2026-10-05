@@ -654,7 +654,7 @@ Welcome/recent opening/editor controls. M9.3 is the next outstanding milestone.
 ### M9.3 — Whole-session workspace persistence
 
 - [ ] **Deliverables:** versioned whole-session recipes containing tab order/active tab, source references, independent operations/analysis settings/views, and comparison settings; migration of existing single-source workspaces; per-source restore/relink diagnostics.
-- [ ] **Entry gate:** M9.2 passes; each file session can capture and restore a recipe without fitted artifacts or shared mutable state.
+- [x] **Entry gate:** M9.2 passes; each file session can capture and restore a recipe without fitted artifacts or shared mutable state.
 - [ ] **Exit gate:** save/reopen restores independent file state and layout; old workspaces become one-file sessions; missing/changed sources remain recoverable while other tabs are usable; restoration starts no ML, tokenizer training, or playback.
 - [ ] **Verification evidence:** legacy migration, round-trip, partial recovery and changed-source fixtures; fresh-process native save/reopen/relink; atomic-write/source-preservation and full-suite checks.
 - [ ] **Suggested step commits:** `feat: save whole-session workspaces` → `feat: migrate single-file workspace recipes` → `feat: recover individual workspace sources`.

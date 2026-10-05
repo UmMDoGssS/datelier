@@ -6,12 +6,9 @@ from dataclasses import dataclass, replace
 from datelier.analysis.types import Algorithm, AnalysisRequest
 from datelier.inspection.exploration import PlotSettings
 from datelier.io.types import (
-    CsvOptions,
     ImportFormat,
     ImportOptions,
-    JsonOptions,
-    ParquetOptions,
-    XmlOptions,
+    validate_import_options,
 )
 from datelier.pipeline.operations import Operation
 
@@ -111,16 +108,7 @@ class Workspace:
             or any(c not in "0123456789abcdef" for c in source.sha256)
         ):
             raise ValueError("Invalid workspace source reference")
-        expected = {
-            ImportFormat.CSV: CsvOptions,
-            ImportFormat.TSV: CsvOptions,
-            ImportFormat.JSON: JsonOptions,
-            ImportFormat.JSONL: JsonOptions,
-            ImportFormat.PARQUET: ParquetOptions,
-            ImportFormat.XML: XmlOptions,
-        }[self.format]
-        if not isinstance(self.options, expected):
-            raise ValueError("Import options do not match the saved format")
+        validate_import_options(self.format, self.options)
         if len(self.history) > 1_000 or not 0 <= self.cursor <= len(self.history):
             raise ValueError("Workspace history or cursor exceeds supported bounds")
         if len(self.analysis) > len(Algorithm) or len(

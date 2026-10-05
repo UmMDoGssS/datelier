@@ -276,3 +276,47 @@ Commands retain the earlier offline uv/cache/Mesa settings; focused tests are
 all named native scripts run as separate commands/processes. Mesa/Linux remains
 the verified renderer/platform. M9.2 passes; whole-session recipes/migration/
 partial recovery and cross-file profiles remain M9.3/M9.4.
+
+
+## Step 7 / M9.3 in progress — Version-two recipe and recovery foundation
+
+A strict version-two session recipe stores ordered stable file IDs, active tab,
+independent version-one file recipes, Welcome/source-draft tabs, source-bound
+row selections, panel scroll positions, dock layout/hidden panels and typed
+comparison mappings (labels/colors, bins/category limit, count/density scale).
+Comparison preparation/rendering remains M9.4. Unloaded/failed direct sources
+retain exact import drafts; saved recovery recipes retain their fingerprints and
+operations when a source cannot reopen.
+
+Storage shares bounded strict JSON parsing and atomic replacement with existing
+workspaces. Paths are relative on disk and canonicalized in worker-side readers;
+all referenced/requested sources and aliases are protected from overwrite. The
+2 MiB recipe and 256 KiB dock-layout limits remain explicit errors. Existing
+version-one files migrate to one-file sessions and resave as version two.
+
+Prepared restoration returns a separate outcome per saved tab, retaining usable
+files beside missing, changed or malformed sources. Relinking/changed-content
+acceptance targets a saved file ID; foreign/duplicate recovery IDs are rejected.
+Selections restore against that file's current source rows; unavailable IDs are
+pruned and explicitly accepted changed content clears the selection. Replay
+checks redo recipes, retains cursors and carries settings without fitted ML.
+
+Verification on 2026-10-06: **79 focused tests passed in 0.95s** across new
+session fixtures and prior workspace/preferences/recent/editor regressions.
+Twelve new fixtures cover round trips with unequal row counts and independent
+histories/seeds/views/IDs, layout/hidden panels and mappings; legacy migration;
+portable source moves; good/missing/changed/malformed source recovery; selection
+pruning; source/alias protection; failed atomic replacement with temporary-file
+cleanup; 2 MiB rejection without altering the previous recipe; and invalid
+session/recovery topology before import. Pyrefly zero errors; Ruff lint/format
+and diff checks pass. Existing native workspace smoke passes again, save 31 /
+reopen 47 frames, including relink, redo, view settings, source preservation and
+zero implicit ML.
+
+Commands use the earlier cache/offline/Mesa settings. Focused tests:
+`tests/test_session_workspaces.py tests/test_workspaces.py
+ tests/test_workspace_restore.py tests/test_editor_controls.py
+ tests/test_preferences.py tests/test_recent_sources.py`; Pyrefly/Ruff/diff and
+native `scripts/workspace_smoke.py`. The session APIs are a verified foundation;
+the editor/menu/CLI still use version-one actions until the next implementation
+step. M9.3 deliverables/exit/fresh-process/full-suite gates remain open.

@@ -12,8 +12,11 @@ from datelier.workspace.types import Workspace
 
 
 class SourceIssue(ValueError):
-    def __init__(self, workspace: Workspace, message: str) -> None:
+    def __init__(
+        self, workspace: Workspace, message: str, *, changed: bool = False
+    ) -> None:
         self.workspace = workspace
+        self.changed = changed
         super().__init__(message)
 
 
@@ -27,7 +30,15 @@ class RestoredWorkspace:
 def restore_workspace(
     path: Path, *, relink: Path | None = None, accept_changed: bool = False
 ) -> RestoredWorkspace:
-    workspace = read_workspace(path)
+    return restore_recipe(
+        read_workspace(path), relink=relink, accept_changed=accept_changed
+    )
+
+
+def restore_recipe(
+    workspace: Workspace, *, relink: Path | None = None, accept_changed: bool = False
+) -> RestoredWorkspace:
+    workspace.validate()
     source_path = relink if relink is not None else Path(workspace.source.path)
     try:
         checked = fingerprint(source_path)
@@ -41,6 +52,7 @@ def restore_workspace(
             workspace,
             "Source content changed. Choose the original file or explicitly "
             "accept the current source and replay its recipes.",
+            changed=True,
         )
     imported = load_file(source_path, workspace.options, format=workspace.format)
     after = fingerprint(source_path)

@@ -19,6 +19,7 @@ from datelier.analysis.types import (
     TSNEParameters,
     UMAPParameters,
 )
+from datelier.inspection.comparison_settings import ComparisonSettings, ComparisonSource
 from datelier.inspection.exploration import PlotSettings
 from datelier.io.types import CsvOptions, JsonOptions, ParquetOptions, XmlOptions
 from datelier.pipeline.operations import Filter, SelectColumns, SetColumnRole, Sort
@@ -32,11 +33,17 @@ from datelier.pipeline.types import (
 from datelier.plotting.categories import CategorySettings
 from datelier.plotting.distributions import DistributionSettings
 from datelier.workspace.recent import RecentSource
+from datelier.workspace.session_types import SessionFile, SessionWorkspace, SourceDraft
 from datelier.workspace.types import Workspace, WorkspaceSource, WorkspaceViews
 
 RECORDS = (
     *(type(p) for p in EXTRA_DEFAULTS.values()),
     Workspace,
+    SessionFile,
+    SessionWorkspace,
+    SourceDraft,
+    ComparisonSettings,
+    ComparisonSource,
     RecentSource,
     WorkspaceSource,
     WorkspaceViews,

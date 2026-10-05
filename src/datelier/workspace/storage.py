@@ -100,7 +100,7 @@ def _unique_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
     return result
 
 
-def read_workspace(path: Path) -> Workspace:
+def read_recipe(path: Path) -> object:
     path = path.expanduser().resolve()
     with path.open("rb") as stream:
         content = stream.read(MAX_WORKSPACE_BYTES + 1)
@@ -119,10 +119,15 @@ def read_workspace(path: Path) -> Workspace:
                 parse_constant=reject_constant,
             ),
         )
-        workspace = decode_record(Workspace, raw)
-        workspace.validate()
+        return raw
     except (UnicodeError, RecursionError, TypeError) as error:
         raise ValueError(f"Invalid workspace: {error}") from error
+
+
+def read_workspace(path: Path) -> Workspace:
+    path = path.expanduser().resolve()
+    workspace = decode_record(Workspace, read_recipe(path))
+    workspace.validate()
     source = replace(
         workspace.source, path=str((path.parent / workspace.source.path).resolve())
     )

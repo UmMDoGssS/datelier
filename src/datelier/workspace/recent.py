@@ -4,12 +4,10 @@ from dataclasses import dataclass
 from enum import StrEnum
 
 from datelier.io.types import (
-    CsvOptions,
     ImportFormat,
     ImportOptions,
-    JsonOptions,
-    ParquetOptions,
-    XmlOptions,
+    validate_import_options,
+    validate_source_path,
 )
 
 MAX_RECENT = 20
@@ -28,23 +26,14 @@ class RecentSource:
     options: ImportOptions | None = None
 
     def __post_init__(self) -> None:
-        self.path.encode("utf8")
-        if not self.path.strip() or "\x00" in self.path or len(self.path) > 4096:
-            raise ValueError("Invalid recent source path")
+        validate_source_path(self.path)
         if self.source_kind == RecentKind.WORKSPACE:
             if self.format is not None or self.options is not None:
                 raise ValueError("Workspace entries cannot have import options")
             return
-        expected = {
-            ImportFormat.CSV: CsvOptions,
-            ImportFormat.TSV: CsvOptions,
-            ImportFormat.JSON: JsonOptions,
-            ImportFormat.JSONL: JsonOptions,
-            ImportFormat.PARQUET: ParquetOptions,
-            ImportFormat.XML: XmlOptions,
-        }
-        if self.format is None or type(self.options) is not expected[self.format]:
+        if self.format is None or self.options is None:
             raise ValueError("Recent files require matching format and options")
+        validate_import_options(self.format, self.options)
 
 
 def remember(

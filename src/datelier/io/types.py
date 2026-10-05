@@ -80,6 +80,25 @@ class XmlOptions:
 type ImportOptions = CsvOptions | JsonOptions | ParquetOptions | XmlOptions
 
 
+def validate_import_options(format: ImportFormat, options: ImportOptions) -> None:
+    expected = {
+        ImportFormat.CSV: CsvOptions,
+        ImportFormat.TSV: CsvOptions,
+        ImportFormat.JSON: JsonOptions,
+        ImportFormat.JSONL: JsonOptions,
+        ImportFormat.PARQUET: ParquetOptions,
+        ImportFormat.XML: XmlOptions,
+    }[format]
+    if type(options) is not expected:
+        raise ValueError("Import options do not match the saved format")
+
+
+def validate_source_path(path: str) -> None:
+    path.encode("utf8")
+    if not path.strip() or "\x00" in path or len(path) > 4096:
+        raise ValueError("Invalid source reference path")
+
+
 class ImportFailure(Exception):
     """An actionable failure that callers can display without a traceback."""
 

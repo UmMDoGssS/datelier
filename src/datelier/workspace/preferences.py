@@ -9,6 +9,7 @@ from typing import cast
 
 from datelier.inspection.exploration import PlotSettings
 from datelier.workspace.codec import decode_record, encode
+from datelier.workspace.layout import valid_layout
 from datelier.workspace.recent import MAX_RECENT, RecentSource, remember
 from datelier.workspace.storage import (
     MAX_WORKSPACE_BYTES,
@@ -16,8 +17,6 @@ from datelier.workspace.storage import (
     protect_sources,
 )
 from datelier.workspace.types import WorkspaceViews
-
-MAX_LAYOUT_BYTES = 256 * 1024
 
 
 class Theme(StrEnum):
@@ -39,20 +38,6 @@ class Preferences:
 def preference_path() -> Path:
     root = Path(os.environ.get("XDG_CONFIG_HOME", str(Path.home() / ".config")))
     return root / "datelier" / "preferences.json"
-
-
-def valid_layout(layout: str) -> bool:
-    try:
-        size = len(layout.encode("utf8"))
-    except UnicodeError:
-        return False
-    return not layout or (
-        size <= MAX_LAYOUT_BYTES
-        and "\x00" not in layout
-        and "[Docking][Data]" in layout
-        and "DockSpace" in layout
-        and "[Window][Table preview]" in layout
-    )
 
 
 def read_preferences(path: Path) -> tuple[Preferences, str]:
