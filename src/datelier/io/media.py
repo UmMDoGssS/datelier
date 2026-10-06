@@ -36,6 +36,8 @@ def load_media(path: Path, options: MediaOptions | None = None) -> ImportResult:
         rows: list[tuple[str, str, str, int | None, int | None, str | None]] = []
         diagnostics: list[str] = []
         line_counts = dict(settings.line_counts)
+        if not folder and settings.text_lines and len(line_counts) == 1:
+            line_counts = {path.name: next(iter(line_counts.values()))}
         for member in members:
             target = path / member if folder else path
             suffix = target.suffix.lower()
@@ -53,7 +55,8 @@ def load_media(path: Path, options: MediaOptions | None = None) -> ImportResult:
                     f"Missing/unreadable manifest member: {member}: {error}"
                 )
                 if settings.text_lines and suffix in TEXT_EXTENSIONS:
-                    for number in range(1, line_counts.get(member, 1) + 1):
+                    line_counts.setdefault(member, 1)
+                    for number in range(1, line_counts[member] + 1):
                         rows.append((str(target), member, kind, None, number, None))
                 else:
                     rows.append((str(target), member, kind, None, None, None))

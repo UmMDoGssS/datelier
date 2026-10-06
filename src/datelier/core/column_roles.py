@@ -142,7 +142,12 @@ def _recognize_strings(series: pl.Series) -> tuple[ColumnRole, str] | None:
                 "extensions; existence is checked separately. Sample limit: 256."
             )
     paths = sum(
-        "://" not in str(v) and bool(re.match(r"^(\.?\.?/|~/|/)", str(v)))
+        "://" not in str(v)
+        and (
+            bool(re.match(r"^(\.?\.?/|~/|/)", str(v)))
+            or "/" in str(v)
+            and not any(c.isspace() for c in str(v))
+        )
         for v in values
     )
     if paths / len(values) >= 0.8:

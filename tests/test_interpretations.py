@@ -36,6 +36,7 @@ def dataset(values: pl.Series) -> Dataset:
         (pl.Series(["a.wav", "b.mp3"]), ColumnRole.AUDIO),
         (pl.Series(["a.txt", "b.md"]), ColumnRole.EXTERNAL_TEXT),
         (pl.Series(["./a.bin", "/tmp/b.bin"]), ColumnRole.PATH),
+        (pl.Series(["sub/a.bin", "other/b.bin"]), ColumnRole.PATH),
     ],
 )
 def test_import_interpretation_priority(values: pl.Series, role: ColumnRole) -> None:

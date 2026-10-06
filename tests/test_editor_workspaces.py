@@ -271,6 +271,7 @@ def test_reference_controls_restore_without_payloads(tmp_path: Path) -> None:
     from dataclasses import replace
 
     from datelier.inspection.presentation import NumericScale, TablePresentation
+    from datelier.inspection.records.types import InspectSettings, RecordMode
     from datelier.inspection.references.types import ReferenceMapping
     from datelier.workspace.codec import decode_record, encode
     from datelier.workspace.types import WorkspaceViews
@@ -297,6 +298,16 @@ def test_reference_controls_restore_without_payloads(tmp_path: Path) -> None:
             scale=NumericScale.CUSTOM, minimum=-2, maximum=7, badges=False
         )
         file.table.presentation.settings = style
+        inspect = InspectSettings(
+            mode=RecordMode.RANDOM,
+            count=2,
+            seed=17,
+            primary="image",
+            supporting=("image",),
+            gallery=False,
+            focus=1,
+        )
+        file.inspect.settings = inspect
         editor.save_workspace(path)
         wait(editor)
         editor.open_workspace(path)
@@ -304,6 +315,7 @@ def test_reference_controls_restore_without_payloads(tmp_path: Path) -> None:
         assert editor.active.references.settings == settings
         assert not editor.active.reference_view.thumbnails
         assert editor.active.table.presentation.settings == style
+        assert editor.active.inspect.settings == inspect
         assert not editor.active.references.previews
         assert not editor.active.analysis.jobs.results
         legacy = encode(WorkspaceViews())
@@ -311,7 +323,38 @@ def test_reference_controls_restore_without_payloads(tmp_path: Path) -> None:
         legacy.pop("references")
         legacy.pop("thumbnails")
         legacy.pop("presentation")
+        legacy.pop("inspect")
         decoded = decode_record(WorkspaceViews, legacy)
         assert decoded.references.roots == () and decoded.thumbnails
+    finally:
+        editor.close()
+
+
+def test_global_preview_defaults_do_not_apply_other_sources_mappings(
+    tmp_path: Path,
+) -> None:
+    from dataclasses import replace
+
+    from datelier.inspection.references.types import ReferenceMapping
+
+    source = tmp_path / "new.csv"
+    source.write_text("image\na.png\nb.png\n")
+    editor = EditorSession()
+    try:
+        defaults = editor.preferences.value
+        references = replace(
+            defaults.views.references,
+            roots=("/different/dataset",),
+            mappings=(ReferenceMapping("image", "a.png", "/different/photo.png"),),
+            thumbnail_size=64,
+        )
+        editor.preferences.value = replace(
+            defaults, views=replace(defaults.views, references=references)
+        )
+        editor.active.loader.request(source)
+        wait(editor)
+        assert not editor.active.references.settings.mappings
+        assert not editor.active.references.settings.roots
+        assert editor.active.references.settings.thumbnail_size == 64
     finally:
         editor.close()

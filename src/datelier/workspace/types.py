@@ -6,6 +6,7 @@ from dataclasses import dataclass, replace
 from datelier.analysis.types import Algorithm, AnalysisRequest
 from datelier.inspection.exploration import PlotSettings
 from datelier.inspection.presentation import TablePresentation
+from datelier.inspection.records.types import InspectSettings
 from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.types import (
     ImportFormat,
@@ -47,10 +48,12 @@ class WorkspaceViews:
     references: ReferenceSettings = ReferenceSettings()
     thumbnails: bool = True
     presentation: TablePresentation = TablePresentation()
+    inspect: InspectSettings = InspectSettings()
 
     def validate(self) -> None:
         self.references.validate()
         self.presentation.validate()
+        self.inspect.validate()
         if self.scatter_dimensions not in (None, 2, 3):
             raise ValueError("Scatter plots have two or three dimensions")
         if self.profile_selection is not None and len(

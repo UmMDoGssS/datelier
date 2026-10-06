@@ -6,7 +6,7 @@ from enum import StrEnum
 
 import polars as pl
 
-from datelier.core.column_roles import PLOTTABLE_ROLES
+from datelier.core.column_roles import PLOTTABLE_ROLES, ColumnRole
 from datelier.core.dataset import Dataset, DatasetRevision
 from datelier.inspection.statistics import NumericStatistics, prepare_numeric_statistics
 
@@ -275,7 +275,7 @@ def prepare_profiles(
         else (
             table.get_column(info.name)
             for info in (dataset.roles or ())
-            if info.role in (*PLOTTABLE_ROLES, ProfileKind.UNSUPPORTED)
+            if info.role in (*PLOTTABLE_ROLES, ColumnRole.UNSUPPORTED)
         )
     )
     for index, series in enumerate(series_list):

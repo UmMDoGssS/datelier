@@ -21,7 +21,7 @@ class InspectSettings:
     count: int = 100
     seed: int = 42
     primary: str | None = None
-    supporting: tuple[str, ...] = ()
+    supporting: tuple[str, ...] | None = None
     gallery: bool = True
     focus: int = 0
 
@@ -35,7 +35,9 @@ class InspectSettings:
                 "Inspect requires positive range/count, nonnegative focus "
                 "and a 32-bit seed"
             )
-        if len(set(self.supporting)) != len(self.supporting):
+        if self.supporting is not None and len(set(self.supporting)) != len(
+            self.supporting
+        ):
             raise ValueError("Supporting columns must be distinct")
 
 

@@ -98,8 +98,12 @@ inspection, text tokenization/statistics, image/box inspection, and audio
 profiles/playback. Phase 9 passes independent tabs/shared workers, Welcome/recent
 sources/editor controls, whole-session persistence/recovery and cross-file profile
 comparisons; [docs/phase-9.md](docs/phase-9.md) records correctness, native input,
-fresh-process restoration and measured multi-file resources. Phase 10 and later
-implementation/dependency gates remain open.
+fresh-process restoration and measured multi-file resources. Phase 10 passes
+richer interpretations, nearby reference discovery/lazy previews, conditional
+table styles, gallery/detail Inspect and direct media/text record collections;
+[docs/phase-10.md](docs/phase-10.md) records correctness, native restoration and
+measured resource gates. Phase 11 and later implementation/dependency gates
+remain open.
 Phase 8 investigations do not block this approved sequence. Existing v1 evidence
 and unfinished Titanic usability gates retain their status.
 

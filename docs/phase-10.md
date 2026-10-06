@@ -1,6 +1,6 @@
 # Phase 10 — Interpretations, previews, and Inspect
 
-Phase 9 is the entry baseline. Phase 10 is being delivered in bounded steps:
+Phase 10 passes M10.1–M10.4 on the Phase 9 baseline, delivered in bounded steps:
 
 1. Import interpretations and exact first-source-column identifier rule.
 2. Nearby reference index, explicit mappings, prioritized lazy image/text previews.
@@ -8,8 +8,8 @@ Phase 9 is the entry baseline. Phase 10 is being delivered in bounded steps:
 4. Direct media/text record collections and shared gallery/detail Inspect.
 5. Native restoration, source/revision/lifecycle and measured resource acceptance.
 
-M10.2–M10.4 and the overall phase remain open until their recorded checks pass.
-The existing Titanic UX acceptance status is unchanged.
+The sections below record step-level checks and final acceptance. Phase 11 is
+next. The existing Titanic UX acceptance status is unchanged.
 
 ## M10.1 interpretation behavior
 
@@ -224,3 +224,90 @@ media checks pass, including range/filter/sort alignment, deterministic samples,
 wide supporting columns, superseded file revisions and controlled closure during
 executing preparation without late publication. Pyrefly and Ruff lint/format/
 whitespace pass. No GUI integration or M10.4 completion is claimed yet.
+
+## M10.4 gallery/detail and phase acceptance
+
+The dockable **Inspect** panel offers virtual gallery cards and focused Previous/
+Next navigation. Primary fields prefer references, then text; direct media opening
+focuses Inspect, while workspace restoration respects its saved layout. Row ranges,
+linked selections and seeded random samples retain file/revision/source-row identity.
+Supporting fields use a searchable virtual checklist with All/Clear/Done and a
+virtual field list, without the table page's 16-column restriction. Selecting a
+card links to its source row/table position. Focused and gallery text show prepared
+excerpts, and missing/corrupt references show actionable diagnostics inline.
+
+Per-file settings save mode, range/count/seed, primary/supporting fields, gallery/
+focus and panel scroll alongside reference settings and conditional presentation.
+Global defaults retain cache/display choices but do not apply another source's
+roots or exact mappings. Explicit source reloads invalidate CPU/GPU payloads even
+when the path/stat metadata matches; same-dataset edits and tab switching can
+reuse unchanged assets. View restoration also invalidates GPU presentation safely.
+Custom numeric values outside tiny ranges clamp before normalization, avoiding
+underflow; `=` describes a flat display scale rather than asserting every source
+value is constant.
+
+Known fixed media manifests/line counts retain saved selections during changed-
+source recovery; missing or shorter members keep placeholders and the same source
+IDs. Generic changed tabular sources keep their existing selection reset behavior.
+Relinked line files preserve original line slots even when renamed. Refreshing the
+manifest remains explicit and makes current membership available. Plain relative
+paths such as `sub/a.bin` also receive lexical local-path interpretation.
+
+Native `inspect_smoke.py`: **94 frames**, real mouse All-fields choice (**42
+fields**), popup Done, Focus and Next; sorted/source sample alignment and independent
+cross-file selections verified. Final gallery screenshot reviewed for source-row
+labels, image preview, supporting values and bounded cards. Direct source regression
+passes **33 frames** with a native folder action and explicit text-line records.
+
+`phase10_workspace_smoke.py` runs three separate processes: save **21 frames**,
+restore **6**, changed-member recovery **7**. Three tabs restore (media folder,
+line text, CSV), replayed sort/role override, selected ID 2, exact mappings/cache
+sizes, custom style, focused primary/supporting fields, docking and hidden Analysis.
+Other tabs stay usable while the changed folder awaits recovery. After explicit
+acceptance, missing `2.png` stays selected with its original ID, null size and visible
+missing-reference diagnostic. No implicit ML runs, source bytes preserved except
+the deliberately removed fixture, and the temporary directory is removed.
+[Fresh-process report](evidence/phase10/workspace-restoration.json).
+
+The `benchmark_references.py --inspect` extension declares the existing reference
+budgets plus <=2 s initial record and sample-update latency, and fewer than eight
+rendered gallery cards. Fixture: **100,000 rows / four columns / 1,000 images**,
+20 scroll jumps and 20 explicit **10,000-record seeded samples**. The
+[Inspect resource report](evidence/phase10/inspect-resources.json) passes:
+metadata **130.39 ms**, index **172.31 ms**, first image **210.94 ms**;
+first record **156.67 ms**, maximum sample update **152.83 ms**;
+**323 frames**, p95 **12.18 ms**, peak RSS **387.62 MiB**, retained growth
+**-18.61 MiB**, CPU/GPU each **819,200 bytes** (limits 2/1 MiB), four workers,
+**at most two rendered cards across the run**. Closed sessions, outstanding jobs
+and post-exit workers are zero; source bytes and temporary cleanup pass. These extend the already-passed
+million-row/wide-table gates rather than promise arbitrary collection capacity.
+
+Dependency clean probe: `uv run --no-project --isolated --with pillow==12.3.0
+--python .venv/bin/python ...` installs a fresh isolated Pillow environment and
+successfully decodes/resizes PNG on Python 3.14. The offline attempt lacked needed
+registry metadata; the authorized network retry succeeds. The locked project is
+consistent (`uv lock --check --offline`). Existing runtime dependencies are
+unchanged apart from Pillow.
+
+The 304-line app bootstrap was reviewed at the 300-line trigger: it retains runner,
+panel bindings and resource-safe callback teardown; file ownership, record jobs,
+controls and rendering remain separate cohesive subsystems. No ML/media computation
+or filesystem discovery was moved into frame callbacks. Full modality statistics,
+original-resolution image tools, tokenization and audio playback remain their
+later authorized phases. Linux Mesa software rendering is verified; accelerated
+rendering and other platforms remain unverified.
+
+Final source-preservation review added shared worker-side destination checks:
+exports/workspace writes cannot overwrite media-folder members, symlink targets
+or hardlinks, while separate CSV metadata and workspace files remain usable.
+Deterministic export/save/restore tests verify unchanged asset bytes. Restoring
+unavailable Inspect fields against an already bound schema selects an available
+primary field and preserves valid supporting choices, gallery and seed settings;
+an explicit empty supporting list stays empty.
+
+Final verification: **593 tests passed** (`uv run --no-sync pytest -q`), Pyrefly
+**zero errors** (one existing suppression), Ruff lint and format (**306 files**),
+and diff whitespace pass. The final native direct-source, gallery/detail and
+three-process restoration regressions pass after the preservation changes.
+M10.4 and Phase 10 pass. Phase 11–14 implementation/dependency gates and the
+previously unfinished Titanic usability gates retain their open status.

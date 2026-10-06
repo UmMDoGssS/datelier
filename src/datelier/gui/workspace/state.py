@@ -179,6 +179,7 @@ def capture_views(session: GuiSession) -> WorkspaceViews:
         session.references.settings,
         session.reference_view.thumbnails,
         session.table.presentation.settings,
+        session.inspect.settings,
     )
 
 
@@ -264,5 +265,7 @@ def restore_view_settings(session: GuiSession, saved: WorkspaceViews) -> None:
     session.table.target_row = min(saved.target_row, max(1, dataset.table.height))
     session.table.jump = True
     session.references.configure(saved.references)
+    session.reference_view.textures.invalidate()
     session.reference_view.thumbnails = saved.thumbnails
     session.table.presentation.settings = saved.presentation
+    session.inspect.settings = saved.inspect

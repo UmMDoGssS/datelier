@@ -10,6 +10,7 @@ from typing import cast
 
 from datelier.core.dataset import SourceReference
 from datelier.io.media_manifest import directory_signature
+from datelier.io.protection import destination_is_source
 from datelier.workspace.codec import decode_record, encode
 from datelier.workspace.types import Workspace, WorkspaceSource
 
@@ -69,13 +70,7 @@ def atomic_write(path: Path, content: str) -> None:
 
 
 def protect_sources(path: Path, sources: tuple[Path, ...]) -> None:
-    if any(
-        path == source.expanduser().resolve()
-        or path.exists()
-        and source.exists()
-        and path.samefile(source)
-        for source in sources
-    ):
+    if any(destination_is_source(path, source) for source in sources):
         raise ValueError("A saved file cannot overwrite source data")
 
 

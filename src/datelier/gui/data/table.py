@@ -5,7 +5,7 @@ from math import ceil
 
 from imgui_bundle import imgui
 
-from datelier.core.column_roles import ColumnRole
+from datelier.core.column_roles import REFERENCE_ROLES
 from datelier.gui.data.presentation import PresentationControls, draw_style
 from datelier.gui.references.view import ReferenceView
 from datelier.inspection.preview import PreviewCache
@@ -108,11 +108,11 @@ class TableView:
         content_height = (
             imgui.get_text_line_height() + 2 * imgui.get_style().cell_padding.y
         )
-        image_columns = any(
-            inspection.dataset.role(c.name).role == ColumnRole.IMAGE for c in columns
+        reference_columns = any(
+            inspection.dataset.role(c.name).role in REFERENCE_ROLES for c in columns
         )
         row_height = ceil(content_height / 8) * 8
-        if image_columns and reference_view is not None and reference_view.thumbnails:
+        if reference_columns and reference_view is not None:
             row_height = max(row_height, 64)
         if self.jump:
             imgui.set_scroll_y((self.target_row - 1) * row_height)

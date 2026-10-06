@@ -61,9 +61,12 @@ class RecordJobs:
             try:
                 self.active = future.result()
                 self.message = (
+                    f"{self.active.settings.mode}: "
                     f"{len(self.active.positions):,} records from "
                     f"{self.active.eligible:,} current rows."
                 )
+                if self.active.settings.mode == RecordMode.RANDOM:
+                    self.message += f" Seed {self.active.settings.seed}."
             except Exception as error:
                 self.message = (
                     f"Cannot prepare Inspect: {error}. Change settings and retry."

@@ -59,6 +59,26 @@ def test_supporting_columns_are_not_limited_by_table_page_width() -> None:
     assert not prepare_records(source, replace(settings, start=1000)).positions.len()
 
 
+def test_restored_inspect_fields_recover_against_already_bound_columns() -> None:
+    from datelier.gui.inspect.controls import InspectControls
+
+    source = data()
+    controls = InspectControls()
+    controls.bind(source)
+    controls.settings = InspectSettings(
+        primary="missing", supporting=("c39", "missing"), gallery=False, seed=17
+    )
+    controls.bind(source)
+    assert controls.settings.primary in source.table.columns
+    assert controls.settings.supporting == ("c39",)
+    assert not controls.settings.gallery and controls.settings.seed == 17
+    records = prepare_records(source, controls.settings)
+    assert prepare_record_page(source, records, 0).cards[0].fields[0].name == "c39"
+    controls.settings = replace(controls.settings, supporting=())
+    controls.bind(source)
+    assert controls.settings.supporting == ()
+
+
 def test_file_owned_record_jobs_reject_superseded_and_closed_pages() -> None:
     first, second = data(), data()
     jobs = RecordJobs()

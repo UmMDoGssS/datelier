@@ -7,6 +7,8 @@ explicit CSV/Parquet export, richer exploration with linked selections,
 26 explicit clustering/embedding methods, referenced workspaces,
 and saved layouts/themes/plot preferences. The completed Phase 9 adds independent
 editor tabs, whole-session workspaces and cross-file profile comparisons.
+Phase 10 adds reference interpretations, lazy image/text previews, conditional
+table styles and gallery/detail Inspect for tables and media/text records.
 See [ROADMAP.md](ROADMAP.md) for delivery gates and [AGENTS.md](AGENTS.md) for
 contributor conventions.
 
@@ -42,7 +44,8 @@ Choose your own environment directory if you want to keep this installation;
 
 ## First session
 
-Try a CSV with at least two varying numeric columns (for example `x` and `y`):
+Try a CSV with an `id` column followed by at least two varying numeric columns
+(for example `x` and `y`):
 
 1. Open the file and inspect **Table preview**, **Schema and nulls** and **Explore**.
 2. In **Transform and history**, sort `x`, then derive `score` with
@@ -118,6 +121,11 @@ Supported inputs and settings:
   Configure whitespace trimming, text/type inference, ISO dates, and null
   tokens. Missing/empty fields become null. Nested/repeated fields, mixed
   content, and DTD/entity declarations fail with actionable diagnostics.
+- **Media / text:** individual images, audio or UTF-8 text files open as metadata
+  records, with lazy image thumbnails/text excerpts. In **Open Folder**, choose
+  **Open folder as media collection**; **Include media subfolders** controls
+  recursive membership. **Text: one record per line** explicitly reads text
+  into line records, retaining empty lines and original line numbers.
 
 Validated JSON/XML imports run in bounded record batches before producing the
 in-memory Polars table. On the reference machine, the 1m × 8 fixtures took
@@ -156,8 +164,11 @@ uv run datelier --workspace /path/to/session.datelier
 Restore checks sources and replays recipes in the background. A missing or
 changed source gets its own recovery tab while other files remain usable. Enter
 **Replacement source** there and choose **Relink / retry source**. Content changes
-require **Accept changed source content** before replaying; acceptance clears
-that file’s saved selection. Relative sources may move alongside their workspace.
+require **Accept changed source content** before replaying. Acceptance clears
+changed tabular selections; fixed media manifests/line counts retain known source
+IDs and missing-record placeholders. **Refresh media manifest on reload**, then
+**Reimport source**, explicitly picks up current members/line counts. Relative
+sources may move alongside their workspace.
 Available column views/settings restore; unavailable plot columns reset with a
 message. Legacy single-source workspaces open as one-file sessions. An invalid
 workspace leaves the current editor intact. Restoring never launches ML; use an
@@ -200,6 +211,41 @@ selections. Edits refresh comparisons that use that file. Applied mappings,
 labels, colors and scales save with the whole-session workspace; fitted results
 are still excluded. See [Phase 9 evidence](docs/phase-9.md) for native checks and
 fixture-specific resource measurements.
+
+## Reference previews and Inspect
+
+**Schema and nulls → Interpretation** explains inferred roles and allows reversible
+overrides. Recognizable image/audio/text references and prose take precedence over
+identifiers. Otherwise, a nonempty, unique, non-null integer/string first source
+column becomes Identifier; floating columns do not qualify through uniqueness.
+Change the role when that first column is an ordinary measurement or category.
+The physical dtype and original cell value stay visible.
+
+In **Table preview → Reference previews**, configure search roots, extensions,
+thumbnail size and CPU/GPU retention limits. Discovery runs in the background;
+exact absolute/dataset-relative paths resolve first, then unambiguous filenames
+or stems. **Choose reference** handles ambiguous or missing matches by selecting
+a candidate or entering **Exact file**. Hover for text excerpts and diagnostics.
+Direct media sources resolve their own paths without automatic nearby discovery.
+
+**Cell presentation** offers blue-to-red numeric shading with percentile (2–98),
+linear min/max or custom scales, stable category colors and interpretation badges.
+`<`/`>` mark values outside the scale, `=` a flat scale, `(null)` typed nulls and
+`!` nonfinite values. Selected rows use their selection color.
+
+Open **Inspect** through **View**, or open a media collection to focus it. Choose
+Gallery or focused Previous/Next navigation. **Inspect settings** selects current
+row ranges, linked selection or reproducible seeded samples and a primary field.
+**Supporting fields** can include every column, with search, All/Clear and Done.
+Select a source-row label to link its table position. Sorting retains sampled
+source identity, and each file keeps its own selection and Inspect settings.
+
+Workspaces preserve these controls, reference mappings and record manifests;
+decoded previews remain session caches. Missing records restore with diagnostics.
+Exports and workspace writes preserve collection members as well as individual
+source files. Full text statistics/tokenization, image tools and audio playback
+arrive in the later authorized phases. See [Phase 10 evidence](docs/phase-10.md)
+for native checks, restoration and fixture-specific resource measurements.
 
 ## Exploration
 

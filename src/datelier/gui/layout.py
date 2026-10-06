@@ -13,6 +13,7 @@ DOCKS = (
 PANELS = {
     "Explore": "PlotSpace",
     "Compare files": "PlotSpace",
+    "Inspect": "PlotSpace",
     "Table preview": "MainDockSpace",
     "Schema and nulls": "ImportSpace",
     "Analysis": "AnalysisSpace",

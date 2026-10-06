@@ -181,6 +181,14 @@ def run_gui(
         {
             "Explore": bind(explore),
             "Compare files": guard(compare_files),
+            "Inspect": bind(
+                lambda session: session.inspect.show(
+                    session.references,
+                    session.reference_view,
+                    session.selection,
+                    session.table,
+                )
+            ),
             "Table preview": bind(show_table),
             "Schema and nulls": bind(schema),
             "Analysis": bind(
@@ -263,6 +271,9 @@ def run_gui(
         if paths is not None and editor.browser.owner is not None:
             editor.opening.request(paths, editor.browser.owner)
         session = editor.active
+        if session.focus_inspect:
+            params.docking_params.focus_dockable_window("Inspect")
+            session.focus_inspect = False
         if (
             session.loader.status.phase == LoadPhase.LOADING
             or editor.workspace_jobs.session_busy

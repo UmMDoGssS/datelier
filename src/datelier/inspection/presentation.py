@@ -132,9 +132,15 @@ def cell_style(
     magnitude = max(abs(lo), abs(hi), abs(value)) or 1
     low, high = lo / magnitude, hi / magnitude
     position = (
-        max(0.0, min(1.0, (value / magnitude - low) / (high - low)))
-        if high > low
-        else 0.5
+        0.0
+        if value < lo
+        else 1.0
+        if value > hi
+        else (
+            max(0.0, min(1.0, (value / magnitude - low) / (high - low)))
+            if high > low
+            else 0.5
+        )
     )
     marker = "<" if value < lo else ">" if value > hi else "=" if lo == hi else ""
     return CellStyle((0.2 + 0.65 * position, 0.35, 0.85 - 0.65 * position), marker)

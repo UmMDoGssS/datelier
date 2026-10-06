@@ -53,6 +53,12 @@ def test_percentile_linear_custom_constant_and_overflow_ranges() -> None:
     ).marker
     custom = replace(settings, scale=NumericScale.CUSTOM, minimum=10, maximum=20)
     assert cell_style(first, bounds, custom).marker == "<"
+    tiny = replace(settings, scale=NumericScale.CUSTOM, minimum=1e-308, maximum=2e-308)
+    huge_cell = inspect(pl.DataFrame({"x": [1e308]})).first_page.cells[0][0]
+    assert (
+        cell_style(huge_cell, bounds, tiny).rgba
+        == cell_style(last, bounds, settings).rgba
+    )
     constant = inspect(pl.DataFrame({"x": [5.0, 5.0]}))
     assert (
         cell_style(constant.first_page.cells[0][0], constant.bounds[0], settings).marker

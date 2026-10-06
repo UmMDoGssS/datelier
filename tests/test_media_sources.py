@@ -125,3 +125,83 @@ def test_missing_or_shorter_line_members_keep_other_record_ids(tmp_path: Path) -
     assert missing.dataset.table["line"].to_list() == [1, 2, 3, 1]
     fresh = load_file(folder, MediaOptions(text_lines=True))
     assert fresh.dataset.table["text"].to_list() == ["other"]
+
+
+def test_changed_media_session_keeps_selection_on_fixed_manifest(
+    tmp_path: Path,
+) -> None:
+    from datelier.workspace.session_restore import SourceRecovery, restore_session_file
+    from datelier.workspace.session_types import SessionFile
+
+    folder = tmp_path / "fixed"
+    folder.mkdir()
+    for name in ("a.png", "b.png"):
+        Image.new("RGB", (2, 3)).save(folder / name)
+    imported = load_file(folder)
+    recipe = Workspace(
+        reference_source(imported.dataset.source), imported.format, imported.options
+    )
+    saved = SessionFile("media", recipe, selection=(1,))
+    (folder / "b.png").unlink()
+    recovered = restore_session_file(
+        saved, SourceRecovery("media", accept_changed=True)
+    )
+    assert recovered.restored and recovered.file.selection == (1,)
+    assert recovered.restored.inspection.dataset.table["member"][1] == "b.png"
+    assert recovered.restored.inspection.dataset.table["size_bytes"][1] is None
+
+
+def test_relinked_line_file_keeps_original_line_identity(tmp_path: Path) -> None:
+    source = tmp_path / "old.txt"
+    source.write_text("one\ntwo\nthree\n")
+    imported = load_file(source, MediaOptions(text_lines=True))
+    recipe = Workspace(
+        reference_source(imported.dataset.source), imported.format, imported.options
+    )
+    workspace = tmp_path / "lines.datelier"
+    save_workspace(workspace, recipe)
+    replacement = tmp_path / "new.txt"
+    replacement.write_text("new one\nnew two\n")
+    restored = restore_workspace(workspace, relink=replacement, accept_changed=True)
+    assert restored.inspection.dataset.row_ids.to_list() == [0, 1, 2]
+    assert restored.inspection.dataset.table["line"].to_list() == [1, 2, 3]
+    assert restored.inspection.dataset.table["text"].to_list() == [
+        "new one",
+        "new two",
+        None,
+    ]
+    assert restored.inspection.dataset.table["path"].to_list() == [str(replacement)] * 3
+
+
+def test_exports_and_workspace_writes_preserve_collection_members_and_aliases(
+    tmp_path: Path,
+) -> None:
+    from datelier.io.exporting import ExportFailure, ExportFormat, export_dataset
+
+    folder = tmp_path / "protected"
+    folder.mkdir()
+    image = folder / "source.png"
+    Image.new("RGB", (4, 3)).save(image)
+    outside = tmp_path / "outside.bin"
+    outside.write_bytes(b"original asset")
+    (folder / "alias.png").symlink_to(outside)
+    hardlink = tmp_path / "hardlink.bin"
+    hardlink.hardlink_to(image)
+    imported = load_file(folder)
+    original = image.read_bytes()
+    with pytest.raises(ExportFailure, match="preserved"):
+        export_dataset(imported.dataset, image, ExportFormat.CSV, overwrite=True)
+    with pytest.raises(ExportFailure, match="preserved"):
+        export_dataset(imported.dataset, outside, ExportFormat.CSV, overwrite=True)
+    with pytest.raises(ExportFailure, match="preserved"):
+        export_dataset(imported.dataset, hardlink, ExportFormat.CSV, overwrite=True)
+    recipe = Workspace(
+        reference_source(imported.dataset.source), imported.format, imported.options
+    )
+    with pytest.raises(ValueError, match="source data"):
+        save_workspace(image, recipe)
+    assert image.read_bytes() == original and outside.read_bytes() == b"original asset"
+    destination = folder / "metadata.csv"
+    assert export_dataset(imported.dataset, destination, ExportFormat.CSV).rows == 2
+    save_workspace(folder / "session.datelier", recipe)
+    assert restore_workspace(folder / "session.datelier").inspection.row_count == 2

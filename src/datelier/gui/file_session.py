@@ -1,7 +1,7 @@
 """File-owned inspection state and publication, independent of GUI rendering."""
 
 from concurrent.futures import Executor
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from uuid import uuid4
 
@@ -14,6 +14,7 @@ from datelier.gui.data.import_controls import ImportControls
 from datelier.gui.data.operations import OperationControls
 from datelier.gui.data.table import TableView
 from datelier.gui.exploration import ExplorationView
+from datelier.gui.inspect.view import InspectView
 from datelier.gui.plots.controls import PlotControls
 from datelier.gui.references.view import ReferenceView
 from datelier.gui.workspace.controls import WorkspaceControls
@@ -28,7 +29,7 @@ from datelier.inspection.preview import PreviewCache
 from datelier.inspection.references.jobs import ReferenceJobs
 from datelier.io.exporting import DatasetExporter
 from datelier.io.loading import DatasetLoader, LoadPhase, LoadStatus
-from datelier.io.types import ImportFormat
+from datelier.io.types import ImportFormat, MediaOptions
 from datelier.pipeline.editing import DatasetEditor
 from datelier.plotting.selection import LinkedSelection
 from datelier.workspace.jobs import WorkspaceJobs
@@ -53,11 +54,13 @@ class FileSession:
     analysis: AnalysisSession
     workspace: WorkspaceControls
     preferences: PreferenceControls  # Borrowed application defaults, never owned.
+    inspect: InspectView = field(default_factory=InspectView)
     references: ReferenceJobs = field(default_factory=ReferenceJobs)
     reference_view: ReferenceView = field(default_factory=ReferenceView)
     identity: str = field(default_factory=lambda: uuid4().hex)
     closed: bool = False
     recovery: RestoredSessionFile | None = None
+    focus_inspect: bool = False
     panel_scroll: dict[str, tuple[float, float]] = field(default_factory=dict)
 
     @classmethod
@@ -110,10 +113,12 @@ class FileSession:
             workspace,
             preferences,
             references=ReferenceJobs(executor),
+            inspect=InspectView(executor),
         )
         return session
 
     def install_restored(self, restored: RestoredWorkspace) -> bool:
+        self.focus_inspect = False
         self.loader.abandon()
         self.loader.active = restored.inspection
         self.loader.status = LoadStatus(
@@ -152,7 +157,15 @@ class FileSession:
             restore_plots(
                 self.plots, self.loader.active.dataset, self.preferences.value.plots
             )
-            restore_view_settings(self, self.preferences.value.views)
+            defaults = self.preferences.value.views
+            restore_view_settings(
+                self,
+                replace(
+                    defaults,
+                    references=replace(defaults.references, roots=(), mappings=()),
+                ),
+            )
+            self.focus_inspect = imported.format == ImportFormat.MEDIA
             self.selection.bind(self.loader.active.dataset.revision)
             self.explorer.request(self.loader.active.dataset, self.plots.settings())
         if self.loader.status.phase == LoadPhase.LOADING:
@@ -187,7 +200,11 @@ class FileSession:
         if active and any(
             info.role in REFERENCE_ROLES for info in active.dataset.roles or ()
         ):
-            if self.references.source != active.dataset.source.path:
+            if self.references.source != active.dataset.source.path or (
+                self.references.revision is not None
+                and self.references.revision.dataset_id
+                != active.dataset.revision.dataset_id
+            ):
                 self.reference_view.textures.clear()
             self.references.bind(
                 active.dataset.source.path,
@@ -198,6 +215,15 @@ class FileSession:
             self.references.unbind()
             self.reference_view.textures.clear()
         self.references.poll()
+        self.inspect.sync(
+            active.dataset if active else None,
+            self.selection,
+            "text"
+            if active
+            and isinstance(active.imported.options, MediaOptions)
+            and active.imported.options.text_lines
+            else None,
+        )
 
     def install_session_file(self, result: RestoredSessionFile) -> None:
         self.panel_scroll = {name: (x, y) for name, x, y in result.file.panel_scroll}
@@ -235,6 +261,7 @@ class FileSession:
         self.closed = True
         self.reference_view.textures.clear()
         self.references.close()
+        self.inspect.close()
         self.loader.close()
         self.pages.close()
         self.editor.close()

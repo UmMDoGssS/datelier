@@ -1,5 +1,6 @@
 """Declared nearby-reference latency, retention, frame and closure gates."""
 
+import argparse
 import gc
 import hashlib
 import json
@@ -20,6 +21,7 @@ from PIL import Image
 from datelier.gui.app import InspectionEvidence, run_gui
 from datelier.gui.editor_session import EditorSession
 from datelier.gui.tabs import EditorTabs
+from datelier.inspection.records.types import RecordMode
 
 BUDGETS = {
     "metadata_ms": 2000,
@@ -32,6 +34,11 @@ BUDGETS = {
     "gpu_bytes": 1048576,
     "workers": 4,
 }
+INSPECT_BUDGETS = {
+    "first_record_ms": 2000,
+    "max_record_update_ms": 2000,
+    "max_rendered_cards": 7,
+}
 
 
 def rss_mib() -> float:
@@ -43,6 +50,9 @@ def rss_mib() -> float:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--inspect", action="store_true")
+    args = parser.parse_args()
     report: dict[str, object] = {}
     with TemporaryDirectory(prefix="datelier-reference-resources-") as directory:
         root = Path(directory)
@@ -68,21 +78,20 @@ def main() -> None:
         stage = cycles = entered = 0
         baseline = 0.0
         previews: list[float] = []
+        record_updates: list[float] = []
+        record_started = 0.0
+        first_record_ms: float | None = None
+        max_rendered_cards = 0
         closed = []
 
         def frame(
             editor: EditorSession, tabs: EditorTabs, evidence: InspectionEvidence
         ) -> None:
-            nonlocal \
-                stage, \
-                cycles, \
-                entered, \
-                metadata_ms, \
-                index_ms, \
-                preview_ms, \
-                baseline, \
-                closed
+            nonlocal stage, cycles, entered, metadata_ms, index_ms, preview_ms
+            nonlocal baseline, closed, record_started, first_record_ms
+            nonlocal max_rendered_cards
             file = editor.active
+            max_rendered_cards = max(max_rendered_cards, file.inspect.rendered_cards)
             elapsed = (perf_counter() - started) * 1000
             if file.loader.active and metadata_ms is None:
                 metadata_ms = elapsed
@@ -92,6 +101,12 @@ def main() -> None:
                         cpu_bytes=BUDGETS["cpu_bytes"],
                         gpu_bytes=BUDGETS["gpu_bytes"],
                     )
+                )
+            if args.inspect and file.inspect.shown_cards and first_record_ms is None:
+                first_record_ms = elapsed
+            if args.inspect and evidence.frames == 2:
+                hello_imgui.get_runner_params().docking_params.focus_dockable_window(
+                    "Inspect"
                 )
             if file.references.index and index_ms is None:
                 index_ms = elapsed
@@ -111,6 +126,15 @@ def main() -> None:
                     cycles += 1
                     file.table.target_row = cycles * 4500 + 1
                     file.table.jump = True
+                    if args.inspect:
+                        file.inspect.settings = replace(
+                            file.inspect.settings,
+                            mode=RecordMode.RANDOM,
+                            count=10000,
+                            seed=cycles,
+                            primary="image",
+                        )
+                        record_started = perf_counter()
                     stage, entered = 2, evidence.frames
                 else:
                     stage, entered = 3, evidence.frames
@@ -119,6 +143,24 @@ def main() -> None:
                 and evidence.frames > entered + 12
                 and file.table.first_visible_row >= cycles * 4500
             ):
+                if args.inspect:
+                    records = file.inspect.jobs.active
+                    page = file.inspect.jobs.get(0)
+                    if (
+                        records is None
+                        or records.settings.seed != cycles
+                        or page is None
+                    ):
+                        return
+                    primary = page.cards[0].primary
+                    if (
+                        primary is None
+                        or primary.reference is None
+                        or file.references.get(primary.name, primary.reference)[1]
+                        is None
+                    ):
+                        return
+                    record_updates.append((perf_counter() - record_started) * 1000)
                 stage = 1
             elif (
                 stage == 3
@@ -131,7 +173,10 @@ def main() -> None:
                 growth = rss_mib() - baseline
                 workers = sum(t.name.startswith("file_") for t in threading.enumerate())
                 report.update(
-                    budgets=BUDGETS,
+                    budgets={
+                        **BUDGETS,
+                        **(INSPECT_BUDGETS if args.inspect else {}),
+                    },
                     rows=100_000,
                     assets=1000,
                     metadata_ms=metadata_ms,
@@ -146,6 +191,12 @@ def main() -> None:
                     gpu_bytes=file.reference_view.textures.retained_bytes,
                     workers=workers,
                     fixture_disk_bytes=fixture_bytes,
+                    inspect=args.inspect,
+                    first_record_ms=first_record_ms,
+                    max_record_update_ms=max(record_updates)
+                    if record_updates
+                    else None,
+                    max_rendered_cards=max_rendered_cards,
                 )
                 assert (
                     metadata_ms is not None and metadata_ms <= BUDGETS["metadata_ms"]
@@ -165,6 +216,16 @@ def main() -> None:
                     <= BUDGETS["gpu_bytes"]
                 ), report
                 assert workers <= BUDGETS["workers"], report
+                if args.inspect:
+                    assert first_record_ms is not None and (
+                        first_record_ms <= INSPECT_BUDGETS["first_record_ms"]
+                    ), report
+                    assert record_updates and (
+                        max(record_updates) <= INSPECT_BUDGETS["max_record_update_ms"]
+                    ), report
+                    assert (
+                        max_rendered_cards <= INSPECT_BUDGETS["max_rendered_cards"]
+                    ), report
                 closed = [ref(f) for f in editor.files]
                 for identity in tuple(f.identity for f in editor.files):
                     editor.close_tab(identity)
@@ -195,9 +256,11 @@ def main() -> None:
         report["temporary_directory_removed"]
         and report["worker_threads_after_exit"] == 0
     )
-    Path("/tmp/datelier-reference-resources.json").write_text(
-        json.dumps(report, indent=2) + "\n"
-    )
+    Path(
+        "/tmp/datelier-inspect-resources.json"
+        if args.inspect
+        else "/tmp/datelier-reference-resources.json"
+    ).write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps(report))
 
 

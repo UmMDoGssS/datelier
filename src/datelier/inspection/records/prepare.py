@@ -22,7 +22,7 @@ def prepare_records(
     settings.validate()
     names = dataset.table.columns
     requested = (
-        *settings.supporting,
+        *(settings.supporting or ()),
         *((settings.primary,) if settings.primary else ()),
     )
     missing = tuple(n for n in requested if n not in names)
@@ -58,7 +58,10 @@ def prepare_record_page(dataset: Dataset, records: RecordSet, start: int) -> Rec
     cards: list[RecordCard] = []
     names = tuple(
         dict.fromkeys(
-            (*settings.supporting, *((settings.primary,) if settings.primary else ()))
+            (
+                *(settings.supporting or ()),
+                *((settings.primary,) if settings.primary else ()),
+            )
         )
     )
     for slot in range(start, min(start + RECORD_PAGE_SIZE, len(records.positions))):
@@ -81,7 +84,7 @@ def prepare_record_page(dataset: Dataset, records: RecordSet, start: int) -> Rec
                 int(records.row_ids[slot]),
                 position,
                 fields.get(settings.primary or ""),
-                tuple(fields[n] for n in settings.supporting),
+                tuple(fields[n] for n in settings.supporting or ()),
             )
         )
     return RecordPage(dataset.revision, start, tuple(cards))

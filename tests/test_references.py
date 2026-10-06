@@ -145,3 +145,23 @@ def test_evicted_previews_remain_accessible(tmp_path: Path) -> None:
             assert jobs.retained_bytes <= settings.cpu_bytes
         finally:
             jobs.close()
+
+
+def test_explicit_source_reload_drops_same_path_payload_cache(tmp_path: Path) -> None:
+    source, settings = fixture(tmp_path)
+    data = Dataset.from_source(
+        pl.DataFrame({"image": ["a.png"]}), SourceReference(source, 0, 0)
+    )
+    jobs = ReferenceJobs()
+    try:
+        jobs.configure(settings)
+        jobs.bind(source, data.revision)
+        wait_preview(jobs, "image", "a.png")
+        assert jobs.previews
+        reloaded = Dataset.from_source(data.table, data.source)
+        jobs.bind(source, reloaded.revision)
+        assert not jobs.previews
+        wait_preview(jobs, "image", "a.png")
+        assert jobs.previews
+    finally:
+        jobs.close()

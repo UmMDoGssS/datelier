@@ -62,7 +62,10 @@ class ReferenceJobs:
         if self.closed:
             return
         self._discover_nearby = discover_nearby
-        if source != self.source:
+        if source != self.source or (
+            self.revision is not None
+            and self.revision.dataset_id != revision.dataset_id
+        ):
             self.previews.clear()
             self.source = source
             self.retry()

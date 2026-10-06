@@ -3,8 +3,10 @@
 from dataclasses import dataclass, replace
 from pathlib import Path
 
+from datelier.core.column_roles import TEXT_EXTENSIONS
 from datelier.inspection.table import prepare_inspection
 from datelier.io.importing import load_file
+from datelier.io.types import MediaOptions
 from datelier.pipeline.history import Pipeline
 from datelier.workspace.restore import RestoredWorkspace, SourceIssue, restore_recipe
 from datelier.workspace.session_storage import read_session_workspace
@@ -66,9 +68,28 @@ def restore_session_file(
             and file.recipe.source.sha256 != restored.workspace.source.sha256
         )
         ids = restored.inspection.dataset.row_ids
+        options = file.recipe.options if file.recipe is not None else None
+        counted_members = (
+            {member for member, _ in options.line_counts}
+            if isinstance(options, MediaOptions)
+            else set()
+        )
+        stable_manifest = isinstance(options, MediaOptions) and (
+            options.manifest is None
+            and bool(options.line_counts)
+            or options.manifest is not None
+            and (
+                not options.text_lines
+                or all(
+                    not member.lower().endswith(TEXT_EXTENSIONS)
+                    or member in counted_members
+                    for member in options.manifest
+                )
+            )
+        )
         selection = (
             ()
-            if changed
+            if changed and not stable_manifest
             else tuple(
                 int(row) for row in ids.filter(ids.is_in(file.selection)).to_list()
             )

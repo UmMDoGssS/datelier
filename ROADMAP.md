@@ -39,9 +39,12 @@ records workflow/resource checks and the clean-wheel install. The personal-use
 v1 scope is complete. Phase 8 remains optional investigation for concrete needs.
 Phases 9–14 are the approved editor and multimodal sequence. Phase 9 passes
 independent tabs/shared workers, Welcome/recent sources/editor controls,
-whole-session persistence/recovery and cross-file comparisons; Phase 10 and
-later implementation gates remain open. These gates do not change existing
-feature or usability acceptance.
+whole-session persistence/recovery and cross-file comparisons. Phase 10 passes
+richer interpretations, nearby lazy previews, conditional table presentation
+and gallery/detail Inspect with direct media/text records;
+[Phase 10 evidence](docs/phase-10.md) records correctness, native restoration and
+measured resources. Phase 11 and later implementation gates remain open. These
+gates do not change existing feature or usability acceptance.
 
 A concrete post-v1 usability need is recorded in the
 [Titanic UX review and proposed repair plan](docs/ux-titanic-review.md): readable
@@ -638,7 +641,8 @@ the corresponding dependency or behavior gates.
 [Verified implementation and resources](docs/phase-9.md) cover file ownership,
 native tabs, independent inactive-file jobs, nonblocking closure and M9.2
 Welcome/recent opening/editor controls, whole-session recovery and cross-file
-comparisons. Phase 10 is the next outstanding phase.
+comparisons. Phase 10's completed inspection expansion is recorded below;
+Phase 11 is the next outstanding phase.
 
 - [x] **Deliverables:** application/file session separation; top file tab bar with switching, reordering, closing, and New Tab; independent source/revision, operations, selections, jobs, analysis settings, and views; dockable panels bound to the active file.
 - [x] **Entry gate:** inspect current GuiSession and job/persistence boundaries; define typed file-session ownership and the shared worker lifecycle before introducing tabs.
@@ -672,7 +676,13 @@ comparisons. Phase 10 is the next outstanding phase.
 
 ## Phase 10 — Interpretations, conditional previews, and record inspection
 
-- [ ] **Phase complete.** **Entry:** Phase 9 passes. **Exit:** M10.1–M10.4 pass with nonblocking reference discovery, aligned record inspection, and restored preview settings.
+- [x] **Phase complete.** **Entry:** Phase 9 passes. **Exit:** M10.1–M10.4 pass with nonblocking reference discovery, aligned record inspection, and restored preview settings.
+
+[Verified implementation and acceptance](docs/phase-10.md) cover typed roles,
+worker discovery/decoding, CPU/GPU lifecycle, conditional styles, direct media/
+line manifests, gallery/detail navigation, fresh-process recovery and measured
+table/reference/Inspect resources. Phase 11 is next; modality-specific tools
+remain in Phases 12–14.
 
 ### M10.1 — Richer column interpretations
 
@@ -700,11 +710,11 @@ comparisons. Phase 10 is the next outstanding phase.
 
 ### M10.4 — Shared Inspect view and direct media sources
 
-- [ ] **Deliverables:** gallery and focused-record views for row ranges, linked selections and seeded random samples, with any chosen supporting columns; virtual record collections from individual media files/folders and configurable text file-versus-line records.
-- [ ] **Entry gate:** M10.3 passes; stable file/view/record identities and lazy reference previews are available.
-- [ ] **Exit gate:** Inspect follows the correct records after sort/filter/sample and cross-file switching; supporting-column choices are not limited by the preview page width; folder manifests and missing records restore predictably. Full modality tools arrive in Phases 12–14.
-- [ ] **Verification evidence:** seeded range/sample identity and supporting-column fixtures, folder/line provenance and changed-source recovery, native gallery/detail navigation and tab-closure cleanup.
-- [ ] **Suggested step commits:** `feat: open media files and folders as records` → `feat: inspect selected records with supporting columns`.
+- [x] **Deliverables:** gallery and focused-record views for row ranges, linked selections and seeded random samples, with any chosen supporting columns; virtual record collections from individual media files/folders and configurable text file-versus-line records.
+- [x] **Entry gate:** M10.3 passes; stable file/view/record identities and lazy reference previews are available.
+- [x] **Exit gate:** Inspect follows the correct records after sort/filter/sample and cross-file switching; supporting-column choices are not limited by the preview page width; folder manifests and missing records restore predictably. Full modality tools arrive in Phases 12–14.
+- [x] **Verification evidence:** seeded range/sample identity and supporting-column fixtures, folder/line provenance and changed-source recovery, native gallery/detail navigation and tab-closure cleanup.
+- [x] **Suggested step commits:** `feat: open media files and folders as records` → `feat: inspect selected records with supporting columns`.
 
 ## Phase 11 — Structured objects, arrays, and checkpoints
 

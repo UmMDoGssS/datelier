@@ -53,7 +53,7 @@ class PresentationControls:
                     self.message = str(error)
         imgui.text_wrapped(
             "Blue to red: low to high. < / > mark values beyond the scale; "
-            "= marks constants. (null) marks null; ! marks nonfinite. "
+            "= marks a flat scale. (null) marks null; ! marks nonfinite. "
             "Selected rows use selection color."
         )
         imgui.text_wrapped(self.message)

@@ -9,6 +9,7 @@ from tempfile import NamedTemporaryFile
 
 from datelier.core.dataset import Dataset, DatasetRevision
 from datelier.core.jobs import JobExecutor
+from datelier.io.protection import destination_is_source
 
 
 class ExportFormat(StrEnum):
@@ -31,7 +32,7 @@ class ExportResult:
 
 def guard_destination(dataset: Dataset, path: Path, overwrite: bool) -> None:
     source = dataset.source.path.resolve()
-    if path == source or (path.exists() and source.exists() and path.samefile(source)):
+    if destination_is_source(path, source):
         raise ExportFailure(
             "Choose a different destination; source files are preserved"
         )
