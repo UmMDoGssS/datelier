@@ -196,7 +196,8 @@ class FileSession:
             )
             self.focus_inspect = imported.format == ImportFormat.MEDIA
             self.focus_source = (
-                imported.format in (ImportFormat.OBJECT, ImportFormat.ARRAY)
+                imported.format
+                in (ImportFormat.OBJECT, ImportFormat.ARRAY, ImportFormat.CHECKPOINT)
                 and not self.view_name
             )
             self.selection.bind(self.loader.active.dataset.revision)

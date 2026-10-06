@@ -368,3 +368,25 @@ The optional import boundary is confined to the feasibility script; ordinary
 app import/startup does not import PyTorch. This verifies M11.4's dependency
 entry gate. Checkpoint adapters, native tensor views, absent-extra diagnostics,
 persistence/resource acceptance and M11.4 completion remain open.
+
+The checkpoint adapter now opens `.pt`/`.pth`/`.ckpt` sources through a lazy typed
+PyTorch boundary. FakeTensorMode retains primitive dict/list/tuple/byte metadata
+and captures tensor paths, physical dtypes, shapes, layouts, strides, offsets and
+logical byte sizes. Integer dictionary keys remain distinct from strings;
+cyclic containers display reference locators. Configurable metadata node/depth
+limits fail with local diagnostics. A Polars header table references tensors;
+it does not hold tensor payloads. Unsupported/custom objects stay rejected by
+restricted loading, with no unrestricted-loading or allowlist action offered.
+The original hierarchy remains browsable, including scalar/empty checkpoints.
+
+Typed options and integer node locators round-trip through the finite workspace
+codec. Opening JSON/TOML record views retains its original scalar constraints;
+checkpoint metadata lists do not expose an unrelated record-extraction control.
+Tests explicitly forbid tensor-to-NumPy conversion while opening metadata,
+verify physical fake storage, original bytes, cycles, malformed sources,
+primitive metadata, limits, optional-extra diagnostics and lazy fresh-process app
+imports. Focused checkpoint/object/array/session regressions **43 passed**;
+Pyrefly **zero errors** (one existing suppression), Ruff lint/format (**353 files**)
+and diff whitespace pass. Native nested-checkpoint metadata/tree smoke passes
+**27 frames** with unchanged source bytes. Tensor value preparation, native
+tensor controls and complete M11.4 acceptance remain open.

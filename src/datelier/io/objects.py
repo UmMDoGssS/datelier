@@ -56,6 +56,8 @@ def extract_records(node: ObjectNode, *, as_text: bool = False) -> pl.DataFrame:
         row: dict[str, ScalarValue] = {}
         for field in child.node.children:
             value = field.node.value
+            if isinstance(value, bytes):
+                raise ValueError("Binary metadata cannot form JSON/TOML record columns")
             if field.node.children or field.node.kind in ("object", "array"):
                 raise ValueError(
                     f"Record {index}, field {field.key!r}: nested values cannot enter "

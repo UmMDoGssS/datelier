@@ -7,6 +7,7 @@ from pathlib import Path
 from datelier.core.dataset import Dataset
 from datelier.inspection.arrays.mapping import ArrayRecordMapping
 from datelier.inspection.arrays.types import ArrayCatalog
+from datelier.inspection.checkpoints.types import CheckpointCatalog
 from datelier.inspection.objects.types import NodePath, ObjectNode
 
 
@@ -20,6 +21,7 @@ class ImportFormat(StrEnum):
     MEDIA = "Media / text"
     OBJECT = "JSON / TOML object"
     ARRAY = "NumPy array"
+    CHECKPOINT = "PyTorch checkpoint"
 
 
 @dataclass(frozen=True)
@@ -80,6 +82,16 @@ class ArrayOptions:
             self.mapping.validate()
         if not 1 <= self.max_header_bytes <= 16 * 1024 * 1024:
             raise ValueError("Array header limit must be between one byte and 16 MiB")
+
+
+@dataclass(frozen=True)
+class CheckpointOptions:
+    max_nodes: int = 200_000
+    max_depth: int = 128
+
+    def __post_init__(self) -> None:
+        if not 1 <= self.max_nodes <= 1_000_000 or not 1 <= self.max_depth <= 256:
+            raise ValueError("Checkpoint metadata node/depth limits are out of range")
 
 
 @dataclass(frozen=True)
@@ -145,6 +157,7 @@ type ImportOptions = (
     | MediaOptions
     | ObjectOptions
     | ArrayOptions
+    | CheckpointOptions
 )
 
 
@@ -159,6 +172,7 @@ def validate_import_options(format: ImportFormat, options: ImportOptions) -> Non
         ImportFormat.MEDIA: MediaOptions,
         ImportFormat.OBJECT: ObjectOptions,
         ImportFormat.ARRAY: ArrayOptions,
+        ImportFormat.CHECKPOINT: CheckpointOptions,
     }[format]
     if type(options) is not expected:
         raise ValueError("Import options do not match the saved format")
@@ -186,3 +200,4 @@ class ImportResult:
     format: ImportFormat = ImportFormat.CSV
     object_root: ObjectNode | None = None
     array_catalog: ArrayCatalog | None = None
+    checkpoint_catalog: CheckpointCatalog | None = None

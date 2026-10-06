@@ -28,6 +28,7 @@ from datelier.inspection.records.types import InspectSettings
 from datelier.inspection.references.types import ReferenceMapping, ReferenceSettings
 from datelier.io.types import (
     ArrayOptions,
+    CheckpointOptions,
     CsvOptions,
     JsonOptions,
     MediaOptions,
@@ -54,6 +55,7 @@ RECORDS = (
     SupportingArray,
     SliceSettings,
     ArrayOptions,
+    CheckpointOptions,
     InspectSettings,
     TablePresentation,
     ReferenceSettings,

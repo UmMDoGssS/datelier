@@ -9,6 +9,7 @@ from datelier.io.csv import CsvOptions
 from datelier.io.importing import detect_format
 from datelier.io.types import (
     ArrayOptions,
+    CheckpointOptions,
     ImportFormat,
     ImportOptions,
     JsonOptions,
@@ -42,6 +43,8 @@ class ImportControls:
     object_syntax: int = 0
     array_archive: int = 0
     array_header_bytes: int = 10_000
+    checkpoint_nodes: int = 200_000
+    checkpoint_depth: int = 128
     error: str = ""
     _bound: tuple[ImportFormat, ImportOptions, tuple[object, ...]] | None = field(
         default=None, repr=False
@@ -81,6 +84,9 @@ class ImportControls:
         elif isinstance(options, ArrayOptions):
             self.array_archive = (None, False, True).index(options.archive)
             self.array_header_bytes = options.max_header_bytes
+        elif isinstance(options, CheckpointOptions):
+            self.checkpoint_nodes = options.max_nodes
+            self.checkpoint_depth = options.max_depth
         elif isinstance(options, ObjectOptions):
             self.object_syntax = ("", "json", "toml").index(options.syntax)
             self.text_only = options.read_as_text
@@ -118,6 +124,8 @@ class ImportControls:
             return ArrayOptions(
                 (None, False, True)[self.array_archive], self.array_header_bytes
             )
+        if selected == ImportFormat.CHECKPOINT:
+            return CheckpointOptions(self.checkpoint_nodes, self.checkpoint_depth)
         if selected == ImportFormat.OBJECT:
             return ObjectOptions(
                 syntax=("", "json", "toml")[self.object_syntax],
@@ -169,6 +177,18 @@ class ImportControls:
         )
 
     def show_options(self, selected: ImportFormat | None) -> None:
+        if selected == ImportFormat.CHECKPOINT:
+            _, self.checkpoint_nodes = imgui.input_int(
+                "Maximum metadata nodes", self.checkpoint_nodes
+            )
+            _, self.checkpoint_depth = imgui.input_int(
+                "Maximum metadata depth", self.checkpoint_depth
+            )
+            imgui.text_wrapped(
+                "Optional CPU PyTorch inspection. Open nested metadata and tensor "
+                "shapes first; prepare values explicitly."
+            )
+            return
         if selected == ImportFormat.ARRAY:
             _, self.array_archive = imgui.combo(
                 "Array container", self.array_archive, ["Automatic", "NPY", "NPZ"]

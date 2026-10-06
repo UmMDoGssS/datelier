@@ -8,6 +8,7 @@ from datelier.inspection.comparison_settings import ComparisonSettings
 from datelier.inspection.objects.types import NodePath
 from datelier.io.types import (
     ArrayOptions,
+    CheckpointOptions,
     ImportFormat,
     ImportOptions,
     ObjectOptions,
@@ -44,12 +45,23 @@ class SessionFile:
     object_expanded: tuple[NodePath, ...] = ()
 
     def validate(self) -> None:
-        ObjectOptions(node_path=self.object_path)
-        ObjectOptions(node_path=self.object_focus)
         if len(self.object_expanded) > 1024:
             raise ValueError("Save at most 1024 expanded object nodes")
-        for path in self.object_expanded:
-            ObjectOptions(node_path=path)
+        options = (
+            self.recipe.options
+            if self.recipe is not None
+            else (self.draft.options if self.draft is not None else None)
+        )
+        for path in (self.object_path, self.object_focus, *self.object_expanded):
+            if isinstance(options, CheckpointOptions):
+                # Checkpoint dictionaries may use negative integer keys;
+                # array-position validity is checked against the restored tree.
+                if len(path) > 256 or any(type(key) not in (str, int) for key in path):
+                    raise ValueError(
+                        "Checkpoint node paths require string/integer keys"
+                    )
+            else:
+                ObjectOptions(node_path=path)
         if len(self.name) > 4096 or len(self.record_views) > 32:
             raise ValueError("Record view names or count exceed saved bounds")
         identities = {view.identity for view in self.record_views}

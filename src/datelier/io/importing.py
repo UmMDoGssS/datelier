@@ -8,6 +8,7 @@ from datelier.core.column_roles import (
     TEXT_EXTENSIONS,
 )
 from datelier.io.arrays.importing import load_arrays
+from datelier.io.checkpoints.importing import load_checkpoint
 from datelier.io.csv import load_csv, load_tsv
 from datelier.io.json import load_json
 from datelier.io.media import load_media
@@ -15,6 +16,7 @@ from datelier.io.objects import load_object
 from datelier.io.parquet import load_parquet
 from datelier.io.types import (
     ArrayOptions,
+    CheckpointOptions,
     CsvOptions,
     ImportFailure,
     ImportFormat,
@@ -42,6 +44,9 @@ def detect_format(path: Path) -> ImportFormat:
         ".toml": ImportFormat.OBJECT,
         ".npy": ImportFormat.ARRAY,
         ".npz": ImportFormat.ARRAY,
+        ".pt": ImportFormat.CHECKPOINT,
+        ".pth": ImportFormat.CHECKPOINT,
+        ".ckpt": ImportFormat.CHECKPOINT,
     }
     if path.suffix.lower() in (*IMAGE_EXTENSIONS, *AUDIO_EXTENSIONS, *TEXT_EXTENSIONS):
         return ImportFormat.MEDIA
@@ -64,6 +69,10 @@ def load_file(
         if format is not None
         else (ImportFormat.MEDIA if path.is_dir() else detect_format(path))
     )
+    if selected == ImportFormat.CHECKPOINT:
+        if options is not None and not isinstance(options, CheckpointOptions):
+            raise ImportFailure(path, "Checkpoints require checkpoint import options.")
+        return load_checkpoint(path, options)
     if selected == ImportFormat.ARRAY:
         if options is not None and not isinstance(options, ArrayOptions):
             raise ImportFailure(path, "Arrays require array import options.")

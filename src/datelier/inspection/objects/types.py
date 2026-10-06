@@ -7,7 +7,7 @@ from types import MappingProxyType
 
 type NodeKey = str | int
 type NodePath = tuple[NodeKey, ...]
-type ObjectScalar = str | int | float | bool | date | datetime | time | None
+type ObjectScalar = str | bytes | int | float | bool | date | datetime | time | None
 
 
 @dataclass(frozen=True)
@@ -39,7 +39,7 @@ class ObjectNode:
         if self.kind in ("object", "array"):
             return f"{len(self.children)} entries"
         value = self.value
-        shortened = isinstance(value, str) and len(value) > 256
+        shortened = isinstance(value, (str, bytes)) and len(value) > 256
         text = repr(value[:256] if shortened else value)
         if shortened:
             return text + "… (truncated)"
@@ -52,7 +52,7 @@ class ObjectNode:
                 if not 0 <= key < len(node.children):
                     raise ValueError(f"Array index {key} is unavailable")
                 node = node.children[key].node
-            elif node.kind == "object" and isinstance(key, str):
+            elif node.kind == "object" and type(key) in (str, int):
                 child = node._fields.get(key)
                 if child is None:
                     raise ValueError(f"Object field {key!r} is unavailable")

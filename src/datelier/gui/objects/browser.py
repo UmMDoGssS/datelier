@@ -60,8 +60,12 @@ class ObjectBrowser:
             views.offsets.clear()
         self.focus_pixel = _pixel()
         imgui.text_wrapped(f"{selected.kind}: {selected.preview}")
-        _, self.as_text = imgui.checkbox("Read record columns as text", self.as_text)
-        if selected.kind == "array":
+        object_records = isinstance(active.imported.options, ObjectOptions)
+        if object_records:
+            _, self.as_text = imgui.checkbox(
+                "Read record columns as text", self.as_text
+            )
+        if selected.kind == "array" and object_records:
             if imgui.button("Open records as table view"):
                 try:
                     views.open(owner, views.path, as_text=self.as_text)
