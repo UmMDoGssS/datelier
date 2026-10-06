@@ -174,3 +174,60 @@ cover n-D axis order/fixed indices, exact shifted windows, endian dtype, scalar/
 empty/string/structured/nonfinite/complex/large/constant values and invalid fields,
 axes, positions/counts. No GUI changes are included in this foundation. M11.2's
 jobs, native controls, saved locators and resource acceptance remain open.
+
+## M11.2 native arrays and acceptance
+
+NPY/NPZ files now open through the normal editor/catalog/loader as metadata tables.
+Array member names identify arrays within their source, including path-like names;
+they do not trigger nearby-media discovery. The Source browser virtualizes member
+selection and exposes vector/matrix axes, fixed coordinates, exact start/count
+windows, structured scalar fields and complex components. **Prepare slice** is
+explicit. Reopening/restoring reads metadata and saved controls, with no payload
+preparation, decompressed cache or implicit ML. Reimported sources reset their
+local controls; views in other files stay independent.
+
+File-owned jobs share the bounded scheduler and tag publication by revision and
+slice settings. Source/setting switches and closure reject obsolete results;
+cooperative abandonment checks between decompression chunks, with visible byte
+progress while extracting. Disk retention is editable and saved. Cleanup is
+queued on workers and survives owner closure. Cache display properties use
+constant-time snapshots, so frames do not wait on file eviction locks.
+
+Prepared vector values use gaps for nonfinite entries. Matrix heatmaps use a
+continuous Viridis scale over the selected finite range, with prepared gray spans
+for nonfinite cells. Plot indices and raw virtual rows retain original coordinates;
+hover shows the full source index tuple. Newly prepared windows fit their own
+coordinates; subsequent frames retain pan/zoom. Raw values stay read-only.
+ImPlot's binding rejects read-only ndarray inputs, so dedicated numeric/heatmap
+presentation buffers are writable; raw/source data remain separate. GUI callbacks
+do not read files, decompress members, normalize arrays or scan complete members.
+
+`array_views_smoke.py --output docs/evidence/phase11/array-views.json` passes two
+fresh processes: save **78 frames**, restore **35**. Real keyboard input fixes axis
+0 to index **1**; a native button prepares the expected **3×4** plane. Additional
+explicit vector/nonfinite matrix preparations verify gaps and gray spans, and
+returning to the cube reuses its extracted member. Restoration proves metadata-only
+opening before another explicit native preparation. [Report](evidence/phase11/array-views.json)
+and [reviewed screenshot](evidence/phase11/array-views.png). The final M11.1 native
+object regression also passes save/restore **40/16 frames**.
+
+`benchmark_arrays.py --output docs/evidence/phase11/array-resources.json` declares
+metadata <=2 s, first selected slice <=3 s, subsequent windows <=1 s, frame p95
+<=33 ms, peak RSS <=1 GiB, disk retention <=16 MiB and four workers. Fixture:
+compressed **8×512×512 float32** selected data, **1024×1024×32 uint8** unselected
+data, **20 exact 128×128 shifted windows**, **152 frames**. The
+[resource report](evidence/phase11/array-resources.json) passes: metadata **118.83 ms**,
+first slice **65.32 ms**, maximum update **31.13 ms**, frame p95 **29.66 ms**, peak
+RSS **381.54 MiB**. One extraction retains **8,388,736 bytes**, exactly the selected
+member's NPY storage; the 32 MiB unselected payload is never materialized. Worker
+threads and temporary member storage are removed after exit, and source bytes
+match. These are Linux Mesa software-rendering fixture measurements.
+
+Final full suite: **659 tests passed**; Pyrefly **zero errors** (one existing
+suppression), Ruff lint/format (**333 files**) and diff whitespace pass. Focused
+session tests prove metadata-only open/restore, exact explicit preparation,
+stale-revision rejection, source/member namespace and cleanup. The larger
+FileSession/bootstrap files were reviewed again: array jobs, storage, preparation
+and native rendering stay separate; file ownership remains cohesive.
+M11.2 passes. Confirmable record mappings (M11.3), optional CPU checkpoints
+(M11.4) and the overall Phase 11 completion/restoration gate remain open.

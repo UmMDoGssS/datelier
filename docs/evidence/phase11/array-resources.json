@@ -1,0 +1,38 @@
+{
+  "budgets": {
+    "metadata_ms": 2000,
+    "first_slice_ms": 3000,
+    "update_ms": 1000,
+    "frame_p95_ms": 33,
+    "peak_rss_mib": 1024,
+    "retained_disk_bytes": 16777216,
+    "workers": 4
+  },
+  "selected_shape": [
+    8,
+    512,
+    512
+  ],
+  "unselected_shape": [
+    1024,
+    1024,
+    32
+  ],
+  "window": [
+    128,
+    128
+  ],
+  "metadata_ms": 118.83291000049212,
+  "first_slice_ms": 65.32281699765008,
+  "extractions": 1,
+  "extracted_bytes": 8388736,
+  "retained_disk_bytes": 8388736,
+  "unselected_payload_loaded": false,
+  "workers": 4,
+  "frames": 152,
+  "update_ms": 31.133443997532595,
+  "frame_p95_ms": 29.662412199104434,
+  "peak_rss_mib": 381.53515625,
+  "source_preserved": true,
+  "temporary_cleanup": true
+}

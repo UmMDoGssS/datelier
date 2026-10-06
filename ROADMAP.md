@@ -718,8 +718,8 @@ remain in Phases 12–14.
 
 ## Phase 11 — Structured objects, arrays, and checkpoints
 
-[Verified structured browsing and named views](docs/phase-11.md) pass M11.1.
-M11.2's lazy array storage and rendering gates are next.
+[Verified structured browsing and lazy array inspection](docs/phase-11.md) pass
+M11.1–M11.2. M11.3's confirmable array record mappings are next.
 
 - [ ] **Phase complete.** **Entry:** Phase 10 passes. **Exit:** M11.1–M11.4 pass; structure, mappings and source-record identity survive workspace restoration without eager payload loading.
 
@@ -733,11 +733,11 @@ M11.2's lazy array storage and rendering gates are next.
 
 ### M11.2 — Lazy NPY and NPZ array browsing
 
-- [ ] **Deliverables:** member names, shapes, dtypes and storage sizes before payload loading; vector plots, matrix heatmaps and higher-dimensional slice controls; selected compressed NPZ members decompressed in workers to reusable temporary NPY storage and memory-mapped slices where needed.
-- [ ] **Entry gate:** M11.1 passes; verify NumPy header/member access, mapping, temporary-storage lifecycle and renderer boundaries on representative arrays.
-- [ ] **Exit gate:** opening an archive does not materialize every member; selecting/slicing preserves dtype and raw values; compressed members remain inspectable through explicit background preparation; corruption, unsupported payloads and disk failures have recoverable diagnostics.
-- [ ] **Verification evidence:** compressed/uncompressed, empty/structured/string/nonfinite and higher-dimensional fixtures; unselected-member loading checks; native slice/heatmap workflow, cache/disk cleanup and memory/latency measurements.
-- [ ] **Suggested step commits:** `feat: browse numpy array metadata` → `feat: cache selected npz members for slicing` → `feat: inspect array slices and heatmaps`.
+- [x] **Deliverables:** member names, shapes, dtypes and storage sizes before payload loading; vector plots, matrix heatmaps and higher-dimensional slice controls; selected compressed NPZ members decompressed in workers to reusable temporary NPY storage and memory-mapped slices where needed.
+- [x] **Entry gate:** M11.1 passes; verify NumPy header/member access, mapping, temporary-storage lifecycle and renderer boundaries on representative arrays.
+- [x] **Exit gate:** opening an archive does not materialize every member; selecting/slicing preserves dtype and raw values; compressed members remain inspectable through explicit background preparation; corruption, unsupported payloads and disk failures have recoverable diagnostics.
+- [x] **Verification evidence:** compressed/uncompressed, empty/structured/string/nonfinite and higher-dimensional fixtures; unselected-member loading checks; native slice/heatmap workflow, cache/disk cleanup and memory/latency measurements.
+- [x] **Suggested step commits:** `feat: browse numpy array metadata` → `feat: cache selected npz members for slicing` → `feat: inspect array slices and heatmaps`.
 
 ### M11.3 — Confirmable array record mappings
 

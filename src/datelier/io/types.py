@@ -5,6 +5,7 @@ from enum import StrEnum
 from pathlib import Path
 
 from datelier.core.dataset import Dataset
+from datelier.inspection.arrays.types import ArrayCatalog
 from datelier.inspection.objects.types import NodePath, ObjectNode
 
 
@@ -17,6 +18,7 @@ class ImportFormat(StrEnum):
     XML = "XML"
     MEDIA = "Media / text"
     OBJECT = "JSON / TOML object"
+    ARRAY = "NumPy array"
 
 
 @dataclass(frozen=True)
@@ -64,6 +66,16 @@ class ObjectOptions:
             )
         ):
             raise ValueError("Node paths require string fields or nonnegative indices")
+
+
+@dataclass(frozen=True)
+class ArrayOptions:
+    archive: bool | None = None
+    max_header_bytes: int = 10_000
+
+    def __post_init__(self) -> None:
+        if not 1 <= self.max_header_bytes <= 16 * 1024 * 1024:
+            raise ValueError("Array header limit must be between one byte and 16 MiB")
 
 
 @dataclass(frozen=True)
@@ -128,6 +140,7 @@ type ImportOptions = (
     | XmlOptions
     | MediaOptions
     | ObjectOptions
+    | ArrayOptions
 )
 
 
@@ -141,6 +154,7 @@ def validate_import_options(format: ImportFormat, options: ImportOptions) -> Non
         ImportFormat.XML: XmlOptions,
         ImportFormat.MEDIA: MediaOptions,
         ImportFormat.OBJECT: ObjectOptions,
+        ImportFormat.ARRAY: ArrayOptions,
     }[format]
     if type(options) is not expected:
         raise ValueError("Import options do not match the saved format")
@@ -167,3 +181,4 @@ class ImportResult:
     diagnostics: tuple[str, ...]
     format: ImportFormat = ImportFormat.CSV
     object_root: ObjectNode | None = None
+    array_catalog: ArrayCatalog | None = None

@@ -19,12 +19,14 @@ from datelier.analysis.types import (
     TSNEParameters,
     UMAPParameters,
 )
+from datelier.inspection.arrays.slices import SliceSettings
 from datelier.inspection.comparison_settings import ComparisonSettings, ComparisonSource
 from datelier.inspection.exploration import PlotSettings
 from datelier.inspection.presentation import TablePresentation
 from datelier.inspection.records.types import InspectSettings
 from datelier.inspection.references.types import ReferenceMapping, ReferenceSettings
 from datelier.io.types import (
+    ArrayOptions,
     CsvOptions,
     JsonOptions,
     MediaOptions,
@@ -47,6 +49,8 @@ from datelier.workspace.session_types import SessionFile, SessionWorkspace, Sour
 from datelier.workspace.types import Workspace, WorkspaceSource, WorkspaceViews
 
 RECORDS = (
+    SliceSettings,
+    ArrayOptions,
     InspectSettings,
     TablePresentation,
     ReferenceSettings,

@@ -184,7 +184,14 @@ def run_gui(
     configure_layout(
         params,
         {
-            "Source browser": guard(lambda: objects.show(editor.active)),
+            "Source browser": guard(
+                lambda: (
+                    editor.active.array_view.show(editor.active)
+                    if editor.active.loader.active is not None
+                    and editor.active.loader.active.imported.array_catalog is not None
+                    else objects.show(editor.active)
+                )
+            ),
             "Explore": bind(explore),
             "Compare files": guard(compare_files),
             "Inspect": bind(

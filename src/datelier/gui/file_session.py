@@ -9,6 +9,7 @@ from datelier.analysis.jobs import AnalysisJobs
 from datelier.analysis.plots import AnalysisPlots
 from datelier.core.column_roles import REFERENCE_ROLES
 from datelier.gui.analysis.session import AnalysisSession
+from datelier.gui.arrays.view import ArrayView
 from datelier.gui.data.export import ExportControls
 from datelier.gui.data.import_controls import ImportControls
 from datelier.gui.data.operations import OperationControls
@@ -25,6 +26,8 @@ from datelier.gui.workspace.state import (
     restore_view_settings,
     restore_views,
 )
+from datelier.inspection.arrays.jobs import ArrayJobs
+from datelier.inspection.arrays.slices import SliceSettings
 from datelier.inspection.exploration import Explorer
 from datelier.inspection.preview import PreviewCache
 from datelier.inspection.references.jobs import ReferenceJobs
@@ -66,6 +69,8 @@ class FileSession:
     panel_scroll: dict[str, tuple[float, float]] = field(default_factory=dict)
     record_views: RecordViews = field(default_factory=RecordViews)
     view_name: str = ""
+    arrays: ArrayJobs = field(default_factory=ArrayJobs)
+    array_view: ArrayView = field(default_factory=ArrayView)
 
     @classmethod
     def create(
@@ -119,11 +124,14 @@ class FileSession:
             references=ReferenceJobs(executor),
             inspect=InspectView(executor),
             record_views=RecordViews(executor),
+            arrays=ArrayJobs(executor),
         )
         return session
 
     def install_restored(self, restored: RestoredWorkspace) -> bool:
         self.record_views.clear()
+        self.array_view.plotted.clear()
+        self.array_view.raw_columns.clear()
         self.focus_inspect = False
         self.loader.abandon()
         self.loader.active = restored.inspection
@@ -152,6 +160,9 @@ class FileSession:
             return
         if self.loader.poll():
             self.record_views.clear()
+            self.array_view.plotted.clear()
+            self.array_view.raw_columns.clear()
+            self.arrays.settings = SliceSettings()
             assert self.loader.active is not None
             self.recovery = None
             imported = self.loader.active.imported
@@ -170,11 +181,13 @@ class FileSession:
                 replace(
                     defaults,
                     references=replace(defaults.references, roots=(), mappings=()),
+                    array_slice=None,
                 ),
             )
             self.focus_inspect = imported.format == ImportFormat.MEDIA
             self.focus_source = (
-                imported.format == ImportFormat.OBJECT and not self.view_name
+                imported.format in (ImportFormat.OBJECT, ImportFormat.ARRAY)
+                and not self.view_name
             )
             self.selection.bind(self.loader.active.dataset.revision)
             self.explorer.request(self.loader.active.dataset, self.plots.settings())
@@ -235,6 +248,11 @@ class FileSession:
             else None,
         )
         self.record_views.poll(self)
+        if active is not None and active.imported.array_catalog is not None:
+            self.arrays.bind(active.imported.array_catalog, active.dataset.revision)
+        elif self.arrays.catalog is not None:
+            self.arrays.unbind()
+        self.arrays.poll()
 
     def install_session_file(self, result: RestoredSessionFile) -> None:
         self.view_name = result.file.name
@@ -282,6 +300,9 @@ class FileSession:
         if self.closed:
             return
         self.closed = True
+        self.arrays.close()
+        self.array_view.raw_columns.clear()
+        self.array_view.plotted.clear()
         self.record_views.clear()
         self.reference_view.textures.clear()
         self.references.close()

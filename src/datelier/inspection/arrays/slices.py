@@ -1,5 +1,6 @@
 """Exact bounded array windows and display-only numeric preparation."""
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from math import prod
 from typing import cast
@@ -52,6 +53,8 @@ class PreparedSlice:
     finite_range: tuple[float, float] | None
     nonfinite: int
     limited: bool
+    heatmap: NDArray[np.float64] | None = None
+    nonfinite_spans: tuple[tuple[int, int, int], ...] = ()
     diagnostic: str = ""
 
     @property
@@ -60,6 +63,7 @@ class PreparedSlice:
             self.raw.nbytes
             + (self.numeric.nbytes if self.numeric is not None else 0)
             + (self.colors.nbytes if self.colors is not None else 0)
+            + (self.heatmap.nbytes if self.heatmap is not None else 0)
             + sum(len(cell.encode("utf8")) for row in self.cells for cell in row)
         )
 
@@ -104,12 +108,18 @@ def _numeric(
             scale = max(abs(lo), abs(hi), 1.0)
             denominator = hi / scale - lo / scale
             colors[finite] = (numeric[finite] / scale - lo / scale) / denominator
-    numeric.flags.writeable = colors.flags.writeable = False
+    numeric[~finite] = np.nan
+    # ImPlot's ndarray binding requires writable presentation buffers even
+    # though drawing does not edit them. Raw authoritative values stay read-only.
+    colors.flags.writeable = False
     return numeric, colors, bounds, count
 
 
 def prepare_slice(
-    store: ArrayStore, catalog: ArrayCatalog, settings: SliceSettings
+    store: ArrayStore,
+    catalog: ArrayCatalog,
+    settings: SliceSettings,
+    cancelled: Callable[[], bool] | None = None,
 ) -> PreparedSlice:
     settings.validate()
     member = catalog.member(settings.member)
@@ -149,7 +159,7 @@ def prepare_slice(
     selectors: list[int | slice] = list(fixed)
     for axis, start, size in zip(axes, starts, sizes, strict=True):
         selectors[axis] = slice(start, start + size)
-    with store.open_member(catalog, settings.member) as array:
+    with store.open_member(catalog, settings.member, cancelled) as array:
         if any(n == 0 for n in shape):
             output_shape = list(sizes)
             if output_shape:
@@ -174,11 +184,25 @@ def prepare_slice(
     )
 
     def display(value: object) -> str:
-        text = str(value)
+        text = str(value).replace("\r", "\\r").replace("\n", "\\n").replace("\t", "\\t")
         return text if len(text) <= 256 else text[:256] + "… (truncated)"
 
     cells = tuple(tuple(display(value) for value in row) for row in matrix)
     numeric, colors, bounds, nonfinite = _numeric(raw, settings)
+    heatmap: NDArray[np.float64] | None = None
+    spans: list[tuple[int, int, int]] = []
+    if colors is not None and colors.ndim == 2:
+        heatmap = np.nan_to_num(colors[::-1], nan=0.0).copy()
+        for row, values in enumerate(colors):
+            start: int | None = None
+            for column, value in enumerate(values):
+                if not np.isfinite(value) and start is None:
+                    start = column
+                elif np.isfinite(value) and start is not None:
+                    spans.append((row, start, column - start))
+                    start = None
+            if start is not None:
+                spans.append((row, start, len(values) - start))
     return PreparedSlice(
         settings,
         shape,
@@ -191,6 +215,8 @@ def prepare_slice(
         bounds,
         nonfinite,
         limited,
+        heatmap,
+        tuple(spans),
         "Plots require a scalar numeric dtype/field; raw values remain available."
         if numeric is None
         else "",

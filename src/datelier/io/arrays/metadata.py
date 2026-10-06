@@ -6,7 +6,7 @@ from io import BytesIO
 from math import prod
 from pathlib import Path
 from typing import BinaryIO, cast
-from zipfile import ZIP_STORED, BadZipFile, ZipFile
+from zipfile import ZIP_STORED, BadZipFile, ZipFile, is_zipfile
 
 import numpy as np
 from numpy.lib import format as npformat
@@ -105,17 +105,28 @@ def _member(
 
 
 def inspect_arrays(
-    path: Path, *, max_header_bytes: int = DEFAULT_HEADER_BYTES
+    path: Path,
+    *,
+    max_header_bytes: int = DEFAULT_HEADER_BYTES,
+    archive: bool | None = None,
 ) -> ArrayCatalog:
     path = path.expanduser().resolve()
     members: list[ArrayMember] = []
     diagnostics: list[str] = []
     try:
         before = path.stat()
-        if path.suffix.lower() == ".npz":
-            with ZipFile(path) as archive:
+        if (
+            archive
+            if archive is not None
+            else (
+                path.suffix.lower() == ".npz"
+                or path.suffix.lower() != ".npy"
+                and is_zipfile(path)
+            )
+        ):
+            with ZipFile(path) as zip_source:
                 seen: set[str] = set()
-                for info in archive.infolist():
+                for info in zip_source.infolist():
                     if info.is_dir() or not info.filename.endswith(".npy"):
                         diagnostics.append(
                             f"Ignored non-array member {info.filename!r}"
@@ -128,7 +139,7 @@ def inspect_arrays(
                         )
                     seen.add(name)
                     try:
-                        with archive.open(info) as stream:
+                        with zip_source.open(info) as stream:
                             member = _member(
                                 cast(BinaryIO, stream),
                                 name,

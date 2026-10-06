@@ -103,8 +103,9 @@ richer interpretations, nearby reference discovery/lazy previews, conditional
 table styles, gallery/detail Inspect and direct media/text record collections;
 [docs/phase-10.md](docs/phase-10.md) records correctness, native restoration and
 measured resource gates. Phase 11's M11.1 structured JSON/TOML browsing and named
-record views pass; [docs/phase-11.md](docs/phase-11.md) records source/provenance,
-native restoration and measured resource evidence. M11.2–M11.4 and later
+record views and M11.2 lazy NumPy member/slice inspection pass;
+[docs/phase-11.md](docs/phase-11.md) records source/provenance, native restoration
+and measured resource evidence. M11.3–M11.4 and later
 implementation/dependency gates remain open.
 Phase 8 investigations do not block this approved sequence. Existing v1 evidence
 and unfinished Titanic usability gates retain their status.

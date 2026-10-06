@@ -5,14 +5,14 @@
       "frames": 40,
       "native_node_and_extract": true,
       "restored_named_view": false,
-      "frame_p95_ms": 12.696713548575644
+      "frame_p95_ms": 11.669776300004742
     },
     {
       "mode": "restore",
       "frames": 16,
       "native_node_and_extract": false,
       "restored_named_view": true,
-      "frame_p95_ms": 12.160002497694222
+      "frame_p95_ms": 11.399242750485428
     }
   ],
   "source_preserved": true,

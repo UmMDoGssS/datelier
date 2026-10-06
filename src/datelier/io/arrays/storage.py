@@ -52,16 +52,21 @@ class ArrayStore:
         self._preparing = 0
         self.extractions = 0
         self.extracted_bytes = 0
+        self._progress: tuple[str, int, int] | None = None
+        self._stored_bytes = 0
+
+    @property
+    def progress(self) -> tuple[str, int, int] | None:
+        return self._progress
 
     @property
     def temporary_path(self) -> Path | None:
-        with self._lock:
-            return Path(self._temporary.name) if self._temporary else None
+        temporary = self._temporary
+        return Path(temporary.name) if temporary else None
 
     @property
     def stored_bytes(self) -> int:
-        with self._lock:
-            return sum(entry.size for entry in self._entries.values())
+        return self._stored_bytes
 
     def abandon(self) -> None:
         self.stop.set()
@@ -95,6 +100,7 @@ class ArrayStore:
                 )
             directory = self._temporary.name
             self._preparing += 1
+            self._progress = (member.name, 0, member.container_bytes)
         path: Path | None = None
         try:
             self.check_source(catalog)
@@ -114,6 +120,12 @@ class ArrayStore:
                             break
                         output.write(chunk)
                         count += len(chunk)
+                        with self._lock:
+                            self._progress = (
+                                member.name,
+                                count,
+                                member.container_bytes,
+                            )
             self._check(stopped)
             self.check_source(catalog)
             actual = inspect_arrays(path).members[0]
@@ -137,6 +149,8 @@ class ArrayStore:
         finally:
             with self._lock:
                 self._preparing -= 1
+                if not self._preparing:
+                    self._progress = None
                 self._cleanup()
 
     @contextmanager
@@ -173,6 +187,7 @@ class ArrayStore:
                     if entry is None:
                         entry = prepared
                         self._entries[key] = entry
+                        self._stored_bytes += entry.size
                     else:
                         prepared.path.unlink(missing_ok=True)
                     entry.leases += 1
@@ -221,6 +236,7 @@ class ArrayStore:
                 entry.path.unlink(missing_ok=True)
                 size -= entry.size
                 self._entries.pop(key)
+                self._stored_bytes -= entry.size
 
     def _cleanup(self) -> None:
         if (
@@ -229,6 +245,7 @@ class ArrayStore:
             and not any(e.leases for e in self._entries.values())
         ):
             self._entries.clear()
+            self._stored_bytes = 0
             if self._temporary is not None:
                 self._temporary.cleanup()
                 self._temporary = None
@@ -238,3 +255,7 @@ class ArrayStore:
         with self._lock:
             self._trim()
             self._cleanup()
+
+    def trim(self) -> None:
+        with self._lock:
+            self._trim()

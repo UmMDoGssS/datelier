@@ -8,6 +8,7 @@ from imgui_bundle import imgui
 from datelier.io.csv import CsvOptions
 from datelier.io.importing import detect_format
 from datelier.io.types import (
+    ArrayOptions,
     ImportFormat,
     ImportOptions,
     JsonOptions,
@@ -39,6 +40,8 @@ class ImportControls:
     media_lines: bool = False
     media_recursive: bool = True
     object_syntax: int = 0
+    array_archive: int = 0
+    array_header_bytes: int = 10_000
     error: str = ""
     _bound: tuple[ImportFormat, ImportOptions, tuple[object, ...]] | None = field(
         default=None, repr=False
@@ -75,6 +78,9 @@ class ImportControls:
                 options.text_lines,
                 options.recursive,
             )
+        elif isinstance(options, ArrayOptions):
+            self.array_archive = (None, False, True).index(options.archive)
+            self.array_header_bytes = options.max_header_bytes
         elif isinstance(options, ObjectOptions):
             self.object_syntax = ("", "json", "toml").index(options.syntax)
             self.text_only = options.read_as_text
@@ -103,6 +109,10 @@ class ImportControls:
         )
 
     def options(self, selected: ImportFormat) -> ImportOptions:
+        if selected == ImportFormat.ARRAY:
+            return ArrayOptions(
+                (None, False, True)[self.array_archive], self.array_header_bytes
+            )
         if self._bound is not None and (selected, self._draft()) == (
             self._bound[0],
             self._bound[2],
@@ -159,6 +169,17 @@ class ImportControls:
         )
 
     def show_options(self, selected: ImportFormat | None) -> None:
+        if selected == ImportFormat.ARRAY:
+            _, self.array_archive = imgui.combo(
+                "Array container", self.array_archive, ["Automatic", "NPY", "NPZ"]
+            )
+            _, self.array_header_bytes = imgui.input_int(
+                "Maximum header bytes", self.array_header_bytes
+            )
+            imgui.text_wrapped(
+                "Open member metadata first; prepare selected values explicitly."
+            )
+            return
         if selected is None:
             imgui.text_wrapped("Choose a format or enter a supported file extension.")
             return

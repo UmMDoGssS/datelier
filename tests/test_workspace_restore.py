@@ -229,7 +229,10 @@ def test_newer_restore_bypasses_abandoned_work(
         jobs.close()
 
 
-@pytest.mark.parametrize("format", [f for f in ImportFormat if f != ImportFormat.MEDIA])
+@pytest.mark.parametrize(
+    "format",
+    [f for f in ImportFormat if f not in (ImportFormat.MEDIA, ImportFormat.ARRAY)],
+)
 def test_each_tabular_format_reopens_with_exact_options_and_replay(
     tmp_path: Path, format: ImportFormat
 ) -> None:

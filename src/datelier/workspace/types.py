@@ -4,6 +4,7 @@ import math
 from dataclasses import dataclass, replace
 
 from datelier.analysis.types import Algorithm, AnalysisRequest
+from datelier.inspection.arrays.slices import SliceSettings
 from datelier.inspection.exploration import PlotSettings
 from datelier.inspection.presentation import TablePresentation
 from datelier.inspection.records.types import InspectSettings
@@ -49,8 +50,14 @@ class WorkspaceViews:
     thumbnails: bool = True
     presentation: TablePresentation = TablePresentation()
     inspect: InspectSettings = InspectSettings()
+    array_slice: SliceSettings | None = None
+    array_retention_bytes: int = 256 * 1024 * 1024
 
     def validate(self) -> None:
+        if self.array_slice is not None:
+            self.array_slice.validate()
+        if self.array_retention_bytes < 0:
+            raise ValueError("Array cache retention bytes must be nonnegative")
         self.references.validate()
         self.presentation.validate()
         self.inspect.validate()

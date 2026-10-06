@@ -9,8 +9,8 @@ and saved layouts/themes/plot preferences. The completed Phase 9 adds independen
 editor tabs, whole-session workspaces and cross-file profile comparisons.
 Phase 10 adds reference interpretations, lazy image/text previews, conditional
 table styles and gallery/detail Inspect for tables and media/text records.
-Phase 11 is underway: structured JSON/TOML trees and named table views pass
-M11.1; lazy arrays, record mappings and checkpoint inspection remain open.
+Phase 11 is underway: structured JSON/TOML trees, named table views and lazy
+NumPy array inspection pass M11.1–M11.2; record mappings and checkpoints remain open.
 See [ROADMAP.md](ROADMAP.md) for delivery gates and [AGENTS.md](AGENTS.md) for
 contributor conventions.
 
@@ -118,6 +118,13 @@ Supported inputs and settings:
   independent transformations and selections. Nested record fields require
   selecting another compatible node; mixed scalar fields can use text mode.
   Whole-session workspaces save node/view recipes and retain the original tree.
+- **NumPy** (`.npy`/`.npz`): opens member names, shapes, dtypes and storage sizes
+  before reading values. In Source browser, choose the member, display axes,
+  fixed coordinates and window, then **Prepare slice**. Vector plots, matrix
+  heatmaps and raw values share exact source indices. Compressed members use
+  reusable temporary storage; disk retention is editable. Workspaces save
+  locators/settings and reopen metadata without preparing payloads. Object dtypes
+  requiring pickle remain metadata-only with a diagnostic.
 - **Parquet** (`.parquet`/`.pq`): preserves stored scalar types. Optionally choose
   columns by name, separated by `|`; empty means all columns. Exclude nested
   columns or flatten them before importing. Zero-row schemas are supported.

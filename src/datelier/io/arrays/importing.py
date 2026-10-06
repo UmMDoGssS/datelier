@@ -1,0 +1,73 @@
+"""Prepared metadata tables for NumPy sources; payload selection stays explicit."""
+
+from dataclasses import replace
+from pathlib import Path
+from typing import BinaryIO
+
+import polars as pl
+
+from datelier.core.column_roles import ColumnRole
+from datelier.inspection.arrays.types import ArrayCatalog
+from datelier.io.arrays.metadata import inspect_arrays
+from datelier.io.source import read_source
+from datelier.io.types import ArrayOptions, ImportFormat, ImportResult
+
+
+def load_arrays(path: Path, options: ArrayOptions | None = None) -> ImportResult:
+    options = options or ArrayOptions()
+    catalog: ArrayCatalog | None = None
+
+    def read(_source: BinaryIO) -> tuple[pl.DataFrame, tuple[str, ...]]:
+        nonlocal catalog
+        catalog = inspect_arrays(
+            path, max_header_bytes=options.max_header_bytes, archive=options.archive
+        )
+        table = pl.DataFrame(
+            {
+                "member": [m.name for m in catalog.members],
+                "shape": [str(m.shape) for m in catalog.members],
+                "dtype": [
+                    str(m.dtype) if m.dtype is not None else "unavailable"
+                    for m in catalog.members
+                ],
+                "raw_bytes": [m.raw_bytes for m in catalog.members],
+                "stored_bytes": [m.stored_bytes for m in catalog.members],
+                "compressed": [m.compressed for m in catalog.members],
+                "diagnostic": [m.diagnostic for m in catalog.members],
+            },
+            schema={
+                "member": pl.String,
+                "shape": pl.String,
+                "dtype": pl.String,
+                "raw_bytes": pl.UInt64,
+                "stored_bytes": pl.UInt64,
+                "compressed": pl.Boolean,
+                "diagnostic": pl.String,
+            },
+        )
+        return table, (
+            "Metadata only; choose a member and Prepare slice to read values.",
+            *catalog.diagnostics,
+        )
+
+    result = read_source(
+        path,
+        options,
+        ImportFormat.ARRAY,
+        read,
+        "Choose a valid NPY/NPZ source or adjust the header limit.",
+    )
+    assert catalog is not None
+    roles = tuple(
+        replace(
+            info,
+            inferred=ColumnRole.IDENTIFIER,
+            reason="Unique array member names identify arrays within this source.",
+        )
+        if info.name == "member"
+        else info
+        for info in result.dataset.roles or ()
+    )
+    return replace(
+        result, dataset=replace(result.dataset, roles=roles), array_catalog=catalog
+    )

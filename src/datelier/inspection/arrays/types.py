@@ -1,6 +1,8 @@
 """Array source metadata without decoded payloads or authoritative table copies."""
 
-from dataclasses import dataclass
+from collections.abc import Mapping
+from dataclasses import dataclass, field
+from types import MappingProxyType
 
 import numpy as np
 
@@ -33,9 +35,17 @@ class ArrayCatalog:
     source: SourceReference
     members: tuple[ArrayMember, ...]
     diagnostics: tuple[str, ...] = ()
+    indices: Mapping[str, int] = field(init=False, compare=False, repr=False)
+
+    def __post_init__(self) -> None:
+        object.__setattr__(
+            self,
+            "indices",
+            MappingProxyType({m.name: i for i, m in enumerate(self.members)}),
+        )
 
     def member(self, name: str) -> ArrayMember:
-        member = next((m for m in self.members if m.name == name), None)
-        if member is None:
+        index = self.indices.get(name)
+        if index is None:
             raise ValueError(f"Array member {name!r} is unavailable")
-        return member
+        return self.members[index]

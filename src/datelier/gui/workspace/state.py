@@ -180,6 +180,8 @@ def capture_views(session: GuiSession) -> WorkspaceViews:
         session.reference_view.thumbnails,
         session.table.presentation.settings,
         session.inspect.settings,
+        session.arrays.settings if session.arrays.catalog is not None else None,
+        session.arrays.store.limit,
     )
 
 
@@ -269,3 +271,6 @@ def restore_view_settings(session: GuiSession, saved: WorkspaceViews) -> None:
     session.reference_view.thumbnails = saved.thumbnails
     session.table.presentation.settings = saved.presentation
     session.inspect.settings = saved.inspect
+    if saved.array_slice is not None:
+        session.arrays.settings = saved.array_slice
+    session.arrays.store.limit = saved.array_retention_bytes
