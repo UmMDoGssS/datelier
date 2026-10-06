@@ -24,8 +24,11 @@ class SliceSettings:
     counts: tuple[int, ...] = ()
     field: str | None = None
     component: str = "Magnitude"
+    scalar: bool = False
 
     def validate(self) -> None:
+        if self.scalar and self.axes:
+            raise ValueError("Scalar previews do not use display axes")
         if len(self.axes) > 2 or len(set(self.axes)) != len(self.axes):
             raise ValueError("Choose one or two distinct display axes")
         if any(i < 0 for i in (*self.axes, *self.fixed, *self.starts)):
@@ -124,7 +127,11 @@ def prepare_slice(
     settings.validate()
     member = catalog.member(settings.member)
     shape = member.shape
-    axes = settings.axes or tuple(range(max(0, len(shape) - 2), len(shape)))
+    axes = (
+        ()
+        if settings.scalar
+        else settings.axes or tuple(range(max(0, len(shape) - 2), len(shape)))
+    )
     if any(i >= len(shape) for i in axes):
         raise ValueError("Display axis is outside the selected array")
     fixed = settings.fixed or (0,) * len(shape)

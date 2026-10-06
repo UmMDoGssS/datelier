@@ -231,3 +231,30 @@ FileSession/bootstrap files were reviewed again: array jobs, storage, preparatio
 and native rendering stay separate; file ownership remains cohesive.
 M11.2 passes. Confirmable record mappings (M11.3), optional CPU checkpoints
 (M11.4) and the overall Phase 11 completion/restoration gate remain open.
+
+## M11.3 record-mapping foundation
+
+Metadata-only suggestions identify tentative record axes from matching scalar
+array lengths, image/channel candidates, numeric matrices and long waveform
+axes. Ambiguous axes remain explicit evidence requiring confirmation; suggestions
+do not create a table or read payloads. Typed mappings configure record/display/
+channel axes, additional fixed coordinates and named supporting arrays/fields.
+Length mismatches fail without truncation before reading supporting data.
+
+Explicit record preparation creates a Polars source-index column and scalar
+supporting columns; dominant image/array payloads remain referenced and unopened.
+Original record-axis positions are source-row IDs. Supporting arrays can use
+alternate record axes and fixed coordinates; numeric endian/float16 conversion
+is isolated at the Polars boundary and diagnostics retain original dtypes.
+Unsupported scalar engine representations use text rather than narrowing complex
+or extended-float precision. Source-index interpretation remains Identifier even
+for an empty record schema. Per-record slice locators include source index,
+layout/display axes and chosen channel, including scalar record previews.
+
+Mapping/slice/storage tests **33 passed**: NHWC, NCHW, alternate record axes,
+grayscale/heatmap/waveform/scalar/empty records, aligned supporting coordinates,
+axis ambiguity, mismatch diagnostics, original source IDs and label/image alignment
+after sort/undo. Pyrefly **zero errors** (one existing suppression), Ruff lint/format
+(**336 files**) and diff whitespace pass. This is a backend foundation without
+GUI changes. Confirmation/edit controls, file-owned mapped views, linked record
+inspection, lazy workspace restoration and full M11.3 acceptance remain open.
