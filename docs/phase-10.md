@@ -206,3 +206,21 @@ native folder action and independent two-line import pass **38 frames**, two
 collection metadata records and zero implicit ML. Pyrefly and Ruff lint/format/
 whitespace pass. Shared gallery/detail Inspect and final M10.4 acceptance remain
 open.
+
+## Shared Inspect preparation foundation
+
+Record collections prepare current display positions and stable source-row IDs
+in workers. Ranges refer to current row positions; linked selection filters only
+IDs present in the active revision; seeded sampling draws from sorted source IDs
+so sorting does not change the chosen records. Four-record pages prepare any
+chosen primary/supporting columns, including all 41 fields in a deterministic wide
+fixture. Primary values truncate explicitly at 4096 characters; supporting values
+at 256. The GUI will virtualize both record and field lists.
+
+File-owned jobs key collections by revision, settings and originating selection,
+clear obsolete pages and retain at most four prepared pages/two pending requests.
+Gallery/focus changes do not rebuild identities. Twelve focused record/selection/
+media checks pass, including range/filter/sort alignment, deterministic samples,
+wide supporting columns, superseded file revisions and controlled closure during
+executing preparation without late publication. Pyrefly and Ruff lint/format/
+whitespace pass. No GUI integration or M10.4 completion is claimed yet.
