@@ -9,6 +9,8 @@ from datelier.analysis.jobs import AnalysisJobs
 from datelier.analysis.plots import AnalysisPlots
 from datelier.core.column_roles import REFERENCE_ROLES
 from datelier.gui.analysis.session import AnalysisSession
+from datelier.gui.arrays.mapping_controls import MappingControls
+from datelier.gui.arrays.records import ArrayRecords
 from datelier.gui.arrays.view import ArrayView
 from datelier.gui.data.export import ExportControls
 from datelier.gui.data.import_controls import ImportControls
@@ -73,6 +75,8 @@ class FileSession:
     view_name: str = ""
     arrays: ArrayJobs = field(default_factory=ArrayJobs)
     array_view: ArrayView = field(default_factory=ArrayView)
+    array_mapping: MappingControls = field(default_factory=MappingControls)
+    array_records: ArrayRecords = field(default_factory=ArrayRecords)
 
     @classmethod
     def create(
@@ -128,6 +132,8 @@ class FileSession:
             inspect=InspectView(executor),
             record_views=RecordViews(executor),
             arrays=ArrayJobs(executor, store=array_store),
+            array_mapping=MappingControls(executor),
+            array_records=ArrayRecords(executor),
         )
         return session
 
@@ -257,6 +263,9 @@ class FileSession:
         elif self.arrays.catalog is not None and self.deferred is None:
             self.arrays.unbind()
         self.arrays.poll()
+        self.array_mapping.bind(self.arrays.catalog)
+        self.array_mapping.poll()
+        self.array_records.sync(self)
 
     def install_session_file(self, result: RestoredSessionFile) -> None:
         from datelier.gui.workspace.session_install import install_session_file
@@ -269,6 +278,8 @@ class FileSession:
         self.closed = True
         self.record_views.clear()
         self.arrays.close()
+        self.array_mapping.close()
+        self.array_records.close()
         self.array_view.raw_columns.clear()
         self.array_view.plotted.clear()
         self.reference_view.textures.clear()

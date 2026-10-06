@@ -9,6 +9,7 @@ from weakref import ReferenceType, ref
 
 from imgui_bundle import hello_imgui, imgui, immapp
 
+from datelier.gui.arrays.browser import show_array_browser, show_deferred_records
 from datelier.gui.comparisons.view import ComparisonView
 from datelier.gui.data.schema import show_schema
 from datelier.gui.editor_controls import EditorControls
@@ -104,6 +105,8 @@ def run_gui(
         if session.closed:
             return
         evidence.table_dock_id = imgui.get_window_dock_id()
+        if show_deferred_records(editor, session.identity):
+            return
         if session.loader.active is None:
             welcome.show(editor, session)
             evidence.welcome_frames += 1
@@ -186,7 +189,7 @@ def run_gui(
         {
             "Source browser": guard(
                 lambda: (
-                    editor.active.array_view.show(editor.active)
+                    show_array_browser(editor)
                     if editor.active.loader.active is not None
                     and editor.active.loader.active.imported.array_catalog is not None
                     else objects.show(editor.active)

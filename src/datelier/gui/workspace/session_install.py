@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from datelier.io.loading import LoadPhase, LoadStatus
+from datelier.io.types import ArrayOptions
 from datelier.workspace.session_restore import RestoredSessionFile
 
 if TYPE_CHECKING:
@@ -66,6 +67,17 @@ def install_session_file(session: FileSession, result: RestoredSessionFile) -> N
                 recipe.views.array_slice or session.arrays.settings
             )
             session.arrays.store.limit = recipe.views.array_retention_bytes
+            options, settings = recipe.options, recipe.views.array_slice
+            if (
+                isinstance(options, ArrayOptions)
+                and options.mapping is not None
+                and options.mapping.channel_axis is not None
+                and settings is not None
+                and len(settings.fixed) > options.mapping.channel_axis
+            ):
+                session.array_records.channel = settings.fixed[
+                    options.mapping.channel_axis
+                ]
         else:
             session.recovery = result
         session.loader.status = LoadStatus(

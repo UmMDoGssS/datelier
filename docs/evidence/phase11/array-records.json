@@ -1,0 +1,26 @@
+{
+  "processes": [
+    {
+      "mode": "save",
+      "frames": 76,
+      "native_confirmation": true,
+      "native_linked_selection": true,
+      "metadata_only_reopen": false,
+      "native_explicit_payload": true,
+      "plot_frames": 6,
+      "frame_p95_ms": 16.091483500531467
+    },
+    {
+      "mode": "restore",
+      "frames": 47,
+      "native_confirmation": false,
+      "native_linked_selection": false,
+      "metadata_only_reopen": true,
+      "native_explicit_payload": true,
+      "plot_frames": 6,
+      "frame_p95_ms": 14.229026998509653
+    }
+  ],
+  "source_preserved": true,
+  "temporary_cleanup": true
+}

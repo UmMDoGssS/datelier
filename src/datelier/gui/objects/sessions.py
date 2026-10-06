@@ -82,7 +82,14 @@ class RecordViews:
         mapping.record_count(catalog)
         options = replace(imported.options, mapping=mapping)
         for file in (*self.pending, *self.files):
-            if file.controls.options(ImportFormat.ARRAY) == options:
+            existing = (
+                file.loader.active.imported.options
+                if file.loader.active is not None
+                else file.deferred.file.recipe.options
+                if file.deferred is not None and file.deferred.file.recipe is not None
+                else file.controls.options(ImportFormat.ARRAY)
+            )
+            if existing == options:
                 if file in self.files:
                     self.active_id = file.identity
                 return file

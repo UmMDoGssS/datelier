@@ -143,11 +143,17 @@ class ArrayView:
                 f"{jobs.store.stored_bytes:,} temporary bytes. "
                 "Oversized selected members are discarded after use."
             )
+        self.show_prepared(owner)
+        imgui.pop_id()
+
+    def show_prepared(self, owner: FileSession) -> None:
+        jobs = owner.arrays
         active = jobs.active
         if active is not None:
             imgui.separator()
             imgui.text_wrapped(
                 f"Prepared {active.settings.member}: axes {active.axes}, "
+                f"fixed {active.settings.fixed}, "
                 f"starts {active.starts}, window {active.raw.shape}"
             )
             if active.settings != jobs.settings:
@@ -169,7 +175,6 @@ class ArrayView:
                 imgui.text_wrapped(active.diagnostic)
             self._plot(active, owner.identity)
             self._raw(owner.identity, active)
-        imgui.pop_id()
 
     def _plot(self, data: PreparedSlice, identity: str) -> None:
         if data.numeric is None or data.numeric.size == 0 or not data.axes:

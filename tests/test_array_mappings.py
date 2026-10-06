@@ -9,12 +9,52 @@ from datelier.inspection.arrays.mapping import (
     SupportingArray,
     suggest_mapping,
 )
+from datelier.inspection.arrays.mapping_jobs import prepare_suggestion
 from datelier.inspection.arrays.slices import prepare_slice
 from datelier.io.arrays.metadata import inspect_arrays
 from datelier.io.arrays.records import prepare_array_records
 from datelier.io.arrays.storage import ArrayStore
 from datelier.pipeline.history import Pipeline
 from datelier.pipeline.operations import Sort
+
+
+def test_editable_suggestions_are_header_only_with_unique_support_names(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    path = tmp_path / "suggested.npz"
+    first, second = "x" * 240 + "one", "x" * 240 + "two"
+    np.savez(
+        path,
+        images=np.zeros((5, 7, 8, 3)),
+        allow_pickle=False,
+        **{first: np.arange(5), second: np.arange(5), "record_index": np.arange(5)},
+    )
+    catalog = inspect_arrays(path)
+
+    def forbidden(*args: object, **kwargs: object) -> object:
+        raise AssertionError("Suggestions must not read payloads")
+
+    monkeypatch.setattr(ArrayStore, "open_member", forbidden)
+    suggested = prepare_suggestion(catalog, "images")
+    assert suggested.record_axes == (0,) and suggested.mapping.channel_axis == 3
+    assert len({s.column for s in suggested.mapping.supporting}) == 3
+    assert suggested.mapping.record_count(catalog) == 5
+
+
+def test_scalar_record_channel_is_fixed_without_becoming_a_display_axis(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "channels.npy"
+    np.save(path, np.arange(6).reshape(2, 3))
+    catalog = inspect_arrays(path)
+    mapping = ArrayRecordMapping("$", 0, channel_axis=1)
+    settings = mapping.slice_settings(catalog, 1, channel=2)
+    assert settings.scalar and settings.axes == () and settings.fixed == (1, 2)
+    store = ArrayStore()
+    try:
+        assert prepare_slice(store, catalog, settings).raw.item() == 5
+    finally:
+        store.close()
 
 
 def test_suggestion_does_not_read_payload_and_nhwc_records_align_after_explicit_mapping(

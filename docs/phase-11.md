@@ -287,3 +287,57 @@ Ruff lint/format (**340 files**) and diff whitespace pass. The existing native
 array save/restore regression passes **78/35 frames**, including native fixed
 coordinate entry, preparation, source preservation and temporary cleanup.
 Native mapping controls and linked record presentation remain open.
+
+## M11.3 native mappings and acceptance
+
+Source browser now offers **Configure array records**. Worker-prepared header
+suggestions remain editable drafts: primary member, record axis, layout,
+spatial/sample/channel axes, fixed coordinates, scalar supporting members,
+column names and structured fields. Suggestions include up to 16 initial scalar
+columns; additional columns can be added explicitly, with paged controls for up
+to 256. Ambiguous record axes retain explanatory evidence. **Confirm mapping and
+open records** creates a named independent view. Editing and reconfirming another
+mapping leaves existing views intact; invalid/mismatched mappings report errors
+without truncating or changing the active table.
+
+Mapped Source browser previews follow linked table selections or Inspect's
+range/seeded-sample focus using immutable source-row identity. Supporting values
+are prepared on workers and displayed in a virtual list beside the original
+record index. Numeric image/grayscale planes, heatmaps, scalar values and waveform
+windows use the existing exact slice/plot renderer. A separate **Prepare record
+payload** command loads the chosen member; image channels remain numeric planes,
+with full image tools scheduled in Phase 13. Windows, raw values, finite ranges
+and fixed source coordinates remain visible. Loading placeholders reserve space
+for navigation/supporting values so controls do not move as workers complete.
+
+Whole-session reopen and legacy single-source migration preserve mappings,
+histories, selections and slice locators with headers alone. The Table preview
+offers **Prepare saved array records** to load supporting values and replay
+operations; payload preparation remains separate. Deferred recipes can be
+resaved and relinked without opening members. Child jobs cannot clear or close
+the owner's cache. Closed or revised views reject pending results.
+
+`array_records_smoke.py --output docs/evidence/phase11/array-records.json` passes
+two fresh native processes: confirmation/save **76 frames**, deferred restore
+**47**. Before confirmation there is no table/member storage; confirmation reads
+only labels. Native selection after sorting chooses source record **3**, label
+**5**, table row **2**, and the matching **5×6** channel plane. Restoration reads
+headers only, then native commands explicitly prepare saved scalar records and
+the selected payload. [Report](evidence/phase11/array-records.json) and
+[reviewed screenshot](evidence/phase11/array-records.png) show the aligned source
+record, supporting values, selected table row and spatial heatmap. Frame p95 is
+**16.09/14.23 ms** on Linux Mesa; sources and temporary cleanup pass. Native
+object save/restore (**40/16 frames**) and array slices (**78/35**) regressions
+also pass.
+
+Final full suite **675 passed**. Mapping tests cover NHWC/NCHW, alternate axes,
+gray/heatmap/waveform/scalar/empty records, ambiguity, unequal lengths, structured
+supporting coordinates, unique editable column names, source-index alignment
+through sorting/filtering/undo and seeded Inspect samples. Session tests cover
+deferred payload-free reopen/resave, explicit history replay, changed source,
+relink/source protection, cache ownership and revision rejection. Pyrefly **zero
+errors** (one existing suppression), Ruff lint/format (**345 files**) and diff
+whitespace pass. FileSession is **300 lines** after separating installation;
+mapping jobs, controls and linked presentation remain cohesive modules.
+M11.3 passes. M11.4's optional CPU checkpoint dependency/inspection and the full
+Phase 11 completion gate remain open.

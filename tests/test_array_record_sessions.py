@@ -11,6 +11,7 @@ from datelier.inspection.arrays.mapping import (
     ArrayRecordMapping,
     SupportingArray,
 )
+from datelier.inspection.records.types import InspectSettings, RecordMode
 from datelier.io.arrays.storage import ArrayStore
 from datelier.io.loading import LoadPhase
 from datelier.pipeline.editing import HistoryAction
@@ -165,5 +166,46 @@ def test_invalid_confirmation_keeps_current_records_and_cache(tmp_path: Path) ->
         assert root.record_views.active_id == view.identity
         assert len(root.record_views.files) == 1 and not root.record_views.pending
         assert not view.closed
+    finally:
+        editor.close()
+
+
+def test_sampled_inspect_focus_links_source_pixels_and_supporting_fields(
+    tmp_path: Path,
+) -> None:
+    source, mapping = fixture(tmp_path)
+    editor = EditorSession()
+    try:
+        root = editor.new_tab(source)
+        wait(editor)
+        view = root.record_views.open_array(root, mapping)
+        wait(editor)
+        view.editor.request(Sort(("label",)))
+        wait(editor)
+        view.inspect.settings = InspectSettings(
+            mode=RecordMode.RANDOM, count=2, seed=19
+        )
+        deadline = monotonic() + 3
+        while monotonic() < deadline:
+            editor.poll()
+            if view.inspect.jobs.active and len(view.inspect.jobs.active.row_ids) == 2:
+                view.array_records.fields.get(0)
+                editor.poll()
+                if view.array_records.fields.get(0) is not None:
+                    break
+            sleep(0.001)
+        records = view.inspect.jobs.active
+        assert records and len(records.row_ids) == 2
+        index = int(records.row_ids[0])
+        assert view.array_records.source_index == index
+        page = view.array_records.fields.get(0)
+        assert page and page.cards[0].row_id == index
+        assert next(f.text for f in page.cards[0].fields if f.name == "label") == str(
+            [8, 3, 9, 5][index]
+        )
+        assert view.arrays.catalog
+        view.arrays.request(mapping.slice_settings(view.arrays.catalog, index))
+        wait(editor)
+        assert view.arrays.active and view.arrays.active.settings.fixed[0] == index
     finally:
         editor.close()

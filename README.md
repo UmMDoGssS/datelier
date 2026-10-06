@@ -10,7 +10,8 @@ editor tabs, whole-session workspaces and cross-file profile comparisons.
 Phase 10 adds reference interpretations, lazy image/text previews, conditional
 table styles and gallery/detail Inspect for tables and media/text records.
 Phase 11 is underway: structured JSON/TOML trees, named table views and lazy
-NumPy array inspection pass M11.1–M11.2; record mappings and checkpoints remain open.
+NumPy array inspection and confirmed record mappings pass M11.1–M11.3;
+checkpoint inspection remains open.
 See [ROADMAP.md](ROADMAP.md) for delivery gates and [AGENTS.md](AGENTS.md) for
 contributor conventions.
 
@@ -125,6 +126,12 @@ Supported inputs and settings:
   reusable temporary storage; disk retention is editable. Workspaces save
   locators/settings and reopen metadata without preparing payloads. Object dtypes
   requiring pickle remain metadata-only with a diagnostic.
+  **Configure array records** suggests editable record/layout/channel axes and
+  supporting columns. Confirm to open an independent table; unequal lengths
+  require correction. Source browser follows the selected source row and shows
+  its supporting values; **Prepare record payload** opens its exact array plane
+  or waveform window. Reopening mapped workspaces reads headers first; use
+  **Prepare saved array records** to replay the scalar table and history.
 - **Parquet** (`.parquet`/`.pq`): preserves stored scalar types. Optionally choose
   columns by name, separated by `|`; empty means all columns. Exclude nested
   columns or flatten them before importing. Zero-row schemas are supported.

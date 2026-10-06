@@ -145,7 +145,11 @@ class ArrayRecordMapping:
             fixed[self.channel_axis] = channel
         axes = (
             self.display_axes
-            or tuple(i for i in range(len(shape)) if i != self.record_axis)[-2:]
+            or tuple(
+                i
+                for i in range(len(shape))
+                if i not in (self.record_axis, self.channel_axis)
+            )[-2:]
         )
         return SliceSettings(
             self.member,

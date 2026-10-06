@@ -718,8 +718,8 @@ remain in Phases 12–14.
 
 ## Phase 11 — Structured objects, arrays, and checkpoints
 
-[Verified structured browsing and lazy array inspection](docs/phase-11.md) pass
-M11.1–M11.2. M11.3's confirmable array record mappings are next.
+[Verified structured browsing, lazy array inspection and record mappings](docs/phase-11.md)
+pass M11.1–M11.3. M11.4's optional CPU checkpoint inspection is next.
 
 - [ ] **Phase complete.** **Entry:** Phase 10 passes. **Exit:** M11.1–M11.4 pass; structure, mappings and source-record identity survive workspace restoration without eager payload loading.
 
@@ -741,11 +741,11 @@ M11.1–M11.2. M11.3's confirmable array record mappings are next.
 
 ### M11.3 — Confirmable array record mappings
 
-- [ ] **Deliverables:** suggested record axes, image/channel and audio layouts, aligned supporting arrays, and confirmation/edit controls; named record views with persisted mappings and stable source-index identity.
-- [ ] **Entry gate:** M11.2 passes; arrays and scalar supporting columns share references without copying media into the Polars table.
-- [ ] **Exit gate:** images[N,H,W,C] plus labels[N] form correctly aligned records only after confirmation; alternate layouts/record axes are configurable; unequal lengths are diagnosed without truncation; filtering/sampling/undo and workspace reopen retain alignment.
-- [ ] **Verification evidence:** NHWC/NCHW and grayscale/heatmap/waveform fixtures, axis ambiguity and length mismatches, mapping round trips, native confirmation and supporting-column/linked-selection checks.
-- [ ] **Suggested step commits:** `feat: configure array record mappings` → `feat: link array payloads with supporting records`.
+- [x] **Deliverables:** suggested record axes, image/channel and audio layouts, aligned supporting arrays, and confirmation/edit controls; named record views with persisted mappings and stable source-index identity.
+- [x] **Entry gate:** M11.2 passes; arrays and scalar supporting columns share references without copying media into the Polars table.
+- [x] **Exit gate:** images[N,H,W,C] plus labels[N] form correctly aligned records only after confirmation; alternate layouts/record axes are configurable; unequal lengths are diagnosed without truncation; filtering/sampling/undo and workspace reopen retain alignment.
+- [x] **Verification evidence:** NHWC/NCHW and grayscale/heatmap/waveform fixtures, axis ambiguity and length mismatches, mapping round trips, native confirmation and supporting-column/linked-selection checks.
+- [x] **Suggested step commits:** `feat: configure array record mappings` → `feat: link array payloads with supporting records`.
 
 ### M11.4 — PyTorch checkpoint inspection
 
