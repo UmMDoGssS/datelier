@@ -229,8 +229,8 @@ def test_newer_restore_bypasses_abandoned_work(
         jobs.close()
 
 
-@pytest.mark.parametrize("format", list(ImportFormat))
-def test_each_import_format_reopens_with_exact_options_and_replay(
+@pytest.mark.parametrize("format", [f for f in ImportFormat if f != ImportFormat.MEDIA])
+def test_each_tabular_format_reopens_with_exact_options_and_replay(
     tmp_path: Path, format: ImportFormat
 ) -> None:
     import polars as pl

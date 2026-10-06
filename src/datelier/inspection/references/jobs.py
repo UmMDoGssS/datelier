@@ -46,6 +46,7 @@ class ReferenceJobs:
         self.previews: OrderedDict[AssetIdentity, AssetPreview] = OrderedDict()
         self.message = ""
         self.closed = False
+        self._discover_nearby = True
 
     @property
     def retained_bytes(self) -> int:
@@ -55,9 +56,12 @@ class ReferenceJobs:
     def busy(self) -> bool:
         return bool(self._index_future or self._pending or self._decodes)
 
-    def bind(self, source: Path, revision: DatasetRevision) -> None:
+    def bind(
+        self, source: Path, revision: DatasetRevision, *, discover_nearby: bool = True
+    ) -> None:
         if self.closed:
             return
+        self._discover_nearby = discover_nearby
         if source != self.source:
             self.previews.clear()
             self.source = source
@@ -108,11 +112,19 @@ class ReferenceJobs:
         self.index = None
         self._stop = Event()
         self.progress = IndexProgress()
-        if self.source is not None and not self.closed:
+        if (
+            self.source is not None
+            and not self.closed
+            and (self._discover_nearby or self.settings.roots)
+        ):
             self._index_future = self._index_jobs.submit(
                 discover, self.source, self.settings, self._stop, self.progress
             )
             self.message = "Discovering nearby references…"
+        else:
+            self._index_future = None
+            self.index = ReferenceIndex({}, {})
+            self.message = "Direct record paths; previews load on demand."
 
     def abandon_index(self) -> None:
         self._stop.set()

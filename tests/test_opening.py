@@ -22,7 +22,7 @@ def wait(editor: EditorSession) -> None:
     raise AssertionError("Opening did not finish")
 
 
-def test_directory_listing_only_opens_supported_regular_tabular_files(
+def test_directory_listing_opens_supported_regular_files(
     tmp_path: Path,
 ) -> None:
     (tmp_path / "subfolder").mkdir()
@@ -37,6 +37,7 @@ def test_directory_listing_only_opens_supported_regular_tabular_files(
         ("a.CSV", ImportFormat.CSV),
         ("alias.csv", ImportFormat.CSV),
         ("b.ndjson", ImportFormat.JSONL),
+        ("ignored.txt", ImportFormat.MEDIA),
     ]
     assert listing.files[0].path == listing.files[1].path
     with pytest.raises(OSError):

@@ -40,7 +40,7 @@ class FileBrowser:
         if self._future is not None:
             self._future.cancel()
         self._future = self._executor.submit(list_directory, path)
-        self.message = "Listing supported tabular files…"
+        self.message = "Listing supported files…"
 
     def poll(self) -> None:
         future = self._future
@@ -50,7 +50,7 @@ class FileBrowser:
         try:
             self.listing = future.result()
             self.path = str(self.listing.directory)
-            self.message = f"{len(self.listing.files)} supported tabular files."
+            self.message = f"{len(self.listing.files)} supported files."
         except Exception as error:
             self.listing = None
             self.message = (
@@ -92,7 +92,7 @@ class FileBrowser:
         imgui.text_wrapped(self.message)
         if self.selected:
             imgui.text(f"{len(self.selected)} files selected across folders")
-        if imgui.begin_child("Source listing", imgui.ImVec2(0, -65)):
+        if imgui.begin_child("Source listing", imgui.ImVec2(0, -100)):
             self.row_pixels.clear()
             listing = self.listing
             if listing is not None and not self.busy:
@@ -147,6 +147,9 @@ class FileBrowser:
             lo, hi = imgui.get_item_rect_min(), imgui.get_item_rect_max()
             self.all_pixel = ((lo.x + hi.x) / 2, (lo.y + hi.y) / 2)
             imgui.end_disabled()
+        if self.folder_mode and self.listing is not None:
+            if imgui.button("Open folder as media collection"):
+                result = (self.listing.directory,)
         imgui.same_line()
         if imgui.button("Cancel"):
             self.cancel()

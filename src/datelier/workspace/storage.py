@@ -9,6 +9,7 @@ from tempfile import NamedTemporaryFile
 from typing import cast
 
 from datelier.core.dataset import SourceReference
+from datelier.io.media_manifest import directory_signature
 from datelier.workspace.codec import decode_record, encode
 from datelier.workspace.types import Workspace, WorkspaceSource
 
@@ -17,6 +18,9 @@ MAX_WORKSPACE_BYTES = 2 * 1024 * 1024
 
 def fingerprint(path: Path) -> WorkspaceSource:
     path = path.expanduser().resolve()
+    if path.is_dir():
+        size, modified, digest = directory_signature(path)
+        return WorkspaceSource(str(path), size, modified, digest)
     before = path.stat()
     digest = hashlib.sha256()
     with path.open("rb") as stream:

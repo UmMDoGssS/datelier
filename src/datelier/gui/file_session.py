@@ -28,6 +28,7 @@ from datelier.inspection.preview import PreviewCache
 from datelier.inspection.references.jobs import ReferenceJobs
 from datelier.io.exporting import DatasetExporter
 from datelier.io.loading import DatasetLoader, LoadPhase, LoadStatus
+from datelier.io.types import ImportFormat
 from datelier.pipeline.editing import DatasetEditor
 from datelier.plotting.selection import LinkedSelection
 from datelier.workspace.jobs import WorkspaceJobs
@@ -188,7 +189,11 @@ class FileSession:
         ):
             if self.references.source != active.dataset.source.path:
                 self.reference_view.textures.clear()
-            self.references.bind(active.dataset.source.path, active.dataset.revision)
+            self.references.bind(
+                active.dataset.source.path,
+                active.dataset.revision,
+                discover_nearby=active.imported.format != ImportFormat.MEDIA,
+            )
         elif self.references.source is not None:
             self.references.unbind()
             self.reference_view.textures.clear()

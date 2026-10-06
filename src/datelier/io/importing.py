@@ -2,8 +2,14 @@
 
 from pathlib import Path
 
+from datelier.core.column_roles import (
+    AUDIO_EXTENSIONS,
+    IMAGE_EXTENSIONS,
+    TEXT_EXTENSIONS,
+)
 from datelier.io.csv import load_csv, load_tsv
 from datelier.io.json import load_json
+from datelier.io.media import load_media
 from datelier.io.parquet import load_parquet
 from datelier.io.types import (
     CsvOptions,
@@ -12,6 +18,7 @@ from datelier.io.types import (
     ImportOptions,
     ImportResult,
     JsonOptions,
+    MediaOptions,
     ParquetOptions,
     XmlOptions,
 )
@@ -29,6 +36,8 @@ def detect_format(path: Path) -> ImportFormat:
         ".pq": ImportFormat.PARQUET,
         ".xml": ImportFormat.XML,
     }
+    if path.suffix.lower() in (*IMAGE_EXTENSIONS, *AUDIO_EXTENSIONS, *TEXT_EXTENSIONS):
+        return ImportFormat.MEDIA
     try:
         return formats[path.suffix.lower()]
     except KeyError as error:
@@ -43,7 +52,17 @@ def load_file(
     *,
     format: ImportFormat | None = None,
 ) -> ImportResult:
-    selected = format if format is not None else detect_format(path)
+    selected = (
+        format
+        if format is not None
+        else (ImportFormat.MEDIA if path.is_dir() else detect_format(path))
+    )
+    if selected == ImportFormat.MEDIA:
+        if options is not None and not isinstance(options, MediaOptions):
+            raise ImportFailure(
+                path, "Media/text sources require media import options."
+            )
+        return load_media(path, options)
     if selected == ImportFormat.XML:
         if options is not None and not isinstance(options, XmlOptions):
             raise ImportFailure(path, "XML requires XML import options.")

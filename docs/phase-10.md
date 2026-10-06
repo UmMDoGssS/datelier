@@ -179,3 +179,30 @@ Pyrefly, Ruff lint/format and diff whitespace pass. M10.3 passes with its full-s
 check; direct sources and shared Inspect remain open.
 
 M10.3 final full suite: **578 passed** after the marker/readability changes.
+
+## M10.4 direct record source foundation
+
+Media/text extensions open through the existing worker loader. Files become one
+metadata record (path/member/kind/size); even a corrupt image opens its metadata
+before lazy decoding reports an error. Text file-versus-line mode is explicit;
+line mode retains original Unicode content and physical 1-based line provenance,
+including empty lines. Invalid UTF-8 line imports fail transactionally.
+
+Open Folder lists supported tabular and media files and adds a native **Open
+folder as media collection** action. Recursive manifests are sorted relative
+member paths, without traversing symlink directories. Saved options retain member
+order and original text-line counts. Missing/shorter members create placeholder
+records, keeping other source-record IDs stable. Refreshing import membership is
+explicit. Directory source fingerprints hash supported member names, sizes and
+mtimes, without reading every media payload; metadata changes require normal
+changed-source acceptance/relink. This detects metadata changes rather than
+content edits that deliberately preserve size and mtime. Ordinary file workspace
+fingerprints still hash source bytes. No manifest bundles payloads.
+
+Direct record paths bypass unnecessary nearby indexing; lazy visible previews
+use the existing shared bounded workers/caches. Empty collections remain usable.
+58 focused media/opening/tabular-import/workspace/control checks pass. The real
+native folder action and independent two-line import pass **38 frames**, two
+collection metadata records and zero implicit ML. Pyrefly and Ruff lint/format/
+whitespace pass. Shared gallery/detail Inspect and final M10.4 acceptance remain
+open.

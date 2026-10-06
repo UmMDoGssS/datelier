@@ -11,6 +11,7 @@ from datelier.io.types import (
     ImportFormat,
     ImportOptions,
     JsonOptions,
+    MediaOptions,
     ParquetOptions,
     XmlOptions,
 )
@@ -34,6 +35,8 @@ class ImportControls:
     xml_namespaces: str = ""
     xml_attributes: bool = True
     xml_strip: bool = True
+    media_lines: bool = False
+    media_recursive: bool = True
     error: str = ""
     _bound: tuple[ImportFormat, ImportOptions, tuple[object, ...]] | None = field(
         default=None, repr=False
@@ -65,6 +68,11 @@ class ImportControls:
             self.text_only = options.read_as_text
         elif isinstance(options, ParquetOptions):
             self.parquet_columns = "|".join(options.columns or ())
+        elif isinstance(options, MediaOptions):
+            self.media_lines, self.media_recursive = (
+                options.text_lines,
+                options.recursive,
+            )
         else:
             self.xml_path = options.record_path
             self.xml_namespaces = "|".join(
@@ -95,6 +103,10 @@ class ImportControls:
             self._bound[2],
         ):
             return self._bound[1]
+        if selected == ImportFormat.MEDIA:
+            return MediaOptions(
+                text_lines=self.media_lines, recursive=self.media_recursive
+            )
         if selected == ImportFormat.XML:
             namespaces: list[tuple[str, str]] = []
             for entry in self.xml_namespaces.split("|"):
@@ -139,6 +151,20 @@ class ImportControls:
     def show_options(self, selected: ImportFormat | None) -> None:
         if selected is None:
             imgui.text_wrapped("Choose a format or enter a supported file extension.")
+            return
+        if selected == ImportFormat.MEDIA:
+            _, self.media_lines = imgui.checkbox(
+                "Text: one record per line", self.media_lines
+            )
+            _, self.media_recursive = imgui.checkbox(
+                "Include media subfolders", self.media_recursive
+            )
+            imgui.text_wrapped(
+                "Default: one record per file, with lazy payload previews. "
+                "Line records read text explicitly; sources remain unchanged."
+            )
+            if imgui.button("Refresh media manifest on reload"):
+                self._bound = None
             return
         if selected == ImportFormat.XML:
             imgui.text_wrapped(

@@ -23,7 +23,13 @@ from datelier.inspection.comparison_settings import ComparisonSettings, Comparis
 from datelier.inspection.exploration import PlotSettings
 from datelier.inspection.presentation import TablePresentation
 from datelier.inspection.references.types import ReferenceMapping, ReferenceSettings
-from datelier.io.types import CsvOptions, JsonOptions, ParquetOptions, XmlOptions
+from datelier.io.types import (
+    CsvOptions,
+    JsonOptions,
+    MediaOptions,
+    ParquetOptions,
+    XmlOptions,
+)
 from datelier.pipeline.operations import Filter, SelectColumns, SetColumnRole, Sort
 from datelier.pipeline.types import (
     CastColumn,
@@ -53,6 +59,7 @@ RECORDS = (
     WorkspaceSource,
     WorkspaceViews,
     CsvOptions,
+    MediaOptions,
     JsonOptions,
     ParquetOptions,
     XmlOptions,

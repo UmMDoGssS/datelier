@@ -14,6 +14,7 @@ class ImportFormat(StrEnum):
     JSONL = "JSONL"
     PARQUET = "Parquet"
     XML = "XML"
+    MEDIA = "Media / text"
 
 
 @dataclass(frozen=True)
@@ -77,7 +78,31 @@ class XmlOptions:
             raise ValueError("XML namespaces require unique nonempty prefixes and URIs")
 
 
-type ImportOptions = CsvOptions | JsonOptions | ParquetOptions | XmlOptions
+@dataclass(frozen=True)
+class MediaOptions:
+    text_lines: bool = False
+    recursive: bool = True
+    manifest: tuple[str, ...] | None = None
+    line_counts: tuple[tuple[str, int], ...] = ()
+
+    def __post_init__(self) -> None:
+        if self.manifest is not None and (
+            len(set(self.manifest)) != len(self.manifest)
+            or any(
+                not m or Path(m).is_absolute() or ".." in Path(m).parts
+                for m in self.manifest
+            )
+        ):
+            raise ValueError("Media manifests require distinct relative member paths")
+        if len({m for m, _ in self.line_counts}) != len(self.line_counts) or any(
+            count < 0 for _, count in self.line_counts
+        ):
+            raise ValueError("Saved text line counts must be unique and nonnegative")
+
+
+type ImportOptions = (
+    CsvOptions | JsonOptions | ParquetOptions | XmlOptions | MediaOptions
+)
 
 
 def validate_import_options(format: ImportFormat, options: ImportOptions) -> None:
@@ -88,6 +113,7 @@ def validate_import_options(format: ImportFormat, options: ImportOptions) -> Non
         ImportFormat.JSONL: JsonOptions,
         ImportFormat.PARQUET: ParquetOptions,
         ImportFormat.XML: XmlOptions,
+        ImportFormat.MEDIA: MediaOptions,
     }[format]
     if type(options) is not expected:
         raise ValueError("Import options do not match the saved format")
