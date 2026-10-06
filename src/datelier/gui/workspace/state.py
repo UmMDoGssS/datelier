@@ -10,7 +10,7 @@ from datelier.analysis.types import (
     TSNEParameters,
     UMAPParameters,
 )
-from datelier.core.column_roles import ColumnRole
+from datelier.core.column_roles import PLOTTABLE_ROLES
 from datelier.core.dataset import Dataset
 from datelier.gui.analysis.controls import AnalysisControls
 from datelier.gui.plots.controls import PlotControls
@@ -223,9 +223,7 @@ def restore_view_settings(session: GuiSession, saved: WorkspaceViews) -> None:
         view.profile.selection.columns = tuple(session.plots.compare_columns)
         view.profile_mode = saved.comparison_mode
     legacy_names = tuple(
-        i.name
-        for i in dataset.roles or ()
-        if i.role not in (ColumnRole.TEXT, ColumnRole.IDENTIFIER)
+        i.name for i in dataset.roles or () if i.role in PLOTTABLE_ROLES
     )
     default = (
         session.plots.columns[session.plots.profile_index - 1]

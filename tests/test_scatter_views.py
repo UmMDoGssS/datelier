@@ -15,7 +15,7 @@ from datelier.workspace.types import WorkspaceViews
 
 def data() -> Dataset:
     return Dataset.from_source(
-        pl.DataFrame({"x": [1, 2, 3], "y": [3, 1, 2], "z": [2, 3, 1]}),
+        pl.DataFrame({"x": [1.0, 2.0, 3.0], "y": [3, 1, 2], "z": [2, 3, 1]}),
         SourceReference(Path("unused"), 0, 0),
     )
 

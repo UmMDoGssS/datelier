@@ -6,7 +6,7 @@ from enum import StrEnum
 
 import polars as pl
 
-from datelier.core.column_roles import ColumnRole
+from datelier.core.column_roles import PLOTTABLE_ROLES
 from datelier.core.dataset import Dataset, DatasetRevision
 from datelier.inspection.statistics import NumericStatistics, prepare_numeric_statistics
 
@@ -21,6 +21,10 @@ class ProfileKind(StrEnum):
     UNSUPPORTED = "Unsupported"
     TEXT = "Text"
     IDENTIFIER = "Identifier"
+    PATH = "Local path"
+    IMAGE = "Image"
+    AUDIO = "Audio"
+    EXTERNAL_TEXT = "External text"
 
 
 @dataclass(frozen=True)
@@ -271,7 +275,7 @@ def prepare_profiles(
         else (
             table.get_column(info.name)
             for info in (dataset.roles or ())
-            if info.role not in (ColumnRole.TEXT, ColumnRole.IDENTIFIER)
+            if info.role in (*PLOTTABLE_ROLES, ProfileKind.UNSUPPORTED)
         )
     )
     for index, series in enumerate(series_list):
@@ -293,7 +297,7 @@ def prepare_profiles(
                 note=(
                     f"{kind} excluded from analysis. "
                     "Change its role in Schema to include it."
-                    if info.role in (ColumnRole.TEXT, ColumnRole.IDENTIFIER)
+                    if info.role not in PLOTTABLE_ROLES
                     else "This type has no automatic plot."
                 ),
             )

@@ -33,8 +33,8 @@ def test_editor_comparison_selection_workspace_and_closed_mapping(
     tmp_path: Path,
 ) -> None:
     train, test = tmp_path / "train.csv", tmp_path / "test.csv"
-    train.write_text("x\n3\n0\n2\n1\n")
-    test.write_text("different\n0\n3\n")
+    train.write_text("x\n3.0\n0.0\n2.0\n1.0\n")
+    test.write_text("different\n0.0\n3.0\n")
     editor = EditorSession()
     try:
         first = editor.active

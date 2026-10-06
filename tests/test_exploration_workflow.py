@@ -24,7 +24,9 @@ from datelier.plotting.selection import LinkedSelection
 def test_format_to_profile_transform_sample_selection(
     tmp_path: Path, suffix: str
 ) -> None:
-    table = pl.DataFrame({"x": [3, 1, 2], "y": [6, 2, 4], "label": ["b", "a", "a"]})
+    table = pl.DataFrame(
+        {"x": [3.0, 1.0, 2.0], "y": [6, 2, 4], "label": ["b", "a", "a"]}
+    )
     path = tmp_path / f"source.{suffix}"
     if suffix in ("csv", "tsv"):
         table.write_csv(path, separator="\t" if suffix == "tsv" else ",")

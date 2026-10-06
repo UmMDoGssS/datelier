@@ -40,7 +40,7 @@ def main() -> None:
         io = imgui.get_io()
         if stage == 0 and session.explorer.active is not None:
             assert dataset.role("name").distinct == 849
-            assert dataset.role("name").role == ColumnRole.CATEGORY
+            assert dataset.role("name").role == ColumnRole.TEXT
             assert dataset.role("sex").role == ColumnRole.CATEGORY
             assert dataset.role("passenger_id").role == ColumnRole.IDENTIFIER
             assert "passenger_id" not in session.analysis.controls.numeric

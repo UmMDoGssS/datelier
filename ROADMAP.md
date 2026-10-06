@@ -676,11 +676,11 @@ comparisons. Phase 10 is the next outstanding phase.
 
 ### M10.1 — Richer column interpretations
 
-- [ ] **Deliverables:** local path, image, audio, and external-text interpretations with explanatory inference and reversible overrides; exact first-source-column ID heuristic after recognizable media/text interpretations; retained named-ID detection elsewhere.
-- [ ] **Entry gate:** inspect existing roles, replay, profiles, and feature eligibility; preserve the distinction between physical dtype, interpretation, and referenced payload.
-- [ ] **Exit gate:** at import, a nonempty, fully unique non-null integer/string first source column becomes Identifier unless recognizable media/text wins; empty/duplicate/null-containing columns do not satisfy that rule; floats are not IDs merely through uniqueness; overrides replay without changing values/row identity.
-- [ ] **Verification evidence:** ordinary IDs, unique prose, image/audio/text paths, empty/null/duplicate and misleading-name fixtures; worker-only inference, undo/redo, feature eligibility and legacy workspace checks. Existing conservative-ID evidence remains historical.
-- [ ] **Suggested step commits:** `feat: infer media and path interpretations` → `feat: interpret unique first-column identifiers`.
+- [x] **Deliverables:** local path, image, audio, and external-text interpretations with explanatory inference and reversible overrides; exact first-source-column ID heuristic after recognizable media/text interpretations; retained named-ID detection elsewhere.
+- [x] **Entry gate:** inspect existing roles, replay, profiles, and feature eligibility; preserve the distinction between physical dtype, interpretation, and referenced payload.
+- [x] **Exit gate:** at import, a nonempty, fully unique non-null integer/string first source column becomes Identifier unless recognizable media/text wins; empty/duplicate/null-containing columns do not satisfy that rule; floats are not IDs merely through uniqueness; overrides replay without changing values/row identity.
+- [x] **Verification evidence:** ordinary IDs, unique prose, image/audio/text paths, empty/null/duplicate and misleading-name fixtures; worker-only inference, undo/redo, feature eligibility and legacy workspace checks. Existing conservative-ID evidence remains historical.
+- [x] **Suggested step commits:** `feat: infer media and path interpretations` → `feat: interpret unique first-column identifiers`.
 
 ### M10.2 — Nearby reference discovery and lazy previews
 

@@ -24,7 +24,7 @@ from datelier.workspace.types import Workspace, WorkspaceViews
 
 def test_plot_names_restore_independently_of_column_order(tmp_path: Path) -> None:
     path = tmp_path / "data.csv"
-    path.write_text("z,y,x,group\n3,2,1,a\n4,3,2,b\n5,4,3,a\n")
+    path.write_text("z,y,x,group\n3.0,2,1,a\n4.0,3,2,b\n5.0,4,3,a\n")
     dataset = load_file(path).dataset
     saved = PlotSettings(
         bins=7,
@@ -44,7 +44,7 @@ def test_plot_names_restore_independently_of_column_order(tmp_path: Path) -> Non
 
 def test_removed_columns_reset_only_unavailable_views(tmp_path: Path) -> None:
     path = tmp_path / "data.csv"
-    path.write_text("x,y\n1,2\n3,4\n")
+    path.write_text("x,y\n1.0,2\n3.0,4\n")
     dataset = load_file(path).dataset
     saved = PlotSettings(
         bins=9,
@@ -67,7 +67,7 @@ def test_removed_columns_reset_only_unavailable_views(tmp_path: Path) -> None:
 
 def test_analysis_controls_round_trip_without_launching_jobs(tmp_path: Path) -> None:
     path = tmp_path / "data.csv"
-    path.write_text("x,y\n1,2\n3,4\n")
+    path.write_text("x,y\n1.0,2\n3.0,4\n")
     imported = load_file(path)
     before = AnalysisControls(
         features=["y", "x"],
@@ -124,7 +124,7 @@ def test_unfitted_coordinates_survive_polling_without_starting_analysis(
     from datelier.gui.analysis.session import AnalysisSession
 
     source = tmp_path / "data.csv"
-    source.write_text("x,y,z\n1,2,3\n3,4,5\n")
+    source.write_text("x,y,z\n1.0,2,3\n3.0,4,5\n")
     data = load_file(source).dataset
     session = AnalysisSession(source=Algorithm.PCA)
     plots = PlotControls(three_d=True, custom_scatter=True)
@@ -171,7 +171,7 @@ def test_color_sources_are_exclusive_and_selection_does_not_run_ml(
     from datelier.gui.analysis.session import AnalysisSession
 
     path = tmp_path / "data.csv"
-    path.write_text("x,y,group\n1,2,a\n3,4,b\n5,6,a\n")
+    path.write_text("x,y,group\n1.0,2,a\n3.0,4,b\n5.0,6,a\n")
     dataset = load_file(path).dataset
     plots = PlotControls()
     plots.bind(dataset)
@@ -207,7 +207,7 @@ def test_every_method_recipe_round_trips_through_strict_codec(tmp_path: Path) ->
     from datelier.analysis.parameters import DBSCANParameters
 
     path = tmp_path / "data.csv"
-    path.write_text("x,y,z\n1,2,3\n3,4,5\n6,8,9\n")
+    path.write_text("x,y,z\n1.0,2,3\n3.0,4,5\n6.0,8,9\n")
     imported = load_file(path)
     before = AnalysisControls(features=["z", "x", "y"], dimensions=3, seed=19)
     before.extra_parameters[Algorithm.DBSCAN] = DBSCANParameters(epsilon=0.75)
@@ -272,12 +272,12 @@ def test_finished_clustering_cannot_override_another_color_source(
 
 def test_column_color_survives_removal_of_the_selected_column(tmp_path: Path) -> None:
     path = tmp_path / "data.csv"
-    path.write_text("x,y,group\n1,2,a\n3,4,b\n5,6,a\n")
+    path.write_text("x,y,group\n1.0,2,a\n3.0,4,b\n5.0,6,a\n")
     plots = PlotControls()
     plots.bind(load_file(path).dataset)
     plots.choose_color("Column")
     plots.color_index = plots.color_columns.index("group") + 1
-    path.write_text("x,y\n1,2\n3,4\n")
+    path.write_text("x,y\n1.0,2\n3.0,4\n")
     plots.bind(load_file(path).dataset)
     assert plots.color_source == "Column" and plots.settings().color_column == "x"
 
@@ -304,7 +304,7 @@ def test_pending_default_correlations_preserve_saved_pair_grid(
     from datelier.plotting.selection import LinkedSelection
 
     source = tmp_path / "data.csv"
-    source.write_text("x,y\n1,2\n3,4\n5,6\n")
+    source.write_text("x,y\n1.0,2\n3.0,4\n5.0,6\n")
     dataset = load_file(source).dataset
     plots = PlotControls()
     plots.bind(dataset)

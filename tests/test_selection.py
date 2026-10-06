@@ -98,7 +98,7 @@ def test_linked_highlights_across_alternating_sampled_views() -> None:
 
 def test_settings_focus_any_column_and_rebind_after_removed_columns() -> None:
     source = Dataset.from_source(
-        pl.DataFrame({f"x{i}": range(5) for i in range(140)}),
+        pl.DataFrame({f"x{i}": [float(v) for v in range(5)] for i in range(140)}),
         SourceReference(Path("unused"), 0, 0),
     )
     controls = PlotControls()
