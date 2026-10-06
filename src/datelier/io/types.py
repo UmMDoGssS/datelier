@@ -5,6 +5,7 @@ from enum import StrEnum
 from pathlib import Path
 
 from datelier.core.dataset import Dataset
+from datelier.inspection.objects.types import NodePath, ObjectNode
 
 
 class ImportFormat(StrEnum):
@@ -15,6 +16,7 @@ class ImportFormat(StrEnum):
     PARQUET = "Parquet"
     XML = "XML"
     MEDIA = "Media / text"
+    OBJECT = "JSON / TOML object"
 
 
 @dataclass(frozen=True)
@@ -43,6 +45,25 @@ class CsvOptions:
 @dataclass(frozen=True)
 class JsonOptions:
     read_as_text: bool = False
+
+
+@dataclass(frozen=True)
+class ObjectOptions:
+    syntax: str = ""
+    node_path: NodePath | None = None
+    read_as_text: bool = False
+
+    def __post_init__(self) -> None:
+        if self.syntax not in ("", "json", "toml"):
+            raise ValueError("Object syntax must be JSON, TOML or automatic")
+        if self.node_path is not None and (
+            len(self.node_path) > 256
+            or any(
+                type(k) not in (str, int) or type(k) is int and k < 0
+                for k in self.node_path
+            )
+        ):
+            raise ValueError("Node paths require string fields or nonnegative indices")
 
 
 @dataclass(frozen=True)
@@ -101,7 +122,12 @@ class MediaOptions:
 
 
 type ImportOptions = (
-    CsvOptions | JsonOptions | ParquetOptions | XmlOptions | MediaOptions
+    CsvOptions
+    | JsonOptions
+    | ParquetOptions
+    | XmlOptions
+    | MediaOptions
+    | ObjectOptions
 )
 
 
@@ -114,6 +140,7 @@ def validate_import_options(format: ImportFormat, options: ImportOptions) -> Non
         ImportFormat.PARQUET: ParquetOptions,
         ImportFormat.XML: XmlOptions,
         ImportFormat.MEDIA: MediaOptions,
+        ImportFormat.OBJECT: ObjectOptions,
     }[format]
     if type(options) is not expected:
         raise ValueError("Import options do not match the saved format")
@@ -139,3 +166,4 @@ class ImportResult:
     options: ImportOptions
     diagnostics: tuple[str, ...]
     format: ImportFormat = ImportFormat.CSV
+    object_root: ObjectNode | None = None

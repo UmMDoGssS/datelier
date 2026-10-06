@@ -238,6 +238,7 @@ def test_each_tabular_format_reopens_with_exact_options_and_replay(
     from datelier.io.types import (
         CsvOptions,
         JsonOptions,
+        ObjectOptions,
         ParquetOptions,
         XmlOptions,
     )
@@ -253,6 +254,9 @@ def test_each_tabular_format_reopens_with_exact_options_and_replay(
     elif format == ImportFormat.PARQUET:
         table.with_columns(pl.lit("unused").alias("extra")).write_parquet(source)
         options = ParquetOptions(("y", "x"))
+    elif format == ImportFormat.OBJECT:
+        table.write_json(source)
+        options = ObjectOptions(syntax="json", node_path=())
     elif format in (ImportFormat.JSON, ImportFormat.JSONL):
         if format == ImportFormat.JSON:
             table.write_json(source)

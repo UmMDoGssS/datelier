@@ -28,6 +28,7 @@ from datelier.io.types import (
     CsvOptions,
     JsonOptions,
     MediaOptions,
+    ObjectOptions,
     ParquetOptions,
     XmlOptions,
 )
@@ -63,6 +64,7 @@ RECORDS = (
     CsvOptions,
     MediaOptions,
     JsonOptions,
+    ObjectOptions,
     ParquetOptions,
     XmlOptions,
     Sort,

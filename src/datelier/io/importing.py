@@ -10,6 +10,7 @@ from datelier.core.column_roles import (
 from datelier.io.csv import load_csv, load_tsv
 from datelier.io.json import load_json
 from datelier.io.media import load_media
+from datelier.io.objects import load_object
 from datelier.io.parquet import load_parquet
 from datelier.io.types import (
     CsvOptions,
@@ -19,6 +20,7 @@ from datelier.io.types import (
     ImportResult,
     JsonOptions,
     MediaOptions,
+    ObjectOptions,
     ParquetOptions,
     XmlOptions,
 )
@@ -35,6 +37,7 @@ def detect_format(path: Path) -> ImportFormat:
         ".parquet": ImportFormat.PARQUET,
         ".pq": ImportFormat.PARQUET,
         ".xml": ImportFormat.XML,
+        ".toml": ImportFormat.OBJECT,
     }
     if path.suffix.lower() in (*IMAGE_EXTENSIONS, *AUDIO_EXTENSIONS, *TEXT_EXTENSIONS):
         return ImportFormat.MEDIA
@@ -57,6 +60,10 @@ def load_file(
         if format is not None
         else (ImportFormat.MEDIA if path.is_dir() else detect_format(path))
     )
+    if selected == ImportFormat.OBJECT:
+        if options is not None and not isinstance(options, ObjectOptions):
+            raise ImportFailure(path, "Object sources require object import options.")
+        return load_object(path, options)
     if selected == ImportFormat.MEDIA:
         if options is not None and not isinstance(options, MediaOptions):
             raise ImportFailure(

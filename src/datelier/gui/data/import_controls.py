@@ -12,6 +12,7 @@ from datelier.io.types import (
     ImportOptions,
     JsonOptions,
     MediaOptions,
+    ObjectOptions,
     ParquetOptions,
     XmlOptions,
 )
@@ -37,6 +38,7 @@ class ImportControls:
     xml_strip: bool = True
     media_lines: bool = False
     media_recursive: bool = True
+    object_syntax: int = 0
     error: str = ""
     _bound: tuple[ImportFormat, ImportOptions, tuple[object, ...]] | None = field(
         default=None, repr=False
@@ -73,6 +75,9 @@ class ImportControls:
                 options.text_lines,
                 options.recursive,
             )
+        elif isinstance(options, ObjectOptions):
+            self.object_syntax = ("", "json", "toml").index(options.syntax)
+            self.text_only = options.read_as_text
         else:
             self.xml_path = options.record_path
             self.xml_namespaces = "|".join(
@@ -103,6 +108,11 @@ class ImportControls:
             self._bound[2],
         ):
             return self._bound[1]
+        if selected == ImportFormat.OBJECT:
+            return ObjectOptions(
+                syntax=("", "json", "toml")[self.object_syntax],
+                read_as_text=self.text_only,
+            )
         if selected == ImportFormat.MEDIA:
             return MediaOptions(
                 text_lines=self.media_lines, recursive=self.media_recursive
@@ -151,6 +161,18 @@ class ImportControls:
     def show_options(self, selected: ImportFormat | None) -> None:
         if selected is None:
             imgui.text_wrapped("Choose a format or enter a supported file extension.")
+            return
+        if selected == ImportFormat.OBJECT:
+            _, self.object_syntax = imgui.combo(
+                "Object syntax", self.object_syntax, ["Automatic", "JSON", "TOML"]
+            )
+            _, self.text_only = imgui.checkbox(
+                "Read record columns as text", self.text_only
+            )
+            imgui.text_wrapped(
+                "Keep the source hierarchy; open compatible record arrays "
+                "as table views."
+            )
             return
         if selected == ImportFormat.MEDIA:
             _, self.media_lines = imgui.checkbox(
