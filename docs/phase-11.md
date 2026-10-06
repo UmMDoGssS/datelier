@@ -122,3 +122,30 @@ existing suppression), Ruff lint/format (**322 files**) and diff whitespace pass
 This backend foundation has no GUI changes; temporary member storage, mmap/slice
 lifecycle, renderer integration and their native/resource evidence remain the
 next M11.2 steps. The M11.2 entry/exit gates remain open.
+
+## Selected-member storage foundation
+
+`ArrayStore` prepares only a requested NPZ member, streams it in 1 MiB chunks to
+an owning temporary NPY file, validates metadata/CRC/size and checks source
+size/mtime before and after preparation. Both compressed and stored members use
+reusable temporary storage; standalone NPY maps its original bytes read-only.
+Mapped leases preserve dtype, byte order, Fortran layout, Unicode structured
+fields and raw values; empty arrays use a zero-payload read-only array. Each
+worker lease closes its mmap base after preparing copied slices; views must not
+escape the lease. No source writes or pickle loading occur.
+
+Default disk retention is 256 MiB with least-recently-used eviction of unleased
+members. Larger selected members remain available while leased, then are removed;
+retention is distinct from a capacity restriction. Abandonment is cooperative
+between chunks. Cleanup waits for executing preparation/mapped leases, without
+blocking closure on their I/O. Disk-creation failures are retryable, partial files
+are removed, and stale source metadata prevents reuse/publication.
+
+Storage/metadata correctness checks **20 passed**, including compressed/stored
+reuse, unselected members, oversized eviction/reload, scalar/string/empty/
+structured/Fortran/endian values, object-pickle rejection, disk failure/retry,
+controlled abandonment during decompression, active-lease closure, and repeated
+mmap release. Pyrefly **zero errors** (one existing suppression), Ruff lint/format
+(**324 files**) and diff whitespace pass. This worker-only foundation does not
+change GUI behavior. Array jobs, visible slice/plot controls, persisted array
+locators and native/resource acceptance remain required before M11.2 passes.
