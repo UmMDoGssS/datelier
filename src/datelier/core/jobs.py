@@ -23,7 +23,7 @@ class SharedWorkers(Executor):
         self.capacity = capacity
         self._closed = False
         self._threads = [
-            Thread(target=self._run, name=f"file-{i}") for i in range(workers)
+            Thread(target=self._run, name=f"file_{i}") for i in range(workers)
         ]
         for thread in self._threads:
             thread.start()

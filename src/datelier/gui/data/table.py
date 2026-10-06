@@ -5,7 +5,10 @@ from math import ceil
 
 from imgui_bundle import imgui
 
+from datelier.core.column_roles import ColumnRole
+from datelier.gui.references.view import ReferenceView
 from datelier.inspection.preview import PreviewCache
+from datelier.inspection.references.jobs import ReferenceJobs
 from datelier.inspection.table import PAGE_COLUMNS, Inspection
 from datelier.plotting.selection import LinkedSelection
 
@@ -34,10 +37,14 @@ class TableView:
         inspection: Inspection | None,
         pages: PreviewCache,
         selection: LinkedSelection | None = None,
+        references: ReferenceJobs | None = None,
+        reference_view: ReferenceView | None = None,
     ) -> None:
         if inspection is None:
             imgui.text("Open a dataset to preview its rows.")
             return
+        if references is not None and reference_view is not None:
+            reference_view.controls(references)
         count = len(inspection.schema)
         if imgui.button("Previous columns"):
             self.column_start = max(0, self.column_start - PAGE_COLUMNS)
@@ -85,7 +92,12 @@ class TableView:
         content_height = (
             imgui.get_text_line_height() + 2 * imgui.get_style().cell_padding.y
         )
+        image_columns = any(
+            inspection.dataset.role(c.name).role == ColumnRole.IMAGE for c in columns
+        )
         row_height = ceil(content_height / 8) * 8
+        if image_columns and reference_view is not None and reference_view.thumbnails:
+            row_height = max(row_height, 64)
         if self.jump:
             imgui.set_scroll_y((self.target_row - 1) * row_height)
             self.jump = False
@@ -141,6 +153,21 @@ class TableView:
                                     self.first_row_pixel = pixel
                                     self.first_row_id = row_id
                         else:
-                            imgui.text_unformatted(value)
+                            reference = (
+                                page.references[offset][column - 1]
+                                if page and prepared and page.references and column > 0
+                                else None
+                            )
+                            if reference is not None and references and reference_view:
+                                imgui.push_id(f"reference-{row_id}-{column}")
+                                reference_view.cell(
+                                    references,
+                                    columns[column - 1].name,
+                                    reference,
+                                    value,
+                                )
+                                imgui.pop_id()
+                            else:
+                                imgui.text_unformatted(value)
                 self.rendered_rows += 1
         imgui.end_table()

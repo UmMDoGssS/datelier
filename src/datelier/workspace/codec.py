@@ -21,6 +21,7 @@ from datelier.analysis.types import (
 )
 from datelier.inspection.comparison_settings import ComparisonSettings, ComparisonSource
 from datelier.inspection.exploration import PlotSettings
+from datelier.inspection.references.types import ReferenceMapping, ReferenceSettings
 from datelier.io.types import CsvOptions, JsonOptions, ParquetOptions, XmlOptions
 from datelier.pipeline.operations import Filter, SelectColumns, SetColumnRole, Sort
 from datelier.pipeline.types import (
@@ -37,6 +38,8 @@ from datelier.workspace.session_types import SessionFile, SessionWorkspace, Sour
 from datelier.workspace.types import Workspace, WorkspaceSource, WorkspaceViews
 
 RECORDS = (
+    ReferenceSettings,
+    ReferenceMapping,
     *(type(p) for p in EXTRA_DEFAULTS.values()),
     Workspace,
     SessionFile,

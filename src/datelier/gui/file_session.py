@@ -7,6 +7,7 @@ from uuid import uuid4
 
 from datelier.analysis.jobs import AnalysisJobs
 from datelier.analysis.plots import AnalysisPlots
+from datelier.core.column_roles import REFERENCE_ROLES
 from datelier.gui.analysis.session import AnalysisSession
 from datelier.gui.data.export import ExportControls
 from datelier.gui.data.import_controls import ImportControls
@@ -14,6 +15,7 @@ from datelier.gui.data.operations import OperationControls
 from datelier.gui.data.table import TableView
 from datelier.gui.exploration import ExplorationView
 from datelier.gui.plots.controls import PlotControls
+from datelier.gui.references.view import ReferenceView
 from datelier.gui.workspace.controls import WorkspaceControls
 from datelier.gui.workspace.preferences import PreferenceControls
 from datelier.gui.workspace.state import (
@@ -23,6 +25,7 @@ from datelier.gui.workspace.state import (
 )
 from datelier.inspection.exploration import Explorer
 from datelier.inspection.preview import PreviewCache
+from datelier.inspection.references.jobs import ReferenceJobs
 from datelier.io.exporting import DatasetExporter
 from datelier.io.loading import DatasetLoader, LoadPhase, LoadStatus
 from datelier.pipeline.editing import DatasetEditor
@@ -49,6 +52,8 @@ class FileSession:
     analysis: AnalysisSession
     workspace: WorkspaceControls
     preferences: PreferenceControls  # Borrowed application defaults, never owned.
+    references: ReferenceJobs = field(default_factory=ReferenceJobs)
+    reference_view: ReferenceView = field(default_factory=ReferenceView)
     identity: str = field(default_factory=lambda: uuid4().hex)
     closed: bool = False
     recovery: RestoredSessionFile | None = None
@@ -103,6 +108,7 @@ class FileSession:
             analysis,
             workspace,
             preferences,
+            references=ReferenceJobs(executor),
         )
         return session
 
@@ -175,6 +181,18 @@ class FileSession:
         self.explorer.poll(self.loader.revision)
         self.exporter.poll()
         self.pages.poll()
+        self.reference_view.textures.begin_frame()
+        active = self.loader.active
+        if active and any(
+            info.role in REFERENCE_ROLES for info in active.dataset.roles or ()
+        ):
+            if self.references.source != active.dataset.source.path:
+                self.reference_view.textures.clear()
+            self.references.bind(active.dataset.source.path, active.dataset.revision)
+        elif self.references.source is not None:
+            self.references.unbind()
+            self.reference_view.textures.clear()
+        self.references.poll()
 
     def install_session_file(self, result: RestoredSessionFile) -> None:
         self.panel_scroll = {name: (x, y) for name, x, y in result.file.panel_scroll}
@@ -210,6 +228,8 @@ class FileSession:
         if self.closed:
             return
         self.closed = True
+        self.reference_view.textures.clear()
+        self.references.close()
         self.loader.close()
         self.pages.close()
         self.editor.close()

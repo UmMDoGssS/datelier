@@ -5,6 +5,7 @@ from dataclasses import dataclass, replace
 
 from datelier.analysis.types import Algorithm, AnalysisRequest
 from datelier.inspection.exploration import PlotSettings
+from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.types import (
     ImportFormat,
     ImportOptions,
@@ -42,7 +43,11 @@ class WorkspaceViews:
     scatter_dimensions: int | None = None
     scatter3d_height: float = 0
 
+    references: ReferenceSettings = ReferenceSettings()
+    thumbnails: bool = True
+
     def validate(self) -> None:
+        self.references.validate()
         if self.scatter_dimensions not in (None, 2, 3):
             raise ValueError("Scatter plots have two or three dimensions")
         if self.profile_selection is not None and len(

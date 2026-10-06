@@ -83,3 +83,44 @@ exact/relative/stem mappings, symlinks/loops, roots/filters, corrupt/missing/cha
 assets, lazy publication, source/revision cache invalidation and eviction/reload.
 Pyrefly and Ruff lint/format/whitespace pass. Native integration, persisted controls
 and resource acceptance remain the next M10.2 step.
+
+## M10.2 table controls and native/resource acceptance
+
+Visible reference cells request prepared thumbnails/excerpts through file-owned
+jobs. Table geometry stays virtualized; image rows have a fixed 64-pixel height.
+Hover exposes the original value, canonical target, metadata/excerpt or diagnostic.
+Ambiguous/missing cells offer a native popup with explicit candidates or an exact
+file field. Settings expose roots, filters, retry/abandon and CPU/GPU budgets.
+Workspaces and preferences save reference recipes and thumbnail visibility; legacy
+recipes restore defaults. No payload or texture enters a workspace. Headless
+session save/restore verifies mappings/settings with no decoded data or ML.
+
+GUI-thread GPU retention defaults to 8 MiB with at most four uploads/frame.
+Textures used in the current draw remain pinned until the next frame. Invalidation
+is deferred, and before-exit/GUI callback-error guards release all owning handles
+while the backend is still live. Closed files release both caches. Removed
+reference interpretations abandon pending publication and clear retained resources.
+
+Native Mesa evidence: `reference_previews_smoke.py` passes **27 frames**, scroll,
+explicit ambiguity mapping, independent same-source tabs, switching/reuse and
+zero retained CPU/GPU bytes on closure; frame p95 **11.34 ms**. The real mouse
+ambiguity popup smoke (`reference_mapping_smoke.py`) selects the intended red
+image rather than the other same-name target, and captures its table thumbnail.
+Visual review checks prepared image rows, original labels, missing-reference
+recovery, and usable surrounding controls.
+
+`benchmark_references.py` declares budgets before execution: metadata <=2 s,
+index <=5 s, first thumbnail <=2 s, frame p95 <=33 ms, peak RSS <=768 MiB,
+post-warmup growth <=32 MiB, four shared workers, configured CPU/GPU retention
+<=2/1 MiB. Fixture: **100,000 rows / four columns**, **1,000 256×128 RGB PNGs**,
+20 large virtual scroll jumps. [Measured report](evidence/phase10/reference-resources.json):
+metadata **118.42 ms**, index **158.99 ms**, first thumbnail **196.46 ms**;
+**323 frames**, p95 **14.50 ms**, peak RSS **392.05 MiB**, retained growth
+**-27.17 MiB**, CPU/GPU each **196,608 bytes**, four workers. Closed sessions,
+outstanding jobs and worker threads after exit are all zero. Original source
+bytes match; **648,851 fixture bytes** and temporary files are removed.
+These are fixture-specific Linux software-OpenGL results.
+
+Focused preview/session persistence checks: **17 passed**. Milestone full suite:
+**575 passed**; Pyrefly zero errors, Ruff lint/format and diff whitespace pass.
+M10.2 passes. Conditional styles and shared Inspect remain open.

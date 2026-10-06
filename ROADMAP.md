@@ -684,11 +684,11 @@ comparisons. Phase 10 is the next outstanding phase.
 
 ### M10.2 — Nearby reference discovery and lazy previews
 
-- [ ] **Deliverables:** exact absolute/dataset-relative resolution followed by indexed filename/stem matching; background indexing of the dataset directory and parent's subtree; editable roots/extension filters, progress, retry and explicit ambiguous-match mappings; lazy image thumbnails and text excerpts.
-- [ ] **Entry gate:** M10.1 passes; Pillow/Python 3.14 decoding and GUI texture creation/lifetime pass a small Linux probe; shared prioritized jobs and cache invalidation are established.
-- [ ] **Exit gate:** metadata preview appears without waiting for indexing/decoding; nearby stems resolve when unambiguous, duplicates remain explicit choices, missing/unreadable assets have diagnostics; unchanged cells and revision/source-aware cache results survive switching/relinking.
-- [ ] **Verification evidence:** duplicate stems across roots/extensions, relative/absolute paths, symlink/root changes, corrupt/missing/changed assets; native scroll/thumbnail smoke, decode/index cancellation or abandonment, CPU/GPU retention and latency measurements.
-- [ ] **Suggested step commits:** `feat: index nearby media references` → `feat: resolve ambiguous file references` → `feat: prepare lazy cell previews`.
+- [x] **Deliverables:** exact absolute/dataset-relative resolution followed by indexed filename/stem matching; background indexing of the dataset directory and parent's subtree; editable roots/extension filters, progress, retry and explicit ambiguous-match mappings; lazy image thumbnails and text excerpts.
+- [x] **Entry gate:** M10.1 passes; Pillow/Python 3.14 decoding and GUI texture creation/lifetime pass a small Linux probe; shared prioritized jobs and cache invalidation are established.
+- [x] **Exit gate:** metadata preview appears without waiting for indexing/decoding; nearby stems resolve when unambiguous, duplicates remain explicit choices, missing/unreadable assets have diagnostics; unchanged cells and revision/source-aware cache results survive switching/relinking.
+- [x] **Verification evidence:** duplicate stems across roots/extensions, relative/absolute paths, symlink/root changes, corrupt/missing/changed assets; native scroll/thumbnail smoke, decode/index cancellation or abandonment, CPU/GPU retention and latency measurements.
+- [x] **Suggested step commits:** `feat: index nearby media references` → `feat: resolve ambiguous file references` → `feat: prepare lazy cell previews`.
 
 ### M10.3 — Conditional table presentation
 

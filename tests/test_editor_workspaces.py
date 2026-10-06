@@ -265,3 +265,46 @@ def test_changed_source_requires_acceptance_and_reports_view_selection_adjustmen
         assert not changed.plots.custom_scatter and good.loader.revision == revision
     finally:
         editor.close()
+
+
+def test_reference_controls_restore_without_payloads(tmp_path: Path) -> None:
+    from dataclasses import replace
+
+    from datelier.inspection.references.types import ReferenceMapping
+    from datelier.workspace.codec import decode_record, encode
+    from datelier.workspace.types import WorkspaceViews
+
+    source = tmp_path / "media.csv"
+    source.write_text("image\na.png\nb.png\n")
+    path = tmp_path / "preview.datelier"
+    editor = EditorSession(initial_path=source)
+    try:
+        editor.active.loader.request(source)
+        wait(editor)
+        file = editor.active
+        settings = replace(
+            file.references.settings,
+            roots=(str(tmp_path),),
+            thumbnail_size=64,
+            mappings=(
+                ReferenceMapping("image", "a.png", str(tmp_path / "chosen.png")),
+            ),
+        )
+        file.references.configure(settings)
+        file.reference_view.thumbnails = False
+        editor.save_workspace(path)
+        wait(editor)
+        editor.open_workspace(path)
+        wait(editor)
+        assert editor.active.references.settings == settings
+        assert not editor.active.reference_view.thumbnails
+        assert not editor.active.references.previews
+        assert not editor.active.analysis.jobs.results
+        legacy = encode(WorkspaceViews())
+        assert isinstance(legacy, dict)
+        legacy.pop("references")
+        legacy.pop("thumbnails")
+        decoded = decode_record(WorkspaceViews, legacy)
+        assert decoded.references.roots == () and decoded.thumbnails
+    finally:
+        editor.close()

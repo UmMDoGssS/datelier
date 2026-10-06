@@ -176,6 +176,8 @@ def capture_views(session: GuiSession) -> WorkspaceViews:
         view.profile.selection.columns,
         session.plots.scatter_dimensions,
         view.scatter3d_area.height,
+        session.references.settings,
+        session.reference_view.thumbnails,
     )
 
 
@@ -260,3 +262,5 @@ def restore_view_settings(session: GuiSession, saved: WorkspaceViews) -> None:
     session.table.column_start = min(saved.column_start, dataset.table.width - 1)
     session.table.target_row = min(saved.target_row, max(1, dataset.table.height))
     session.table.jump = True
+    session.references.configure(saved.references)
+    session.reference_view.thumbnails = saved.thumbnails

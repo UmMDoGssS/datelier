@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 import polars as pl
 
+from datelier.core.column_roles import REFERENCE_ROLES
 from datelier.core.dataset import Dataset, DatasetRevision
 from datelier.io.types import ImportResult
 
@@ -27,6 +28,7 @@ class PreviewPage:
     columns: tuple[str, ...]
     row_ids: tuple[int, ...]
     rows: tuple[tuple[str, ...], ...]
+    references: tuple[tuple[str | None, ...], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -82,6 +84,17 @@ def prepare_page(
         columns,
         tuple(dataset.row_ids.slice(row_start, PAGE_ROWS).to_list()),
         tuple(tuple(cell(value) for value in row) for row in visible.iter_rows()),
+        tuple(
+            tuple(
+                value
+                if isinstance(value, str) and dataset.role(name).role in REFERENCE_ROLES
+                else None
+                for name, value in zip(columns, row, strict=True)
+            )
+            for row in table.select(
+                [table.get_column(n).slice(row_start, PAGE_ROWS) for n in columns]
+            ).iter_rows()
+        ),
     )
 
 

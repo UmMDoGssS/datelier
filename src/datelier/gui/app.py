@@ -74,6 +74,20 @@ def run_gui(
     welcome = Welcome()
     comparisons = ComparisonView()
     evidence = InspectionEvidence()
+
+    def guard(callback: Callable[[], None]) -> Callable[[], None]:
+        def protected() -> None:
+            try:
+                callback()
+            except BaseException:
+                # Callback failures can tear the backend down without before_exit.
+                # Owning GPU handles must be released while it is still alive.
+                for file in editor.files:
+                    file.reference_view.textures.clear()
+                raise
+
+        return protected
+
     params = hello_imgui.RunnerParams()
     params.app_window_params.window_title = "Datelier — data inspection"
     params.app_window_params.window_geometry.size = (1280, 800)
@@ -98,7 +112,13 @@ def run_gui(
             return
         if session.loader.status.message:
             imgui.text_wrapped(session.loader.status.message)
-        session.table.show(session.loader.active, session.pages, session.selection)
+        session.table.show(
+            session.loader.active,
+            session.pages,
+            session.selection,
+            session.references,
+            session.reference_view,
+        )
         evidence.max_rendered_rows = max(
             evidence.max_rendered_rows, session.table.rendered_rows
         )
@@ -154,13 +174,13 @@ def run_gui(
                     imgui.get_scroll_y(),
                 )
 
-        return show
+        return guard(show)
 
     configure_layout(
         params,
         {
             "Explore": bind(explore),
-            "Compare files": compare_files,
+            "Compare files": guard(compare_files),
             "Table preview": bind(show_table),
             "Schema and nulls": bind(schema),
             "Analysis": bind(
@@ -193,7 +213,7 @@ def run_gui(
     )
     params.callbacks.add_edge_toolbar(
         hello_imgui.EdgeToolbarType.top,
-        lambda: tabs.show(editor),
+        guard(lambda: tabs.show(editor)),
         hello_imgui.EdgeToolbarOptions(size_em=2.0),
     )
     # Configure this before runner initialization: the default builder otherwise
@@ -207,10 +227,14 @@ def run_gui(
     params.callbacks.setup_imgui_style = preferences.apply_theme
     params.callbacks.post_init = lambda: preferences.before_frame(params)
     params.callbacks.pre_new_frame = lambda: preferences.before_frame(params)
-    params.callbacks.show_menus = lambda: controls.show_menu(editor, params)
-    params.callbacks.before_exit = lambda: preferences.save(
-        editor.active, params, sources=editor.source_paths
-    )
+    params.callbacks.show_menus = guard(lambda: controls.show_menu(editor, params))
+
+    def before_exit() -> None:
+        for file in editor.files:
+            file.reference_view.textures.clear()
+        preferences.save(editor.active, params, sources=editor.source_paths)
+
+    params.callbacks.before_exit = before_exit
     load_started = perf_counter()
     previous_frame = load_started
     if initial_workspace:
@@ -256,7 +280,7 @@ def run_gui(
         if smoke_frames and evidence.frames >= smoke_frames:
             hello_imgui.get_runner_params().app_shall_exit = True
 
-    params.callbacks.show_gui = frame
+    params.callbacks.show_gui = guard(frame)
     try:
         addons = immapp.AddOnsParams()
         addons.with_implot = True

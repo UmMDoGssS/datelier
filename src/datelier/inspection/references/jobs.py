@@ -76,9 +76,28 @@ class ReferenceJobs:
     def configure(self, settings: ReferenceSettings) -> None:
         settings.validate()
         if self.settings != settings:
+            reindex = (self.settings.roots, self.settings.extensions) != (
+                settings.roots,
+                settings.extensions,
+            )
+            resize = self.settings.thumbnail_size != settings.thumbnail_size
             self.settings = settings
-            self.previews.clear()
-            self.retry()
+            if reindex:
+                self.retry()
+            else:
+                self._clear_visible()
+                if resize:
+                    self.previews.clear()
+                while self.retained_bytes > settings.cpu_bytes:
+                    self.previews.popitem(last=False)
+
+    def unbind(self) -> None:
+        self.abandon_index()
+        self._clear_visible()
+        self.index = None
+        self.previews.clear()
+        self.source = None
+        self.revision = None
 
     def retry(self) -> None:
         self._stop.set()
@@ -94,6 +113,16 @@ class ReferenceJobs:
                 discover, self.source, self.settings, self._stop, self.progress
             )
             self.message = "Discovering nearby references…"
+
+    def abandon_index(self) -> None:
+        self._stop.set()
+        if self._index_future:
+            self._index_future.cancel()
+        self._index_future = None
+        self.message = (
+            "Discovery abandoned; any executing scan is winding down. "
+            "Exact paths remain usable."
+        )
 
     def poll(self) -> None:
         if self.closed:
