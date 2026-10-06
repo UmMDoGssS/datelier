@@ -58,3 +58,28 @@ until completion or cooperative abandonment. Cancellation removes queued closure
 and releases capacity. Owners still close independently. Nine focused scheduling,
 file-session and editor-session tests pass; Pyrefly, Ruff lint/format and whitespace
 checks pass. This foundation does not yet pass M10.2's feature/resource gates.
+
+## Nearby references and lazy preparation backend
+
+Discovery scans the dataset directory then its parent's subtree (editable roots),
+with extension filters, cooperative stop/progress and directory diagnostics.
+Symlink directories are not traversed; file aliases retain their names while
+canonical targets are deduplicated. Exact absolute/dataset-relative paths win,
+then indexed filenames, then stems. Multiple targets require a column/value
+mapping; mapped missing files never fall back to another target.
+
+Visible jobs prepare worker-only 128-pixel image thumbnails, first-frame metadata,
+UTF-8 excerpts limited to 4096 bytes with truncation labels, or stat metadata for
+other references. Fingerprints include canonical path/size/mtime; changed-during-
+decode results have diagnostics. File/revision/configuration switches drop pending
+publication, while unchanged assets can reuse CPU data across revisions. Indexing
+runs below visible-job priority. CPU retention is byte-bounded (default 16 MiB),
+with bounded request/result counts; evicted previews can be decoded again.
+Retry clears failed previews; closing cooperatively abandons indexing and safely
+abandons executing decodes rather than claiming they stopped immediately.
+
+Nine focused reference/scheduling tests pass, including duplicate extensions,
+exact/relative/stem mappings, symlinks/loops, roots/filters, corrupt/missing/changed
+assets, lazy publication, source/revision cache invalidation and eviction/reload.
+Pyrefly and Ruff lint/format/whitespace pass. Native integration, persisted controls
+and resource acceptance remain the next M10.2 step.
