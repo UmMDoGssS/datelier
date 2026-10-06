@@ -146,7 +146,9 @@ class SessionJobs:
                     restored, self.opened = result, result.path
                     self.completed += 1
                     failures = sum(
-                        bool(file.message) and file.restored is None
+                        bool(file.message)
+                        and file.restored is None
+                        and not file.deferred
                         for file in result.files
                     )
                     self.message = (

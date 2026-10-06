@@ -143,6 +143,16 @@ class EditorSession:
             SourceRecovery(identity, relink, accept_changed),
         )
 
+    def prepare_records(self, identity: str) -> None:
+        file = next(file for file in self.file_sessions if file.identity == identity)
+        if file.deferred is None:
+            raise ValueError("This view has no deferred array records")
+        self.workspace_jobs.request_recovery(
+            file.deferred,
+            dict(self.stamp)[identity],
+            SourceRecovery(identity, prepare_records=True),
+        )
+
     def _install_session(self, restored: RestoredSession) -> None:
         self.comparison_jobs.clear()
         self.browser.cancel()

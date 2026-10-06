@@ -270,3 +270,20 @@ tests **30 passed**; Pyrefly **zero errors** (one existing suppression), Ruff
 lint/format (**338 files**), the full suite (**669 passed**) and diff whitespace
 pass. This adds backend recipes;
 the native deferred-view and confirmation controls are still pending.
+
+File-owned mapped views now borrow the source's bounded member store while
+retaining independent revisions, worker requests, pipelines and selections.
+Explicit confirmation loads scalar support only; duplicate mappings focus the
+existing view, and mismatches leave it usable. Closing a view abandons its requests
+without abandoning the owner's cache. Restored mapped views retain a separate
+deferred recipe, can be resaved without payload reads, and prepare/replay only on
+an explicit editor command. Session installation is separated from FileSession's
+polling/lifetime responsibilities.
+
+Ownership/workspace/array/object tests **14 passed**; sort/filter/undo retain
+original pixel alignment, deferred reopen forbids member reads, and child closure
+keeps the source cache usable. Pyrefly **zero errors** (one existing suppression),
+Ruff lint/format (**340 files**) and diff whitespace pass. The existing native
+array save/restore regression passes **78/35 frames**, including native fixed
+coordinate entry, preparation, source preservation and temporary cleanup.
+Native mapping controls and linked record presentation remain open.

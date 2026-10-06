@@ -31,6 +31,7 @@ from datelier.inspection.arrays.slices import SliceSettings
 from datelier.inspection.exploration import Explorer
 from datelier.inspection.preview import PreviewCache
 from datelier.inspection.references.jobs import ReferenceJobs
+from datelier.io.arrays.storage import ArrayStore
 from datelier.io.exporting import DatasetExporter
 from datelier.io.loading import DatasetLoader, LoadPhase, LoadStatus
 from datelier.io.types import ImportFormat, MediaOptions
@@ -64,6 +65,7 @@ class FileSession:
     identity: str = field(default_factory=lambda: uuid4().hex)
     closed: bool = False
     recovery: RestoredSessionFile | None = None
+    deferred: RestoredSessionFile | None = None
     focus_inspect: bool = False
     focus_source: bool = False
     panel_scroll: dict[str, tuple[float, float]] = field(default_factory=dict)
@@ -81,6 +83,7 @@ class FileSession:
         source_path: Path | None = None,
         workspace_path: Path | None = None,
         loader_override: DatasetLoader | None = None,
+        array_store: ArrayStore | None = None,
     ) -> FileSession:
         loader = (
             loader_override
@@ -124,7 +127,7 @@ class FileSession:
             references=ReferenceJobs(executor),
             inspect=InspectView(executor),
             record_views=RecordViews(executor),
-            arrays=ArrayJobs(executor),
+            arrays=ArrayJobs(executor, store=array_store),
         )
         return session
 
@@ -165,6 +168,7 @@ class FileSession:
             self.arrays.settings = SliceSettings()
             assert self.loader.active is not None
             self.recovery = None
+            self.deferred = None
             imported = self.loader.active.imported
             self.controls.path = str(imported.dataset.source.path)
             self.controls.bind_settings(imported.format, imported.options)
@@ -250,60 +254,23 @@ class FileSession:
         self.record_views.poll(self)
         if active is not None and active.imported.array_catalog is not None:
             self.arrays.bind(active.imported.array_catalog, active.dataset.revision)
-        elif self.arrays.catalog is not None:
+        elif self.arrays.catalog is not None and self.deferred is None:
             self.arrays.unbind()
         self.arrays.poll()
 
     def install_session_file(self, result: RestoredSessionFile) -> None:
-        self.view_name = result.file.name
-        self.panel_scroll = {name: (x, y) for name, x, y in result.file.panel_scroll}
-        if result.restored is not None:
-            adjusted = self.install_restored(result.restored)
-            self.selection.choose(
-                result.restored.inspection.dataset.revision, result.file.selection
-            )
-            message = result.message
-            if adjusted:
-                message += (
-                    " Saved view settings were adjusted to the available columns."
-                )
-            if message:
-                self.loader.status = LoadStatus(
-                    LoadPhase.READY, self.loader.status.path, message.strip()
-                )
-            self.recovery = None
-            self.record_views.path = result.file.object_path
-            self.record_views.focus_path = result.file.object_focus
-            self.record_views.expanded = set(result.file.object_expanded)
-            for child in result.record_views:
-                view = FileSession.create(
-                    self.preferences, executor=self.record_views.executor
-                )
-                view.identity = child.file.identity
-                view.install_session_file(child)
-                self.record_views.files.append(view)
-            self.record_views.active_id = result.file.active_view
-        elif result.message:
-            self.recovery = result
-            recipe, draft = result.file.recipe, result.file.draft
-            if recipe is not None:
-                self.controls.path = recipe.source.path
-                self.controls.bind_settings(recipe.format, recipe.options)
-            elif draft is not None:
-                self.controls.path = draft.path
-                self.controls.bind_settings(draft.format, draft.options)
-            self.loader.status = LoadStatus(
-                LoadPhase.FAILED, Path(self.controls.path), result.message
-            )
+        from datelier.gui.workspace.session_install import install_session_file
+
+        install_session_file(self, result)
 
     def close(self) -> None:
         if self.closed:
             return
         self.closed = True
+        self.record_views.clear()
         self.arrays.close()
         self.array_view.raw_columns.clear()
         self.array_view.plotted.clear()
-        self.record_views.clear()
         self.reference_view.textures.clear()
         self.references.close()
         self.inspect.close()
@@ -319,3 +286,4 @@ class FileSession:
         self.editor.inspection = None
         self.panel_scroll.clear()
         self.recovery = None
+        self.deferred = None

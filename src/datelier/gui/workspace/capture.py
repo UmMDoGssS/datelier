@@ -61,6 +61,13 @@ def capture_file(
         )
     if file.recovery is not None:
         return file.recovery.file
+    if file.deferred is not None:
+        return replace(
+            file.deferred.file,
+            panel_scroll=tuple(
+                (name, x, y) for name, (x, y) in file.panel_scroll.items()
+            ),
+        )
     if file.controls.path.strip():
         try:
             format = file.controls.selected_format()

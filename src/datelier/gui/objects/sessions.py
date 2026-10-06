@@ -1,12 +1,15 @@
 """File-owned named record sessions sharing immutable object source data."""
 
 from concurrent.futures import Executor
+from dataclasses import replace
 from typing import TYPE_CHECKING
 
+from datelier.inspection.arrays.mapping import ArrayRecordMapping
 from datelier.inspection.objects.types import NodePath, node_label
+from datelier.io.arrays.records import prepare_array_records
 from datelier.io.loading import DatasetLoader, LoadPhase
 from datelier.io.objects import object_record_view
-from datelier.io.types import ImportFormat, ImportResult, ObjectOptions
+from datelier.io.types import ArrayOptions, ImportFormat, ImportResult, ObjectOptions
 
 if TYPE_CHECKING:
     from datelier.gui.file_session import FileSession
@@ -61,6 +64,50 @@ class RecordViews:
         file.view_name = node_label(path)
         file.controls.bind_settings(ImportFormat.OBJECT, options)
         file.loader.request(source.path)
+        self.pending.append(file)
+        self._origins[file.identity] = owner.loader.generation
+        return file
+
+    def open_array(
+        self, owner: FileSession, mapping: ArrayRecordMapping
+    ) -> FileSession:
+        from datelier.gui.file_session import FileSession
+
+        active = owner.loader.active
+        if owner.closed or active is None or active.imported.array_catalog is None:
+            raise ValueError("Open array metadata before confirming a record mapping")
+        imported = active.imported
+        catalog = imported.array_catalog
+        assert catalog is not None and isinstance(imported.options, ArrayOptions)
+        mapping.record_count(catalog)
+        options = replace(imported.options, mapping=mapping)
+        for file in (*self.pending, *self.files):
+            if file.controls.options(ImportFormat.ARRAY) == options:
+                if file in self.files:
+                    self.active_id = file.identity
+                return file
+        if len(self.files) + len(self.pending) >= 32:
+            raise ValueError("Close a record view before opening more than 32 views")
+        store = owner.arrays.store
+
+        def extract(_path: object, _options: object) -> ImportResult:
+            dataset, diagnostics = prepare_array_records(store, catalog, mapping)
+            store.check_source(catalog)
+            return replace(
+                imported, dataset=dataset, options=options, diagnostics=diagnostics
+            )
+
+        file = FileSession.create(
+            owner.preferences,
+            executor=self.executor,
+            array_store=store,
+            loader_override=DatasetLoader(extract, executor=self.executor),
+        )
+        file.view_name = (
+            f"{mapping.member} · {mapping.layout} · axis {mapping.record_axis}"
+        )
+        file.controls.bind_settings(ImportFormat.ARRAY, options)
+        file.loader.request(active.dataset.source.path)
         self.pending.append(file)
         self._origins[file.identity] = owner.loader.generation
         return file

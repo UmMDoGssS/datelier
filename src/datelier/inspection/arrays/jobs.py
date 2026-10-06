@@ -15,11 +15,14 @@ from datelier.io.arrays.storage import ArrayStore
 
 
 class ArrayJobs:
-    def __init__(self, executor: Executor | None = None) -> None:
+    def __init__(
+        self, executor: Executor | None = None, *, store: ArrayStore | None = None
+    ) -> None:
         self._executor = JobExecutor(executor, max_workers=1, name="array", priority=-5)
         self.catalog: ArrayCatalog | None = None
         self.revision: DatasetRevision | None = None
-        self.store = ArrayStore()
+        self.store = store if store is not None else ArrayStore()
+        self._owns_store = store is None
         self.settings = SliceSettings()
         self.active: PreparedSlice | None = None
         self._future: Future[PreparedSlice] | None = None
@@ -36,8 +39,8 @@ class ArrayJobs:
         if self.closed:
             return
         if (
-            self.catalog is None
-            or self.catalog.source != catalog.source
+            self.catalog is not None
+            and self.catalog.source != catalog.source
             or self.revision is not None
             and self.revision.dataset_id != revision.dataset_id
         ):
@@ -76,6 +79,8 @@ class ArrayJobs:
         self._executor.submit(self.store.trim)
 
     def _release_store(self) -> None:
+        if not self._owns_store:
+            return
         old = self.store
         old.abandon()
         if old.temporary_path is not None:
@@ -109,8 +114,9 @@ class ArrayJobs:
         self.abandon()
         self.active = None
         self.catalog = None
-        self.store.abandon()
-        if self.store.temporary_path is not None:
-            self._executor.submit(self.store.close)
+        if self._owns_store:
+            self.store.abandon()
+            if self.store.temporary_path is not None:
+                self._executor.submit(self.store.close)
         # Cleanup work must survive ownership closure, including queued cleanup.
         self._executor.shutdown(wait=False, cancel_futures=False)
