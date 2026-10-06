@@ -96,9 +96,18 @@ class CheckpointJobs:
 
     def _release_store(self) -> None:
         old = self.store
-        old.abandon()
-        self._executor.submit(old.close)
+        self._dispose_store(old)
         self.store = CheckpointStore(old.limit)
+
+    def _dispose_store(self, store: CheckpointStore) -> None:
+        store.abandon()
+        if store.loads:
+            try:
+                self._executor.submit(store.close)
+            except RuntimeError:
+                # External owners may already have joined their shared pool.
+                # Cached storage still needs releasing during that teardown.
+                store.close()
 
     def abandon(self) -> None:
         self._cancel.set()
@@ -113,8 +122,7 @@ class CheckpointJobs:
         self.closed = True
         self.abandon()
         self.active = None
-        self.store.abandon()
+        self._dispose_store(self.store)
         self.catalog = None
         self.revision = None
-        self._executor.submit(self.store.close)
         self._executor.shutdown(wait=False, cancel_futures=False)

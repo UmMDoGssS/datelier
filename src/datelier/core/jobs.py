@@ -73,8 +73,11 @@ class SharedWorkers(Executor):
                 self._condition.wait_for(lambda: self._queue or self._closed)
                 if not self._queue:
                     return
-                _, _, execute, _ = heappop(self._queue)
+                _, _, execute, cancel = heappop(self._queue)
             execute()
+            # Completed work must not retain source arguments, results or
+            # exception tracebacks while this worker waits for another job.
+            del execute, cancel
 
     def _finished(self, number: int) -> None:
         with self._condition:

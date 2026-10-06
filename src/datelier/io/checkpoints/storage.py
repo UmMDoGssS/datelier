@@ -54,8 +54,13 @@ class CheckpointStore:
                 value = load_restricted(
                     catalog.source.path, metadata=False, mapped=catalog.mapped
                 )
-                self._check(stopped)
-                self.check_source(catalog)
+                try:
+                    self._check(stopped)
+                    self.check_source(catalog)
+                except BaseException:
+                    # Cancel/error tracebacks must not pin newly read storage.
+                    value = None
+                    raise
                 self._value, self._catalog = value, catalog
                 self.stored_bytes = sum(t.raw_bytes for t in catalog.tensors)
                 self.loads += 1

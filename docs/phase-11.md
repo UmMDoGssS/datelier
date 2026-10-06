@@ -454,3 +454,20 @@ FileSession's **325 lines** were reviewed: source ownership/polling remain
 cohesive while checkpoint reading, windows, jobs and rendering are separate.
 Final resource, clean application/absent-extra and full-suite acceptance remain
 open; M11.4 and Phase 11 are not yet marked complete.
+
+The first full acceptance run found two regressions: an unused checkpoint scope
+attempted cleanup submission after its external worker pool had already closed,
+and the existing flat-table format fixture mistakenly treated the new checkpoint
+metadata format as XML records. Checkpoint teardown now skips unused storage and
+releases cached storage even when an external owner already joined its workers;
+the flat-table fixture excludes non-tabular checkpoint metadata, which has its
+own restoration fixtures. Worker loops also release completed task/cancellation
+closures so source arguments, results and failed-task tracebacks cannot remain
+pinned while idle. Abandoned fresh CPU loads clear storage from error tracebacks.
+Behavioral weak-reference tests verify release of completed/failed source jobs.
+
+Focused worker/file/workspace/checkpoint regressions **34 passed**, Pyrefly
+**zero errors** (one existing suppression), Ruff lint/format (**364 files**) and
+diff whitespace pass. Native checkpoint save/restore regression passes
+**161/103 frames**. Final full-suite/resource/installed-application evidence is
+still being collected before marking completion.

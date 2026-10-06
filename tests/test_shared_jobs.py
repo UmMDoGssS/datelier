@@ -1,8 +1,51 @@
+import gc
 from threading import Event
+from time import monotonic, sleep
+from weakref import ref
 
 import pytest
 
 from datelier.core.jobs import JobExecutor, SharedWorkers
+
+
+def test_idle_workers_release_completed_source_arguments() -> None:
+    class Payload:
+        pass
+
+    def consume(payload: Payload) -> None:
+        return None
+
+    with SharedWorkers(workers=1) as workers:
+        payload = Payload()
+        reference = ref(payload)
+        future = workers.submit(consume, payload)
+        future.result(3)
+        del payload, future
+        deadline = monotonic() + 2
+        while reference() is not None and monotonic() < deadline:
+            sleep(0.001)
+        assert reference() is None
+
+
+def test_idle_workers_release_failed_task_tracebacks() -> None:
+    class Payload:
+        pass
+
+    def reject(payload: Payload) -> None:
+        raise ValueError("rejected")
+
+    with SharedWorkers(workers=1) as workers:
+        payload = Payload()
+        reference = ref(payload)
+        future = workers.submit(reject, payload)
+        with pytest.raises(ValueError, match="rejected"):
+            future.result(3)
+        del payload, future
+        deadline = monotonic() + 2
+        while reference() is not None and monotonic() < deadline:
+            gc.collect()
+            sleep(0.001)
+        assert reference() is None
 
 
 def test_closing_one_owner_cancels_its_queue_and_keeps_sibling_usable() -> None:

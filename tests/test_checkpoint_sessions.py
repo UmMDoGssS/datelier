@@ -9,6 +9,7 @@ import numpy as np
 import pytest
 
 from datelier.core.dataset import DatasetRevision
+from datelier.core.jobs import SharedWorkers
 from datelier.gui.editor_session import EditorSession
 from datelier.gui.workspace.capture import capture_session
 from datelier.inspection.arrays.settings import SliceSettings
@@ -185,3 +186,24 @@ def test_checkpoint_tabs_namespace_same_tensor_and_restore_missing_source_locall
         assert one.checkpoints.active is None and one.checkpoints.store.loads == 0
     finally:
         reopened.close()
+
+
+def test_checkpoint_controller_closes_after_external_worker_shutdown(
+    tmp_path: Path, torch: ModuleType
+) -> None:
+    source = tmp_path / "cached.pt"
+    torch.save(torch.arange(3), source)
+    catalog = load_file(source).checkpoint_catalog
+    assert catalog
+    workers = SharedWorkers()
+    jobs = CheckpointJobs(workers)
+    jobs.bind(catalog, DatasetRevision(uuid4()))
+    jobs.request(SliceSettings("$", (0,), (0,), (0,), (3,)))
+    deadline = monotonic() + 3
+    while jobs.busy and monotonic() < deadline:
+        jobs.poll()
+        sleep(0.001)
+    assert jobs.active and jobs.store.stored_bytes > 0
+    workers.shutdown()
+    jobs.close()
+    assert jobs.closed and jobs.store.stored_bytes == 0

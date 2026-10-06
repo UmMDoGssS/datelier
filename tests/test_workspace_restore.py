@@ -231,7 +231,11 @@ def test_newer_restore_bypasses_abandoned_work(
 
 @pytest.mark.parametrize(
     "format",
-    [f for f in ImportFormat if f not in (ImportFormat.MEDIA, ImportFormat.ARRAY)],
+    [
+        f
+        for f in ImportFormat
+        if f not in (ImportFormat.MEDIA, ImportFormat.ARRAY, ImportFormat.CHECKPOINT)
+    ],
 )
 def test_each_tabular_format_reopens_with_exact_options_and_replay(
     tmp_path: Path, format: ImportFormat
