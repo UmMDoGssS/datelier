@@ -418,3 +418,39 @@ primitive containers are the supported inspection path. Pyrefly **zero errors**
 pass. Native NumPy regression passes **78/35 frames** after shared window planning.
 This is the tensor value foundation. Native controls, saved tensor windows,
 resource/absent-extra acceptance and M11.4 completion remain open.
+
+Native checkpoint Source browser now provides a virtual tensor-node selector,
+shape/dtype/layout/stride/offset provenance, scalar/vector/matrix axes, fixed
+coordinates, exact windows and complex components. **Prepare tensor values**
+dispatches a file/revision-owned worker request; **Abandon tensor preparation**
+discards its result without claiming executing storage reads have stopped.
+The prepared renderer shows finite ranges, original coordinates, raw values and
+numeric conversion diagnostics. Bfloat16/float8 storage bits are available in a
+separate raw table. Primitive hierarchy browsing remains available beneath the
+tensor view and directly for metadata-only containers.
+
+Whole-session recipes save the tensor locator, axes/fixed positions/window,
+complex component, node navigation and retention limit. Reopening restores
+metadata/settings without reading tensor values or running ML. A restored view
+immediately invalidates the former owner's jobs before rendering. Separate tabs
+with equal tensor names own separate stores/revisions. Missing-source recovery
+leaves other tabs usable and relinking remains metadata-only. Cached roots are
+released on workers at closure or when retention requires eviction.
+
+Focused checkpoint/session/window/array regressions **31 passed** (three upstream
+sparse/quantized warning messages); Pyrefly **zero errors** (one existing
+suppression), Ruff lint/format (**363 files**) and diff whitespace pass.
+`checkpoint_views_smoke.py --output docs/evidence/phase11/checkpoint-views.json`
+passes two fresh native processes: save **162 frames**, restore **105**. Real
+mouse input chooses the nested cube tensor; keyboard input fixes axis **0** to
+**1** and native preparation produces the expected **3×4** values. Additional
+explicit bfloat16 preparation verifies display values and storage bits, then
+returns to the cube using one cached CPU checkpoint load. Reopening proves no
+value preparation before a native command. [Report](evidence/phase11/checkpoint-views.json)
+and [reviewed screenshot](evidence/phase11/checkpoint-views.png) record readable
+axis controls, tensor header table and spatial heatmap. Frame p95 is
+**21.65/24.27 ms** under Linux Mesa; sources and temporary cleanup pass.
+FileSession's **325 lines** were reviewed: source ownership/polling remain
+cohesive while checkpoint reading, windows, jobs and rendering are separate.
+Final resource, clean application/absent-extra and full-suite acceptance remain
+open; M11.4 and Phase 11 are not yet marked complete.

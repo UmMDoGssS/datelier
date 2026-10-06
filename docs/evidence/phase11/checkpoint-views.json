@@ -1,0 +1,24 @@
+{
+  "processes": [
+    {
+      "mode": "save",
+      "frames": 162,
+      "metadata_only_open": true,
+      "native_prepare": true,
+      "native_fixed_index": true,
+      "native_tensor_navigation": true,
+      "frame_p95_ms": 21.65048569822828
+    },
+    {
+      "mode": "restore",
+      "frames": 105,
+      "metadata_only_open": true,
+      "native_prepare": true,
+      "native_fixed_index": false,
+      "native_tensor_navigation": false,
+      "frame_p95_ms": 24.27261790107877
+    }
+  ],
+  "source_preserved": true,
+  "temporary_cleanup": true
+}

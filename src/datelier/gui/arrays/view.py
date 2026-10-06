@@ -148,7 +148,11 @@ class ArrayView:
 
     def show_prepared(self, owner: FileSession) -> None:
         jobs = owner.arrays
-        active = jobs.active
+        self.render_prepared(owner.identity, jobs.active, jobs.settings)
+
+    def render_prepared(
+        self, identity: str, active: PreparedSlice | None, settings: SliceSettings
+    ) -> None:
         if active is not None:
             imgui.separator()
             imgui.text_wrapped(
@@ -156,7 +160,7 @@ class ArrayView:
                 f"fixed {active.settings.fixed}, "
                 f"starts {active.starts}, window {active.raw.shape}"
             )
-            if active.settings != jobs.settings:
+            if active.settings != settings:
                 imgui.text_wrapped(
                     "Showing the previous prepared slice. "
                     "Prepare to apply the current controls."
@@ -173,8 +177,8 @@ class ArrayView:
                 )
             if active.diagnostic:
                 imgui.text_wrapped(active.diagnostic)
-            self._plot(active, owner.identity)
-            self._raw(owner.identity, active)
+            self._plot(active, identity)
+            self.show_raw(identity, active)
 
     def _plot(self, data: PreparedSlice, identity: str) -> None:
         if data.numeric is None or data.numeric.size == 0 or not data.axes:
@@ -248,7 +252,7 @@ class ArrayView:
                 implot.end_plot()
                 self.plotted[identity] = data.settings
 
-    def _raw(self, identity: str, data: PreparedSlice) -> None:
+    def show_raw(self, identity: str, data: PreparedSlice) -> None:
         imgui.text_wrapped("Raw values (cells truncate at 256 characters).")
         if not data.cells:
             imgui.text("Empty slice")

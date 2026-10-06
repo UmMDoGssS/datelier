@@ -12,6 +12,7 @@ from datelier.gui.analysis.session import AnalysisSession
 from datelier.gui.arrays.mapping_controls import MappingControls
 from datelier.gui.arrays.records import ArrayRecords
 from datelier.gui.arrays.view import ArrayView
+from datelier.gui.checkpoints.view import CheckpointView
 from datelier.gui.data.export import ExportControls
 from datelier.gui.data.import_controls import ImportControls
 from datelier.gui.data.operations import OperationControls
@@ -30,6 +31,7 @@ from datelier.gui.workspace.state import (
 )
 from datelier.inspection.arrays.jobs import ArrayJobs
 from datelier.inspection.arrays.slices import SliceSettings
+from datelier.inspection.checkpoints.jobs import CheckpointJobs
 from datelier.inspection.exploration import Explorer
 from datelier.inspection.preview import PreviewCache
 from datelier.inspection.references.jobs import ReferenceJobs
@@ -77,6 +79,8 @@ class FileSession:
     array_view: ArrayView = field(default_factory=ArrayView)
     array_mapping: MappingControls = field(default_factory=MappingControls)
     array_records: ArrayRecords = field(default_factory=ArrayRecords)
+    checkpoints: CheckpointJobs = field(default_factory=CheckpointJobs)
+    checkpoint_view: CheckpointView = field(default_factory=CheckpointView)
 
     @classmethod
     def create(
@@ -134,6 +138,7 @@ class FileSession:
             arrays=ArrayJobs(executor, store=array_store),
             array_mapping=MappingControls(executor),
             array_records=ArrayRecords(executor),
+            checkpoints=CheckpointJobs(executor),
         )
         return session
 
@@ -141,6 +146,14 @@ class FileSession:
         self.record_views.clear()
         self.array_view.plotted.clear()
         self.array_view.raw_columns.clear()
+        if self.checkpoints.catalog is not None:
+            self.checkpoints.unbind()
+        self.checkpoint_view.observed_path = None
+        if restored.inspection.imported.checkpoint_catalog is not None:
+            self.checkpoints.bind(
+                restored.inspection.imported.checkpoint_catalog,
+                restored.inspection.dataset.revision,
+            )
         self.focus_inspect = False
         self.loader.abandon()
         self.loader.active = restored.inspection
@@ -172,6 +185,8 @@ class FileSession:
             self.array_view.plotted.clear()
             self.array_view.raw_columns.clear()
             self.arrays.settings = SliceSettings()
+            self.checkpoints.settings = SliceSettings()
+            self.checkpoint_view.observed_path = None
             assert self.loader.active is not None
             self.recovery = None
             self.deferred = None
@@ -192,6 +207,7 @@ class FileSession:
                     defaults,
                     references=replace(defaults.references, roots=(), mappings=()),
                     array_slice=None,
+                    checkpoint_slice=None,
                 ),
             )
             self.focus_inspect = imported.format == ImportFormat.MEDIA
@@ -267,6 +283,13 @@ class FileSession:
         self.array_mapping.bind(self.arrays.catalog)
         self.array_mapping.poll()
         self.array_records.sync(self)
+        if active is not None and active.imported.checkpoint_catalog is not None:
+            self.checkpoints.bind(
+                active.imported.checkpoint_catalog, active.dataset.revision
+            )
+        elif self.checkpoints.catalog is not None:
+            self.checkpoints.unbind()
+        self.checkpoints.poll()
 
     def install_session_file(self, result: RestoredSessionFile) -> None:
         from datelier.gui.workspace.session_install import install_session_file
@@ -281,6 +304,7 @@ class FileSession:
         self.arrays.close()
         self.array_mapping.close()
         self.array_records.close()
+        self.checkpoints.close()
         self.array_view.raw_columns.clear()
         self.array_view.plotted.clear()
         self.reference_view.textures.clear()

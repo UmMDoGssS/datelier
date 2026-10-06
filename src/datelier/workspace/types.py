@@ -52,8 +52,14 @@ class WorkspaceViews:
     inspect: InspectSettings = InspectSettings()
     array_slice: SliceSettings | None = None
     array_retention_bytes: int = 256 * 1024 * 1024
+    checkpoint_slice: SliceSettings | None = None
+    checkpoint_retention_bytes: int = 256 * 1024 * 1024
 
     def validate(self) -> None:
+        if self.checkpoint_slice is not None:
+            self.checkpoint_slice.validate()
+        if self.checkpoint_retention_bytes < 0:
+            raise ValueError("Checkpoint retention bytes must be nonnegative")
         if self.array_slice is not None:
             self.array_slice.validate()
         if self.array_retention_bytes < 0:

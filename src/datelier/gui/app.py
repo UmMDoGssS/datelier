@@ -137,6 +137,20 @@ def run_gui(
         evidence.schema_dock_id = imgui.get_window_dock_id()
         show_schema(session.loader, session.editor)
 
+    def source_browser() -> None:
+        owner = editor.active
+        imported = owner.loader.active.imported if owner.loader.active else None
+        if imported is not None and imported.array_catalog is not None:
+            show_array_browser(editor)
+        elif imported is not None and imported.checkpoint_catalog is not None:
+            owner.checkpoint_view.show(owner)
+            if not imported.checkpoint_catalog.tensors or imgui.collapsing_header(
+                "Checkpoint hierarchy"
+            ):
+                objects.show(owner)
+        else:
+            objects.show(owner)
+
     def compare_files() -> None:
         comparisons.show(editor)
         evidence.comparison_frames = comparisons.plot_frames
@@ -187,14 +201,7 @@ def run_gui(
     configure_layout(
         params,
         {
-            "Source browser": guard(
-                lambda: (
-                    show_array_browser(editor)
-                    if editor.active.loader.active is not None
-                    and editor.active.loader.active.imported.array_catalog is not None
-                    else objects.show(editor.active)
-                )
-            ),
+            "Source browser": guard(source_browser),
             "Explore": bind(explore),
             "Compare files": guard(compare_files),
             "Inspect": bind(
