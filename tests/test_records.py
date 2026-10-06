@@ -84,7 +84,7 @@ def test_file_owned_record_jobs_reject_superseded_and_closed_pages() -> None:
 
 
 def test_closing_during_record_preparation_safely_abandons_publication(
-    monkeypatch,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     from threading import Event
 
@@ -96,7 +96,7 @@ def test_closing_during_record_preparation_safely_abandons_publication(
 
     def blocked(
         dataset: Dataset, settings: InspectSettings, selection: tuple[int, ...]
-    ):
+    ) -> RecordSet:
         started.set()
         assert release.wait(3)
         return original(dataset, settings, selection)
