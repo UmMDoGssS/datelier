@@ -149,3 +149,28 @@ mmap release. Pyrefly **zero errors** (one existing suppression), Ruff lint/form
 (**324 files**) and diff whitespace pass. This worker-only foundation does not
 change GUI behavior. Array jobs, visible slice/plot controls, persisted array
 locators and native/resource acceptance remain required before M11.2 passes.
+
+## Exact slice preparation foundation
+
+Worker preparation selects one/two display axes, fixes all remaining coordinates
+and copies an exact bounded window from a read-only lease. Reversed axis order
+transposes the prepared window rather than changing coordinate meaning. Window
+starts/counts and truncation are explicit; preparation caps 16,384 cells and aims
+at <=8 MiB raw buffers (one oversized element can exceed that target). Raw dtype,
+endian order, scalar/string/structured values and nonfinite entries remain intact.
+Structured scalar fields and complex magnitude/real/imaginary components can supply
+plot values while original records remain available. Subarray/string/non-numeric
+fields retain raw cells and an actionable plotting diagnostic.
+
+Numeric float64 plot values and normalized colors are separate read-only display
+buffers. Finite range/constant midpoint/nonfinite count are prepared in workers;
+scaled normalization handles ±1e308 without overflowing. Empty dimensions create
+empty views and scalars retain one exact cell. Backend cells truncate explicitly
+at 256 characters. Plot conversion does not mutate raw values.
+
+Slice/storage/metadata checks **35 passed**; Pyrefly **zero errors** (one existing
+suppression), Ruff lint/format (**326 files**) and diff whitespace pass. Fixtures
+cover n-D axis order/fixed indices, exact shifted windows, endian dtype, scalar/
+empty/string/structured/nonfinite/complex/large/constant values and invalid fields,
+axes, positions/counts. No GUI changes are included in this foundation. M11.2's
+jobs, native controls, saved locators and resource acceptance remain open.
