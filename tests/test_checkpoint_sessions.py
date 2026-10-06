@@ -207,3 +207,40 @@ def test_checkpoint_controller_closes_after_external_worker_shutdown(
     workers.shutdown()
     jobs.close()
     assert jobs.closed and jobs.store.stored_bytes == 0
+
+
+def test_changed_checkpoint_requires_acceptance_and_recovers_metadata_only(
+    tmp_path: Path, torch: ModuleType
+) -> None:
+    source = tmp_path / "changed.pt"
+    torch.save({"weight": torch.arange(6).reshape(2, 3)}, source)
+    workspace = tmp_path / "changed.datelier"
+    editor = EditorSession()
+    try:
+        file = editor.new_tab(source)
+        wait(editor)
+        file.checkpoints.settings = SliceSettings(
+            "$['weight']", (0, 1), (0, 0), (0, 0), (128, 128)
+        )
+        identity = file.identity
+        save_snapshot(workspace, capture_session(editor), False)
+    finally:
+        editor.close()
+    torch.save({"weight": torch.tensor([8, 9, 10])}, source)
+    reopened = EditorSession()
+    try:
+        reopened.open_workspace(workspace)
+        wait(reopened)
+        file = next(f for f in reopened.files if f.identity == identity)
+        assert file.recovery and file.recovery.changed
+        reopened.recover_source(identity, accept_changed=True)
+        wait(reopened)
+        assert file.recovery is None and file.checkpoints.catalog
+        assert file.checkpoints.catalog.tensor("$['weight']").shape == (3,)
+        assert file.checkpoints.active is None and file.checkpoints.store.loads == 0
+        file.checkpoints.request(SliceSettings("$['weight']", (0,), (0,), (0,), (3,)))
+        wait(reopened)
+        assert file.checkpoints.active
+        assert file.checkpoints.active.view.raw.tolist() == [8, 9, 10]
+    finally:
+        reopened.close()

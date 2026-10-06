@@ -1,0 +1,26 @@
+{
+  "wheel_sha256": "ab6e3b6bacc716b53e734d1db55216da4e4c6c00de86af8c5298dc97855b9715",
+  "base": {
+    "installed_path": "/tmp/datelier-phase11-base/lib/python3.14/site-packages/datelier/__init__.py",
+    "python": "3.14.7",
+    "torch_absent": true,
+    "ordinary_csv": true,
+    "optional_extra_diagnostic": true,
+    "lazy_app_import": true,
+    "native_csv": true,
+    "frames": 26,
+    "torch_absent_after_gui": true
+  },
+  "checkpoints": {
+    "installed_path": "/tmp/datelier-checkpoint-wheel/lib/python3.14/site-packages/datelier/__init__.py",
+    "frames": 45,
+    "cpu_metadata_only_open": true,
+    "explicit_exact_values": true,
+    "native_plot": true,
+    "source_preserved": true,
+    "torch": "2.14.1+cpu",
+    "cuda_build": null
+  },
+  "pip_check_base": true,
+  "pip_check_checkpoints": true
+}

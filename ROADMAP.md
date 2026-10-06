@@ -43,8 +43,11 @@ whole-session persistence/recovery and cross-file comparisons. Phase 10 passes
 richer interpretations, nearby lazy previews, conditional table presentation
 and gallery/detail Inspect with direct media/text records;
 [Phase 10 evidence](docs/phase-10.md) records correctness, native restoration and
-measured resources. Phase 11 and later implementation gates remain open. These
-gates do not change existing feature or usability acceptance.
+measured resources. Phase 11 passes structured objects, lazy NumPy arrays,
+confirmed record mappings and optional restricted CPU checkpoints;
+[Phase 11 evidence](docs/phase-11.md) records restoration, resource and clean-install
+acceptance. Phase 12 and later implementation gates remain open. These gates do
+not change existing feature or usability acceptance.
 
 A concrete post-v1 usability need is recorded in the
 [Titanic UX review and proposed repair plan](docs/ux-titanic-review.md): readable
@@ -641,8 +644,8 @@ the corresponding dependency or behavior gates.
 [Verified implementation and resources](docs/phase-9.md) cover file ownership,
 native tabs, independent inactive-file jobs, nonblocking closure and M9.2
 Welcome/recent opening/editor controls, whole-session recovery and cross-file
-comparisons. Phase 10's completed inspection expansion is recorded below;
-Phase 11 is the next outstanding phase.
+comparisons. The completed Phase 10/11 inspection expansion is recorded below;
+Phase 12 is the next outstanding phase.
 
 - [x] **Deliverables:** application/file session separation; top file tab bar with switching, reordering, closing, and New Tab; independent source/revision, operations, selections, jobs, analysis settings, and views; dockable panels bound to the active file.
 - [x] **Entry gate:** inspect current GuiSession and job/persistence boundaries; define typed file-session ownership and the shared worker lifecycle before introducing tabs.
@@ -681,8 +684,8 @@ Phase 11 is the next outstanding phase.
 [Verified implementation and acceptance](docs/phase-10.md) cover typed roles,
 worker discovery/decoding, CPU/GPU lifecycle, conditional styles, direct media/
 line manifests, gallery/detail navigation, fresh-process recovery and measured
-table/reference/Inspect resources. Phase 11 is next; modality-specific tools
-remain in Phases 12–14.
+table/reference/Inspect resources. Phase 11's completed structured/array/checkpoint
+expansion is recorded below; text/image/audio tools remain in Phases 12–14.
 
 ### M10.1 — Richer column interpretations
 
@@ -718,10 +721,11 @@ remain in Phases 12–14.
 
 ## Phase 11 — Structured objects, arrays, and checkpoints
 
-[Verified structured browsing, lazy array inspection and record mappings](docs/phase-11.md)
-pass M11.1–M11.3. M11.4's optional CPU checkpoint inspection is next.
+[Verified structured browsing, lazy array inspection, record mappings and CPU checkpoints](docs/phase-11.md)
+pass M11.1–M11.4, including native restoration, full-suite/resource checks and
+clean installations with and without the optional checkpoint dependency.
 
-- [ ] **Phase complete.** **Entry:** Phase 10 passes. **Exit:** M11.1–M11.4 pass; structure, mappings and source-record identity survive workspace restoration without eager payload loading.
+- [x] **Phase complete.** **Entry:** Phase 10 passes. **Exit:** M11.1–M11.4 pass; structure, mappings and source-record identity survive workspace restoration without eager payload loading.
 
 ### M11.1 — Structured JSON and TOML browsing
 
@@ -749,11 +753,11 @@ pass M11.1–M11.3. M11.4's optional CPU checkpoint inspection is next.
 
 ### M11.4 — PyTorch checkpoint inspection
 
-- [ ] **Deliverables:** CPU inspection of compatible .pt/.pth/.ckpt tensor containers and state dictionaries, nested metadata, shapes/dtypes and tensor plots/slices; explicit PyTorch installation extra and restricted loading with weights_only=True and map_location="cpu"; saved tensor/view locators.
+- [x] **Deliverables:** CPU inspection of compatible .pt/.pth/.ckpt tensor containers and state dictionaries, nested metadata, shapes/dtypes and tensor plots/slices; explicit PyTorch installation extra and restricted loading with weights_only=True and map_location="cpu"; saved tensor/view locators.
 - [x] **Entry gate:** M11.3 passes; verify CPU PyTorch clean install and checkpoint/tensor loading on Python 3.14/Linux, including metadata-first or mapped access where supported.
-- [ ] **Exit gate:** supported checkpoint contents are inspectable without model construction/inference or unrestricted unpickling; unsupported objects have clear diagnostics; selected tensor values and views restore correctly and cannot overwrite sources or publish stale results.
-- [ ] **Verification evidence:** nested state-dict/tensor/metadata and unsupported-checkpoint fixtures, CPU placement/value correctness, native tensor navigation, absent-extra diagnostics, checkpoint resource and clean-install checks.
-- [ ] **Suggested step commits:** `build: add optional cpu checkpoint inspection` → `feat: browse pytorch checkpoints and tensors`.
+- [x] **Exit gate:** supported checkpoint contents are inspectable without model construction/inference or unrestricted unpickling; unsupported objects have clear diagnostics; selected tensor values and views restore correctly and cannot overwrite sources or publish stale results.
+- [x] **Verification evidence:** nested state-dict/tensor/metadata and unsupported-checkpoint fixtures, CPU placement/value correctness, native tensor navigation, absent-extra diagnostics, checkpoint resource and clean-install checks.
+- [x] **Suggested step commits:** `build: add optional cpu checkpoint inspection` → `feat: browse pytorch checkpoints and tensors`.
 
 ## Phase 12 — Text profiling and token inspection
 

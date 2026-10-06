@@ -1,7 +1,9 @@
 # Phase 11 — Structured objects, arrays, and checkpoints
 
-Phase 11 is underway on the verified Phase 10 baseline. Its completion gate
-remains open until M11.1–M11.4 and the full restoration/resource acceptance pass.
+Phase 11 passes M11.1–M11.4 on the verified Phase 10 baseline, including native
+restoration, source/provenance, full-suite/resource and clean-install acceptance.
+The step records below retain their original intermediate gate status; the final
+acceptance section records completion. Phase 12 and later gates remain open.
 
 The bounded delivery sequence is:
 
@@ -471,3 +473,65 @@ Focused worker/file/workspace/checkpoint regressions **34 passed**, Pyrefly
 diff whitespace pass. Native checkpoint save/restore regression passes
 **161/103 frames**. Final full-suite/resource/installed-application evidence is
 still being collected before marking completion.
+
+## M11.4 and Phase 11 final acceptance
+
+`benchmark_checkpoints.py --output docs/evidence/phase11/checkpoint-resources.json`
+runs fixture creation outside a cold measured native process. The selected tensor
+is **8×512×512 Float32**, with an unselected **1024×1024×32 UInt8** tensor.
+It prepares **21 exact 128×128 windows** through four shared workers and records
+**230 frames**. Instrumented NumPy conversion verifies that every conversion is
+bounded to the selected window; the unselected tensor is never converted.
+One restricted mapped CPU load serves all windows. Budgets are declared before
+execution in the script and [resource report](evidence/phase11/checkpoint-resources.json).
+
+| Gate | Measured | Budget |
+| --- | ---: | ---: |
+| Cold metadata/open | 1,492.02 ms | 5,000 ms |
+| First exact window | 40.33 ms | 3,000 ms |
+| Slowest window update | 54.70 ms | 1,000 ms |
+| Frame p95 | 28.88 ms | 33 ms |
+| Peak process RSS | 633.24 MiB | 1,536 MiB |
+| Retained logical tensor storage | 40 MiB | 64 MiB |
+| Prepared window/display buffers | 653,539 bytes | 2 MiB |
+
+Retained logical bytes describe mapped tensor storage, not resident memory.
+Source SHA-256 is unchanged, retained storage reaches zero after closure, worker
+threads join and temporary fixtures are removed. Existing structured-object and
+NumPy resource gates above continue to pass their declared budgets.
+
+The rebuilt wheel is installed with the locked runtime into two clean environments
+and launched outside the checkout on Linux x86_64/Python **3.14.7** with Mesa
+software OpenGL. The CPU-extra installation uses **PyTorch 2.14.1+cpu**, with no
+CUDA build, and passes native metadata-first opening, explicit exact tensor
+values and plotting (**45 frames**). The base installation has no PyTorch,
+passes ordinary CSV inspection (**26 frames**) and reports the optional-extra
+requirement when opening a checkpoint. App imports and the native CSV workflow
+leave PyTorch absent. Both environments pass `uv pip check`.
+[Installation evidence](evidence/phase11/checkpoint-install.json) records the
+installed module paths and tested wheel SHA-256
+`ab6e3b6bacc716b53e734d1db55216da4e4c6c00de86af8c5298dc97855b9715`.
+README setup documents both configurations.
+
+Changed-checkpoint acceptance verifies explicit source recovery after a tensor's
+shape changes: restoration updates metadata without loading values, then an
+explicit request reads the replacement values. Along with the native restore,
+missing-source, file/revision isolation, source preservation and closure tests,
+this completes the checkpoint restoration gate.
+
+Final `uv run --no-sync pytest -q` with the CPU extra: **694 passed** in **19.24 s**,
+with three upstream sparse/quantized fixture warnings. After `uv sync --locked`
+removes the extra, the base configuration verifies PyTorch absence and passes
+**679 tests**, with **15 CPU-dependent tests skipped**, in **18.02 s**. Pyrefly
+reports **zero errors** in both configurations (one existing suppression; 13
+hidden warnings in the CPU run). Final Ruff lint and format checks pass
+(**364 files**), as does diff whitespace. Native checkpoint regression after
+worker/storage hardening passes **161/103 frames** in separate save/restore
+processes. Dense state dictionaries/tensor containers remain the supported
+checkpoint scope; custom objects and unsupported sparse/quantized metadata
+receive restricted-loading diagnostics.
+
+M11.4 and Phase 11 are complete. Whole-session restoration preserves structure,
+confirmed mappings and record identities without eager array/tensor preparation
+or implicit ML. Existing v1 capability and unfinished Titanic usability gates
+retain their status; Phase 12 text inspection is the next outstanding phase.

@@ -9,9 +9,10 @@ and saved layouts/themes/plot preferences. The completed Phase 9 adds independen
 editor tabs, whole-session workspaces and cross-file profile comparisons.
 Phase 10 adds reference interpretations, lazy image/text previews, conditional
 table styles and gallery/detail Inspect for tables and media/text records.
-Phase 11 is underway: structured JSON/TOML trees, named table views and lazy
-NumPy array inspection and confirmed record mappings pass M11.1–M11.3;
-checkpoint inspection remains open.
+Phase 11 adds structured JSON/TOML trees, named table views, lazy NumPy array
+inspection, confirmed record mappings and optional CPU checkpoint inspection.
+All M11.1–M11.4 gates pass; [Phase 11 evidence](docs/phase-11.md) records
+restoration, native interaction, resource and clean-install checks.
 See [ROADMAP.md](ROADMAP.md) for delivery gates and [AGENTS.md](AGENTS.md) for
 contributor conventions.
 
@@ -31,6 +32,16 @@ If the default renderer stalls, use
 Tables must fit in memory; sampling bounds plots/analysis, not source loading.
 See [Phase 7 evidence](docs/phase-7.md) for the measured fixtures and limitations.
 
+For optional CPU checkpoint inspection, include the extra when syncing and running:
+
+```sh
+uv sync --locked --no-dev --extra checkpoints
+uv run --no-dev --extra checkpoints datelier /path/to/checkpoint.pt
+```
+
+The extra uses the official CPU PyTorch index. Dense tensor containers and state
+dictionaries are supported; custom objects and unsupported layouts show diagnostics.
+
 For a separate local install, build a wheel and install the locked runtime first:
 
 ```sh
@@ -44,6 +55,8 @@ uv pip check --python /tmp/datelier-install/bin/python
 Choose your own environment directory if you want to keep this installation;
 `/tmp` is just an example. The source archive is also in `dist/`. Package version
 0.1.0 identifies this personal-use build. Public publishing is not needed.
+Add `--extra checkpoints` to the locked-runtime sync command above to include
+the optional CPU checkpoint reader in that local installation.
 
 ## First session
 
@@ -132,6 +145,14 @@ Supported inputs and settings:
   its supporting values; **Prepare record payload** opens its exact array plane
   or waveform window. Reopening mapped workspaces reads headers first; use
   **Prepare saved array records** to replay the scalar table and history.
+- **Checkpoints** (`.pt`/`.pth`/`.ckpt`, optional CPU extra): opens nested primitive
+  metadata and tensor shapes/dtypes first. Source browser selects a tensor node,
+  display axes, fixed positions and windows; **Prepare tensor values** reads its
+  exact CPU selection. Vector/matrix plots and raw values preserve coordinates;
+  bfloat16/float8 previews also expose original storage bits. Workspaces restore
+  locators/settings without preparing values. Dense state dictionaries and
+  containers do not require model construction or inference. Custom objects,
+  sparse/quantized metadata and other unsupported layouts remain diagnostic.
 - **Parquet** (`.parquet`/`.pq`): preserves stored scalar types. Optionally choose
   columns by name, separated by `|`; empty means all columns. Exclude nested
   columns or flatten them before importing. Zero-row schemas are supported.
