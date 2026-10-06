@@ -10,6 +10,7 @@ requires-python = ">=3.14"
 dependencies = [
     "imgui-bundle>=1.92.900",
     "numpy>=2.5.3",
+    "pillow>=12.3.0",
     "polars>=1.44.2",
     "scikit-learn>=1.9.1",
     "scipy>=1.18.1",

@@ -64,3 +64,33 @@ def test_finished_and_failed_jobs_release_owner_bookkeeping() -> None:
             failure.result(3)
         owner.shutdown()
         assert workers.submit(lambda: 9).result(3) == 9
+
+
+def test_visible_jobs_precede_queued_discovery_and_fifo_ties() -> None:
+    workers = SharedWorkers(workers=1)
+    started, release = Event(), Event()
+    order: list[str] = []
+
+    def blocked() -> None:
+        started.set()
+        assert release.wait(3)
+
+    try:
+        running = workers.submit(blocked)
+        assert started.wait(3)
+        index = JobExecutor(workers, max_workers=1, name="index", priority=10)
+        visible = JobExecutor(workers, max_workers=1, name="visible", priority=-10)
+        last = index.submit(order.append, "index")
+        first = visible.submit(order.append, "visible")
+        second = visible.submit(order.append, "selected")
+        release.set()
+        running.result(3)
+        first.result(3)
+        second.result(3)
+        last.result(3)
+        assert order == ["visible", "selected", "index"]
+        index.shutdown()
+        visible.shutdown()
+    finally:
+        release.set()
+        workers.shutdown()

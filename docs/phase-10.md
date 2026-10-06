@@ -41,3 +41,20 @@ Historical numeric-chart fixtures now use explicitly floating first features;
 new fixtures directly cover the authorized integer/string ID rule.
 
 M10.1 passes. The milestone full suite reports **568 passed**.
+
+## M10.2 dependency and scheduling foundation
+
+Pillow **12.3.0** is added by `uv add pillow`, with the lockfile updated by uv.
+The Linux/Python 3.14 probe decodes a 400×200 RGB PNG in a worker into a contiguous
+128×64 RGBA thumbnail; **30 native Mesa frames / six texture uploads** render it
+and release owning handles before backend teardown. The installed ImGui Bundle
+`TextureGpu` API owns and releases textures on the GUI thread. Pillow's
+[image API](https://pillow.readthedocs.io/en/stable/reference/Image.html) documents
+lazy open and thumbnail behavior; this probe is Datelier's dependency evidence.
+
+The shared bounded scheduler accepts priority: visible/selected preparation
+precedes queued discovery, FIFO within equal priorities; executing work continues
+until completion or cooperative abandonment. Cancellation removes queued closures
+and releases capacity. Owners still close independently. Nine focused scheduling,
+file-session and editor-session tests pass; Pyrefly, Ruff lint/format and whitespace
+checks pass. This foundation does not yet pass M10.2's feature/resource gates.
