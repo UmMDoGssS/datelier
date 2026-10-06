@@ -96,3 +96,29 @@ the regression, and the final full suite/native workflow were rerun. The 300-lin
 FileSession and larger editor/bootstrap files were reviewed: ownership and panel
 binding stay cohesive while object views/browser and recipe capture are separate.
 M11.1 passes. M11.2–M11.4 and the overall Phase 11 gate remain open.
+
+## M11.2 header-only foundation
+
+The array adapter reads NPY versions 1/2/3 and NPZ member headers into typed
+metadata: original member name, shape/dtype/order, header size, raw payload size,
+stored/container bytes and compression. It does not call `numpy.load` or
+materialize payloads. The binary header length is checked before reading it
+(default 10,000 bytes, adjustable), then NumPy's public header readers validate
+it. Version 3 UTF-8 headers use an equivalent ASCII-escaped literal through the
+public v2 validator, retaining Unicode structured field names and the original
+header offset. No private reader or type suppression is needed.
+
+Empty archives, scalar/empty/higher-dimensional/string/structured/endian arrays
+retain metadata. Corrupt/truncated members have local diagnostics while other
+members remain available; duplicate names fail explicitly. Object dtypes remain
+visible but payload inspection requires a non-object source, with no pickle
+loading. Source metadata changes during inspection reject the catalog.
+
+Reference: [NumPy format specification](https://numpy.org/doc/stable/reference/generated/numpy.lib.format.html)
+and [mapped loading](https://numpy.org/doc/stable/reference/generated/numpy.load.html).
+Verified against locked NumPy **2.5.3** on Python 3.14/Linux. Focused metadata,
+object-source and named-view tests **35 passed**; Pyrefly **zero errors** (one
+existing suppression), Ruff lint/format (**322 files**) and diff whitespace pass.
+This backend foundation has no GUI changes; temporary member storage, mmap/slice
+lifecycle, renderer integration and their native/resource evidence remain the
+next M11.2 steps. The M11.2 entry/exit gates remain open.
