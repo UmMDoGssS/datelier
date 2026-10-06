@@ -5,6 +5,7 @@ from enum import StrEnum
 from pathlib import Path
 
 from datelier.core.dataset import Dataset
+from datelier.inspection.arrays.mapping import ArrayRecordMapping
 from datelier.inspection.arrays.types import ArrayCatalog
 from datelier.inspection.objects.types import NodePath, ObjectNode
 
@@ -72,8 +73,11 @@ class ObjectOptions:
 class ArrayOptions:
     archive: bool | None = None
     max_header_bytes: int = 10_000
+    mapping: ArrayRecordMapping | None = None
 
     def __post_init__(self) -> None:
+        if self.mapping is not None:
+            self.mapping.validate()
         if not 1 <= self.max_header_bytes <= 16 * 1024 * 1024:
             raise ValueError("Array header limit must be between one byte and 16 MiB")
 

@@ -258,3 +258,15 @@ after sort/undo. Pyrefly **zero errors** (one existing suppression), Ruff lint/f
 (**336 files**) and diff whitespace pass. This is a backend foundation without
 GUI changes. Confirmation/edit controls, file-owned mapped views, linked record
 inspection, lazy workspace restoration and full M11.3 acceptance remain open.
+
+Mapped recipes now persist typed layout, axis, coordinate and supporting-column
+settings. Whole-session restoration validates source fingerprints and supporting
+lengths using metadata alone, preserving the mapping, operation history and
+source-row selection until explicit record preparation. Changed sources reset
+selection; relinking updates both owner and child references. Preparation then
+loads supporting values and replays saved operations. Sources remain protected
+from workspace overwrite. Focused mapping/workspace/session/object regression
+tests **30 passed**; Pyrefly **zero errors** (one existing suppression), Ruff
+lint/format (**338 files**), the full suite (**669 passed**) and diff whitespace
+pass. This adds backend recipes;
+the native deferred-view and confirmation controls are still pending.

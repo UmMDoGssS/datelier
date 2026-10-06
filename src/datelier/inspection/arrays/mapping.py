@@ -2,9 +2,12 @@
 
 from dataclasses import dataclass
 from enum import StrEnum
+from typing import TYPE_CHECKING
 
-from datelier.inspection.arrays.slices import SliceSettings
 from datelier.inspection.arrays.types import ArrayCatalog
+
+if TYPE_CHECKING:
+    from datelier.inspection.arrays.slices import SliceSettings
 
 
 class ArrayLayout(StrEnum):
@@ -128,6 +131,8 @@ class ArrayRecordMapping:
     def slice_settings(
         self, catalog: ArrayCatalog, source_index: int, *, channel: int = 0
     ) -> SliceSettings:
+        from datelier.inspection.arrays.slices import SliceSettings
+
         count = self.record_count(catalog)
         if not 0 <= source_index < count:
             raise ValueError("Record source index is outside the mapped array")

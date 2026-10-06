@@ -4,11 +4,13 @@ from dataclasses import dataclass, replace
 from pathlib import Path
 
 from datelier.core.column_roles import TEXT_EXTENSIONS
+from datelier.inspection.arrays.types import ArrayCatalog
 from datelier.inspection.table import prepare_inspection
 from datelier.io.importing import load_file
 from datelier.io.objects import object_record_view
-from datelier.io.types import ImportResult, MediaOptions, ObjectOptions
+from datelier.io.types import ArrayOptions, ImportResult, MediaOptions, ObjectOptions
 from datelier.pipeline.history import Pipeline
+from datelier.workspace.array_restore import defer_array_view
 from datelier.workspace.restore import RestoredWorkspace, SourceIssue, restore_recipe
 from datelier.workspace.session_storage import read_session_workspace
 from datelier.workspace.session_types import SessionFile, SessionWorkspace
@@ -21,6 +23,7 @@ class SourceRecovery:
     file_id: str
     relink: Path | None = None
     accept_changed: bool = False
+    prepare_records: bool = False
 
 
 @dataclass(frozen=True)
@@ -30,6 +33,8 @@ class RestoredSessionFile:
     message: str = ""
     changed: bool = False
     record_views: tuple[RestoredSessionFile, ...] = ()
+    deferred: bool = False
+    array_catalog: ArrayCatalog | None = None
 
 
 @dataclass(frozen=True)
@@ -52,6 +57,35 @@ def restore_session_file(
     accept = recovery is not None and recovery.accept_changed
     try:
         recipe = file.recipe
+        if (
+            recipe is not None
+            and isinstance(recipe.options, ArrayOptions)
+            and recipe.options.mapping is not None
+            and not (recovery is not None and recovery.prepare_records)
+        ):
+            deferred = defer_array_view(
+                file, relink=relink, accept_changed=accept, source_import=source_import
+            )
+            views = tuple(
+                restore_session_file(
+                    view,
+                    SourceRecovery(view.identity, relink, accept),
+                    source_import=deferred.imported,
+                )
+                for view in file.record_views
+            )
+            updated = replace(
+                deferred.file, record_views=tuple(view.file for view in views)
+            )
+            return RestoredSessionFile(
+                updated,
+                message="Saved mapping restored. Prepare records explicitly "
+                "to load scalar fields and replay history.",
+                changed=deferred.changed,
+                record_views=views,
+                deferred=True,
+                array_catalog=deferred.catalog,
+            )
         if recipe is not None:
             prepared: ImportResult | None = None
             if (

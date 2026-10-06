@@ -109,15 +109,15 @@ class ImportControls:
         )
 
     def options(self, selected: ImportFormat) -> ImportOptions:
-        if selected == ImportFormat.ARRAY:
-            return ArrayOptions(
-                (None, False, True)[self.array_archive], self.array_header_bytes
-            )
         if self._bound is not None and (selected, self._draft()) == (
             self._bound[0],
             self._bound[2],
         ):
             return self._bound[1]
+        if selected == ImportFormat.ARRAY:
+            return ArrayOptions(
+                (None, False, True)[self.array_archive], self.array_header_bytes
+            )
         if selected == ImportFormat.OBJECT:
             return ObjectOptions(
                 syntax=("", "json", "toml")[self.object_syntax],

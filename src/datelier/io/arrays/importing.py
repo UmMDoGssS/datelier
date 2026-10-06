@@ -9,12 +9,38 @@ import polars as pl
 from datelier.core.column_roles import ColumnRole
 from datelier.inspection.arrays.types import ArrayCatalog
 from datelier.io.arrays.metadata import inspect_arrays
+from datelier.io.arrays.records import prepare_array_records
+from datelier.io.arrays.storage import ArrayStore
 from datelier.io.source import read_source
-from datelier.io.types import ArrayOptions, ImportFormat, ImportResult
+from datelier.io.types import ArrayOptions, ImportFailure, ImportFormat, ImportResult
 
 
 def load_arrays(path: Path, options: ArrayOptions | None = None) -> ImportResult:
     options = options or ArrayOptions()
+    if options.mapping is not None:
+        metadata = load_arrays(path, replace(options, mapping=None))
+        assert metadata.array_catalog is not None
+        store = ArrayStore()
+        try:
+            dataset, diagnostics = prepare_array_records(
+                store, metadata.array_catalog, options.mapping
+            )
+            ArrayStore.check_source(metadata.array_catalog)
+            return replace(
+                metadata, dataset=dataset, options=options, diagnostics=diagnostics
+            )
+        except (
+            ValueError,
+            TypeError,
+            OSError,
+            IndexError,
+            pl.exceptions.PolarsError,
+        ) as error:
+            raise ImportFailure(
+                path, f"Cannot prepare array records: {error}"
+            ) from error
+        finally:
+            store.close()
     catalog: ArrayCatalog | None = None
 
     def read(_source: BinaryIO) -> tuple[pl.DataFrame, tuple[str, ...]]:

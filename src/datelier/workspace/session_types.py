@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from datelier.inspection.comparison_settings import ComparisonSettings
 from datelier.inspection.objects.types import NodePath
 from datelier.io.types import (
+    ArrayOptions,
     ImportFormat,
     ImportOptions,
     ObjectOptions,
@@ -62,16 +63,22 @@ class SessionFile:
             if (
                 self.recipe is None
                 or view.recipe is None
-                or (
-                    self.recipe.source.path != view.recipe.source.path
-                    or not isinstance(self.recipe.options, ObjectOptions)
-                    or not isinstance(view.recipe.options, ObjectOptions)
-                    or view.recipe.options.node_path is None
-                )
+                or self.recipe.source.path != view.recipe.source.path
             ):
-                raise ValueError(
-                    "Record views must refer to nodes in their owning source"
-                )
+                raise ValueError("Record views must refer to their owning source")
+            owner_options, options = self.recipe.options, view.recipe.options
+            object_view = (
+                isinstance(owner_options, ObjectOptions)
+                and isinstance(options, ObjectOptions)
+                and options.node_path is not None
+            )
+            array_view = (
+                isinstance(owner_options, ArrayOptions)
+                and isinstance(options, ArrayOptions)
+                and options.mapping is not None
+            )
+            if not (object_view or array_view):
+                raise ValueError("Record views require an object node or array mapping")
             view.validate()
         if (
             not self.identity
