@@ -390,3 +390,31 @@ Pyrefly **zero errors** (one existing suppression), Ruff lint/format (**353 file
 and diff whitespace pass. Native nested-checkpoint metadata/tree smoke passes
 **27 frames** with unchanged source bytes. Tensor value preparation, native
 tensor controls and complete M11.4 acceptance remain open.
+
+Explicit tensor preparation now leases restricted CPU checkpoint storage.
+Modern files use read-only application access to mapped storage; legacy files
+load CPU storage only when requested. Logical retention limits govern cached
+checkpoint storage and discard oversized roots after a lease rather than remove
+the ability to inspect them. Source stat checks surround loading/copying;
+abandonment prevents obsolete preparation from publishing. No tensor is modified.
+
+NumPy and tensor windows share pure axis/coordinate/budget planning and worker
+display preparation. Exact copied windows preserve selected source coordinates,
+noncontiguous axis order and ordinary dtypes. Bfloat16/float8 display values use
+exact Float32 conversion of the bounded selection, with original UInt16/UInt8
+storage bits kept beside them. Complex component plots, nonfinite gaps/spans,
+scalar values and empty windows use the existing prepared renderer. A fixed
+empty-axis NumPy scalar window now returns no values rather than an uninitialized
+scalar. Both readers retain the 16,384-cell/8 MiB raw window budget.
+
+Window/source/storage regressions **47 passed**: exact axes/strides/CPU mapping,
+cache reuse, raw precision/bits, unsigned 64-bit values, complex/scalar/empty
+windows, source changes, oversized legacy retention and abandonment. Sparse and
+quantized metadata cannot be constructed by this verified FakeTensorMode path;
+those files receive an unsupported object/layout diagnostic and remain
+restricted, as do custom checkpoint objects. Dense state dictionaries and
+primitive containers are the supported inspection path. Pyrefly **zero errors**
+(one existing suppression), Ruff lint/format (**358 files**) and diff whitespace
+pass. Native NumPy regression passes **78/35 frames** after shared window planning.
+This is the tensor value foundation. Native controls, saved tensor windows,
+resource/absent-extra acceptance and M11.4 completion remain open.

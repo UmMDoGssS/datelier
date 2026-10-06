@@ -138,6 +138,28 @@ def test_checkpoint_limits_and_options_are_strict_persisted_recipes(
         assert detect_format(path.with_suffix(extension)) == ImportFormat.CHECKPOINT
 
 
+@pytest.mark.parametrize("layout", ["sparse", "quantized"])
+def test_unsupported_metadata_layouts_remain_restricted_diagnostics(
+    tmp_path: Path, torch: ModuleType, layout: str
+) -> None:
+    path = tmp_path / "layout.pt"
+    value = (
+        torch.sparse_coo_tensor(
+            torch.tensor([[0, 1], [1, 0]]),
+            torch.tensor([2.0, 3.0]),
+            (2, 2),
+            check_invariants=True,
+        )
+        if layout == "sparse"
+        else torch.quantize_per_tensor(torch.tensor([1.0, 2.0]), 0.1, 0, torch.quint8)
+    )
+    torch.save({"value": value}, path)
+    before = path.read_bytes()
+    with pytest.raises(ImportFailure, match="Unsupported objects or tensor layouts"):
+        load_file(path)
+    assert path.read_bytes() == before
+
+
 def test_missing_optional_extra_is_actionable_and_app_import_stays_lazy(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

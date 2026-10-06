@@ -83,6 +83,7 @@ def load_restricted(path: Path, *, metadata: bool, mapped: bool = False) -> obje
         # Keep unsupported files diagnostic; never offer or execute those paths.
         raise ValueError(
             "Checkpoint cannot be read with restricted tensor loading. "
-            "Export a plain state_dict or a container of tensors "
+            "Unsupported objects or tensor layouts require export as "
+            "a plain state_dict or a container of dense tensors "
             "and primitive metadata."
         ) from error
