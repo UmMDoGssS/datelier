@@ -18,6 +18,19 @@ dependencies = [
     "umap-learn>=0.5.12",
 ]
 
+[project.optional-dependencies]
+checkpoints = [
+    "torch>=2.14.1; sys_platform == 'linux'",
+]
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu", extra = "checkpoints" }
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
 [tool.pyrefly]
 project-includes = [
     "**/*.py*",

@@ -750,7 +750,7 @@ pass M11.1–M11.3. M11.4's optional CPU checkpoint inspection is next.
 ### M11.4 — PyTorch checkpoint inspection
 
 - [ ] **Deliverables:** CPU inspection of compatible .pt/.pth/.ckpt tensor containers and state dictionaries, nested metadata, shapes/dtypes and tensor plots/slices; explicit PyTorch installation extra and restricted loading with weights_only=True and map_location="cpu"; saved tensor/view locators.
-- [ ] **Entry gate:** M11.3 passes; verify CPU PyTorch clean install and checkpoint/tensor loading on Python 3.14/Linux, including metadata-first or mapped access where supported.
+- [x] **Entry gate:** M11.3 passes; verify CPU PyTorch clean install and checkpoint/tensor loading on Python 3.14/Linux, including metadata-first or mapped access where supported.
 - [ ] **Exit gate:** supported checkpoint contents are inspectable without model construction/inference or unrestricted unpickling; unsupported objects have clear diagnostics; selected tensor values and views restore correctly and cannot overwrite sources or publish stale results.
 - [ ] **Verification evidence:** nested state-dict/tensor/metadata and unsupported-checkpoint fixtures, CPU placement/value correctness, native tensor navigation, absent-extra diagnostics, checkpoint resource and clean-install checks.
 - [ ] **Suggested step commits:** `build: add optional cpu checkpoint inspection` → `feat: browse pytorch checkpoints and tensors`.

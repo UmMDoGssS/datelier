@@ -1,0 +1,17 @@
+{
+  "python": "3.14.7",
+  "platform": "Linux",
+  "machine": "x86_64",
+  "torch": "2.14.1+cpu",
+  "cuda_build": null,
+  "metadata_storage": "meta",
+  "cpu_mapped_values": true,
+  "nested_metadata": true,
+  "noncontiguous_values": true,
+  "bfloat16_values": true,
+  "restricted_object_rejection": true,
+  "legacy_metadata_only": true,
+  "legacy_explicit_values": true,
+  "source_preserved": true,
+  "elapsed_ms": 2811.0649999980524
+}
