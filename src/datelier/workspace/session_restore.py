@@ -6,7 +6,8 @@ from pathlib import Path
 from datelier.core.column_roles import TEXT_EXTENSIONS
 from datelier.inspection.table import prepare_inspection
 from datelier.io.importing import load_file
-from datelier.io.types import MediaOptions
+from datelier.io.objects import object_record_view
+from datelier.io.types import ImportResult, MediaOptions, ObjectOptions
 from datelier.pipeline.history import Pipeline
 from datelier.workspace.restore import RestoredWorkspace, SourceIssue, restore_recipe
 from datelier.workspace.session_storage import read_session_workspace
@@ -28,6 +29,7 @@ class RestoredSessionFile:
     restored: RestoredWorkspace | None = None
     message: str = ""
     changed: bool = False
+    record_views: tuple[RestoredSessionFile, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -38,7 +40,10 @@ class RestoredSession:
 
 
 def restore_session_file(
-    file: SessionFile, recovery: SourceRecovery | None = None
+    file: SessionFile,
+    recovery: SourceRecovery | None = None,
+    *,
+    source_import: ImportResult | None = None,
 ) -> RestoredSessionFile:
     file.validate()
     if recovery is not None and recovery.file_id != file.identity:
@@ -48,7 +53,20 @@ def restore_session_file(
     try:
         recipe = file.recipe
         if recipe is not None:
-            restored = restore_recipe(recipe, relink=relink, accept_changed=accept)
+            prepared: ImportResult | None = None
+            if (
+                source_import is not None
+                and source_import.object_root is not None
+                and isinstance(recipe.options, ObjectOptions)
+            ):
+                prepared = object_record_view(
+                    source_import.object_root,
+                    source_import.dataset.source,
+                    recipe.options,
+                )
+            restored = restore_recipe(
+                recipe, relink=relink, accept_changed=accept, imported_override=prepared
+            )
         elif file.draft is not None:
             draft = file.draft
             imported = load_file(
@@ -102,7 +120,26 @@ def restore_session_file(
         updated = replace(
             file, recipe=restored.workspace, draft=None, selection=selection
         )
-        return RestoredSessionFile(updated, restored, message)
+        views = tuple(
+            restore_session_file(
+                replace(
+                    view,
+                    recipe=replace(
+                        view.recipe,
+                        source=replace(
+                            view.recipe.source, path=restored.workspace.source.path
+                        ),
+                    ),
+                )
+                if view.recipe is not None
+                else view,
+                SourceRecovery(view.identity, relink, accept),
+                source_import=restored.inspection.imported,
+            )
+            for view in file.record_views
+        )
+        updated = replace(updated, record_views=tuple(view.file for view in views))
+        return RestoredSessionFile(updated, restored, message, record_views=views)
     except SourceIssue as error:
         return RestoredSessionFile(file, message=str(error), changed=error.changed)
     except Exception as error:

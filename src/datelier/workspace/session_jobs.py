@@ -14,7 +14,7 @@ from datelier.workspace.session_restore import (
     restore_session_workspace,
 )
 from datelier.workspace.session_storage import save_session_workspace
-from datelier.workspace.session_types import SessionWorkspace
+from datelier.workspace.session_types import SessionFile, SessionWorkspace
 from datelier.workspace.storage import protect_sources, reference_source
 
 type FileStamp = tuple[DatasetRevision | None, int, bool]
@@ -41,7 +41,10 @@ def save_snapshot(
     if path.exists() and not overwrite:
         raise ValueError("Workspace exists; enable Replace existing workspace")
     ready = {
-        file.identity for file in snapshot.workspace.files if file.recipe is not None
+        file.identity
+        for owner in snapshot.workspace.files
+        for file in (owner, *owner.record_views)
+        if file.recipe is not None
     }
     identities = [identity for identity, _ in snapshot.sources]
     if len(set(identities)) != len(identities) or not set(identities) <= ready:
@@ -49,14 +52,20 @@ def save_snapshot(
     references = {
         identity: reference_source(source) for identity, source in snapshot.sources
     }
+
+    def update(file: SessionFile) -> SessionFile:
+        recipe = file.recipe
+        if recipe is not None and file.identity in references:
+            recipe = replace(recipe, source=references[file.identity])
+        return replace(
+            file,
+            recipe=recipe,
+            record_views=tuple(update(v) for v in file.record_views),
+        )
+
     workspace = replace(
         snapshot.workspace,
-        files=tuple(
-            replace(file, recipe=replace(file.recipe, source=references[file.identity]))
-            if file.recipe is not None and file.identity in references
-            else file
-            for file in snapshot.workspace.files
-        ),
+        files=tuple(update(file) for file in snapshot.workspace.files),
     )
     save_session_workspace(path, workspace)
     return SavedSession(path, workspace)

@@ -14,67 +14,73 @@ from datelier.workspace.types import Workspace, WorkspaceSource
 
 if TYPE_CHECKING:
     from datelier.gui.editor_session import EditorSession
+    from datelier.gui.file_session import FileSession
+
+
+def capture_file(
+    file: FileSession, sources: list[tuple[str, SourceReference]]
+) -> SessionFile:
+    if (
+        file.editor.busy
+        or file.loader.status.phase == LoadPhase.LOADING
+        or file.workspace.jobs.busy
+        or file.exporter.busy
+        or file.record_views.pending
+    ):
+        raise ValueError("Wait for file imports, edits or writes before saving")
+    active, pipeline = file.loader.active, file.editor.pipeline
+    if active is not None and pipeline is not None:
+        source = pipeline.source.source
+        sources.append((file.identity, source))
+        recipe = Workspace(
+            WorkspaceSource(
+                str(source.path), source.size_bytes, source.modified_ns, "0" * 64
+            ),
+            active.imported.format,
+            active.imported.options,
+            pipeline.history,
+            pipeline.cursor,
+            tuple(file.analysis.controls.request(algorithm) for algorithm in Algorithm),
+            replace(file.plots.settings(), clusters=None),
+            capture_views(file),
+        )
+        views = file.record_views
+        return SessionFile(
+            file.identity,
+            recipe,
+            selection=tuple(sorted(file.selection.row_ids)),
+            panel_scroll=tuple(
+                (name, x, y) for name, (x, y) in file.panel_scroll.items()
+            ),
+            name=file.view_name,
+            record_views=tuple(capture_file(view, sources) for view in views.files),
+            active_view=views.active_id,
+            object_path=views.path,
+            object_focus=views.focus_path,
+            object_expanded=tuple(sorted(views.expanded, key=repr)),
+        )
+    if file.recovery is not None:
+        return file.recovery.file
+    if file.controls.path.strip():
+        try:
+            format = file.controls.selected_format()
+            draft = SourceDraft(
+                file.controls.path, format, file.controls.options(format)
+            )
+        except (ImportFailure, ValueError) as error:
+            raise ValueError(
+                f"Fix import settings in {file.controls.path}: {error}"
+            ) from error
+        return SessionFile(file.identity, draft=draft, name=file.view_name)
+    return SessionFile(file.identity, name=file.view_name)
 
 
 def capture_session(
     editor: EditorSession, layout: str = "", hidden: tuple[str, ...] = ()
 ) -> SessionSnapshot:
-    files: list[SessionFile] = []
     sources: list[tuple[str, SourceReference]] = []
-    for file in editor.files:
-        if (
-            file.editor.busy
-            or file.loader.status.phase == LoadPhase.LOADING
-            or file.workspace.jobs.busy
-            or file.exporter.busy
-        ):
-            raise ValueError("Wait for file imports, edits or writes before saving")
-        active, pipeline = file.loader.active, file.editor.pipeline
-        if active is not None and pipeline is not None:
-            source = pipeline.source.source
-            sources.append((file.identity, source))
-            recipe = Workspace(
-                WorkspaceSource(
-                    str(source.path), source.size_bytes, source.modified_ns, "0" * 64
-                ),
-                active.imported.format,
-                active.imported.options,
-                pipeline.history,
-                pipeline.cursor,
-                tuple(
-                    file.analysis.controls.request(algorithm) for algorithm in Algorithm
-                ),
-                replace(file.plots.settings(), clusters=None),
-                capture_views(file),
-            )
-            files.append(
-                SessionFile(
-                    file.identity,
-                    recipe,
-                    selection=tuple(sorted(file.selection.row_ids)),
-                    panel_scroll=tuple(
-                        (name, x, y) for name, (x, y) in file.panel_scroll.items()
-                    ),
-                )
-            )
-        elif file.recovery is not None:
-            files.append(file.recovery.file)
-        elif file.controls.path.strip():
-            try:
-                format = file.controls.selected_format()
-                draft = SourceDraft(
-                    file.controls.path, format, file.controls.options(format)
-                )
-            except (ImportFailure, ValueError) as error:
-                raise ValueError(
-                    f"Fix import settings in {file.controls.path}: {error}"
-                ) from error
-            files.append(SessionFile(file.identity, draft=draft))
-        else:
-            files.append(SessionFile(file.identity))
+    files = tuple(capture_file(file, sources) for file in editor.files)
     return SessionSnapshot(
-        SessionWorkspace(
-            tuple(files), editor.active_id, editor.comparisons, layout, hidden
-        ),
+        SessionWorkspace(files, editor.active_id, editor.comparisons, layout, hidden),
         tuple(sources),
     )

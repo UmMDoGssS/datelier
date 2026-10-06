@@ -25,7 +25,12 @@ def map_paths(file: SessionFile, convert: Callable[[str], str]) -> SessionFile:
         )
     if draft is not None:
         draft = replace(draft, path=convert(draft.path))
-    return replace(file, recipe=recipe, draft=draft)
+    return replace(
+        file,
+        recipe=recipe,
+        draft=draft,
+        record_views=tuple(map_paths(view, convert) for view in file.record_views),
+    )
 
 
 def source_paths(session: SessionWorkspace) -> tuple[Path, ...]:

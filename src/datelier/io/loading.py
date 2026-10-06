@@ -9,7 +9,7 @@ from pathlib import Path
 from datelier.core.dataset import DatasetRevision
 from datelier.core.jobs import JobExecutor
 from datelier.inspection.table import Inspection, prepare_inspection
-from datelier.io.importing import load_file
+from datelier.io.importing import load_inspectable_file
 from datelier.io.types import ImportFormat, ImportOptions, ImportResult
 
 
@@ -86,7 +86,7 @@ class DatasetLoader:
             imported = (
                 self._importer(path, options)
                 if self._importer is not None
-                else load_file(path, options, format=format)
+                else load_inspectable_file(path, options, format=format)
             )
             return prepare_inspection(imported)
 

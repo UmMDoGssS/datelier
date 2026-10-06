@@ -11,6 +11,7 @@ DOCKS = (
     ("EditSpace", "AnalysisSpace", imgui.Dir.down, 0.65),
 )
 PANELS = {
+    "Source browser": "ImportSpace",
     "Explore": "PlotSpace",
     "Compare files": "PlotSpace",
     "Inspect": "PlotSpace",

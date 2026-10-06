@@ -5,6 +5,7 @@ from pathlib import Path
 
 from datelier.inspection.table import Inspection, prepare_inspection
 from datelier.io.importing import load_file
+from datelier.io.types import ImportResult
 from datelier.pipeline.history import Pipeline
 from datelier.pipeline.operations import apply_operation
 from datelier.workspace.storage import fingerprint, read_workspace
@@ -36,7 +37,11 @@ def restore_workspace(
 
 
 def restore_recipe(
-    workspace: Workspace, *, relink: Path | None = None, accept_changed: bool = False
+    workspace: Workspace,
+    *,
+    relink: Path | None = None,
+    accept_changed: bool = False,
+    imported_override: ImportResult | None = None,
 ) -> RestoredWorkspace:
     workspace.validate()
     source_path = relink if relink is not None else Path(workspace.source.path)
@@ -54,7 +59,13 @@ def restore_recipe(
             "accept the current source and replay its recipes.",
             changed=True,
         )
-    imported = load_file(source_path, workspace.options, format=workspace.format)
+    imported = imported_override or load_file(
+        source_path, workspace.options, format=workspace.format
+    )
+    if imported_override is not None and (
+        imported.format != workspace.format or imported.options != workspace.options
+    ):
+        raise ValueError("Prepared source does not match the saved recipe")
     after = fingerprint(source_path)
     reference = imported.dataset.source
     if checked != after or (reference.size_bytes, reference.modified_ns) != (

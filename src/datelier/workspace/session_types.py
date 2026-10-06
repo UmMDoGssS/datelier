@@ -5,9 +5,11 @@ import string
 from dataclasses import dataclass
 
 from datelier.inspection.comparison_settings import ComparisonSettings
+from datelier.inspection.objects.types import NodePath
 from datelier.io.types import (
     ImportFormat,
     ImportOptions,
+    ObjectOptions,
     validate_import_options,
     validate_source_path,
 )
@@ -33,8 +35,44 @@ class SessionFile:
     draft: SourceDraft | None = None
     selection: tuple[int, ...] = ()
     panel_scroll: tuple[tuple[str, float, float], ...] = ()
+    name: str = ""
+    record_views: tuple[SessionFile, ...] = ()
+    active_view: str | None = None
+    object_path: NodePath = ()
+    object_focus: NodePath = ()
+    object_expanded: tuple[NodePath, ...] = ()
 
     def validate(self) -> None:
+        ObjectOptions(node_path=self.object_path)
+        ObjectOptions(node_path=self.object_focus)
+        if len(self.object_expanded) > 1024:
+            raise ValueError("Save at most 1024 expanded object nodes")
+        for path in self.object_expanded:
+            ObjectOptions(node_path=path)
+        if len(self.name) > 4096 or len(self.record_views) > 32:
+            raise ValueError("Record view names or count exceed saved bounds")
+        identities = {view.identity for view in self.record_views}
+        if len(identities) != len(self.record_views) or self.identity in identities:
+            raise ValueError("Record view identities must be distinct")
+        if self.active_view is not None and self.active_view not in identities:
+            raise ValueError("Active record view is unavailable")
+        for view in self.record_views:
+            if view.record_views:
+                raise ValueError("Record views cannot contain additional views")
+            if (
+                self.recipe is None
+                or view.recipe is None
+                or (
+                    self.recipe.source.path != view.recipe.source.path
+                    or not isinstance(self.recipe.options, ObjectOptions)
+                    or not isinstance(view.recipe.options, ObjectOptions)
+                    or view.recipe.options.node_path is None
+                )
+            ):
+                raise ValueError(
+                    "Record views must refer to nodes in their owning source"
+                )
+            view.validate()
         if (
             not self.identity
             or len(self.identity) > 64
@@ -83,11 +121,12 @@ class SessionWorkspace:
     def validate(self) -> None:
         if self.version != 2:
             raise ValueError(f"Unsupported session workspace version: {self.version}")
-        identities = {file.identity for file in self.files}
+        all_files = tuple(f for file in self.files for f in (file, *file.record_views))
+        identities = {file.identity for file in all_files}
         if (
             not self.files
-            or len(identities) != len(self.files)
-            or self.active_id not in identities
+            or len(identities) != len(all_files)
+            or self.active_id not in {file.identity for file in self.files}
         ):
             raise ValueError("Session files must be unique and include the active tab")
         for file in self.files:

@@ -9,6 +9,8 @@ and saved layouts/themes/plot preferences. The completed Phase 9 adds independen
 editor tabs, whole-session workspaces and cross-file profile comparisons.
 Phase 10 adds reference interpretations, lazy image/text previews, conditional
 table styles and gallery/detail Inspect for tables and media/text records.
+Phase 11 is underway: structured JSON/TOML trees and named table views pass
+M11.1; lazy arrays, record mappings and checkpoint inspection remain open.
 See [ROADMAP.md](ROADMAP.md) for delivery gates and [AGENTS.md](AGENTS.md) for
 contributor conventions.
 
@@ -105,9 +107,17 @@ Supported inputs and settings:
   default (comma or tab). Header-only files retain a zero-row schema.
 - **JSON:** an array of flat record objects. **JSONL/NDJSON:** one flat record
   object per nonblank line. All records inform types and fields; missing fields
-  become null. Choose text mode for mixed scalar types. Nested objects/arrays,
-  duplicate keys, wrapped objects, and nonstandard nonfinite values fail with
-  record/line/field context; flatten them into scalar columns first.
+  become null. Choose text mode for mixed scalar types. Explicit flat imports
+  reject nested fields with record/line/field context. Invalid syntax, duplicate
+  keys and nonstandard JSON nonfinite values remain errors.
+- **Structured JSON/TOML:** `.toml` opens its preserved hierarchy; JSON that
+  cannot form a flat table opens the Source browser. Choose **JSON / TOML object**
+  in import settings or **Browse JSON source** to browse a flat JSON source.
+  Expand nodes, select a record array, then **Open records as table view**.
+  The **Record view** selector switches between Source and named tables with
+  independent transformations and selections. Nested record fields require
+  selecting another compatible node; mixed scalar fields can use text mode.
+  Whole-session workspaces save node/view recipes and retain the original tree.
 - **Parquet** (`.parquet`/`.pq`): preserves stored scalar types. Optionally choose
   columns by name, separated by `|`; empty means all columns. Exclude nested
   columns or flatten them before importing. Zero-row schemas are supported.

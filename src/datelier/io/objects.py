@@ -9,6 +9,7 @@ from typing import BinaryIO
 
 import polars as pl
 
+from datelier.core.dataset import Dataset, SourceReference
 from datelier.inspection.objects.types import (
     ObjectChild,
     ObjectNode,
@@ -123,3 +124,22 @@ def load_object(path: Path, options: ObjectOptions | None = None) -> ImportResul
     )
     assert root is not None
     return replace(result, object_root=root)
+
+
+def object_record_view(
+    root: ObjectNode, source: SourceReference, options: ObjectOptions
+) -> ImportResult:
+    """Extract against already imported source data, without rereading its file."""
+    if options.node_path is None:
+        raise ValueError("A record view requires a selected node")
+    table = extract_records(root.at(options.node_path), as_text=options.read_as_text)
+    return ImportResult(
+        Dataset.from_source(table, source),
+        options,
+        (
+            f"Source node {node_label(options.node_path)}; "
+            "source-row IDs are record indices.",
+        ),
+        ImportFormat.OBJECT,
+        root,
+    )

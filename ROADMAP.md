@@ -718,15 +718,18 @@ remain in Phases 12–14.
 
 ## Phase 11 — Structured objects, arrays, and checkpoints
 
+[Verified structured browsing and named views](docs/phase-11.md) pass M11.1.
+M11.2's lazy array storage and rendering gates are next.
+
 - [ ] **Phase complete.** **Entry:** Phase 10 passes. **Exit:** M11.1–M11.4 pass; structure, mappings and source-record identity survive workspace restoration without eager payload loading.
 
 ### M11.1 — Structured JSON and TOML browsing
 
-- [ ] **Deliverables:** expandable object trees, scalar previews and navigation for arbitrary JSON/TOML; retained flat JSON table imports; selected record nodes opened as named table views while the original object remains browsable.
-- [ ] **Entry gate:** file sessions support typed source kinds and named record views; existing JSON correctness and nested-input diagnostics are covered.
-- [ ] **Exit gate:** nested objects/arrays are preserved rather than silently flattened; selected compatible records enter the table pipeline with stable node/record provenance; incompatible/mixed structures produce actionable diagnostics and do not alter other views.
-- [ ] **Verification evidence:** nested/scalar/empty/malformed JSON/TOML fixtures, table extraction and source preservation, native tree/navigation/table workflows, old JSON regressions and workspace node-view restoration.
-- [ ] **Suggested step commits:** `feat: browse structured json and toml` → `feat: inspect object records as table views`.
+- [x] **Deliverables:** expandable object trees, scalar previews and navigation for arbitrary JSON/TOML; retained flat JSON table imports; selected record nodes opened as named table views while the original object remains browsable.
+- [x] **Entry gate:** file sessions support typed source kinds and named record views; existing JSON correctness and nested-input diagnostics are covered.
+- [x] **Exit gate:** nested objects/arrays are preserved rather than silently flattened; selected compatible records enter the table pipeline with stable node/record provenance; incompatible/mixed structures produce actionable diagnostics and do not alter other views.
+- [x] **Verification evidence:** nested/scalar/empty/malformed JSON/TOML fixtures, table extraction and source preservation, native tree/navigation/table workflows, old JSON regressions and workspace node-view restoration.
+- [x] **Suggested step commits:** `feat: browse structured json and toml` → `feat: inspect object records as table views`.
 
 ### M11.2 — Lazy NPY and NPZ array browsing
 

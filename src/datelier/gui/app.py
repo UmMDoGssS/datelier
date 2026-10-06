@@ -15,6 +15,7 @@ from datelier.gui.editor_controls import EditorControls
 from datelier.gui.editor_session import EditorSession
 from datelier.gui.file_session import FileSession
 from datelier.gui.layout import configure_layout
+from datelier.gui.objects.browser import ObjectBrowser, show_view_selector
 from datelier.gui.tabs import EditorTabs
 from datelier.gui.welcome import Welcome
 from datelier.io.loading import DatasetLoader, LoadPhase
@@ -73,6 +74,7 @@ def run_gui(
     controls = EditorControls()
     welcome = Welcome()
     comparisons = ComparisonView()
+    objects = ObjectBrowser()
     evidence = InspectionEvidence()
 
     def guard(callback: Callable[[], None]) -> Callable[[], None]:
@@ -82,7 +84,7 @@ def run_gui(
             except BaseException:
                 # Callback failures can tear the backend down without before_exit.
                 # Owning GPU handles must be released while it is still alive.
-                for file in editor.files:
+                for file in editor.file_sessions:
                     file.reference_view.textures.clear()
                 raise
 
@@ -98,6 +100,9 @@ def run_gui(
     )
 
     def show_table(session: FileSession) -> None:
+        show_view_selector(editor.active)
+        if session.closed:
+            return
         evidence.table_dock_id = imgui.get_window_dock_id()
         if session.loader.active is None:
             welcome.show(editor, session)
@@ -155,7 +160,7 @@ def run_gui(
 
         def show() -> None:
             nonlocal previous
-            session = editor.active
+            session = editor.active.record_views.active(editor.active)
             panel = imgui.internal.get_current_window().name
             switching = previous is None or previous() is not session
             if switching:
@@ -179,6 +184,7 @@ def run_gui(
     configure_layout(
         params,
         {
+            "Source browser": guard(lambda: objects.show(editor.active)),
             "Explore": bind(explore),
             "Compare files": guard(compare_files),
             "Inspect": bind(
@@ -238,7 +244,7 @@ def run_gui(
     params.callbacks.show_menus = guard(lambda: controls.show_menu(editor, params))
 
     def before_exit() -> None:
-        for file in editor.files:
+        for file in editor.file_sessions:
             file.reference_view.textures.clear()
         preferences.save(editor.active, params, sources=editor.source_paths)
 
@@ -274,6 +280,9 @@ def run_gui(
         if session.focus_inspect:
             params.docking_params.focus_dockable_window("Inspect")
             session.focus_inspect = False
+        if session.focus_source:
+            params.docking_params.focus_dockable_window("Source browser")
+            session.focus_source = False
         if (
             session.loader.status.phase == LoadPhase.LOADING
             or editor.workspace_jobs.session_busy

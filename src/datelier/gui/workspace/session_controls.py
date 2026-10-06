@@ -91,7 +91,7 @@ class SessionControls:
                 file.loader.status.phase == LoadPhase.LOADING
                 or file.editor.busy
                 or file.exporter.busy
-                for file in editor.files
+                for file in editor.file_sessions
             )
         )
         if imgui.button("Save workspace"):

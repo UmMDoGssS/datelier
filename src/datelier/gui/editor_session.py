@@ -58,10 +58,18 @@ class EditorSession:
         return next(file for file in self.files if file.identity == self.active_id)
 
     @property
+    def file_sessions(self) -> tuple[FileSession, ...]:
+        return tuple(
+            file
+            for owner in self.files
+            for file in (owner, *owner.record_views.files, *owner.record_views.pending)
+        )
+
+    @property
     def datasets(self) -> dict[str, Dataset]:
         return {
             file.identity: file.loader.active.dataset
-            for file in self.files
+            for file in self.file_sessions
             if file.loader.active is not None
         }
 
@@ -99,7 +107,8 @@ class EditorSession:
                 file.identity,
                 (file.loader.revision, file.loader.generation, file.editor.busy),
             )
-            for file in self.files
+            for owner in self.files
+            for file in (owner, *owner.record_views.files, *owner.record_views.pending)
         )
 
     def save_workspace(
@@ -125,7 +134,7 @@ class EditorSession:
     def recover_source(
         self, identity: str, *, relink: Path | None = None, accept_changed: bool = False
     ) -> None:
-        file = next(file for file in self.files if file.identity == identity)
+        file = next(file for file in self.file_sessions if file.identity == identity)
         if file.recovery is None:
             raise ValueError("This file does not need source recovery")
         self.workspace_jobs.request_recovery(
@@ -255,7 +264,9 @@ class EditorSession:
             self._install_session(restored)
         for result in recovered:
             file = next(
-                file for file in self.files if file.identity == result.file.identity
+                file
+                for file in self.file_sessions
+                if file.identity == result.file.identity
             )
             file.install_session_file(result)
             self._remember_file(file)
@@ -278,10 +289,19 @@ class EditorSession:
         selection = self.comparison_jobs.poll_selection(datasets)
         if selection is not None:
             file = next(
-                file for file in self.files if file.identity == selection.origin.file_id
+                file
+                for file in self.file_sessions
+                if file.identity == selection.origin.file_id
             )
             if file.selection.choose(selection.origin.revision, selection.row_ids):
-                self.activate(file.identity)
+                owner = next(
+                    owner
+                    for owner in self.files
+                    if file is owner or file in owner.record_views.files
+                )
+                if file is not owner:
+                    owner.record_views.active_id = file.identity
+                self.activate(owner.identity)
                 if selection.first_position is not None:
                     file.table.target_row = selection.first_position + 1
                     file.table.jump = True

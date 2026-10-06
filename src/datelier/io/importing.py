@@ -90,3 +90,18 @@ def load_file(
         else CsvOptions(separator="\t" if selected == ImportFormat.TSV else ",")
     )
     return (load_tsv if selected == ImportFormat.TSV else load_csv)(path, settings)
+
+
+def load_inspectable_file(
+    path: Path,
+    options: ImportOptions | None = None,
+    *,
+    format: ImportFormat | None = None,
+) -> ImportResult:
+    """Editor opening preserves flat JSON defaults and browses other JSON shapes."""
+    try:
+        return load_file(path, options, format=format)
+    except ImportFailure:
+        if options is not None or format is not None or path.suffix.lower() != ".json":
+            raise
+        return load_object(path)

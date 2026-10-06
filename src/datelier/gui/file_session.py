@@ -15,6 +15,7 @@ from datelier.gui.data.operations import OperationControls
 from datelier.gui.data.table import TableView
 from datelier.gui.exploration import ExplorationView
 from datelier.gui.inspect.view import InspectView
+from datelier.gui.objects.sessions import RecordViews
 from datelier.gui.plots.controls import PlotControls
 from datelier.gui.references.view import ReferenceView
 from datelier.gui.workspace.controls import WorkspaceControls
@@ -61,7 +62,10 @@ class FileSession:
     closed: bool = False
     recovery: RestoredSessionFile | None = None
     focus_inspect: bool = False
+    focus_source: bool = False
     panel_scroll: dict[str, tuple[float, float]] = field(default_factory=dict)
+    record_views: RecordViews = field(default_factory=RecordViews)
+    view_name: str = ""
 
     @classmethod
     def create(
@@ -114,10 +118,12 @@ class FileSession:
             preferences,
             references=ReferenceJobs(executor),
             inspect=InspectView(executor),
+            record_views=RecordViews(executor),
         )
         return session
 
     def install_restored(self, restored: RestoredWorkspace) -> bool:
+        self.record_views.clear()
         self.focus_inspect = False
         self.loader.abandon()
         self.loader.active = restored.inspection
@@ -145,6 +151,7 @@ class FileSession:
         if self.closed:
             return
         if self.loader.poll():
+            self.record_views.clear()
             assert self.loader.active is not None
             self.recovery = None
             imported = self.loader.active.imported
@@ -166,6 +173,9 @@ class FileSession:
                 ),
             )
             self.focus_inspect = imported.format == ImportFormat.MEDIA
+            self.focus_source = (
+                imported.format == ImportFormat.OBJECT and not self.view_name
+            )
             self.selection.bind(self.loader.active.dataset.revision)
             self.explorer.request(self.loader.active.dataset, self.plots.settings())
         if self.loader.status.phase == LoadPhase.LOADING:
@@ -224,8 +234,10 @@ class FileSession:
             and active.imported.options.text_lines
             else None,
         )
+        self.record_views.poll(self)
 
     def install_session_file(self, result: RestoredSessionFile) -> None:
+        self.view_name = result.file.name
         self.panel_scroll = {name: (x, y) for name, x, y in result.file.panel_scroll}
         if result.restored is not None:
             adjusted = self.install_restored(result.restored)
@@ -242,6 +254,17 @@ class FileSession:
                     LoadPhase.READY, self.loader.status.path, message.strip()
                 )
             self.recovery = None
+            self.record_views.path = result.file.object_path
+            self.record_views.focus_path = result.file.object_focus
+            self.record_views.expanded = set(result.file.object_expanded)
+            for child in result.record_views:
+                view = FileSession.create(
+                    self.preferences, executor=self.record_views.executor
+                )
+                view.identity = child.file.identity
+                view.install_session_file(child)
+                self.record_views.files.append(view)
+            self.record_views.active_id = result.file.active_view
         elif result.message:
             self.recovery = result
             recipe, draft = result.file.recipe, result.file.draft
@@ -259,6 +282,7 @@ class FileSession:
         if self.closed:
             return
         self.closed = True
+        self.record_views.clear()
         self.reference_view.textures.clear()
         self.references.close()
         self.inspect.close()

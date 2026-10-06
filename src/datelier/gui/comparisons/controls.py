@@ -32,11 +32,13 @@ class ComparisonControls:
         )
         mappings = {s.file_id: s for s in self.draft.sources}
         if imgui.collapsing_header("File mappings", imgui.TreeNodeFlags_.default_open):
-            for file in editor.files:
+            for file in editor.file_sessions:
                 imgui.push_id(file.identity)
                 name = (Path(file.controls.path).name or "Welcome").replace(
                     "##", "#\u200b#"
                 )
+                if file.view_name:
+                    name += " · " + file.view_name
                 mapping = mappings.get(file.identity)
                 picked, enabled = imgui.checkbox(name, mapping is not None)
                 columns = (
@@ -84,7 +86,7 @@ class ComparisonControls:
         self.draft = ComparisonSettings(
             tuple(
                 mappings[file.identity]
-                for file in editor.files
+                for file in editor.file_sessions
                 if file.identity in mappings
             ),
             bins,
