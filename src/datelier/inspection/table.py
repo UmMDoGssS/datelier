@@ -6,6 +6,12 @@ import polars as pl
 
 from datelier.core.column_roles import REFERENCE_ROLES
 from datelier.core.dataset import Dataset, DatasetRevision
+from datelier.inspection.presentation import (
+    CellPresentation,
+    NumericBounds,
+    prepare_bounds,
+    prepare_cell,
+)
 from datelier.io.types import ImportResult
 
 PAGE_ROWS = 100
@@ -29,6 +35,7 @@ class PreviewPage:
     row_ids: tuple[int, ...]
     rows: tuple[tuple[str, ...], ...]
     references: tuple[tuple[str | None, ...], ...] = ()
+    cells: tuple[tuple[CellPresentation, ...], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -37,6 +44,7 @@ class Inspection:
     row_count: int
     schema: tuple[ColumnSummary, ...]
     first_page: PreviewPage
+    bounds: tuple[NumericBounds, ...] = ()
 
     @property
     def dataset(self) -> Dataset:
@@ -77,6 +85,12 @@ def prepare_page(
         text = text.replace("\r", "\\r").replace("\n", "\\n").replace("\t", "\\t")
         return text if len(text) <= CELL_CHARACTERS else text[:CELL_CHARACTERS] + "…"
 
+    physical_rows = tuple(
+        table.select(
+            [table.get_column(n).slice(row_start, PAGE_ROWS) for n in columns]
+        ).iter_rows()
+    )
+    roles = tuple(dataset.role(name).role for name in columns)
     return PreviewPage(
         dataset.revision,
         row_start,
@@ -86,14 +100,17 @@ def prepare_page(
         tuple(tuple(cell(value) for value in row) for row in visible.iter_rows()),
         tuple(
             tuple(
-                value
-                if isinstance(value, str) and dataset.role(name).role in REFERENCE_ROLES
-                else None
-                for name, value in zip(columns, row, strict=True)
+                value if isinstance(value, str) and role in REFERENCE_ROLES else None
+                for role, value in zip(roles, row, strict=True)
             )
-            for row in table.select(
-                [table.get_column(n).slice(row_start, PAGE_ROWS) for n in columns]
-            ).iter_rows()
+            for row in physical_rows
+        ),
+        tuple(
+            tuple(
+                prepare_cell(value, role)
+                for role, value in zip(roles, row, strict=True)
+            )
+            for row in physical_rows
         ),
     )
 
@@ -109,4 +126,5 @@ def prepare_inspection(imported: ImportResult) -> Inspection:
             for (name, dtype), count in zip(table.schema.items(), nulls, strict=True)
         ),
         prepare_page(imported.dataset, 0),
+        prepare_bounds(imported.dataset),
     )

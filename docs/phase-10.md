@@ -124,3 +124,21 @@ These are fixture-specific Linux software-OpenGL results.
 Focused preview/session persistence checks: **17 passed**. Milestone full suite:
 **575 passed**; Pyrefly zero errors, Ruff lint/format and diff whitespace pass.
 M10.2 passes. Conditional styles and shared Inspect remain open.
+
+## M10.3 typed presentation foundation
+
+Worker-prepared preview cells carry typed null, numeric/nonfinite and stable
+category metadata independently of their truncated strings. Numeric ranges use
+exact finite min/max and 2nd/98th percentile endpoints, computed during worker
+inspection preparation. Percentile shading clips to that interval and marks
+values below/above it; linear min/max and finite custom ranges are available.
+Constants use a neutral midpoint; nonfinite values have a separate marker.
+Scaled arithmetic avoids overflow for ±1e308. Category hashes use original typed
+values and a bounded palette, stable after sorting/filtering and across processes;
+colors are cues rather than unique encodings of every high-cardinality value.
+
+46 focused presentation/preview/transform/import tests pass; Pyrefly zero errors,
+Ruff lint/format and whitespace pass. Tests cover typed NULL vs literal NULL,
+nonfinite/constant values, percentile/custom extremes, large magnitudes, stable
+category colors and sorted/filtered row identity. GUI/persistence and M10.3
+acceptance are the next slice.
