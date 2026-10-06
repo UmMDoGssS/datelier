@@ -142,3 +142,40 @@ Ruff lint/format and whitespace pass. Tests cover typed NULL vs literal NULL,
 nonfinite/constant values, percentile/custom extremes, large magnitudes, stable
 category colors and sorted/filtered row identity. GUI/persistence and M10.3
 acceptance are the next slice.
+
+## M10.3 native styles and resource acceptance
+
+The table now applies typed conditional backgrounds and interpretation badges.
+Per-view controls expose colors, badges, percentile/linear/custom scales and
+validated custom endpoints. Selected rows retain their linked-selection color
+rather than being obscured by cell shading. Theme-aware alpha keeps original
+values readable. Readable text markers (`<`, `>`, `=`, `(null)`, `!`) replace glyphs
+that visual review found absent in the bundled font. Literal `NULL` remains an
+ordinary value. High-cardinality colors deliberately reuse a bounded palette.
+
+`table_styles_smoke.py --theme dark/light`: **38 frames each**, actual mouse row
+selection, all three scales, sorted source-ID alignment, undo and visible
+null/literal-NULL/nonfinite/category cells. Both final screenshots were visually
+reviewed. Workspace round trips retain custom scale/endpoints and badges;
+legacy views gain defaults. Focused presentation/preview/workspace/preferences
+checks: **27 passed**, with **12 affected checks rerun** after readable markers.
+
+The existing `inspection_smoke.py` now targets the measured visible-row pixel for
+wheel input and waits for reload completion before jumping; the old fixed pixel
+was outside the shortened table, and fixed-frame actions could precede wide-table
+reload completion. Assertions remain real native wheel, aligned last-page IDs,
+bounded rendering and nonblocking reload.
+
+[Million-row report](evidence/phase10/table-million.json): **1,000,000 × 8**,
+180 frames; startup **309.49 ms**, live reload **342.06 ms**, frame p95 **15.09 ms**,
+wheel-to-prepared **37.41 ms**, peak RSS **774.11 MiB**, at most **five rendered
+rows**. [Wide report](evidence/phase10/table-wide.json): **100,000 × 66**, 220 frames;
+startup **1,005.11 ms**, reload **703.88 ms**, p95 **19.05 ms**, wheel **32.31 ms**,
+peak RSS **710.64 MiB**, five rendered rows, column window 48. Both preserve
+<=33 ms frame p95 and <=1 GiB fixture RSS; no table-wide calculation enters frames.
+These are existing CSV fixture/resource directions, not capacity guarantees.
+
+Pyrefly, Ruff lint/format and diff whitespace pass. M10.3 passes with its full-suite
+check; direct sources and shared Inspect remain open.
+
+M10.3 final full suite: **578 passed** after the marker/readability changes.

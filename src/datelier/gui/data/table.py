@@ -6,6 +6,7 @@ from math import ceil
 from imgui_bundle import imgui
 
 from datelier.core.column_roles import ColumnRole
+from datelier.gui.data.presentation import PresentationControls, draw_style
 from datelier.gui.references.view import ReferenceView
 from datelier.inspection.preview import PreviewCache
 from datelier.inspection.references.jobs import ReferenceJobs
@@ -15,6 +16,7 @@ from datelier.plotting.selection import LinkedSelection
 
 @dataclass
 class TableView:
+    presentation: PresentationControls = field(default_factory=PresentationControls)
     column_start: int = 0
     target_row: int = 1
     jump: bool = False
@@ -45,6 +47,7 @@ class TableView:
             return
         if references is not None and reference_view is not None:
             reference_view.controls(references)
+        self.presentation.show()
         count = len(inspection.schema)
         if imgui.button("Previous columns"):
             self.column_start = max(0, self.column_start - PAGE_COLUMNS)
@@ -81,12 +84,25 @@ class TableView:
         if not imgui.begin_table("data", len(columns) + 1, flags, imgui.ImVec2(-1, -1)):
             return
         imgui.table_setup_column("Source row", imgui.TableColumnFlags_.width_fixed, 95)
+        headers = []
         for column in columns:
-            imgui.table_setup_column(
-                column.name, imgui.TableColumnFlags_.width_fixed, 130
+            info = inspection.dataset.role(column.name)
+            label = column.name + (
+                f" [{info.role}]" if self.presentation.settings.badges else ""
             )
+            headers.append(label)
+            imgui.table_setup_column(label, imgui.TableColumnFlags_.width_fixed, 160)
+        bounds = {b.column: b for b in inspection.bounds}
         imgui.table_setup_scroll_freeze(1, 1)
-        imgui.table_headers_row()
+        imgui.table_next_row(imgui.TableRowFlags_.headers)
+        imgui.table_set_column_index(0)
+        imgui.table_header("Source row")
+        for index, (column, label) in enumerate(zip(columns, headers, strict=True), 1):
+            imgui.table_set_column_index(index)
+            imgui.table_header(label)
+            if imgui.is_item_hovered():
+                info = inspection.dataset.role(column.name)
+                imgui.set_tooltip(f"{column.dtype}; {info.role}. {info.reason}")
         # Quantized padding keeps row geometry aligned at million-row scroll
         # offsets, where ImGui's float coordinates lose single-pixel precision.
         content_height = (
@@ -153,6 +169,15 @@ class TableView:
                                     self.first_row_pixel = pixel
                                     self.first_row_id = row_id
                         else:
+                            if page and prepared and page.cells and column > 0:
+                                marker = draw_style(
+                                    page.cells[offset][column - 1],
+                                    bounds.get(columns[column - 1].name),
+                                    self.presentation.settings,
+                                    selected,
+                                )
+                                if marker:
+                                    value = f"{marker} {value}"
                             reference = (
                                 page.references[offset][column - 1]
                                 if page and prepared and page.references and column > 0

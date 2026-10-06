@@ -110,7 +110,13 @@ def main() -> None:
                     assert active is not None and active.dataset.source.path == newer
                     if not session.loader.retired_running:
                         observed["stale_ignored"] = True
-            elif evidence.frames == 60:
+            elif (
+                args.scenario == "preview"
+                and evidence.frames >= 60
+                and scroll_started is None
+                and not observed.get("row_identity_verified")
+                and reload_started is None
+            ):
                 session.table.target_row = args.rows - 10
                 session.table.jump = True
                 if args.numeric_columns > 16:
@@ -137,10 +143,17 @@ def main() -> None:
                 assert page.row_ids[offset] == session.table.last_visible_row
                 observed["row_identity_verified"] = True
                 scroll_started = None
-            if args.scenario == "preview" and evidence.frames == 100:
+            if (
+                args.scenario == "preview"
+                and evidence.frames >= 100
+                and observed.get("row_identity_verified")
+                and not observed.get("wheel_requested")
+            ):
+                observed["wheel_requested"] = True
                 wheel_row = session.table.first_visible_row
                 wheel_started = perf_counter()
-                imgui.get_io().add_mouse_pos_event(800, 400)
+                assert session.table.first_row_id is not None
+                imgui.get_io().add_mouse_pos_event(*session.table.first_row_pixel)
                 imgui.get_io().add_mouse_wheel_event(0, 5)
             elif (
                 wheel_started is not None

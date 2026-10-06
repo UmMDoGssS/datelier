@@ -29,7 +29,7 @@ def test_typed_null_differs_from_literal_null_and_nonfinite() -> None:
     cells = data.first_page.cells
     assert data.first_page.rows[0][1] == data.first_page.rows[1][1] == "NULL"
     assert cells[0][1].is_null and not cells[1][1].is_null
-    assert cell_style(cells[0][1], None, TablePresentation()).marker == "∅"
+    assert cell_style(cells[0][1], None, TablePresentation()).marker == "(null)"
     assert not cell_style(cells[1][1], None, TablePresentation()).marker
     assert cells[2][0].nonfinite and cells[3][0].nonfinite
     assert cell_style(cells[2][0], data.bounds[0], TablePresentation()).marker == "!"
@@ -46,13 +46,13 @@ def test_percentile_linear_custom_constant_and_overflow_ranges() -> None:
     ) == (0, 100, 2, 98)
     first, last = data.first_page.cells[0][0], data.first_page.cells[99][0]
     settings = TablePresentation()
-    assert cell_style(first, bounds, settings).marker == "↓"
-    assert cell_style(last, bounds, settings).marker == "↑"
+    assert cell_style(first, bounds, settings).marker == "<"
+    assert cell_style(last, bounds, settings).marker == ">"
     assert not cell_style(
         first, bounds, replace(settings, scale=NumericScale.LINEAR)
     ).marker
     custom = replace(settings, scale=NumericScale.CUSTOM, minimum=10, maximum=20)
-    assert cell_style(first, bounds, custom).marker == "↓"
+    assert cell_style(first, bounds, custom).marker == "<"
     constant = inspect(pl.DataFrame({"x": [5.0, 5.0]}))
     assert (
         cell_style(constant.first_page.cells[0][0], constant.bounds[0], settings).marker

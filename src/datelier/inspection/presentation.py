@@ -106,7 +106,7 @@ def cell_style(
     if not settings.enabled:
         return CellStyle()
     if cell.is_null:
-        return CellStyle((0.7, 0.4, 0.15), "∅")
+        return CellStyle((0.7, 0.4, 0.15), "(null)")
     if cell.nonfinite:
         return CellStyle((0.55, 0.45, 0.55), "!")
     if cell.category is not None:
@@ -136,5 +136,5 @@ def cell_style(
         if high > low
         else 0.5
     )
-    marker = "↓" if value < lo else "↑" if value > hi else "=" if lo == hi else ""
+    marker = "<" if value < lo else ">" if value > hi else "=" if lo == hi else ""
     return CellStyle((0.2 + 0.65 * position, 0.35, 0.85 - 0.65 * position), marker)

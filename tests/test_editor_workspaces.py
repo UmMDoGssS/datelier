@@ -270,6 +270,7 @@ def test_changed_source_requires_acceptance_and_reports_view_selection_adjustmen
 def test_reference_controls_restore_without_payloads(tmp_path: Path) -> None:
     from dataclasses import replace
 
+    from datelier.inspection.presentation import NumericScale, TablePresentation
     from datelier.inspection.references.types import ReferenceMapping
     from datelier.workspace.codec import decode_record, encode
     from datelier.workspace.types import WorkspaceViews
@@ -292,18 +293,24 @@ def test_reference_controls_restore_without_payloads(tmp_path: Path) -> None:
         )
         file.references.configure(settings)
         file.reference_view.thumbnails = False
+        style = TablePresentation(
+            scale=NumericScale.CUSTOM, minimum=-2, maximum=7, badges=False
+        )
+        file.table.presentation.settings = style
         editor.save_workspace(path)
         wait(editor)
         editor.open_workspace(path)
         wait(editor)
         assert editor.active.references.settings == settings
         assert not editor.active.reference_view.thumbnails
+        assert editor.active.table.presentation.settings == style
         assert not editor.active.references.previews
         assert not editor.active.analysis.jobs.results
         legacy = encode(WorkspaceViews())
         assert isinstance(legacy, dict)
         legacy.pop("references")
         legacy.pop("thumbnails")
+        legacy.pop("presentation")
         decoded = decode_record(WorkspaceViews, legacy)
         assert decoded.references.roots == () and decoded.thumbnails
     finally:

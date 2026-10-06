@@ -692,11 +692,11 @@ comparisons. Phase 10 is the next outstanding phase.
 
 ### M10.3 — Conditional table presentation
 
-- [ ] **Deliverables:** prepared typed cell presentation metadata, numeric blue-to-red shading with percentile/linear/custom scales and marked extremes, stable categorical colors, emphasized nulls, interpretation badges and saved per-view controls.
-- [ ] **Entry gate:** M10.2 passes; presentation uses prepared values/roles rather than parsing rendered strings or computing table-wide statistics in frames.
-- [ ] **Exit gate:** nulls differ from literal NULL strings; constant/nonfinite and high-cardinality columns have readable outcomes; selection remains distinguishable; theme changes, sort/filter/undo and workspace restoration retain correct styles and bounded rendering.
-- [ ] **Verification evidence:** typed-null/category/numeric-extreme fixtures, palette/scale behavior, native light/dark and linked-selection checks, virtualization/resource gates and preference/workspace round trips.
-- [ ] **Suggested step commits:** `feat: prepare typed conditional cell styles` → `feat: color table previews by interpretation`.
+- [x] **Deliverables:** prepared typed cell presentation metadata, numeric blue-to-red shading with percentile/linear/custom scales and marked extremes, stable categorical colors, emphasized nulls, interpretation badges and saved per-view controls.
+- [x] **Entry gate:** M10.2 passes; presentation uses prepared values/roles rather than parsing rendered strings or computing table-wide statistics in frames.
+- [x] **Exit gate:** nulls differ from literal NULL strings; constant/nonfinite and high-cardinality columns have readable outcomes; selection remains distinguishable; theme changes, sort/filter/undo and workspace restoration retain correct styles and bounded rendering.
+- [x] **Verification evidence:** typed-null/category/numeric-extreme fixtures, palette/scale behavior, native light/dark and linked-selection checks, virtualization/resource gates and preference/workspace round trips.
+- [x] **Suggested step commits:** `feat: prepare typed conditional cell styles` → `feat: color table previews by interpretation`.
 
 ### M10.4 — Shared Inspect view and direct media sources
 

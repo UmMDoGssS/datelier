@@ -178,6 +178,7 @@ def capture_views(session: GuiSession) -> WorkspaceViews:
         view.scatter3d_area.height,
         session.references.settings,
         session.reference_view.thumbnails,
+        session.table.presentation.settings,
     )
 
 
@@ -264,3 +265,4 @@ def restore_view_settings(session: GuiSession, saved: WorkspaceViews) -> None:
     session.table.jump = True
     session.references.configure(saved.references)
     session.reference_view.thumbnails = saved.thumbnails
+    session.table.presentation.settings = saved.presentation
