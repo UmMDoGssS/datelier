@@ -279,6 +279,7 @@ class ImageView:
 
     def close(self) -> None:
         self.canvas.clear()
+        self.overlay.bind(None)
         self.jobs.close()
         self.profile_jobs.close()
         self.annotations.close()

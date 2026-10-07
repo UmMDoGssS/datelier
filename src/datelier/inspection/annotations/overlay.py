@@ -23,6 +23,7 @@ class OverlaySettings:
     labels: bool = True
     scores: bool = True
     limit: int = 2000
+    overlapping_labels: bool = False
 
     def validate(self) -> None:
         if self.minimum_score is not None and not isfinite(self.minimum_score):

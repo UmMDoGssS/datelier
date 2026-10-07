@@ -735,3 +735,54 @@ fresh-process restore pass **1,305/291 frames**, p95 **12.50/12.42 ms**; source
 hashes remain unchanged. See [regression evidence](evidence/phase13/box-overlay-link-regression.json).
 Final comparison and larger-overlay resource budgets above were established
 before their measurements; those gates remain open.
+
+### Dense overlays and comparison resources (2026-10-07)
+
+The initial 2,200-box native fixture exceeded the 33 ms frame budget: drawing every
+class/score label reached **59.96 ms** and concealed the image. Overlap avoidance
+alone reached **37.27 ms**. Screen label occupancy now retains non-overlapping
+labels with selected-label priority, a shown/available count and an explicit
+persisted Show overlapping box labels control. All boxes and original class/score
+records remain available. Cached viewport scenes avoid rebuilding geometry and
+label placement every frame; source/revision/record, viewport/bounds, filters,
+selection, font identity/metrics and alpha changes invalidate them. Closing clears
+the scene. GUI rendering and scene layout have separate, bounded responsibilities.
+Forcing every overlapping label remains available and can be slower in dense views.
+
+`scripts/box_overlay_resources.py` now passes **650 native frames**, including
+120 steady frames at the default 2,000-box limit and 120 with all **2,200 boxes**
+after a native limit increase. Class and score labels stay enabled; automatic
+overlap avoidance yields **30.71 ms p95**, within the established 33 ms target.
+Native overlapping-label on/off choices, count notices, retained texture bound
+of **1 MiB** and unchanged source hashes pass. The final screenshot was visually
+reviewed. Native zoom/pan/source-toggle/pick/profile and fresh-process restore
+regressions pass **1,305/291 frames**, p95 **12.75/12.68 ms**, with geometry and
+original source-row identity intact. Evidence: [large overlay](evidence/phase13/box-overlay-large-native.json)
+and [cache regression](evidence/phase13/box-overlay-cache-regression.json).
+
+`scripts/benchmark_image_comparisons.py` runs each case in a fresh process. All
+cases compare two independent **100×256² RGB collections**, include fixture
+creation in peak RSS, preserve weighted red means **49.5/99.5** and use common
+**0–149** color bounds with normalized proportions:
+
+| Sources / pixels | Time | RSS increase | Peak temporary storage |
+| --- | ---: | ---: | ---: |
+| Files / exact | 5.65 s | 19.05 MiB | 196,736 bytes, one image |
+| Files / sampled | 0.82 s | 21.11 MiB | 196,736 bytes, one image |
+| Compressed arrays / exact | 5.34 s | 48.84 MiB | 39,321,856 bytes |
+| Compressed arrays / sampled | 0.60 s | 51.35 MiB | 39,321,856 bytes |
+
+Exact commands profile **6,553,600 pixels per source**, sampled commands
+**102,400 per source**, with explicit seeded provenance. File cases preserve
+separate corrupt/missing outcomes and retain zero decoded bytes between records.
+Each compressed member extracts once across both global passes despite its 1 MiB
+cache budget; both release to zero retained bytes. All temporary paths disappear
+after close and source hashes remain unchanged. The 20 s/128 MiB comparison
+budgets pass. Four `image-comparison-*-resources.json` reports retain raw measures.
+
+Focused layout/annotation/profile/workspace/comparison checks: **28 passed**,
+including crossing/touching screen cells, failed reservation isolation and new/
+legacy overlap-control persistence. Pyrefly: **zero errors**, one existing
+suppression; Ruff lint/format (**517 Python files**) and diff whitespace pass.
+This hardening/resource step passes; final M13.4/full-phase suite acceptance
+remains open until its final verification.

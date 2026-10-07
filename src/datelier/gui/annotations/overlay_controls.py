@@ -41,6 +41,9 @@ def overlay_controls(
                 settings = replace(settings, sources=tuple(sources))
             imgui.pop_id()
         _, labels = imgui.checkbox("Class labels", settings.labels)
+        _, overlapping = imgui.checkbox(
+            "Show overlapping box labels", settings.overlapping_labels
+        )
         imgui.same_line()
         _, scores = imgui.checkbox("Confidence labels", settings.scores)
         _, unscored = imgui.checkbox(
@@ -62,6 +65,7 @@ def overlay_controls(
         settings = replace(
             settings,
             labels=labels,
+            overlapping_labels=overlapping,
             scores=scores,
             include_unscored=unscored,
             minimum_score=value if threshold else None,

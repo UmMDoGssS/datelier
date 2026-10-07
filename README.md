@@ -330,6 +330,8 @@ box limit, which can be raised. **Detection annotations → Profiles → Prepare
 annotation profiles** explicitly prepares class counts, original size/aspect
 distributions, quality outcomes and linked box rows. Class-count rows select
 their matching image records; box rows select a particular annotation.
+Dense views avoid overlapping labels and report how many are shown. Zoom for more
+labels or enable **Show overlapping box labels**; selected labels have priority.
 
 Workspaces preserve these controls, reference mappings and record manifests;
 decoded previews remain session caches. Missing records restore with diagnostics.
