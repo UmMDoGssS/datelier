@@ -1,15 +1,17 @@
 """Array controls dispatch jobs; rendering consumes only prepared bounded data."""
 
-import math
 from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING
 
-from imgui_bundle import imgui, implot
+from imgui_bundle import imgui
 
+from datelier.gui.arrays.plots import plot_slice
+from datelier.gui.heatmaps import HeatmapControls
 from datelier.inspection.arrays.slices import PreparedSlice, SliceSettings
 
 if TYPE_CHECKING:
     from datelier.gui.file_session import FileSession
+    from datelier.inspection.arrays.jobs import ArrayJobs
 
 
 @dataclass
@@ -18,6 +20,7 @@ class ArrayView:
     prepare_pixel: tuple[float, float] = (0, 0)
     raw_columns: dict[str, int] = field(default_factory=dict)
     plotted: dict[str, SliceSettings] = field(default_factory=dict)
+    heatmap_controls: dict[str, HeatmapControls] = field(default_factory=dict)
 
     def show(self, owner: FileSession) -> None:
         jobs = owner.arrays
@@ -116,6 +119,12 @@ class ArrayView:
             field=selected_field,
             component=component,
         )
+        if (
+            len(axes) == 2
+            and member.dtype is not None
+            and member.dtype.kind in "biufcV"
+        ):
+            self.configure_heatmap(owner.identity, jobs)
         imgui.begin_disabled(not member.usable)
         if imgui.button("Prepare slice"):
             try:
@@ -146,6 +155,16 @@ class ArrayView:
         self.show_prepared(owner)
         imgui.pop_id()
 
+    def configure_heatmap(self, identity: str, jobs: ArrayJobs) -> None:
+        controls = self.heatmap_controls.setdefault(identity, HeatmapControls())
+        bounds = jobs.active.finite_range if jobs.active is not None else None
+        value_range, colormap = controls.show(
+            jobs.settings.value_range, jobs.settings.colormap, bounds
+        )
+        jobs.settings = replace(
+            jobs.settings, value_range=value_range, colormap=colormap
+        )
+
     def show_prepared(self, owner: FileSession) -> None:
         jobs = owner.arrays
         self.render_prepared(owner.identity, jobs.active, jobs.settings)
@@ -172,7 +191,8 @@ class ArrayView:
                 )
             if active.nonfinite:
                 imgui.text_wrapped(
-                    f"{active.nonfinite:,} nonfinite values; gray cells/gaps. "
+                    f"{active.nonfinite:,} nonfinite values; "
+                    "magenta heatmap cells and vector gaps. "
                     "Raw values are shown below."
                 )
             if active.diagnostic:
@@ -181,76 +201,9 @@ class ArrayView:
             self.show_raw(identity, active)
 
     def _plot(self, data: PreparedSlice, identity: str) -> None:
-        if data.numeric is None or data.numeric.size == 0 or not data.axes:
-            return
-        imgui.text_wrapped(
-            f"Finite range: {data.finite_range}. Plot conversion uses float64."
-        )
-        if len(data.axes) == 1:
-            if self.plotted.get(identity) != data.settings:
-                implot.set_next_axes_to_fit()
-            if implot.begin_plot("Vector values", (-1, 230)):
-                implot.setup_axes(f"Axis {data.axes[0]} index", "Value")
-                implot.plot_line("Values", data.numeric, xstart=float(data.starts[0]))
-                self.plot_frames += 1
-                implot.end_plot()
-                self.plotted[identity] = data.settings
-        elif data.heatmap is not None:
-            rows, columns = data.raw.shape
-            if not rows or not columns:
-                return
-            if implot.begin_plot("Matrix heatmap", (-1, 230), implot.Flags_.no_legend):
-                row, column = data.starts
-                implot.setup_axes(
-                    f"Axis {data.axes[1]} index", f"Axis {data.axes[0]} index"
-                )
-                implot.setup_axes_limits(
-                    column,
-                    column + columns,
-                    row,
-                    row + rows,
-                    imgui.Cond_.always
-                    if self.plotted.get(identity) != data.settings
-                    else imgui.Cond_.once,
-                )
-                implot.push_colormap(implot.Colormap_.viridis)
-                implot.plot_heatmap(
-                    "Normalized colors",
-                    data.heatmap,
-                    0,
-                    1,
-                    "",
-                    implot.Point(column, row),
-                    implot.Point(column + columns, row + rows),
-                )
-                implot.pop_colormap()
-                implot.push_plot_clip_rect()
-                for y, start, count in data.nonfinite_spans:
-                    a = implot.plot_to_pixels(float(column + start), float(row + y))
-                    b = implot.plot_to_pixels(
-                        float(column + start + count), float(row + y + 1)
-                    )
-                    implot.get_plot_draw_list().add_rect_filled(
-                        imgui.ImVec2(min(a.x, b.x), min(a.y, b.y)),
-                        imgui.ImVec2(max(a.x, b.x), max(a.y, b.y)),
-                        0xFF777777,
-                    )
-                implot.pop_plot_clip_rect()
-                if implot.is_plot_hovered():
-                    mouse = implot.get_plot_mouse_pos()
-                    y, x = math.floor(mouse.y) - row, math.floor(mouse.x) - column
-                    if 0 <= y < rows and 0 <= x < columns:
-                        indices = list(
-                            data.settings.fixed or (0,) * len(data.source_shape)
-                        )
-                        indices[data.axes[0]] = row + y
-                        indices[data.axes[1]] = column + x
-                        imgui.set_tooltip(
-                            f"Source index {tuple(indices)}: {data.cells[y][x]}"
-                        )
-                self.plot_frames += 1
-                implot.end_plot()
-                self.plotted[identity] = data.settings
+        if plot_slice(data, self.plotted.get(identity) != data.settings):
+            self.plot_frames += 1
+            self.plotted[identity] = data.settings
 
     def show_raw(self, identity: str, data: PreparedSlice) -> None:
         imgui.text_wrapped("Raw values (cells truncate at 256 characters).")

@@ -121,8 +121,9 @@ Inspect now shares Explore's tab row with Profiles, Relationships and Correlatio
 direct media opening and saved-session restoration checks.
 Phase 13 is in progress: M13.1 passes original-pixel file/array Inspect, explicit
 exact/sampled collection profiles, saved controls and measured resource gates;
-[docs/phase-13.md](docs/phase-13.md) records evidence. Numeric heatmaps,
-annotations and comparisons remain open in M13.2–M13.4.
+[docs/phase-13.md](docs/phase-13.md) records evidence. M13.2 also passes numeric
+heatmap channels/slices, display-only colormaps/ranges, exact values and native
+saved-record restoration. Annotations and comparisons remain open in M13.3–M13.4.
 Phase 14 remains open.
 Phase 8 investigations do not block this approved sequence. Existing v1 evidence
 and unfinished Titanic usability gates retain their status.

@@ -143,7 +143,10 @@ Supported inputs and settings:
 - **NumPy** (`.npy`/`.npz`): opens member names, shapes, dtypes and storage sizes
   before reading values. In Source browser, choose the member, display axes,
   fixed coordinates and window, then **Prepare slice**. Vector plots, matrix
-  heatmaps and raw values share exact source indices. Compressed members use
+  heatmaps and raw values share exact source indices. **Heatmap colors** selects
+  a linear ramp; **Heatmap display range** uses automatic finite window bounds
+  or explicitly applied limits. Prepare the slice to apply display changes;
+  raw values and finite bounds remain independent. Compressed members use
   reusable temporary storage; disk retention is editable. Workspaces save
   locators/settings and reopen metadata without preparing payloads. Object dtypes
   requiring pickle remain metadata-only with a diagnostic.
@@ -293,12 +296,30 @@ row ranges, linked selection or reproducible seeded samples and a primary field.
 Select a source-row label to link its table position. Sorting retains sampled
 source identity, and each file keeps its own selection and Inspect settings.
 
+Focused image Inspect reads original pixels with Fit/1:1, pointer wheel zoom,
+drag-to-pan, channel controls and exact hover values. Overview strides are
+labeled; zooming exposes every source pixel. Confirmed Numeric heatmap mappings
+use the same canvas with **Heatmap channel**, fixed-axis **Heatmap slice**,
+linear colormaps and display-only ranges. Automatic bounds describe the prepared
+window, constants use the ramp midpoint, and nonfinite values are magenta.
+Hover retains original dtype values and full array coordinates.
+
+In **Explore → Profiles**, choose an Image field and **Prepare image profile**,
+or **Profile mapped images** for a confirmed image array. Image-only folders
+route to these tools. Exact original pixels are the default; **Image collection
+scope** offers current rows, ranges, linked selections, seeded records and
+separately seeded pixels. Statistics, Dimensions, Colors and Record outcomes
+retain scope/provenance and missing/corrupt diagnostics. Outcome rows link back
+to Inspect. Collection commands never run implicitly during load or restore.
+
 Workspaces preserve these controls, reference mappings and record manifests;
 decoded previews remain session caches. Missing records restore with diagnostics.
 Exports and workspace writes preserve collection members as well as individual
-source files. Text statistics and token spans are available in Phase 12; richer
-image tools and audio playback follow in the later authorized phases. See [Phase 10 evidence](docs/phase-10.md)
-for native checks, restoration and fixture-specific resource measurements.
+source files. Image/heatmap controls and collection recipes are saved alongside
+text tools. Detection annotations and audio playback remain in the authorized
+sequence. See [Phase 10 evidence](docs/phase-10.md) and
+[Phase 13 evidence](docs/phase-13.md) for native checks, restoration and
+fixture-specific resource measurements.
 
 ## Local text tokenization, training, inspection and comparisons
 

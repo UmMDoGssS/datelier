@@ -811,7 +811,8 @@ inspection in Explore → Inspect alongside Profiles, Relationships and Correlat
 [Delivery and evidence](docs/phase-13.md) record the verified original-pixel
 foundation, native focused image Inspect and explicit image collection profiles,
 including array-backed records, saved controls and measured resources. M13.1
-passes; heatmaps, annotations and comparisons remain outstanding in M13.2–M13.4.
+passes alongside M13.2 numeric heatmap controls and restoration; annotations and
+comparisons remain outstanding in M13.3–M13.4.
 
 - [ ] **Phase complete.** **Entry:** Phase 12 passes. **Exit:** M13.1–M13.4 pass; images, numeric heatmaps and box overlays retain correct values, provenance and geometry.
 
@@ -825,11 +826,11 @@ passes; heatmaps, annotations and comparisons remain outstanding in M13.2–M13.
 
 ### M13.2 — Numeric heatmap inspection
 
-- [ ] **Deliverables:** numeric image-like array inspection with selectable colormaps/ranges, channels/slices, nonfinite indicators and raw-value readouts; display normalization independent of source values/statistics.
+- [x] **Deliverables:** numeric image-like array inspection with selectable colormaps/ranges, channels/slices, nonfinite indicators and raw-value readouts; display normalization independent of source values/statistics.
 - [x] **Entry gate:** M13.1 passes; Phase 11's array slicing and image navigation share bounded, raw-preserving scalar normalization without treating arbitrary numeric arrays as encoded RGB automatically.
-- [ ] **Exit gate:** signed/float/constant/nonfinite arrays show correct ranges and raw values; changing display normalization does not mutate data or statistical results; mapped record identity remains correct.
-- [ ] **Verification evidence:** known-value heatmaps, negative/constant/nonfinite fixtures, slice/readout correctness, native colormap/range navigation and restored settings.
-- [ ] **Suggested step commits:** `feat: inspect numeric image heatmaps` → `feat: configure heatmap display ranges`.
+- [x] **Exit gate:** signed/float/constant/nonfinite arrays show correct ranges and raw values; changing display normalization does not mutate data or statistical results; mapped record identity remains correct.
+- [x] **Verification evidence:** known-value heatmaps, negative/constant/nonfinite fixtures, slice/readout correctness, native colormap/range navigation and restored settings in [Phase 13 evidence](docs/phase-13.md).
+- [x] **Suggested step commits:** `feat: inspect numeric image heatmaps` → `feat: configure heatmap display ranges` (delivered in verified foundation/UI slices).
 
 ### M13.3 — Detection annotation adapters and image association
 

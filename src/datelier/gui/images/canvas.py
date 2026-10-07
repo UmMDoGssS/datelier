@@ -91,7 +91,35 @@ class ImageCanvas:
                     )
                     imgui.begin_tooltip()
                     imgui.text(f"Pixel ({ix}, {iy}) · source ({sx}, {sy})")
-                    imgui.text_unformatted(f"{', '.join(metadata.channels)}: {values}")
+                    if metadata.mode == "Numeric":
+                        imgui.text_unformatted(
+                            f"Channel {prepared.display.channel}: {values}"
+                        )
+                        mapping, catalog = (
+                            prepared.locator.mapping,
+                            prepared.locator.catalog,
+                        )
+                        if mapping is not None and catalog is not None:
+                            shape = catalog.member(mapping.member).shape
+                            indices = list(
+                                prepared.display.fixed
+                                or mapping.fixed
+                                or (0,) * len(shape)
+                            )
+                            indices[mapping.record_axis] = (
+                                prepared.locator.source_index or 0
+                            )
+                            indices[mapping.display_axes[0]] = iy
+                            indices[mapping.display_axes[1]] = ix
+                            if mapping.channel_axis is not None:
+                                indices[mapping.channel_axis] = (
+                                    prepared.display.channel or 0
+                                )
+                            imgui.text(f"Source index {tuple(indices)}")
+                    else:
+                        imgui.text_unformatted(
+                            f"{', '.join(metadata.channels)}: {values}"
+                        )
                     if window.step > 1:
                         imgui.text(
                             f"Overview: every {window.step} pixels. "

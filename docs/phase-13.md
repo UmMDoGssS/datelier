@@ -2,7 +2,7 @@
 
 Phase 13 is in progress. Its scope is M13.1–M13.4 in [ROADMAP.md](../ROADMAP.md#phase-13--images-heatmaps-and-detection-annotations).
 Phase 12 and the Inspect navigation follow-up are complete; the worktree was
-clean at entry (`6cd56e2`). M13.1 passes; M13.2–M13.4 remain open.
+clean at entry (`6cd56e2`). M13.1–M13.2 pass; M13.3–M13.4 remain open.
 
 ## Delivery steps
 
@@ -290,3 +290,49 @@ preparation, fresh-process idle metadata restore, source preservation and cleanu
 [Report](evidence/phase13/heatmap-foundation-native.json) records the run.
 M13.2 entry passes. New native heatmap channel/slice/colormap/range controls and
 its exit/restoration gates remain open.
+
+### Numeric heatmap controls and M13.2 acceptance (2026-10-07)
+
+Explore → Inspect routes confirmed Numeric heatmap records to the original-pixel
+canvas, with channel indices, fixed-axis slice positions, four linear colormaps,
+automatic prepared-window bounds or explicitly applied limits, Fit/1:1,
+pointer-centred zoom and exact raw hover values/full source coordinates.
+Nonfinite scalars are opaque magenta. Display choices retire obsolete worker
+windows, preserve original dtype/data and leave statistical bounds unchanged.
+Source array slices expose the same colors/range controls; explicit Prepare
+slice applies them. Native array rendering uses the same linear ramp stops as
+worker-prepared RGBA pixels. Vector/raw views remain available.
+
+Source-coordinate, window, raw/range and legacy workspace checks pass. A
+2048×3072 float64 NPY fixture under 1 MiB CPU retention produces a labeled
+stride-4 1024×1024 overview with **786,432 retained bytes**, then retrieves the
+previously unsampled exact pixel as a one-pixel window. The source memmap opens
+without member extraction or image-file decoding. Focused heatmap/image/array/
+checkpoint/workspace subset: **46 passed in 3.92 s**. Full suite: **806 passed in 20.93 s**
+(three existing checkpoint warnings). Pyrefly: **zero errors**, one existing
+suppression; Ruff lint/format (**455 Python files**) and diff whitespace pass.
+
+`scripts/heatmap_smoke.py --output docs/evidence/phase13` uses a saved docked
+full-panel layout as its fixture. Native inputs choose channel **1**, depth
+**1**, blue/white/red colors and display **−25…25** independently of raw finite
+bounds **−47…90**; Fit, hover (**−10** at **(10,10)**) and wheel zoom pass. Three
+NaN/±Inf values are marked. Sorted source row **1** keeps supporting label **1**.
+Native save/reopen passes **432/80 frames**, p95 **11.10/11.41 ms**, with
+**18,432 CPU / 6,144 GPU bytes** retained. Fresh-process reopening reads metadata
+only, then native **Table preview → Prepare saved array records** restores the
+scalar table/history and saved display recipe. Pixel preparation follows
+focused visibility; no collection profile runs. Source hashes remain unchanged.
+[Report](evidence/phase13/heatmap-native.json),
+[native heatmap](evidence/phase13/heatmap-inspect.png) and
+[restored heatmap](evidence/phase13/heatmap-restored.png) record acceptance; both
+screenshots were visually reviewed.
+
+`scripts/array_views_smoke.py` still passes native fixed-index/explicit slice and
+fresh-process metadata restoration (**78/35 frames**, p95 **14.19/13.46 ms**).
+[Array regression report](evidence/phase13/heatmap-array-native.json) records
+source preservation and cleanup. README now documents image collection profiles
+and numeric display controls. The existing native encoded-image Inspect regression
+also passes **212/80 frames**, p95 **12.82/17.93 ms**, with Fit/zoom/pan, channel
+selection, raw readouts, saved settings and source hashes verified.
+M13.2 deliverable, correctness and native
+restoration exits pass; M13.3–M13.4 remain open.

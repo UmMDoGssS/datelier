@@ -205,3 +205,53 @@ def test_slice_display_and_saved_recipes_preserve_statistics(tmp_path: Path) -> 
         assert decode_record(ImageDisplay, legacy) == ImageDisplay()
     finally:
         arrays.close()
+
+
+def test_numeric_window_limits_retention_without_losing_original_access(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "large.npy"
+    raw = np.lib.format.open_memmap(
+        path, mode="w+", dtype=np.float64, shape=(1, 2048, 3072)
+    )
+    values = np.arange(3072, dtype=np.float64)
+    for row in range(2048):
+        raw[0, row] = values - row
+    raw.flush()
+    del raw
+    catalog = inspect_arrays(path)
+    mapping = ArrayRecordMapping("$", layout=ArrayLayout.HEATMAP, display_axes=(1, 2))
+    table = Dataset.from_source(pl.DataFrame({"record_index": [0]}), catalog.source)
+    locator = locate_image(
+        table, "f", "v", "$", 0, ReferenceSettings(), None, catalog, mapping
+    )
+    images, arrays = ImageStore(), ArrayStore(retained_bytes=1)
+    try:
+        metadata = image_metadata(locator)
+        window = prepare_window(
+            locator,
+            metadata,
+            ImageWindow(1500, 900, 1024, 1024),
+            ImageDisplay(),
+            images,
+            arrays,
+            1024 * 1024,
+        )
+        assert window.limited and window.window.step == 4
+        assert window.retained_bytes <= 1024 * 1024
+        assert window.pixel(1500, 900) == (600.0,)
+        assert window.pixel(1501, 900) is None
+        exact = prepare_window(
+            locator,
+            metadata,
+            ImageWindow(1501, 900, 1, 1),
+            ImageDisplay(),
+            images,
+            arrays,
+            1024 * 1024,
+        )
+        assert exact.pixel(1501, 900) == (601.0,) and not exact.limited
+        assert images.decodes == arrays.extractions == arrays.stored_bytes == 0
+    finally:
+        arrays.close()
+        images.cleanup()

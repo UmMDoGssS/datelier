@@ -125,6 +125,8 @@ class ArrayRecords:
                 counts=previous.counts,
                 field=previous.field,
                 component=previous.component,
+                value_range=previous.value_range,
+                colormap=previous.colormap,
             )
         starts = list(configured.starts)
         counts = list(configured.counts)

@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 from imgui_bundle import imgui
 
 from datelier.gui.images.canvas import ImageCanvas
+from datelier.gui.images.heatmap_controls import RecordHeatmapControls
 from datelier.gui.images.profile_controls import profile_controls
 from datelier.gui.images.profiles import ImageProfiles
 from datelier.inspection.arrays.mapping import ArrayLayout
@@ -32,6 +33,7 @@ class ImageView:
         self.profile_jobs = ImageProfileJobs(executor)
         self.profiles = ImageProfiles()
         self.profile_pixel = (0.0, 0.0)
+        self.heatmap = RecordHeatmapControls()
 
     def sync(self, owner: FileSession) -> None:
         active = owner.loader.active
@@ -160,7 +162,7 @@ class ImageView:
                 self.jobs.abandon()
             imgui.text_wrapped(self.jobs.message)
             return
-        _, metadata = self.jobs.metadata
+        locator, metadata = self.jobs.metadata
         imgui.text(
             f"{metadata.width:,}×{metadata.height:,} · "
             f"aspect {metadata.aspect_ratio:.3g} · {metadata.dtype}"
@@ -170,28 +172,15 @@ class ImageView:
             self.jobs.abandon()
             return
         imgui.text(self.jobs.message.split(";")[0])
-        names = ["Composite", *metadata.channels]
-        if (
-            self.settings.display.channel is not None
-            and self.settings.display.channel >= len(metadata.channels)
-        ):
-            self.settings = replace(
-                self.settings, display=replace(self.settings.display, channel=None)
-            )
-        choice = (
-            0
-            if self.settings.display.channel is None
-            else min(len(names) - 1, self.settings.display.channel + 1)
-        )
-        imgui.set_next_item_width(110)
-        changed, choice = imgui.combo("##Image channels", choice, names)
-        if changed:
+        if metadata.mode == "Numeric":
             self.settings = replace(
                 self.settings,
-                display=replace(
-                    self.settings.display, channel=choice - 1 if choice else None
+                display=self.heatmap.show(
+                    locator, metadata, self.settings.display, self.jobs.active
                 ),
             )
+        else:
+            self._channels(metadata.channels)
         viewport = self.settings.viewport
         imgui.same_line()
         if imgui.button("1:1 pixels"):
@@ -261,6 +250,18 @@ class ImageView:
     def _capture(self, label: str) -> None:
         lo, hi = imgui.get_item_rect_min(), imgui.get_item_rect_max()
         self.buttons[label] = ((lo.x + hi.x) / 2, (lo.y + hi.y) / 2)
+
+    def _channels(self, channels: tuple[str, ...]) -> None:
+        names = ["Composite", *channels]
+        display = self.settings.display
+        if display.channel is not None and display.channel >= len(channels):
+            display = replace(display, channel=None)
+        choice = 0 if display.channel is None else display.channel + 1
+        imgui.set_next_item_width(110)
+        changed, choice = imgui.combo("##Image channels", choice, names)
+        if changed:
+            display = replace(display, channel=choice - 1 if choice else None)
+        self.settings = replace(self.settings, display=display)
 
     def close(self) -> None:
         self.canvas.clear()

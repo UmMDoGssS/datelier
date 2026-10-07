@@ -151,7 +151,7 @@ class InspectView:
             mapped_image = (
                 isinstance(options, ArrayOptions)
                 and options.mapping is not None
-                and options.mapping.layout == ArrayLayout.IMAGE
+                and options.mapping.layout in (ArrayLayout.IMAGE, ArrayLayout.HEATMAP)
             )
             if mapped_image or (
                 primary is not None
