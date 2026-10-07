@@ -70,6 +70,20 @@ class InspectView:
         if imgui.button("Retry Inspect"):
             self.jobs.abandon()
         imgui.text_wrapped(self.jobs.message)
+        if owner is not None and owner.loader.active is not None:
+            options = owner.loader.active.imported.options
+            mapping = options.mapping if isinstance(options, ArrayOptions) else None
+            primary = self.settings.primary
+            if mapping is not None and mapping.layout in (
+                ArrayLayout.IMAGE,
+                ArrayLayout.HEATMAP,
+            ):
+                owner.images.annotation_controls.show(owner, mapping.member)
+            elif (
+                primary is not None
+                and owner.loader.active.dataset.role(primary).role == ColumnRole.IMAGE
+            ):
+                owner.images.annotation_controls.show(owner, primary)
         self.rendered_cards = 0
         self.card_pixels.clear()
         records = self.jobs.active

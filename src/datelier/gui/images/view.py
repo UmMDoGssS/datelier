@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 from imgui_bundle import imgui
 
+from datelier.gui.annotations.view import AnnotationView
 from datelier.gui.images.canvas import ImageCanvas
 from datelier.gui.images.heatmap_controls import RecordHeatmapControls
 from datelier.gui.images.profile_controls import profile_controls
@@ -36,6 +37,7 @@ class ImageView:
         self.profile_pixel = (0.0, 0.0)
         self.heatmap = RecordHeatmapControls()
         self.annotations = AnnotationJobs(executor)
+        self.annotation_controls = AnnotationView()
 
     def sync(self, owner: FileSession) -> None:
         active = owner.loader.active

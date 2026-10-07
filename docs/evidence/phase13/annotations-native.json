@@ -1,0 +1,46 @@
+{
+  "save": {
+    "formats": 4,
+    "original_xyxy": [
+      20,
+      10,
+      60,
+      30
+    ],
+    "exif_xyxy": [
+      10,
+      20,
+      30,
+      60
+    ],
+    "source_row": 1,
+    "invalid_box_diagnostic": true,
+    "missing_label_distinct": true,
+    "native_linked_selection": true,
+    "frames": 420,
+    "frame_p95_ms": 13.716837594984096
+  },
+  "reopen": {
+    "restore_idle": true,
+    "formats": 4,
+    "original_xyxy": [
+      20,
+      10,
+      60,
+      30
+    ],
+    "exif_xyxy": [
+      10,
+      20,
+      30,
+      60
+    ],
+    "source_row": 1,
+    "invalid_box_diagnostic": true,
+    "missing_label_distinct": true,
+    "native_linked_selection": true,
+    "frames": 142,
+    "frame_p95_ms": 13.276493303419556
+  },
+  "sources_preserved": true
+}

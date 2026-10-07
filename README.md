@@ -312,12 +312,23 @@ separately seeded pixels. Statistics, Dimensions, Colors and Record outcomes
 retain scope/provenance and missing/corrupt diagnostics. Outcome rows link back
 to Inspect. Collection commands never run implicitly during load or restore.
 
+In **Explore → Inspect**, expand **Detection annotations**, add a local source
+and choose VOC XML, YOLO text, COCO dataset JSON or an Ultralytics YAML manifest.
+VOC/YOLO also accept label folders. **Load / associate annotations** explicitly
+reads sources and image headers. Choose filename, stem, resolved path or a scalar
+image-key field; ambiguous keys require **Explicit image mappings** using stable
+Source row IDs. Original coordinates, class IDs/names, scores, source locations
+and diagnostics are available in **Associations**. Click a matched image key to
+link its row and focus Inspect. Relative roots use the annotation file/folder or
+manifest directory. Loading/restoration never executes manifest download fields.
+
 Workspaces preserve these controls, reference mappings and record manifests;
 decoded previews remain session caches. Missing records restore with diagnostics.
 Exports and workspace writes preserve collection members as well as individual
 source files. Image/heatmap controls and collection recipes are saved alongside
-text tools. Detection annotations and audio playback remain in the authorized
-sequence. See [Phase 10 evidence](docs/phase-10.md) and
+text tools, including annotation sources and confirmed mappings. Restoring leaves
+annotation loading idle. Box overlays/comparisons and audio playback remain in
+the authorized sequence. See [Phase 10 evidence](docs/phase-10.md) and
 [Phase 13 evidence](docs/phase-13.md) for native checks, restoration and
 fixture-specific resource measurements.
 

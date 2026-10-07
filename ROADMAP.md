@@ -811,8 +811,9 @@ inspection in Explore → Inspect alongside Profiles, Relationships and Correlat
 [Delivery and evidence](docs/phase-13.md) record the verified original-pixel
 foundation, native focused image Inspect and explicit image collection profiles,
 including array-backed records, saved controls and measured resources. M13.1
-passes alongside M13.2 numeric heatmap controls and restoration; annotations and
-comparisons remain outstanding in M13.3–M13.4.
+passes alongside M13.2 numeric heatmap controls and restoration. M13.3 passes
+annotation adapters, explicit associations and saved recipes; overlays, annotation
+profiles and image comparisons remain outstanding in M13.4.
 
 - [ ] **Phase complete.** **Entry:** Phase 12 passes. **Exit:** M13.1–M13.4 pass; images, numeric heatmaps and box overlays retain correct values, provenance and geometry.
 
@@ -834,16 +835,16 @@ comparisons remain outstanding in M13.3–M13.4.
 
 ### M13.3 — Detection annotation adapters and image association
 
-- [ ] **Deliverables:** Pascal VOC XML, YOLO detection text, COCO JSON and Ultralytics dataset manifests/labels; shared pixel-coordinate boxes retaining original coordinates, classes, optional scores and provenance; explicit image-key/path mappings.
+- [x] **Deliverables:** Pascal VOC XML, YOLO detection text, COCO JSON and Ultralytics dataset manifests/labels; shared pixel-coordinate boxes retaining original coordinates, classes, optional scores and provenance; explicit image-key/path mappings.
 - [x] **Entry gate:** M13.2 passes; format coordinate conventions and the minimal safe YAML parser are verified against representative VOC/YOLO/COCO/Ultralytics fixtures without model inference; [Phase 13 evidence](docs/phase-13.md) records the foundations.
-- [ ] **Exit gate:** each named format resolves known boxes to the correct image; normalized/pixel and indexing conversions are explicit; class mappings, missing labels, invalid boxes and ambiguous image associations have diagnostics rather than silent reassignment.
-- [ ] **Verification evidence:** equivalent cross-format boxes, normalized edge cases, duplicate stems/class mappings, missing/invalid/out-of-bounds annotations and source-preservation tests.
-- [ ] **Suggested step commits:** `feat: load voc and yolo box annotations` → `feat: load coco and ultralytics detection datasets` → `feat: associate annotations with image records`.
+- [x] **Exit gate:** each named format resolves known boxes to the correct image; normalized/pixel and indexing conversions are explicit; class mappings, missing labels, invalid boxes and ambiguous image associations have diagnostics rather than silent reassignment.
+- [x] **Verification evidence:** equivalent cross-format boxes, normalized edge cases, duplicate stems/class mappings, missing/invalid/out-of-bounds annotations and source preservation; native mapping, fresh-process restoration, full-suite and measured header-only preparation in [Phase 13 evidence](docs/phase-13.md).
+- [x] **Suggested step commits:** `feat: load voc and yolo box annotations` → `feat: load coco and ultralytics detection datasets` → `feat: associate annotations with image records` (delivered in verified foundation/UI slices).
 
 ### M13.4 — Box overlays, annotation profiles, and image comparisons
 
 - [ ] **Deliverables:** selectable box/class/score overlays with multiple annotation sources; class counts, box size/aspect-ratio and annotation-quality profiles; cross-file image dimension/color comparisons with saved inspection settings.
-- [ ] **Entry gate:** M13.3 passes; image-space geometry and source-record identities are available to rendering without annotation parsing in frames.
+- [x] **Entry gate:** M13.3 passes; image-space geometry and source-record identities are available to rendering without annotation parsing in frames.
 - [ ] **Exit gate:** overlays stay aligned under zoom/pan and orientation transforms; multiple sources can be inspected on one image; profiles and linked selections match known annotations; workspaces restore mappings without editing annotation files.
 - [ ] **Verification evidence:** native cross-format geometry and source-toggle smoke, overlay picking and row alignment, known annotation statistics, fresh-process image/box comparison restore and resource checks.
 - [ ] **Suggested step commits:** `feat: overlay and compare detection annotations` → `feat: profile boxes and compare image collections`.

@@ -1,0 +1,9 @@
+{
+  "images": 100,
+  "boxes": 10000,
+  "seconds": 0.15846741700079292,
+  "peak_rss_increase_bytes": 28585984,
+  "image_pixels_decoded": 0,
+  "temporary_cache_bytes": 0,
+  "sources_preserved": true
+}

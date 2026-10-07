@@ -2,7 +2,7 @@
 
 Phase 13 is in progress. Its scope is M13.1–M13.4 in [ROADMAP.md](../ROADMAP.md#phase-13--images-heatmaps-and-detection-annotations).
 Phase 12 and the Inspect navigation follow-up are complete; the worktree was
-clean at entry (`6cd56e2`). M13.1–M13.2 pass; M13.3–M13.4 remain open.
+clean at entry (`6cd56e2`). M13.1–M13.3 pass; M13.4 remains open.
 
 ## Delivery steps
 
@@ -48,6 +48,12 @@ once for the complete command and release it afterward.
 Measure peak RSS, temporary disk use, cache retention and cleanup after close.
 Use known-value array and equivalent cross-format annotation fixtures for
 correctness; resource acceptance must not substitute for those checks.
+
+Annotation acceptance uses 100 local image headers and 10,000 COCO boxes:
+explicit parsing/association should finish in **5 s**, with fresh-process peak
+RSS increase under **64 MiB** including fixture preparation. Preparation must
+not decode image pixels or allocate temporary image/array caches. Sources remain
+unchanged; overlays and profile rendering have separate M13.4 gates.
 
 ## Evidence
 
@@ -472,3 +478,42 @@ The broader encoded-image and heatmap input scripts failed during automated
 zoom/channel/slice input in this run; their earlier milestone evidence remains,
 and these attempts do not establish new interaction evidence. New annotation
 controls, native mapping/restoration and M13.3 exit remain open.
+
+### Native annotation association and M13.3 acceptance (2026-10-07)
+
+Explore → Inspect now has explicit local source/path/format controls, VOC index
+choices, optional YOLO scores/classes, manifest roots, path/filename/stem/key-field
+matching and source-image-key → stable source-row mappings. Reconfirming a mapping
+retires only its old reference pin. Loading stays explicit, with progress and safe
+abandonment. Virtualized association/box/issue tables retain original values,
+classes, scores, locations, missing-label status and diagnostics. Clicking a
+matched key links its source row and focuses the image. Scroll-bounded results
+leave the image canvas accessible. Parsing, indexing and headers stay in workers.
+Rendering consumes prepared geometry. Source settings are saved; restore is idle.
+
+The native fixture establishes a local discovery root and waits for its index;
+issuing a command before discovery finished correctly retired the earlier result
+in the initial attempt. `scripts/annotation_smoke.py` verifies native Add/path,
+manual key/row confirmation, explicit commands and linked selection on sorted rows.
+VOC/YOLO/COCO/manifest all produce original **(20,10,60,30)** and EXIF-6 oriented
+**(10,20,30,60)** boxes for source row **1**, retaining an invalid VOC box issue and
+a distinct missing manifest label. Save/reopen passes **420/142 frames**, p95
+**13.72/13.28 ms**. Fresh-process recipes reopen without annotation work before
+the native command. Source hashes pass; both screenshots were visually reviewed.
+[Native report](evidence/phase13/annotations-native.json),
+[Inspect](evidence/phase13/annotations.png),
+[reopened Inspect](evidence/phase13/annotations-restored.png).
+
+`scripts/benchmark_annotations.py` prepares **100 image headers / 10,000 boxes**
+in **0.158 s**, fresh-process peak RSS increase **27.26 MiB**, with pixel loading
+forbidden, no temporary caches and unchanged file sets/hashes.
+[Resource report](evidence/phase13/annotations-resource.json).
+
+Focused controls/association/job/workspace/record checks: **32 passed in 0.96 s**.
+M13.3 full suite: **867 passed in 24.61 s**, with three existing PyTorch warnings.
+Pyrefly: **zero errors**, one existing suppression; Ruff lint/format (**487 Python
+files**) and diff whitespace pass. Responsibilities were reviewed near the
+300-line trigger: source edits, recipe validation and prepared tables have separate
+modules; the native harness retains one coherent multi-process scenario.
+M13.3 deliverable and exits pass; M13.4 entry passes. Overlays, annotation profiles
+and cross-file image comparisons remain open, so Phase 13 remains incomplete.
