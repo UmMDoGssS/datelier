@@ -12,6 +12,7 @@ class NativeControls:
         self.points: dict[str, tuple[float, float]] = {}
         self.clips: dict[str, tuple[float, float]] = {}
         self.scroll: dict[str, tuple[float, float]] = {}
+        self.frames: dict[str, int] = {}
         self.phase = self.entered = 0
         self.sliders: set[str] = set()
 
@@ -19,6 +20,9 @@ class NativeControls:
         self, label: str, numeric: bool = False, *, popup: bool = False
     ) -> None:
         low, high = imgui.get_item_rect_min(), imgui.get_item_rect_max()
+        if low.x == high.x and low.y == high.y:
+            return
+        self.frames[label] = imgui.get_frame_count()
         self.points[label] = (
             low.x + 30 if numeric else (low.x + high.x) / 2,
             (low.y + high.y) / 2,
@@ -44,6 +48,7 @@ class NativeControls:
             imgui.begin_combo,
             imgui.selectable,
         )
+        stock_combo, tab_item = imgui.combo, imgui.begin_tab_item
 
         def capture_button(label: str, size: imgui.ImVec2 | None = None) -> bool:
             value = button(label, size)
@@ -112,6 +117,23 @@ class NativeControls:
             self.capture(label, popup=True)
             return updated
 
+        def capture_stock_combo(
+            label: str,
+            current: int,
+            items: list[str],
+            popup_max_height_in_items: int = -1,
+        ) -> tuple[bool, int]:
+            updated = stock_combo(label, current, items, popup_max_height_in_items)
+            self.capture(label, True)
+            return updated
+
+        def capture_tab(
+            label: str, p_open: bool | None = None, flags: int = 0
+        ) -> tuple[bool, bool | None]:
+            updated = tab_item(label, p_open, flags)
+            self.capture(label)
+            return updated
+
         with ExitStack() as stack:
             for name, callback in (
                 ("button", capture_button),
@@ -123,6 +145,8 @@ class NativeControls:
                 ("slider_float", capture_slider),
                 ("begin_combo", capture_combo),
                 ("selectable", capture_selectable),
+                ("combo", capture_stock_combo),
+                ("begin_tab_item", capture_tab),
             ):
                 stack.enter_context(patch.object(imgui, name, callback))
             yield
@@ -131,15 +155,22 @@ class NativeControls:
         """Click/scroll/type through ImGui IO; never fabricate widget results."""
         age, io = frame - self.entered, imgui.get_io()
         key = target.rsplit("=", 1)[0]
-        if self.phase == 0 and age > 9 and key in self.points:
+        if (
+            self.phase == 0
+            and age > 9
+            and key in self.points
+            and imgui.get_frame_count() - self.frames.get(key, -2) <= 1
+        ):
             top, bottom = self.clips[key]
             if not top <= self.points[key][1] <= bottom:
                 io.mouse_pos = imgui.ImVec2(*self.scroll[key])
+                io.add_mouse_pos_event(*self.scroll[key])
                 io.want_set_mouse_pos = True
                 io.add_mouse_wheel_event(0, -2 if self.points[key][1] > bottom else 2)
                 self.entered = frame
                 return False
             io.mouse_pos = imgui.ImVec2(*self.points[key])
+            io.add_mouse_pos_event(*self.points[key])
             io.want_set_mouse_pos = True
             if key in self.sliders:
                 io.add_key_event(imgui.Key.left_ctrl, True)
@@ -150,6 +181,7 @@ class NativeControls:
                 self.phase, self.entered = 1, frame
         elif self.phase == 7 and age > 3:
             io.mouse_pos = imgui.ImVec2(*self.points[key])
+            io.add_mouse_pos_event(*self.points[key])
             io.want_set_mouse_pos = True
             io.add_mouse_button_event(0, True)
             self.phase, self.entered = 1, frame

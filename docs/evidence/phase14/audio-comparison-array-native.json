@@ -1,0 +1,26 @@
+{
+  "save": {
+    "restore": false,
+    "array": true,
+    "native_mappings_and_exact_scans": true,
+    "comparison_retained_bytes": 5119,
+    "native_distributions_and_legends": true,
+    "source_scoped_selection": true,
+    "native_statistics": true,
+    "native_records": true,
+    "native_supporting_record_link": true,
+    "frames": 750,
+    "frame_p95_ms": 14.138043049570115
+  },
+  "restore": {
+    "restore": true,
+    "array": true,
+    "idle_saved_controls": true,
+    "native_mappings_and_exact_scans": false,
+    "comparison_retained_bytes": 5119,
+    "native_distributions_and_legends": true,
+    "frames": 109,
+    "frame_p95_ms": 13.582288598990997
+  },
+  "source_preserved": true
+}

@@ -127,7 +127,11 @@ def scan_collection(
                 if values is not None and values[position] is not None
                 else None
             )
-            progress.update(f"{file_id}: {settings.mode}", number, len(positions))
+            progress.update(
+                f"{dataset.source.path.name} {view_name}: {settings.mode}",
+                number,
+                len(positions),
+            )
             prefix = (row_id, int(position), reference)
             if values is not None and values[position] is None:
                 records.append(
@@ -198,4 +202,7 @@ def scan_collection(
         dataset.table.height,
         pl.DataFrame(records, schema=RECORD_SCHEMA, orient="row"),
         pl.DataFrame(channels, schema=CHANNEL_SCHEMA, orient="row"),
+        sum(row[3] == "Ready" for row in records),
+        sum(row[3] == "Null" for row in records),
+        sum(row[3] == "Failed" for row in records),
     ), tuple(locators)

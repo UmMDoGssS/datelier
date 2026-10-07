@@ -101,6 +101,11 @@ def capture_session(
             ),
             image_comparison_view=editor.image_comparison_view,
             comparison_tab=editor.comparison_tab,
+            audio_comparisons=editor.audio_comparisons,
+            audio_comparison_index=min(
+                editor.audio_comparison_index, max(0, len(editor.audio_comparisons) - 1)
+            ),
+            audio_comparison_view=editor.audio_comparison_view,
             text_comparison_index=min(
                 editor.text_comparison_index, max(0, len(editor.text_comparisons) - 1)
             ),

@@ -5,11 +5,30 @@ from pathlib import Path
 
 from datelier.core.dataset import Dataset
 from datelier.core.jobs import SharedWorkers
+from datelier.gui.audio.comparison_session import (
+    comparison_inputs as audio_inputs,
+)
+from datelier.gui.audio.comparison_session import (
+    open_record as open_audio_record,
+)
+from datelier.gui.audio.comparison_session import (
+    sync_comparisons as sync_audio_comparisons,
+)
 from datelier.gui.file_browser import FileBrowser
 from datelier.gui.file_session import FileSession
 from datelier.gui.images.comparison_session import comparison_inputs, sync_comparisons
 from datelier.gui.workspace.capture import capture_session
 from datelier.gui.workspace.preferences import PreferenceControls
+from datelier.inspection.audio.comparisons.jobs import AudioComparisonJobs
+from datelier.inspection.audio.comparisons.settings import (
+    AudioComparisonSettings,
+    AudioComparisonViewSettings,
+)
+from datelier.inspection.audio.comparisons.types import (
+    AudioComparisonInput,
+    AudioMetric,
+    PreparedAudioComparison,
+)
 from datelier.inspection.audio.playback.controller import AudioPlayback, PlaybackPhase
 from datelier.inspection.audio.playback.device import DeviceFactory, SoundDeviceOutput
 from datelier.inspection.comparison_settings import ComparisonSettings
@@ -66,6 +85,10 @@ class EditorSession:
         self.image_comparison_index = 0
         self.image_comparison_view = ImageComparisonViewSettings()
         self.image_comparison_jobs = ImageComparisonJobs(self.workers)
+        self.audio_comparisons: tuple[AudioComparisonSettings, ...] = ()
+        self.audio_comparison_index = 0
+        self.audio_comparison_view = AudioComparisonViewSettings()
+        self.audio_comparison_jobs = AudioComparisonJobs(self.workers)
         self.comparison_tab = "Columns"
         self.order_reset = False
         self.pending_layout: tuple[str, tuple[str, ...]] | None = None
@@ -167,7 +190,7 @@ class EditorSession:
             int(profile.records["row_id"][row]),
             int(profile.records["position"][row]),
         )
-        self._apply_comparison_selection(
+        self.apply_comparison_selection(
             ComparisonSelection(
                 Origin(
                     profile.file_id,
@@ -195,6 +218,32 @@ class EditorSession:
             raise ValueError("Mapped image source is unavailable")
         self.image_comparison_jobs.request_selection(
             result, source, dimension, bin_index, dataset
+        )
+
+    def audio_comparison_inputs(
+        self, recipe: AudioComparisonSettings
+    ) -> tuple[AudioComparisonInput, ...]:
+        return audio_inputs(self, recipe)
+
+    def open_audio_comparison_record(
+        self, result: PreparedAudioComparison, source: int, row: int
+    ) -> None:
+        open_audio_record(self, result, source, row)
+
+    def select_audio_comparison(
+        self,
+        result: PreparedAudioComparison,
+        source: int,
+        metric: AudioMetric,
+        bin_index: int,
+    ) -> None:
+        if not 0 <= source < len(result.profiles):
+            raise ValueError("Choose an available audio source")
+        dataset = self.datasets.get(result.profiles[source].file_id)
+        if dataset is None:
+            raise ValueError("Mapped audio source is unavailable")
+        self.audio_comparison_jobs.request_selection(
+            result, source, metric, bin_index, dataset
         )
 
     @property
@@ -272,6 +321,7 @@ class EditorSession:
         self.comparison_jobs.clear()
         self.text_comparison_jobs.clear()
         self.image_comparison_jobs.clear()
+        self.audio_comparison_jobs.clear()
         self.browser.cancel()
         self.opening.abandon()
         for file in self.files:
@@ -293,6 +343,9 @@ class EditorSession:
         self.image_comparisons = restored.workspace.image_comparisons
         self.image_comparison_index = restored.workspace.image_comparison_index
         self.image_comparison_view = restored.workspace.image_comparison_view
+        self.audio_comparisons = restored.workspace.audio_comparisons
+        self.audio_comparison_index = restored.workspace.audio_comparison_index
+        self.audio_comparison_view = restored.workspace.audio_comparison_view
         self.comparison_tab = restored.workspace.comparison_tab
         self.pending_layout = (
             restored.workspace.layout,
@@ -401,6 +454,7 @@ class EditorSession:
             )
             for recipe in self.comparisons
         )
+        sync_audio_comparisons(self)
         self._recent_files.pop(identity, None)
         self._recent_workspaces.pop(identity, None)
         if self.browser.owner == identity:
@@ -475,6 +529,7 @@ class EditorSession:
         )
         datasets = self.datasets
         sync_comparisons(self)
+        sync_audio_comparisons(self)
         self.comparison_jobs.sync(self.comparisons, datasets)
         recipe = (
             self.text_comparisons[
@@ -490,11 +545,12 @@ class EditorSession:
             self.comparison_jobs.poll_selection(datasets),
             self.text_comparison_jobs.poll_selection(datasets),
             self.image_comparison_jobs.poll_selection(datasets),
+            self.audio_comparison_jobs.poll_selection(datasets),
         ):
             if selection is not None:
-                self._apply_comparison_selection(selection)
+                self.apply_comparison_selection(selection)
 
-    def _apply_comparison_selection(self, selection: ComparisonSelection) -> None:
+    def apply_comparison_selection(self, selection: ComparisonSelection) -> None:
         file = next(
             file
             for file in self.file_sessions
@@ -568,6 +624,7 @@ class EditorSession:
         self.comparison_jobs.close()
         self.text_comparison_jobs.close()
         self.image_comparison_jobs.close()
+        self.audio_comparison_jobs.close()
         self.playback.close(wait=True)
         self.preferences.close()
         self.workers.shutdown(wait=True)

@@ -29,6 +29,15 @@ from datelier.inspection.annotations.types import AnnotationClass
 from datelier.inspection.annotations.view_settings import AnnotationViewSettings
 from datelier.inspection.arrays.mapping import ArrayRecordMapping, SupportingArray
 from datelier.inspection.arrays.slices import SliceSettings
+from datelier.inspection.audio.collections.settings import (
+    AudioCollectionSettings,
+    AudioScope,
+)
+from datelier.inspection.audio.comparisons.settings import (
+    AudioComparisonSettings,
+    AudioComparisonSource,
+    AudioComparisonViewSettings,
+)
 from datelier.inspection.audio.playback.settings import PlaybackSettings
 from datelier.inspection.audio.profile_types import AudioThresholds
 from datelier.inspection.audio.settings import AudioSettings
@@ -85,6 +94,11 @@ from datelier.workspace.session_types import SessionFile, SessionWorkspace, Sour
 from datelier.workspace.types import Workspace, WorkspaceSource, WorkspaceViews
 
 RECORDS = (
+    AudioCollectionSettings,
+    AudioScope,
+    AudioComparisonSettings,
+    AudioComparisonSource,
+    AudioComparisonViewSettings,
     PlaybackSettings,
     SignalViewSettings,
     AudioRange,

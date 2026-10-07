@@ -4,6 +4,10 @@ import math
 import string
 from dataclasses import dataclass
 
+from datelier.inspection.audio.comparisons.settings import (
+    AudioComparisonSettings,
+    AudioComparisonViewSettings,
+)
 from datelier.inspection.comparison_settings import ComparisonSettings
 from datelier.inspection.images.comparisons.settings import (
     ImageComparisonSettings,
@@ -147,6 +151,9 @@ class SessionWorkspace:
     image_comparison_index: int = 0
     image_comparison_view: ImageComparisonViewSettings = ImageComparisonViewSettings()
     comparison_tab: str = "Columns"
+    audio_comparisons: tuple[AudioComparisonSettings, ...] = ()
+    audio_comparison_index: int = 0
+    audio_comparison_view: AudioComparisonViewSettings = AudioComparisonViewSettings()
 
     def validate(self) -> None:
         if self.version != 2:
@@ -162,8 +169,17 @@ class SessionWorkspace:
         for file in self.files:
             file.validate()
         self.image_comparison_view.validate()
-        if self.comparison_tab not in ("Columns", "Text corpora", "Images"):
+        if self.comparison_tab not in ("Columns", "Text corpora", "Images", "Audio"):
             raise ValueError("Unknown file comparison panel")
+        self.audio_comparison_view.validate()
+        if not 0 <= self.audio_comparison_index < max(1, len(self.audio_comparisons)):
+            raise ValueError("Invalid active audio comparison")
+        if len(self.audio_comparisons) > 32:
+            raise ValueError("Save at most 32 audio comparisons")
+        for comparison in self.audio_comparisons:
+            comparison.validate()
+            if any(source.file_id not in identities for source in comparison.sources):
+                raise ValueError("Audio comparison mapping refers to a closed file")
         if not 0 <= self.image_comparison_index < max(1, len(self.image_comparisons)):
             raise ValueError("Invalid active image comparison")
         if len(self.image_comparisons) > 32:

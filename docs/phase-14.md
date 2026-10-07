@@ -585,3 +585,53 @@ is **42.64 MiB**. Source hashes remain unchanged; see
 [comparison resource evidence](evidence/phase14/audio-comparison-resources.json).
 Native comparison controls, persisted mappings, actual listening and M14.3–M14.4
 exit gates remain open.
+
+### Native cross-file audio controls and saved comparisons (2026-10-08)
+
+Compare files → Audio now exposes explicit field mappings for CSV/audio
+collections and confirmed waveform views, independent record scopes,
+header-only/exact signal commands, array rates and original-unit thresholds.
+Distributions use prepared common bins, native source legends, count/proportion
+controls and adjacent finite scalar statistics. Virtual Records/Statistics tables
+retain failures, original extrema/peaks, finite denominators and actual rails.
+Opening a contributing record selects its original file/view/row, supporting
+columns and Inspect without starting playback or sample/statistics commands.
+
+Comparison recipes, active comparison, unit/channel/metric, scale, plot height,
+source/bin and view tab persist in whole-session workspaces. Legacy sessions
+receive empty audio-comparison defaults. Missing sources retain their recipes for
+recovery; relinking remains idle. Closing a file or mapped view removes its
+mapping and invalidates the result. Per-record outcome counts are prepared on
+the worker, so frame callbacks do not scan a collection.
+
+`scripts/audio_comparison_smoke.py` passes native mapped-field inputs (`clip`
+versus `sound`), exact preparation, common duration bins across **8/12 kHz**
+files, count/proportion changes, second-channel RMS and source-scoped bin/record
+links. The unequal **2/3 record** collections keep sorted IDs **1,2,0** and the
+correct supporting label. File workflow/restore p95 is **13.40/12.48 ms** over
+**718/96 frames**, retaining **4,771 bytes**. The NPZ workflow compares original
+Float32 array amplitudes separately from file full-scale amplitudes, preserves
+original row **1** and supporting label **1**, and restores its mapped records
+only after a genuine Prepare saved array records command. Array p95 is
+**14.14/13.58 ms** over **750/109 frames**, retaining **5,119 bytes**. Neither
+process imports SoundDevice, enumerates outputs or starts sound. Source hashes
+remain unchanged. See [file native evidence](evidence/phase14/audio-comparison-file-native.json),
+[file restored plot](evidence/phase14/audio-comparison-file-restored.png),
+[array native evidence](evidence/phase14/audio-comparison-array-native.json) and
+[array restored unit separation](evidence/phase14/audio-comparison-array-restored.png).
+
+The acceptance driver now rejects stale/empty widget rectangles, dispatches real
+mouse-position events and enables keyboard navigation only during actual stock
+combo inputs. No widget outcomes are fabricated. Signal regression passes native
+waveform/PSD/raster and restoration at **19.33/20.28 ms** p95 (**708/113 frames**).
+Native array listening regression passes pause/seek/gain/closure and idle restore
+at **13.41/13.06 ms** p95 (**642/115 frames**), with zero observed underruns and
+unchanged sources. These remain device/control observations, not listening.
+
+Editor tests cover saved settings, legacy defaults, idle restoration, relinking,
+independent mapped views and correctly scoped links. The full suite passes
+**1,013 tests in 24.92 s**, with three existing restricted-checkpoint warnings.
+Pyrefly reports zero errors and one existing suppression; Ruff lint/format
+(**592 files**) and diff whitespace pass. Full playback fixture resources,
+actual listening/seek/pause/volume observations and M14.3–M14.4 exit gates remain
+open.

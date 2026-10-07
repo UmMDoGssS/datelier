@@ -36,6 +36,9 @@ class AudioCollectionProfile:
     available_records: int
     records: pl.DataFrame
     channel_records: pl.DataFrame
+    ready: int
+    nulls: int
+    failures: int
 
     @property
     def retained_bytes(self) -> int:

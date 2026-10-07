@@ -10,6 +10,7 @@ from weakref import ReferenceType, ref
 from imgui_bundle import hello_imgui, imgui, immapp
 
 from datelier.gui.arrays.browser import show_array_browser, show_deferred_records
+from datelier.gui.audio.comparison_view import AudioComparisonView
 from datelier.gui.comparisons.view import ComparisonView
 from datelier.gui.data.schema import show_schema
 from datelier.gui.editor_controls import EditorControls
@@ -80,6 +81,7 @@ def run_gui(
     comparisons = ComparisonView()
     text_comparisons = TextComparisonView()
     image_comparisons = ImageComparisonView()
+    audio_comparisons = AudioComparisonView()
     observed_comparison_tab: str | None = None
     objects = ObjectBrowser()
     evidence = InspectionEvidence()
@@ -171,6 +173,7 @@ def run_gui(
                 ("Columns", comparisons),
                 ("Text corpora", text_comparisons),
                 ("Images", image_comparisons),
+                ("Audio", audio_comparisons),
             ):
                 flags = imgui.TabItemFlags_.set_selected if requested == label else 0
                 if imgui.begin_tab_item(label, flags=flags)[0]:
