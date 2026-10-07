@@ -184,6 +184,18 @@ def test_array_channels_axes_rates_and_source_rows(
         assert metadata.units == "array units"
         prepared = prepare_window(locator, metadata, AudioRange(4, 13), store)
         np.testing.assert_array_equal(prepared.raw, values[1, 4:13])
+        with audio_blocks(
+            locator, metadata, store, AudioRange(4, 13), block_bytes=6, channel=1
+        ) as blocks:
+            chosen = list(blocks)
+        assert all(
+            block.samples.shape[1] == 1 and block.samples.nbytes <= 6
+            for block in chosen
+        )
+        np.testing.assert_array_equal(
+            np.concatenate([block.samples[:, 0] for block in chosen]),
+            values[1, 4:13, 1],
+        )
         assert prepared.raw.dtype == metadata.dtype
         assert store.stored_bytes == 0  # Oversized extraction released after its lease.
         assert table.table.get_column("label")[0] == 2

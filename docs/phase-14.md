@@ -192,3 +192,60 @@ source preservation, saved controls, native file/array restoration and measured
 resource gates. Actual playback, waveform/spectral/mel views, collection
 comparisons, integrated multimodal and clean-install acceptance remain in the
 following open milestones.
+
+### M14.2 preparation and resource targets (2026-10-08)
+
+The next step prepares exact waveform-bin extrema and one-sided power-density
+spectra from original-rate bounded blocks. Periodic Hann/Hamming/rectangular
+windows have explicit FFT/hop settings and no implicit detrending. Short records
+use their actual window length and zero-pad only the FFT; complete long-record
+windows may leave at most hop−1 trailing samples, labelled with access through a
+selected tail range. Nonfinite samples become zero solely in spectral views,
+with a count. Frequency/time display aggregation retains peak PSD and is labelled;
+exact cells remain available by narrowing time/frequency ranges or raising display
+bin limits. Waveform extrema retain source dtypes separately from Float64 plotting.
+
+Before judging this step, retain the established **2 s** full 10-minute stereo
+48 kHz waveform-envelope target and **33 ms** frame p95. A selected **60 s**
+48 kHz spectrum with FFT **1,024**, hop **256** and default display bins should
+prepare within **10 s**, retain at most **16 MiB**, and have a fresh-process peak
+RSS increase under **96 MiB**, including bounded fixture creation. Record array
+extraction count, temporary disk, post-command retention, source hashes and close
+cleanup. Mel and native-view gates remain open until their later slices.
+
+### Waveform/spectral preparation foundation (2026-10-08)
+
+The worker foundation above passes **59 focused tests** covering original
+extrema/time centers, sparse impulses, three windows, hop sizes 1/173/512,
+decoder-block boundaries, independent [SciPy PSD references](https://docs.scipy.org/doc/scipy-1.15.3/reference/generated/scipy.signal.stft.html),
+one-sided normalization, short-window FFT padding, frequency cropping,
+nonfinite-to-zero provenance, decibel floors, display aggregation and source
+preservation. UInt64 extrema remain exact independently of Float64 plotting.
+Channel-specific array reads avoid copying unselected channels, including a
+262,145-channel fixture inspected under a 1 KiB envelope budget. Compressed
+members hold one lease for each spectral command, extract once, and release
+oversized storage afterward. Raw all-channel sample reads retain their contracts.
+
+Visible-view jobs are independent of metadata, original sample windows and exact
+profiles. Irrelevant FFT settings do not rebuild waveforms; linear-power views
+ignore decibel-floor changes. Changing only display scale reuses immutable PSD
+through a worker conversion. Source/file/view/revision/rate/channel/range changes
+retire affected publication, and closure during a executing source read releases
+the reader without publishing obsolete work. GUI integration remains pending.
+
+`scripts/benchmark_audio_views.py` passes established targets: the complete
+**10-minute stereo 48 kHz** waveform prepares in **0.169 s**, retains **131,072
+bytes**, and preserves ±0.25 extrema. The final **60 s** spectrum prepares in
+**0.199 s**, retaining **15,409,104 bytes** for a **513×1,875** grid over **11,247**
+original FFT windows. Six-window time peak aggregation is explicit; frequencies
+remain unaggregated and the known tone peaks at **1,500 Hz**. A compressed
+**10×48,000×2 float32** member prepares in **6.15 ms**, extracts once
+(**3,840,128 temporary bytes**), and returns to zero retained disk bytes.
+Peak RSS increase, including fixture creation, is **36.23 MiB**; file temporary
+storage is zero, hashes are unchanged, and close removes array temporary paths.
+See [view resource evidence](evidence/phase14/audio-view-resources.json).
+
+Pyrefly reports **zero errors**, one existing suppression; Ruff lint/format
+(**544 files**) and diff whitespace pass. No GUI behavior changed in this
+foundation step. M14.2 remains open for native controls, mel views, saved
+recipes and milestone/full-suite acceptance. M14.3–M14.4 remain open.

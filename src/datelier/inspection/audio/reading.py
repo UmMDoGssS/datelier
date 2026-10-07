@@ -39,6 +39,7 @@ def audio_blocks(
     block_frames: int = BLOCK_FRAMES,
     block_bytes: int = BLOCK_BYTES,
     stopped: Callable[[], bool] | None = None,
+    channel: int | None = None,
 ) -> Iterator[Iterator[AudioBlock]]:
     """Read original decoded/file or raw/array values without rate conversion.
 
@@ -49,7 +50,11 @@ def audio_blocks(
     if block_frames < 1 or block_bytes < 1:
         raise ValueError("Audio block budgets must be positive")
     start, stop = selected.bounds(metadata.frames)
-    size = metadata.channels * metadata.dtype.itemsize
+    if channel is not None and not 0 <= channel < metadata.channels:
+        raise ValueError("Audio channel is outside the original signal")
+    size = (
+        1 if channel is not None and locator.catalog is not None else metadata.channels
+    ) * metadata.dtype.itemsize
     if size > block_bytes:
         raise ValueError("Audio block budget cannot hold one complete sample frame")
     count = min(block_frames, block_bytes // size)
@@ -78,6 +83,8 @@ def audio_blocks(
                             raise ValueError(
                                 "Audio decoded fewer frames than its header"
                             )
+                        if channel is not None:
+                            raw = raw[:, channel : channel + 1].copy()
                         raw.flags.writeable = False
                         yield AudioBlock(offset, raw)
 
@@ -95,8 +102,11 @@ def audio_blocks(
         sample_axis = mapping.display_axes[0]
         axes = (sample_axis,)
         if mapping.channel_axis is not None:
-            selectors[mapping.channel_axis] = slice(None)
-            axes = (sample_axis, mapping.channel_axis)
+            selectors[mapping.channel_axis] = (
+                channel if channel is not None else slice(None)
+            )
+            if channel is None:
+                axes = (sample_axis, mapping.channel_axis)
         with arrays.open_member(catalog, mapping.member, stopped) as array:
 
             def array_blocks() -> Iterator[AudioBlock]:
