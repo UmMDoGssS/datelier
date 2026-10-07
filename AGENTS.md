@@ -131,7 +131,10 @@ fresh-process restoration. Dense-label avoidance and cached viewport scenes pass
 the native overlay budget; exact/sampled comparisons pass bounded retention and
 source-preservation resource checks. Full-suite and final acceptance evidence are
 in [docs/phase-13.md](docs/phase-13.md).
-Phase 14 remains open.
+Phase 14 M14.1 passes header-first file/mapped-array audio loading, explicit
+original-signal statistics, native Inspect controls and saved configuration;
+[docs/phase-14.md](docs/phase-14.md) records codec, correctness, fresh-process
+restoration and measured resource evidence. M14.2–M14.4 remain open.
 Phase 8 investigations do not block this approved sequence. Existing v1 evidence
 and unfinished Titanic usability gates retain their status.
 

@@ -5,6 +5,7 @@ from dataclasses import dataclass, replace
 
 from datelier.analysis.types import Algorithm, AnalysisRequest
 from datelier.inspection.arrays.slices import SliceSettings
+from datelier.inspection.audio.settings import AudioSettings
 from datelier.inspection.exploration import PlotSettings
 from datelier.inspection.images.settings import ImageSettings
 from datelier.inspection.presentation import TablePresentation
@@ -59,8 +60,10 @@ class WorkspaceViews:
     text: TextSettings = TextSettings()
     profile_text: bool = False
     image: ImageSettings = ImageSettings()
+    audio: AudioSettings = AudioSettings()
 
     def validate(self) -> None:
+        self.audio.validate()
         self.image.validate()
         self.text.validate()
         if self.checkpoint_slice is not None:

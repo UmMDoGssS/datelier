@@ -1,0 +1,21 @@
+{
+  "save": {
+    "frames": 332,
+    "frame_p95_ms": 11.703191350147788,
+    "restore": false,
+    "array": true,
+    "source_row": 1,
+    "native_controls": true,
+    "restore_idle": false
+  },
+  "restore": {
+    "frames": 46,
+    "frame_p95_ms": 11.702089999971577,
+    "restore": true,
+    "array": true,
+    "source_row": 1,
+    "native_controls": false,
+    "restore_idle": true
+  },
+  "source_preserved": true
+}

@@ -2,12 +2,13 @@
 
 from concurrent.futures import Executor
 from dataclasses import replace
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import polars as pl
 from imgui_bundle import imgui
 
-from datelier.core.column_roles import ColumnRole
+from datelier.core.column_roles import AUDIO_EXTENSIONS, ColumnRole
 from datelier.core.dataset import Dataset
 from datelier.gui.data.table import TableView
 from datelier.gui.inspect.controls import InspectControls
@@ -162,6 +163,28 @@ class InspectView:
         if not gallery and owner is not None and owner.loader.active is not None:
             dataset = owner.loader.active.dataset
             options = owner.loader.active.imported.options
+            mapped_audio = (
+                isinstance(options, ArrayOptions)
+                and options.mapping is not None
+                and options.mapping.layout == ArrayLayout.AUDIO
+            )
+            audio_field = primary is not None and (
+                dataset.role(primary.name).role == ColumnRole.AUDIO
+                or primary.reference is not None
+                and Path(primary.reference).suffix.lower() in AUDIO_EXTENSIONS
+            )
+            if mapped_audio or audio_field:
+                column = (
+                    options.mapping.member
+                    if mapped_audio
+                    and isinstance(options, ArrayOptions)
+                    and options.mapping is not None
+                    else primary.name
+                    if primary
+                    else ""
+                )
+                self._audio_card(owner, card, column)
+                return
             mapped_image = (
                 isinstance(options, ArrayOptions)
                 and options.mapping is not None
@@ -272,6 +295,21 @@ class InspectView:
             imgui.table_next_row()
             imgui.table_next_column()
             owner.images.show_record(owner, column, card.position)
+            imgui.table_next_column()
+            self._fields(card, 0)
+            imgui.end_table()
+
+    def _audio_card(self, owner: FileSession, card: RecordCard, column: str) -> None:
+        if imgui.begin_table(
+            "Focused audio and supporting fields",
+            2,
+            imgui.TableFlags_.sizing_stretch_prop,
+        ):
+            imgui.table_setup_column("Audio", init_width_or_weight=3)
+            imgui.table_setup_column("Supporting", init_width_or_weight=1)
+            imgui.table_next_row()
+            imgui.table_next_column()
+            owner.audio.show_record(owner, column, card.position)
             imgui.table_next_column()
             self._fields(card, 0)
             imgui.end_table()

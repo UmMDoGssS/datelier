@@ -860,11 +860,15 @@ and the full correctness suite. Phase 13 is complete; Phase 14 remains open.
 
 ### M14.1 — Lazy audio loading and signal profiles
 
-- [ ] **Deliverables:** common local audio inputs including WAV/FLAC/OGG/MP3 and mapped waveform arrays; header-first sample rate/channel/duration metadata; amplitude/RMS, clipping and silence statistics; sample-rate configuration when arrays lack it.
-- [ ] **Entry gate:** verify SoundFile/SoundDevice/SciPy and decoder/system requirements on Python 3.14/Linux; establish worker-side block decoding and preserved original signal metadata.
-- [ ] **Exit gate:** files and arrays expose correct duration/channels/rate and known signal statistics; missing-rate arrays require configuration; malformed/unsupported inputs have diagnostics; headers and visible previews do not trigger full collection decoding.
-- [ ] **Verification evidence:** mono/stereo, varied-rate, silence/clipping, corrupt/missing and array-backed fixtures; codec feasibility, known signal values, worker lifecycle and memory/latency measurements.
-- [ ] **Suggested step commits:** `build: establish linux audio inspection dependencies` → `feat: load audio metadata and waveform records` → `feat: profile audio signal statistics`.
+[Verified M14.1 implementation](docs/phase-14.md) covers header-first signal
+loading, original-unit statistics, native controls, saved configuration and
+codec/resource acceptance. M14.2–M14.4 remain open.
+
+- [x] **Deliverables:** common local audio inputs including WAV/FLAC/OGG/MP3 and mapped waveform arrays; header-first sample rate/channel/duration metadata; amplitude/RMS, clipping and silence statistics; sample-rate configuration when arrays lack it.
+- [x] **Entry gate:** verify SoundFile/SoundDevice/SciPy and decoder/system requirements on Python 3.14/Linux; establish worker-side block decoding and preserved original signal metadata.
+- [x] **Exit gate:** files and arrays expose correct duration/channels/rate and known signal statistics; missing-rate arrays require configuration; malformed/unsupported inputs have diagnostics; headers and visible previews do not trigger full collection decoding.
+- [x] **Verification evidence:** mono/stereo, varied-rate, silence/clipping, corrupt/missing and array-backed fixtures; codec feasibility, known signal values, worker lifecycle and memory/latency measurements.
+- [x] **Suggested step commits:** `build: establish linux audio inspection dependencies` → `feat: load audio metadata and waveform records` → `feat: profile audio signal statistics`.
 
 ### M14.2 — Waveform, spectrogram, and mel views
 

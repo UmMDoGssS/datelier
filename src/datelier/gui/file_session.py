@@ -12,6 +12,7 @@ from datelier.gui.analysis.session import AnalysisSession
 from datelier.gui.arrays.mapping_controls import MappingControls
 from datelier.gui.arrays.records import ArrayRecords
 from datelier.gui.arrays.view import ArrayView
+from datelier.gui.audio.view import AudioView
 from datelier.gui.checkpoints.view import CheckpointView
 from datelier.gui.data.export import ExportControls
 from datelier.gui.data.import_controls import ImportControls
@@ -85,6 +86,7 @@ class FileSession:
     checkpoint_view: CheckpointView = field(default_factory=CheckpointView)
     text: TextView = field(default_factory=TextView)
     images: ImageView = field(default_factory=ImageView)
+    audio: AudioView = field(default_factory=AudioView)
 
     @classmethod
     def create(
@@ -145,6 +147,7 @@ class FileSession:
             checkpoints=CheckpointJobs(executor),
             text=TextView(executor),
             images=ImageView(executor),
+            audio=AudioView(executor),
         )
         return session
 
@@ -298,6 +301,7 @@ class FileSession:
         self.checkpoints.poll()
         self.text.sync(self)
         self.images.sync(self)
+        self.audio.sync(self)
 
     def install_session_file(self, result: RestoredSessionFile) -> None:
         from datelier.gui.workspace.session_install import install_session_file
@@ -315,6 +319,7 @@ class FileSession:
         self.checkpoints.close()
         self.text.close()
         self.images.close()
+        self.audio.close()
         self.array_view.raw_columns.clear()
         self.array_view.plotted.clear()
         self.reference_view.textures.clear()

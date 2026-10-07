@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 from imgui_bundle import imgui
 
+from datelier.inspection.arrays.mapping import ArrayLayout
 from datelier.inspection.records.jobs import RecordJobs
 from datelier.inspection.records.types import InspectSettings, RecordMode
 from datelier.io.types import ArrayOptions
@@ -111,7 +112,11 @@ class ArrayRecords:
                 f"Channel (0–{max(0, size - 1)})", self.channel
             )
             imgui.pop_item_width()
-            imgui.text_wrapped("Image channels are shown as numeric spatial planes.")
+            imgui.text_wrapped(
+                "Channels select original waveform samples."
+                if mapping.layout == ArrayLayout.AUDIO
+                else "Image channels are shown as numeric spatial planes."
+            )
         try:
             configured = mapping.slice_settings(catalog, index, channel=self.channel)
         except ValueError as error:

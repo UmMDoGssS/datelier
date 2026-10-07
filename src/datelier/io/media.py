@@ -115,6 +115,8 @@ def load_media(path: Path, options: MediaOptions | None = None) -> ImportResult:
         path_role = (
             ColumnRole.IMAGE
             if folder and rows and all(row[2] == "Image" for row in rows)
+            else ColumnRole.AUDIO
+            if folder and rows and all(row[2] == "Audio" for row in rows)
             else ColumnRole.PATH
             if folder
             else ColumnRole.IMAGE
@@ -123,7 +125,7 @@ def load_media(path: Path, options: MediaOptions | None = None) -> ImportResult:
             if path.suffix.lower() in AUDIO_EXTENSIONS
             else ColumnRole.EXTERNAL_TEXT
         )
-        # An image-only folder has explicit extension evidence for image tools.
+        # Homogeneous media folders have explicit extension evidence for tools.
         # Mixed/empty collections remain generic references regardless of counts.
         roles = tuple(
             replace(info, inferred=path_role, reason="Media source record reference.")

@@ -2,7 +2,8 @@
 
 Phase 14 remains open. Scope and exit gates are in
 [ROADMAP.md](../ROADMAP.md#phase-14--audio-inspection-and-integrated-acceptance).
-Phase 13 passes; the worktree was clean at entry (`97a86bd`).
+Phase 13 passes; the worktree was clean at entry (`97a86bd`). M14.1 passes;
+M14.2–M14.4 remain open.
 
 ## Delivery steps
 
@@ -145,3 +146,49 @@ and cleanup/source-hash gates continue to pass.
 See [signal resource evidence](evidence/phase14/audio-signal-resources.json).
 M14.1 remains open for native controls, saved configuration and full acceptance;
 M14.2–M14.4 also remain open.
+
+### Native Inspect and M14.1 acceptance (2026-10-08)
+
+Focused Inspect routes audio roles, recognized audio references in mixed media,
+and confirmed waveform mappings to header-first audio tools beside arbitrary
+supporting fields. Homogeneous audio folders retain explicit audio roles.
+Users configure unknown array rates, original-frame ranges/channels, original
+clipping rails or custom amplitudes, silence thresholds and explicit complete/
+selected-range profiles. An explicit sample command shows original dtype values
+in a virtual table with frame/time positions. Settings round-trip in legacy and
+whole-session workspaces; decoded samples and statistics are never bundled.
+Restored file views read only visible headers. Mapped views use the existing
+explicit Prepare saved array records command for supporting arrays/history,
+then restore metadata without waveform samples/statistics. The playback backend
+is not imported during these native workflows.
+
+`scripts/audio_inspect_smoke.py` drives real mouse/key/scroll input on Linux/Mesa
+software OpenGL. File controls pass **282 frames**, p95 **10.65 ms**; an idle
+fresh-process restoration passes **28 frames**, p95 **10.81 ms**. Mapped arrays
+pass **332 frames**, p95 **11.70 ms**, including native **8 kHz** configuration,
+sorting to original row **1**, preserved supporting label **1**, second-channel
+samples **−0.5**, exact RMS **0.5** and explicit **8,000** clipped samples under
+the custom **±0.2** threshold. A native saved-record preparation and idle restore
+passes **46 frames**, p95 **11.70 ms**. Both retain the chosen 1,024-frame window,
+channel and thresholds, preserve source hashes, and keep exact sample rendering
+below 100 visible rows. The first native run exposed a zero-height statistics
+table; an explicit bounded table height fixes it. Final screenshots are visually
+reviewed with channel statistics and exact values visible.
+See [file evidence](evidence/phase14/audio-file-native.json) and
+[mapped-array evidence](evidence/phase14/audio-array-native.json).
+
+Focused audio/workspace/media/state checks pass **58 tests**. Full M14.1 suite:
+**932 passed in 22.60 s**, with three existing restricted-checkpoint warnings.
+`uv run pyrefly check`: **zero errors**, one existing suppression;
+`uv run ruff check .` and `uv run ruff format --check .` pass (**536 files**).
+Offline lock validation (**50 packages**), diff whitespace and local document
+links are checked before commit. The Inspect renderer remains cohesive at
+337 lines; audio computation, controls and statistics rendering have separate
+owners. The 309-line native driver is one complete save/restore workflow.
+
+M14.1 now passes dependency/codec feasibility, known original signal metadata/
+statistics, missing-rate/malformed diagnostics, bounded reads, cancellation,
+source preservation, saved controls, native file/array restoration and measured
+resource gates. Actual playback, waveform/spectral/mel views, collection
+comparisons, integrated multimodal and clean-install acceptance remain in the
+following open milestones.
