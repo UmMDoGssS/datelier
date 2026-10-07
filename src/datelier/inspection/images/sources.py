@@ -141,11 +141,7 @@ def image_metadata(locator: ImageLocator) -> ImageMetadata:
     if mapping.layout == ArrayLayout.IMAGE and count not in (1, 2, 3, 4):
         raise ValueError("Image mapping requires 1, 2, 3 or 4 channels; use a heatmap")
     names = {1: ("L",), 2: ("L", "A"), 3: ("R", "G", "B"), 4: ("R", "G", "B", "A")}
-    channels = (
-        names[count]
-        if mapping.layout == ArrayLayout.IMAGE
-        else tuple(f"Channel {i}" for i in range(count))
-    )
+    channels = names[count] if mapping.layout == ArrayLayout.IMAGE else ("Value",)
     mode = {1: "L", 2: "LA", 3: "RGB", 4: "RGBA"}.get(count, "Numeric")
     return ImageMetadata(
         width,
@@ -156,6 +152,7 @@ def image_metadata(locator: ImageLocator) -> ImageMetadata:
         member.dtype,
         mode if mapping.layout == ArrayLayout.IMAGE else "Numeric",
         description=f"{mapping.member}; raw {member.dtype}; confirmed {mapping.layout}",
+        channel_count=count,
     )
 
 

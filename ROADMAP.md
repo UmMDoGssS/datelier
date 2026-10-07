@@ -826,7 +826,7 @@ passes; heatmaps, annotations and comparisons remain outstanding in M13.2–M13.
 ### M13.2 — Numeric heatmap inspection
 
 - [ ] **Deliverables:** numeric image-like array inspection with selectable colormaps/ranges, channels/slices, nonfinite indicators and raw-value readouts; display normalization independent of source values/statistics.
-- [ ] **Entry gate:** M13.1 passes; Phase 11's array slicing and image navigation share prepared data without treating arbitrary numeric arrays as encoded RGB automatically.
+- [x] **Entry gate:** M13.1 passes; Phase 11's array slicing and image navigation share bounded, raw-preserving scalar normalization without treating arbitrary numeric arrays as encoded RGB automatically.
 - [ ] **Exit gate:** signed/float/constant/nonfinite arrays show correct ranges and raw values; changing display normalization does not mutate data or statistical results; mapped record identity remains correct.
 - [ ] **Verification evidence:** known-value heatmaps, negative/constant/nonfinite fixtures, slice/readout correctness, native colormap/range navigation and restored settings.
 - [ ] **Suggested step commits:** `feat: inspect numeric image heatmaps` → `feat: configure heatmap display ranges`.

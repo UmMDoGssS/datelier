@@ -8,6 +8,7 @@ from numpy.typing import NDArray
 from datelier.core.dataset import DatasetRevision
 from datelier.inspection.arrays.mapping import ArrayRecordMapping
 from datelier.inspection.arrays.types import ArrayCatalog
+from datelier.inspection.heatmaps import Colormap, validate_range
 from datelier.inspection.references.types import AssetIdentity
 
 
@@ -41,6 +42,11 @@ class ImageMetadata:
     orientation: int = 1
     frames: int = 1
     description: str = ""
+    channel_count: int = 0
+
+    @property
+    def count(self) -> int:
+        return self.channel_count or len(self.channels)
 
     @property
     def aspect_ratio(self) -> float:
@@ -51,14 +57,17 @@ class ImageMetadata:
 class ImageDisplay:
     channel: int | None = None
     value_range: tuple[float, float] | None = None
+    colormap: Colormap = Colormap.GRAY
+    fixed: tuple[int, ...] = ()
 
     def validate(self) -> None:
         if self.channel is not None and self.channel < 0:
             raise ValueError("Image channel must be nonnegative")
-        if self.value_range is not None:
-            lo, hi = self.value_range
-            if not np.isfinite(lo) or not np.isfinite(hi) or lo >= hi:
-                raise ValueError("Display range needs finite, increasing endpoints")
+        validate_range(self.value_range)
+        if self.colormap not in Colormap:
+            raise ValueError("Unknown heatmap colormap")
+        if len(self.fixed) > 64 or any(index < 0 for index in self.fixed):
+            raise ValueError("Heatmap fixed coordinates must be nonnegative")
 
 
 @dataclass(frozen=True)
@@ -86,6 +95,8 @@ class PreparedImage:
     rgba: NDArray[np.uint8]
     nonfinite: int
     limited: bool = False
+    finite_range: tuple[int | float, int | float] | None = None
+    display_range: tuple[int | float, int | float] | None = None
 
     @property
     def retained_bytes(self) -> int:

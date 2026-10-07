@@ -12,6 +12,7 @@ from datelier.inspection.arrays.types import ArrayCatalog
 from datelier.inspection.arrays.windows import MAX_SLICE_BYTES as MAX_SLICE_BYTES
 from datelier.inspection.arrays.windows import MAX_SLICE_CELLS as MAX_SLICE_CELLS
 from datelier.inspection.arrays.windows import plan_window
+from datelier.inspection.heatmaps import normalize
 from datelier.io.arrays.storage import ArrayStore
 
 
@@ -25,7 +26,7 @@ class PreparedSlice:
     cells: tuple[tuple[str, ...], ...]
     numeric: NDArray[np.float64] | None
     colors: NDArray[np.float64] | None
-    finite_range: tuple[float, float] | None
+    finite_range: tuple[int | float, int | float] | None
     nonfinite: int
     limited: bool
     heatmap: NDArray[np.float64] | None = None
@@ -48,7 +49,7 @@ def _numeric(
 ) -> tuple[
     NDArray[np.float64] | None,
     NDArray[np.float64] | None,
-    tuple[float, float] | None,
+    tuple[int | float, int | float] | None,
     int,
 ]:
     chosen = raw
@@ -70,24 +71,12 @@ def _numeric(
             else chosen.imag
         )
     numeric = np.array(chosen, dtype=np.float64, copy=True)
+    normalized = normalize(chosen, settings.value_range)
     finite = np.isfinite(numeric)
-    count = numeric.size - int(np.count_nonzero(finite))
-    colors = np.full(numeric.shape, np.nan, dtype=np.float64)
-    bounds: tuple[float, float] | None = None
-    if np.any(finite):
-        lo, hi = float(numeric[finite].min()), float(numeric[finite].max())
-        bounds = (lo, hi)
-        if lo == hi:
-            colors[finite] = 0.5
-        else:
-            scale = max(abs(lo), abs(hi), 1.0)
-            denominator = hi / scale - lo / scale
-            colors[finite] = (numeric[finite] / scale - lo / scale) / denominator
     numeric[~finite] = np.nan
     # ImPlot's ndarray binding requires writable presentation buffers even
     # though drawing does not edit them. Raw authoritative values stay read-only.
-    colors.flags.writeable = False
-    return numeric, colors, bounds, count
+    return numeric, normalized.colors, normalized.bounds, normalized.nonfinite
 
 
 def prepare_slice(

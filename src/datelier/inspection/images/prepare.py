@@ -9,6 +9,7 @@ import numpy as np
 from numpy.typing import NDArray
 from PIL import Image
 
+from datelier.inspection.heatmaps import normalize, ramp_colors
 from datelier.inspection.images.geometry import orient_array
 from datelier.inspection.images.storage import ImageStore
 from datelier.inspection.images.types import (
@@ -35,7 +36,8 @@ def bounded_window(
         min(window.width, metadata.width - left),
         min(window.height, metadata.height - top),
     )
-    per_pixel = metadata.dtype.itemsize * len(metadata.channels) + 4
+    count = 1 if metadata.mode == "Numeric" else metadata.count
+    per_pixel = metadata.dtype.itemsize * count + 4
     step = max(window.step, ceil(width / 1024), ceil(height / 1024))
     step = max(step, ceil((width * height * per_pixel / cpu_bytes) ** 0.5))
     while ceil(width / step) * ceil(height / step) * per_pixel > cpu_bytes:
@@ -54,10 +56,20 @@ def display_pixels(
     raw: NDArray[np.generic], metadata: ImageMetadata, display: ImageDisplay
 ) -> tuple[NDArray[np.uint8], int]:
     display.validate()
+    if metadata.mode == "Numeric":
+        if raw.ndim != 2:
+            raise ValueError("Numeric heatmaps require one selected scalar plane")
+        values = normalize(raw, display.value_range)
+        return ramp_colors(values.colors, display.colormap), values.nonfinite
     channels = raw[:, :, None] if raw.ndim == 2 else raw
     if display.channel is not None and display.channel >= channels.shape[2]:
         raise ValueError("Chosen image channel is unavailable")
-    values = np.asarray(channels, dtype=np.float64)
+    chosen = (
+        channels
+        if display.channel is None
+        else channels[:, :, display.channel : display.channel + 1]
+    )
+    values = np.asarray(chosen, dtype=np.float64)
     finite = np.isfinite(values)
     nonfinite = int(values.size - np.count_nonzero(finite))
     lo, hi = display.value_range or default_range(raw.dtype)
@@ -68,11 +80,9 @@ def display_pixels(
     )
     rgba = np.full((*raw.shape[:2], 4), 255, dtype=np.uint8)
     if display.channel is not None:
-        rgba[:, :, :3] = byte[:, :, display.channel, None]
+        rgba[:, :, :3] = byte[:, :, :1]
     elif metadata.mode == "CMYK":
         rgba[:, :, :3] = np.asarray(Image.fromarray(byte, "CMYK").convert("RGB"))
-    elif metadata.mode == "Numeric":
-        raise ValueError("Numeric arrays require an explicit channel/heatmap display")
     elif byte.shape[2] in (1, 2):
         rgba[:, :, :3] = byte[:, :, :1]
         if byte.shape[2] == 2:
@@ -96,6 +106,10 @@ def prepare_window(
     cpu_bytes: int = 16 * 1024 * 1024,
     stopped: Callable[[], bool] | None = None,
 ) -> PreparedImage:
+    display = channel_display(metadata, display)
+    display.validate()
+    if display.channel is not None and display.channel >= metadata.count:
+        raise ValueError("Chosen image channel is unavailable")
     window = bounded_window(requested, metadata, cpu_bytes)
     spatial = (
         slice(window.top, window.top + window.height, window.step),
@@ -110,14 +124,32 @@ def prepare_window(
         if catalog is None or mapping is None or locator.source_index is None:
             raise ValueError("Image record mapping is unavailable")
         shape = catalog.member(mapping.member).shape
-        selectors: list[int | slice] = list(mapping.fixed or (0,) * len(shape))
+        fixed = (
+            display.fixed
+            if metadata.mode == "Numeric" and display.fixed
+            else mapping.fixed
+        )
+        if fixed and len(fixed) != len(shape):
+            raise ValueError("Heatmap slice rank does not match the array")
+        positions = fixed or (0,) * len(shape)
+        used_axes = (mapping.record_axis, *mapping.display_axes, mapping.channel_axis)
+        if any(
+            position >= shape[axis]
+            for axis, position in enumerate(positions)
+            if axis not in used_axes
+        ):
+            raise ValueError("Heatmap slice is outside the selected array")
+        selectors: list[int | slice] = list(positions)
         selectors[mapping.record_axis] = locator.source_index
         for axis, selector in zip(mapping.display_axes, spatial, strict=True):
             selectors[axis] = selector
         axes = mapping.display_axes
         if mapping.channel_axis is not None:
-            selectors[mapping.channel_axis] = slice(None)
-            axes = (*axes, mapping.channel_axis)
+            if metadata.mode == "Numeric":
+                selectors[mapping.channel_axis] = display.channel or 0
+            else:
+                selectors[mapping.channel_axis] = slice(None)
+                axes = (*axes, mapping.channel_axis)
         with arrays.open_member(catalog, mapping.member, stopped) as array:
             selected = np.asarray(array[tuple(selectors)])
             raw = cast(
@@ -127,9 +159,22 @@ def prepare_window(
                 ).copy(),
             )
     raw.flags.writeable = False
-    rgba, nonfinite = display_pixels(raw, metadata, display)
+    values = normalize(raw, display.value_range) if metadata.mode == "Numeric" else None
+    if values is not None:
+        rgba, nonfinite = ramp_colors(values.colors, display.colormap), values.nonfinite
+    else:
+        rgba, nonfinite = display_pixels(raw, metadata, display)
     return PreparedImage(
-        locator, metadata, window, display, raw, rgba, nonfinite, window != requested
+        locator,
+        metadata,
+        window,
+        display,
+        raw,
+        rgba,
+        nonfinite,
+        window != requested,
+        values.bounds if values else None,
+        values.display_range if values else None,
     )
 
 

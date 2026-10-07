@@ -258,3 +258,35 @@ environment; accelerated rendering remains unverified.
 M13.1 deliverables, correctness, native restoration and resource exits pass.
 Numeric heatmaps, annotation adapters/overlays and cross-file image comparisons
 remain outstanding in M13.2–M13.4.
+
+### Numeric heatmap foundation (2026-10-07)
+
+Confirmed Numeric heatmap mappings now prepare one chosen scalar plane with
+optional fixed-axis coordinates, bounded original-pixel windows and the same
+source-row identities as image Inspect. Metadata represents channel counts
+without generating a name for every channel. A two-million-channel fixture
+opens metadata without reading payloads and retains only **12 bytes** for its
+chosen one-pixel raw/RGBA buffers. Numeric mappings never become encoded RGB.
+
+Shared display normalization retains raw integer extrema, including nearby
+UInt64 values, and uses extended precision for negative/extreme float ranges.
+Automatic bounds describe the prepared window; explicit finite bounds clip only
+colors. Constants use the midpoint; NaN/±Inf use magenta. Linear grayscale,
+blue/white/red, blue/green/yellow and purple/gold ramps are independent of raw
+values, slices and statistics. Phase 11 slice preparation shares this helper,
+while vector/complex/raw presentations remain available. Encoded image channel
+views now mark nonfinite values only in the chosen channel.
+
+Focused heatmap/array/image/profile/persistence checks: **77 passed**. They cover
+signed/constant/extreme/nonfinite values, precise UInt64 colors, N-depth-C-W-H
+slice transpose, sorted record identity, independent fixed coordinates, invalid
+channels/slices/ranges, source hashes, read-only buffers and legacy recipes.
+Pyrefly: **zero errors**, one existing suppression; Ruff lint/format (**451 Python
+files**) and diff whitespace pass.
+
+The existing native `scripts/array_views_smoke.py` regression passes **78/35
+frames**, p95 **12.84/12.32 ms**, with native fixed-index/slice input, explicit
+preparation, fresh-process idle metadata restore, source preservation and cleanup.
+[Report](evidence/phase13/heatmap-foundation-native.json) records the run.
+M13.2 entry passes. New native heatmap channel/slice/colormap/range controls and
+its exit/restoration gates remain open.

@@ -2,6 +2,8 @@
 
 from dataclasses import dataclass
 
+from datelier.inspection.heatmaps import Colormap, validate_range
+
 
 @dataclass(frozen=True)
 class SliceSettings:
@@ -13,8 +15,13 @@ class SliceSettings:
     field: str | None = None
     component: str = "Magnitude"
     scalar: bool = False
+    value_range: tuple[float, float] | None = None
+    colormap: Colormap = Colormap.BLUE_YELLOW
 
     def validate(self) -> None:
+        validate_range(self.value_range)
+        if self.colormap not in Colormap:
+            raise ValueError("Unknown heatmap colormap")
         if self.scalar and self.axes:
             raise ValueError("Scalar previews do not use display axes")
         if len(self.axes) > 2 or len(set(self.axes)) != len(self.axes):
