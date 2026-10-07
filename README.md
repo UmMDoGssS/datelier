@@ -13,9 +13,10 @@ Phase 11 adds structured JSON/TOML trees, named table views, lazy NumPy array
 inspection, confirmed record mappings and optional CPU checkpoint inspection.
 All M11.1–M11.4 gates pass; [Phase 11 evidence](docs/phase-11.md) records
 restoration, native interaction, resource and clean-install checks.
-Phase 12 is underway: configurable text tokenization and explicit local
-BPE/Unigram training and exact corpus profiles pass M12.1–M12.3; token Inspect
-and comparison gates remain open. See [Phase 12 evidence](docs/phase-12.md).
+Phase 12 adds configurable text tokenization, explicit local BPE/Unigram training,
+exact corpus profiles, complete token-span Inspect and shared-tokenizer text
+comparisons. All M12.1–M12.4 gates pass; [Phase 12 evidence](docs/phase-12.md)
+records native restoration, resources and clean base/CPU-extra installation.
 See [ROADMAP.md](ROADMAP.md) for delivery gates and [AGENTS.md](AGENTS.md) for
 contributor conventions.
 
@@ -295,11 +296,11 @@ source identity, and each file keeps its own selection and Inspect settings.
 Workspaces preserve these controls, reference mappings and record manifests;
 decoded previews remain session caches. Missing records restore with diagnostics.
 Exports and workspace writes preserve collection members as well as individual
-source files. Full text statistics/token-span inspection, image tools and audio playback
-arrive in the later authorized phases. See [Phase 10 evidence](docs/phase-10.md)
+source files. Text statistics and token spans are available in Phase 12; richer
+image tools and audio playback follow in the later authorized phases. See [Phase 10 evidence](docs/phase-10.md)
 for native checks, restoration and fixture-specific resource measurements.
 
-## Local text tokenization, training and profiles
+## Local text tokenization, training, inspection and comparisons
 
 Open the dockable **Text** panel and expand **Text settings** to choose a String
 field, inline/external source, encoding and tokenization. **Character** counts
@@ -324,7 +325,24 @@ statistics require **Calculate corpus profile**. It provides document/token
 totals, length statistics/quantiles, vocabulary/hapax ratios, entropy in bits,
 length distributions, token/document frequencies and record outcomes. The chart
 shows twelve ranked types; the virtual table retains every exact frequency row.
-Full token-span Inspect and text comparisons remain under development.
+In **Inspect**, turn off **Gallery**, choose a text primary field, and click
+**Inspect text tokens** to show complete text and tokens beside supporting fields.
+Navigate with original offsets, text pages, token index or the complete virtual
+token list. Selecting a token highlights its original span even after normalization.
+Offsets count original Unicode code points; control characters use visible symbols.
+Large token pieces have separate pages. Record and page choices restore as recipes.
+
+In **Compare files → Text corpora**, add a text comparison and expand **Text mappings
+and shared tokenizer**. Configure tokenization in the active view's **Text** panel,
+then click **Use active view tokenizer** to apply that configuration to every mapped
+source. Select each file/view's field, interpretation, encoding and corpus scope,
+then click **Prepare text comparison**. Lengths use common bins; statistics remain
+per source. Token/document frequencies share one vocabulary ordering with twelve
+plotted types and complete virtual raw-count tables. **Density / proportion** uses
+decoded documents for lengths/document frequency and counted tokens for token
+frequency. Length-bin selection returns to the mapped file/view's source rows.
+Changing inputs requires another prepare command. Sessions retain the mappings
+and shared tokenizer references without training or corpus work on reopening.
 
 ## Exploration
 

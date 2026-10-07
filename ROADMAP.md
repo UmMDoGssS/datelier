@@ -46,8 +46,11 @@ and gallery/detail Inspect with direct media/text records;
 measured resources. Phase 11 passes structured objects, lazy NumPy arrays,
 confirmed record mappings and optional restricted CPU checkpoints;
 [Phase 11 evidence](docs/phase-11.md) records restoration, resource and clean-install
-acceptance. Phase 12 and later implementation gates remain open. These gates do
-not change existing feature or usability acceptance.
+acceptance. Phase 12 passes local tokenization/training, exact text profiles,
+original token-span Inspect and shared-tokenizer cross-file comparisons;
+[Phase 12 evidence](docs/phase-12.md) records native/restoration, resource and
+clean-install acceptance. Phase 13 and later implementation gates remain open.
+These gates do not change existing feature or usability acceptance.
 
 A concrete post-v1 usability need is recorded in the
 [Titanic UX review and proposed repair plan](docs/ux-titanic-review.md): readable
@@ -645,7 +648,7 @@ the corresponding dependency or behavior gates.
 native tabs, independent inactive-file jobs, nonblocking closure and M9.2
 Welcome/recent opening/editor controls, whole-session recovery and cross-file
 comparisons. The completed Phase 10/11 inspection expansion is recorded below;
-Phase 12 is the next outstanding phase.
+Phase 13 is the next outstanding phase.
 
 - [x] **Deliverables:** application/file session separation; top file tab bar with switching, reordering, closing, and New Tab; independent source/revision, operations, selections, jobs, analysis settings, and views; dockable panels bound to the active file.
 - [x] **Entry gate:** inspect current GuiSession and job/persistence boundaries; define typed file-session ownership and the shared worker lifecycle before introducing tabs.
@@ -761,10 +764,11 @@ clean installations with and without the optional checkpoint dependency.
 
 ## Phase 12 — Text profiling and token inspection
 
-[M12.1–M12.3 tokenization, local training and exact corpus profile evidence](docs/phase-12.md)
-is verified; full token inspection/comparison and final phase gates remain open.
+[M12.1–M12.4 evidence](docs/phase-12.md) verifies tokenization, local training,
+exact corpus profiles, full token-span Inspect, shared-tokenizer cross-file
+comparisons, native/restoration/resource gates and clean installations.
 
-- [ ] **Phase complete.** **Entry:** Phase 11 passes. **Exit:** M12.1–M12.4 pass; multilingual text statistics and token spans are correct and cross-file comparisons use compatible tokenization.
+- [x] **Phase complete.** **Entry:** Phase 11 passes. **Exit:** M12.1–M12.4 pass; multilingual text statistics and token spans are correct and cross-file comparisons use compatible tokenization.
 
 ### M12.1 — Configurable tokenization
 
@@ -792,11 +796,11 @@ is verified; full token inspection/comparison and final phase gates remain open.
 
 ### M12.4 — Token inspection and cross-file text comparison
 
-- [ ] **Deliverables:** full text, token pieces/IDs, offsets and highlighted spans beside supporting columns in Inspect; cross-file length/statistic/token-frequency comparisons using a shared tokenizer configuration.
-- [ ] **Entry gate:** M12.3 passes; prepared text/tokens and comparison results retain the correct source-record identity.
-- [ ] **Exit gate:** token spans map to original multilingual text, long text remains navigable, incompatible tokenizers cannot silently produce equivalent-looking comparisons, and record choices/comparison settings restore without training.
-- [ ] **Verification evidence:** original-span and long-text fixtures, shared/incompatible tokenizer comparisons, native token highlighting and linked selection, fresh-process workspace and resource checks.
-- [ ] **Suggested step commits:** `feat: inspect token spans and text records` → `feat: compare text profiles across files`.
+- [x] **Deliverables:** full text, token pieces/IDs, offsets and highlighted spans beside supporting columns in Inspect; cross-file length/statistic/token-frequency comparisons using a shared tokenizer configuration.
+- [x] **Entry gate:** M12.3 passes; prepared text/tokens and comparison results retain the correct source-record identity.
+- [x] **Exit gate:** token spans map to original multilingual text, long text remains navigable, incompatible tokenizers cannot silently produce equivalent-looking comparisons, and record choices/comparison settings restore without training.
+- [x] **Verification evidence:** original-span and long-text fixtures, shared/incompatible tokenizer comparisons, native token highlighting and linked selection, fresh-process workspace and resource checks.
+- [x] **Suggested step commits:** `feat: inspect token spans and text records` → `feat: compare text profiles across files`.
 
 ## Phase 13 — Images, heatmaps, and detection annotations
 

@@ -1,7 +1,8 @@
 # Phase 12 — Text profiling and token inspection
 
-Phase 11 is complete. Phase 12 is underway; M12.1–M12.3 pass. M12.4
-implementation, native, restoration and resource gates remain open.
+Phase 12 is complete. M12.1–M12.4 pass configurable tokenization, explicit local
+training, exact corpus profiles, full token Inspect and shared-tokenizer cross-file
+comparisons, with native/restoration/resource and clean-install evidence below.
 
 ## Delivery steps
 
@@ -375,3 +376,42 @@ decomposed into multiple pieces keep their shared consumed original span.
 **36 focused tests** pass, with zero Pyrefly errors and Ruff lint/format passing.
 The native Inspect and both resource probes pass again; the table/report values
 above now reflect this rerun. The previous failing fixture is resolved.
+
+## Phase 12 final acceptance and installation
+
+The complete suite passes **736 tests in 19.77 s**, including existing table,
+analysis, structured-object, array/checkpoint and workspace regressions. Three
+upstream checkpoint fixture warnings remain. Final Pyrefly reports **zero errors**
+(one existing suppression and 13 hidden warnings); Ruff lint/format (**409 files**),
+lock consistency and diff whitespace pass. These checks include the final
+imported-prefix/composition correction and the installation probe.
+
+The source archive/wheel build with `uv build --offline`. Clean locked runtimes
+in `/tmp/datelier-phase12-base` and `/tmp/datelier-phase12-cpu` use Python **3.14.7**
+and Tokenizers **0.23.2**. `uv pip check` passes **32/39 packages** respectively;
+the optional environment has CPU PyTorch **2.14.1+cpu**. Installed modules are
+verified under each environment's `site-packages`, outside the checkout.
+
+`text_install_probe.py` passes local BPE and Unigram training, artifact/recipe
+round trips, original Unicode source preservation, exact six-token corpus and
+six/six-token comparison fixtures in both runtimes. Ordinary app/text imports
+leave PyTorch unimported in both; the base environment has no PyTorch. The wheel
+includes the outline emoji font and its OFL license with the verified font hash.
+[Base probe](evidence/phase12/installed/base.json) and
+[CPU-extra probe](evidence/phase12/installed/cpu.json) retain evidence.
+
+The installed base wheel passes the native text comparison save/reopen workflow
+(**179/129 frames**) outside the checkout, preserving separate row selections
+and shared-tokenizer configuration with no implicit restore jobs.
+[Installed native report](evidence/phase12/installed/text-comparison-frequencies-native.json)
+retains results. Installed Unicode glyphs/visible outline emoji pass at normal
+13 px and sample 20 px sizes (**16 frames**); the installed CLI entry point's
+`--help` also passes. [Installation manifest](evidence/phase12/installed/manifest.json)
+records build identity and commands.
+
+All Phase 12 gates pass. Phase 13 image tools and Phase 14 audio/mixed-session
+acceptance remain open. This milestone does not change unfinished Titanic
+usability gates. Linux/Mesa software rendering is verified on the reference
+machine; complex-script shaping/RTL and other platform/font configurations are
+not claimed verified. Exact corpus statistics and bounded views use in-memory
+records; measured fixtures do not establish a general capacity guarantee.

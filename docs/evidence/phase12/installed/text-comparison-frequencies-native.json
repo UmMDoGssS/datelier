@@ -1,0 +1,29 @@
+{
+  "save": {
+    "restore": false,
+    "frames": 179,
+    "shared_tokens": [
+      3,
+      8
+    ],
+    "native_selection": true,
+    "sources_separate": true,
+    "screenshots": [
+      "/home/ummdogsss/Code/Projects/datelier/docs/evidence/phase12/installed/text-comparison-frequencies.png"
+    ]
+  },
+  "reopen": {
+    "restore": true,
+    "frames": 129,
+    "shared_tokens": [
+      3,
+      8
+    ],
+    "native_selection": true,
+    "sources_separate": true,
+    "screenshots": [
+      "/home/ummdogsss/Code/Projects/datelier/docs/evidence/phase12/installed/text-comparison-restored-frequencies.png"
+    ]
+  },
+  "unchanged_sources": true
+}

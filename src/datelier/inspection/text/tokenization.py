@@ -5,8 +5,8 @@ import json
 import unicodedata
 from collections.abc import Iterator
 from pathlib import Path
-from typing import Literal, cast
 from time import sleep
+from typing import Literal, cast
 
 from tokenizers import PreTokenizedString, Tokenizer, normalizers, pre_tokenizers
 from tokenizers.models import BPE
