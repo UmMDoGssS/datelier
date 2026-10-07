@@ -1,0 +1,19 @@
+{
+  "header_seconds": 1.688198518999343,
+  "header_records": [
+    10000,
+    5000
+  ],
+  "header_retained_bytes": 1171993,
+  "signal_seconds": 4.660371291000047,
+  "signal_retained_bytes": 28266,
+  "signal_frames_per_source": 28800000,
+  "array_comparison_seconds": 1.956462788000863,
+  "array_extractions": 1,
+  "array_peak_temporary_bytes": 3840128,
+  "array_retained_after_command": 0,
+  "comparison_retained_bytes": 34423,
+  "peak_rss_increase_bytes": 44711936,
+  "source_preserved": true,
+  "temporary_cleanup": true
+}

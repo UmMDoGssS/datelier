@@ -528,3 +528,60 @@ existing suppression. Ruff lint/format (**570 files**), offline lock consistency
 and diff whitespace pass. Full playback fixture
 resource acceptance, actual listening/volume observations, cross-file audio
 comparisons and M14.3 completion remain open.
+
+### Audio comparison foundation targets (2026-10-08)
+
+Before measurement, compare **10,000 training / 5,000 test references** using
+headers only within **10 s**, and two full **10-minute stereo 48 kHz** exact
+signal profiles within **20 s**. Require source-preserving scalar result
+retention below **16 MiB** and fresh-process peak RSS increase below **96 MiB**
+including bounded fixture creation. A compressed **10×48,000×2** array under a
+**1 MiB** disk-retention limit must extract its selected member once for the
+complete exact collection command, retain no decoded samples, release temporary
+member bytes after the lease, and remove temporary paths on closure. Native
+comparisons keep the **33 ms** frame p95 target. All comparison gates remain open
+until these measurements, native mappings, source-scoped selection and fresh
+restoration pass.
+
+### Explicit audio collection/comparison workers (2026-10-08)
+
+Typed source recipes now select all current rows, a range, linked IDs or a seeded
+record sample. Header-only commands read original frames/channels/rate/duration
+without sample decoding or NPZ extraction. Exact commands explicitly stream all
+original samples of the scoped records using the established bounded readers;
+channel mean/RMS/peak, clipping/silence fractions and all-channel silence/
+nonfinite frames preserve their finite-value denominators. Missing/null/corrupt
+records retain source-row outcomes and diagnostics. Unknown array rates allow
+header inspection but require configuration before an exact scan.
+
+Comparisons prepare common finite scalar bins and count/proportion paths on a
+worker. Durations use seconds and rates use Hz across sources with different
+original rates; no resampling occurs. File full-scale amplitudes and array
+amplitudes/units retain separate unit/dtype families and channel identities.
+Threshold-dependent fractions record each source's explicit threshold/rails.
+Plots use Float64 reports; original extrema and peaks retain decimal strings.
+Very large report ranges use labelled scaled coordinates with original bounds.
+Bin selection returns only the contributing file/view/revision's original row
+IDs, including through sorting. Binding/restoration cannot launch scans; changed,
+closed or abandoned contributors invalidate results and late selections.
+
+**14 collection/comparison tests** cover lazy headers, failure/null/empty and
+nonfinite outcomes, exact known signals, threshold changes, sorted/sample scopes,
+unknown-rate arrays, one compressed-member lease, incompatible amplitude units,
+common-bin normalization, scaled extrema, late asset edits, cancellation and
+stale/closed selection publication. Focused audio/editor/media checks pass
+**122 tests in 4.49 s**. Pyrefly reports zero errors and one existing suppression;
+Ruff lint/format (**585 files**) and diff whitespace pass. This foundation does
+not change GUI behavior.
+
+`scripts/benchmark_audio_comparisons.py` passes the targets recorded above:
+**15,000 headers in 1.688 s**, retaining **1,171,993 bytes**; two full **28,800,000
+frame** stereo scans in **4.660 s**, retaining **28,266 bytes**. The compressed
+10-record collection comparison takes **1.956 s** including another long-file
+scan, extracts the member once (**3,840,128 bytes** temporary), releases it to
+zero after the command and removes its directory at closure. Retained comparison
+scalars/curves are **34,423 bytes**; fresh peak RSS increase including fixtures
+is **42.64 MiB**. Source hashes remain unchanged; see
+[comparison resource evidence](evidence/phase14/audio-comparison-resources.json).
+Native comparison controls, persisted mappings, actual listening and M14.3–M14.4
+exit gates remain open.
