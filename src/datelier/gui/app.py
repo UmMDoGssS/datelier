@@ -204,6 +204,7 @@ def run_gui(
             "Source browser": guard(source_browser),
             "Explore": bind(explore),
             "Compare files": guard(compare_files),
+            "Text": bind(lambda session: session.text.show(session)),
             "Inspect": bind(
                 lambda session: session.inspect.show(
                     session.references,

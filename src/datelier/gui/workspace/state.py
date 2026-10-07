@@ -186,6 +186,7 @@ def capture_views(session: GuiSession) -> WorkspaceViews:
         if session.checkpoints.catalog is not None
         else None,
         session.checkpoints.store.limit,
+        session.text.jobs.settings,
     )
 
 
@@ -281,3 +282,4 @@ def restore_view_settings(session: GuiSession, saved: WorkspaceViews) -> None:
     if saved.checkpoint_slice is not None:
         session.checkpoints.settings = saved.checkpoint_slice
     session.checkpoints.store.limit = saved.checkpoint_retention_bytes
+    session.text.jobs.settings = saved.text

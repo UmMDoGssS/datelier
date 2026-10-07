@@ -55,7 +55,7 @@ class TextTokenizer:
     """One worker-local engine reused across a corpus, with full-length encoding."""
 
     def __init__(self, settings: TokenSettings) -> None:
-        settings.validate()
+        settings.validate(require_artifact=True)
         self.settings = settings
         self.normalizer = normalization(settings)
         self.tokenizer: Tokenizer | None = None
@@ -135,4 +135,5 @@ class TextTokenizer:
             self.settings,
             self.normalizer.normalize_str(text),
             tuple(tokens),
+            sum(t.counted for t in tokens),
         )

@@ -26,6 +26,11 @@ from datelier.inspection.exploration import PlotSettings
 from datelier.inspection.presentation import TablePresentation
 from datelier.inspection.records.types import InspectSettings
 from datelier.inspection.references.types import ReferenceMapping, ReferenceSettings
+from datelier.inspection.text.types import (
+    TextSettings,
+    TokenizerReference,
+    TokenSettings,
+)
 from datelier.io.types import (
     ArrayOptions,
     CheckpointOptions,
@@ -51,6 +56,9 @@ from datelier.workspace.session_types import SessionFile, SessionWorkspace, Sour
 from datelier.workspace.types import Workspace, WorkspaceSource, WorkspaceViews
 
 RECORDS = (
+    TextSettings,
+    TokenSettings,
+    TokenizerReference,
     ArrayRecordMapping,
     SupportingArray,
     SliceSettings,

@@ -46,11 +46,13 @@ class TokenSettings:
     count_special_tokens: bool = False
     artifact: TokenizerReference | None = None
 
-    def validate(self) -> None:
+    def validate(self, *, require_artifact: bool = False) -> None:
         if self.artifact is not None:
             self.artifact.validate()
-        if self.mode in (TokenMode.BPE, TokenMode.UNIGRAM) and (
-            self.artifact is None or self.artifact.mode != self.mode
+        if (
+            require_artifact
+            and self.mode in (TokenMode.BPE, TokenMode.UNIGRAM)
+            and (self.artifact is None or self.artifact.mode != self.mode)
         ):
             raise ValueError("Load a matching local tokenizer JSON configuration")
 
@@ -66,6 +68,22 @@ class TextSource(StrEnum):
     AUTO = "By interpretation"
     INLINE = "Inline value"
     EXTERNAL = "External file"
+
+
+@dataclass(frozen=True)
+class TextSettings:
+    column: str | None = None
+    source: TextSource = TextSource.AUTO
+    encoding: str = "utf8"
+    tokens: TokenSettings = TokenSettings()
+    position: int = 0
+
+    def validate(self) -> None:
+        self.tokens.validate()
+        if self.encoding not in ("utf8", "utf-8-sig", "utf16", "latin1"):
+            raise ValueError("Choose a supported text encoding")
+        if self.position < 0:
+            raise ValueError("Text row position must be nonnegative")
 
 
 @dataclass(frozen=True)
@@ -102,7 +120,4 @@ class TokenizedDocument:
     settings: TokenSettings
     normalized: str
     tokens: tuple[TextToken, ...]
-
-    @property
-    def count(self) -> int:
-        return sum(t.counted for t in self.tokens)
+    count: int = 0

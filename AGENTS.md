@@ -108,7 +108,9 @@ mappings with aligned supporting fields and optional restricted CPU checkpoint
 inspection;
 [docs/phase-11.md](docs/phase-11.md) records source/provenance, native restoration
 and measured resource evidence, full-suite checks and clean base/CPU installs.
-Phase 12 and later implementation/dependency gates remain open.
+Phase 12 M12.1 passes local configurable tokenization and native saved-setting
+recovery; [docs/phase-12.md](docs/phase-12.md) records dependency, multilingual
+offset, worker and restoration evidence. M12.2–M12.4 and later gates remain open.
 Phase 8 investigations do not block this approved sequence. Existing v1 evidence
 and unfinished Titanic usability gates retain their status.
 

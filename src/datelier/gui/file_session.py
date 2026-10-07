@@ -22,6 +22,7 @@ from datelier.gui.inspect.view import InspectView
 from datelier.gui.objects.sessions import RecordViews
 from datelier.gui.plots.controls import PlotControls
 from datelier.gui.references.view import ReferenceView
+from datelier.gui.text.view import TextView
 from datelier.gui.workspace.controls import WorkspaceControls
 from datelier.gui.workspace.preferences import PreferenceControls
 from datelier.gui.workspace.state import (
@@ -81,6 +82,7 @@ class FileSession:
     array_records: ArrayRecords = field(default_factory=ArrayRecords)
     checkpoints: CheckpointJobs = field(default_factory=CheckpointJobs)
     checkpoint_view: CheckpointView = field(default_factory=CheckpointView)
+    text: TextView = field(default_factory=TextView)
 
     @classmethod
     def create(
@@ -139,6 +141,7 @@ class FileSession:
             array_mapping=MappingControls(executor),
             array_records=ArrayRecords(executor),
             checkpoints=CheckpointJobs(executor),
+            text=TextView(executor),
         )
         return session
 
@@ -290,6 +293,7 @@ class FileSession:
         elif self.checkpoints.catalog is not None:
             self.checkpoints.unbind()
         self.checkpoints.poll()
+        self.text.sync(self)
 
     def install_session_file(self, result: RestoredSessionFile) -> None:
         from datelier.gui.workspace.session_install import install_session_file
@@ -305,6 +309,7 @@ class FileSession:
         self.array_mapping.close()
         self.array_records.close()
         self.checkpoints.close()
+        self.text.jobs.close()
         self.array_view.raw_columns.clear()
         self.array_view.plotted.clear()
         self.reference_view.textures.clear()

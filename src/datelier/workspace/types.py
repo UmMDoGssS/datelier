@@ -9,6 +9,7 @@ from datelier.inspection.exploration import PlotSettings
 from datelier.inspection.presentation import TablePresentation
 from datelier.inspection.records.types import InspectSettings
 from datelier.inspection.references.types import ReferenceSettings
+from datelier.inspection.text.types import TextSettings
 from datelier.io.types import (
     ImportFormat,
     ImportOptions,
@@ -54,8 +55,10 @@ class WorkspaceViews:
     array_retention_bytes: int = 256 * 1024 * 1024
     checkpoint_slice: SliceSettings | None = None
     checkpoint_retention_bytes: int = 256 * 1024 * 1024
+    text: TextSettings = TextSettings()
 
     def validate(self) -> None:
+        self.text.validate()
         if self.checkpoint_slice is not None:
             self.checkpoint_slice.validate()
         if self.checkpoint_retention_bytes < 0:

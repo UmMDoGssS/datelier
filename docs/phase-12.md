@@ -1,7 +1,7 @@
 # Phase 12 — Text profiling and token inspection
 
-Phase 11 is complete. Phase 12 is underway; M12.1–M12.4 exit gates remain
-open until their native, restoration, full-suite and resource evidence passes.
+Phase 11 is complete. Phase 12 is underway; M12.1 passes. M12.2–M12.4
+implementation, native, restoration and resource gates remain open.
 
 ## Delivery steps
 
@@ -51,3 +51,38 @@ complete encoding despite imported truncation/padding, changed/missing artifacts
 and physical String eligibility. Pyrefly reports zero errors (one existing
 suppression). Ruff lint/format and diff whitespace pass. This foundation does
 not introduce GUI behavior; native controls and recovery remain outstanding.
+
+## M12.1 — Native configuration and workspace recovery
+
+The dockable Text panel exposes physical String field selection, inline versus
+interpreted/external text, encoding, all five tokenizer modes, normalization,
+case/whitespace/special-token count settings, and a current-table row position.
+Single-record preparation and local JSON import/reload use shared workers and
+explicit commands. The panel shows counted tokens, original code-point length,
+source-row identity and decoding diagnostics. Whole-collection work and training
+are not yet implemented. The small text preview is labeled at 4,096 code points;
+full navigation and token highlighting remain M12.4 requirements.
+
+Recipes persist settings and local artifact path/model/SHA-256, with legacy
+defaults when absent. Restoration launches no text preparation, downloads or
+training. A missing/changed tokenizer fails preparation with a reload action;
+failed imports keep the prior recipe. Settings, revision, reference discovery
+and file/view closure retire pending results. Count totals are prepared in the
+worker, not rescanned during rendering.
+
+Focused tokenization/worker/file/workspace tests: **28 passed**. The full suite:
+**705 passed** in **19.58 s**, with three upstream checkpoint fixture warnings.
+Pyrefly: **zero errors**, one existing suppression; Ruff lint/format
+(**376 files**) and diff whitespace pass.
+
+`LIBGL_ALWAYS_SOFTWARE=1 POLARS_MAX_THREADS=8 .venv/bin/python
+scripts/text_tokenization_smoke.py --output docs/evidence/phase12` exercises native
+mouse input for the normalization checkbox, explicit record preparation and
+saved-artifact reload (**82 frames**). A separate process restores the saved BPE
+recipe with no active text job, verifies missing-artifact failure, restores the
+file, clicks reload and explicitly prepares the original record (**41 frames**).
+[Native report](evidence/phase12/tokenizer-native.json) and
+[restored panel](evidence/phase12/tokenizer-restore.png) retain the results.
+The default GUI font lacks CJK/emoji coverage on this machine; multilingual
+values/offsets are correct in behavioral fixtures, and native glyph coverage
+must be established with M12.4 token-span rendering.

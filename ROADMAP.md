@@ -761,15 +761,18 @@ clean installations with and without the optional checkpoint dependency.
 
 ## Phase 12 — Text profiling and token inspection
 
+[M12.1 dependency, tokenization and native restoration evidence](docs/phase-12.md)
+is verified; local training, corpus profiles and token comparison gates remain open.
+
 - [ ] **Phase complete.** **Entry:** Phase 11 passes. **Exit:** M12.1–M12.4 pass; multilingual text statistics and token spans are correct and cross-file comparisons use compatible tokenization.
 
 ### M12.1 — Configurable tokenization
 
-- [ ] **Deliverables:** character (Unicode code points), whitespace, word, BPE and Unigram modes; visible normalization and token-count settings; local tokenizer configuration loading and source-preserving token offsets.
-- [ ] **Entry gate:** verify Hugging Face Tokenizers on Python 3.14/Linux; inline/external text records have encoding diagnostics and stable identity.
-- [ ] **Exit gate:** modes tokenize known multilingual fixtures with documented units and normalization; null/empty/decoding errors have distinct outcomes; imported tokenizer identity and settings are reproducible and no downloads/training occur implicitly.
-- [ ] **Verification evidence:** Unicode, punctuation, whitespace, empty/null and imported-tokenizer fixtures; offset/normalization tests, native tokenizer controls and saved-setting recovery.
-- [ ] **Suggested step commits:** `build: establish local tokenization support` → `feat: configure text tokenization modes`.
+- [x] **Deliverables:** character (Unicode code points), whitespace, word, BPE and Unigram modes; visible normalization and token-count settings; local tokenizer configuration loading and source-preserving token offsets.
+- [x] **Entry gate:** verify Hugging Face Tokenizers on Python 3.14/Linux; inline/external text records have encoding diagnostics and stable identity.
+- [x] **Exit gate:** modes tokenize known multilingual fixtures with documented units and normalization; null/empty/decoding errors have distinct outcomes; imported tokenizer identity and settings are reproducible and no downloads/training occur implicitly.
+- [x] **Verification evidence:** Unicode, punctuation, whitespace, empty/null and imported-tokenizer fixtures; offset/normalization tests, native tokenizer controls and saved-setting recovery.
+- [x] **Suggested step commits:** `build: establish local tokenization support` → `feat: configure text tokenization modes`.
 
 ### M12.2 — Explicit local BPE and Unigram training
 
