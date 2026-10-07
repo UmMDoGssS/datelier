@@ -5,6 +5,7 @@ import json
 import unicodedata
 from collections.abc import Iterator
 from pathlib import Path
+from typing import Literal, cast
 from time import sleep
 
 from tokenizers import PreTokenizedString, Tokenizer, normalizers, pre_tokenizers
@@ -58,14 +59,30 @@ def normalization(settings: TokenSettings) -> normalizers.Normalizer:
     return normalizers.Sequence(steps)
 
 
+def canonical_steps(value: object) -> tuple[str, ...]:
+    if not isinstance(value, dict):
+        return ()
+    config = cast(dict[str, object], value)
+    if config.get("type") in ("NFC", "NFKC", "NFD", "NFKD"):
+        return (cast(str, config["type"]),)
+    children = config.get("normalizers")
+    return (
+        tuple(
+            mode
+            for child in cast(list[object], children)
+            for mode in canonical_steps(child)
+        )
+        if isinstance(children, list)
+        else ()
+    )
+
+
 def source_span(
-    original: str, start: int, end: int, normalizer: normalizers.Normalizer
+    original: str, start: int, end: int, composition: Literal["NFC", "NFKC"] | None
 ) -> tuple[int, int]:
-    # Tokenizers maps composed characters to their starter. Preserve marks
-    # and Hangul Jamo consumed by normalization, without swallowing independent
-    # code points. Empty-input prefixes (e.g. an imported Prepend normalizer)
-    # are not evidence that two original characters composed.
-    if end > start:
+    # Native offsets identify composition starters. Extend only actual canonical
+    # composition; imported prefix insertion is not composition evidence.
+    if end > start and composition is not None:
         while end < len(original):
             following = original[end]
             jamo = unicodedata.normalize("NFKC", following)
@@ -73,22 +90,12 @@ def source_span(
                 0x1160 <= ord(ch) <= 0x11FF for ch in jamo
             ):
                 break
-            values = [
-                normalizer.normalize_str(raw)
-                for raw in (
-                    original[start:end],
-                    original[end : end + 1],
-                    original[start : end + 1],
-                )
-            ]
-            empty = normalizer.normalize_str("")
-            if empty:
-                values = [value.removeprefix(empty) for value in values]
-            prefix, mark, combined = values
+            prefix = unicodedata.normalize(composition, original[start:end])
+            mark = unicodedata.normalize(composition, original[end : end + 1])
+            combined = unicodedata.normalize(composition, original[start : end + 1])
             if combined == prefix + mark:
                 break
             end += 1
-
     return start, end
 
 
@@ -132,6 +139,12 @@ class TextTokenizer:
             if isinstance(tokenizer.model, BPE):
                 tokenizer.model.dropout = None
             self.tokenizer = tokenizer
+        steps = canonical_steps(json.loads(self.normalizer.__getstate__()))
+        self._composition: Literal["NFC", "NFKC"] | None = (
+            ("NFKC" if any(mode in ("NFKC", "NFKD") for mode in steps) else "NFC")
+            if any(mode in ("NFC", "NFKC") for mode in steps)
+            else None
+        )
 
     def encode(self, document: TextDocument) -> TokenizedDocument:
         text = document.text
@@ -149,7 +162,7 @@ class TextTokenizer:
                 encoding.special_tokens_mask,
                 strict=True,
             ):
-                start, end = source_span(text, *span, self.normalizer)
+                start, end = source_span(text, *span, self._composition)
                 tokens.append(
                     TextToken(
                         piece,
@@ -210,7 +223,7 @@ class TextTokenizer:
             prepared.normalize(self.normalizer.normalize)
             splitter.pre_tokenize(prepared)
             for piece, span, _ in prepared.get_splits("original", "char"):
-                a, b = source_span(chunk, *span, self.normalizer)
+                a, b = source_span(chunk, *span, self._composition)
                 yield piece, (start + a, start + b)
             start = end
             if start < len(text):

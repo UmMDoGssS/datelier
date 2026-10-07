@@ -206,3 +206,24 @@ def test_imported_prefix_is_not_evidence_of_character_composition(
     ).encode(document("e\u0301"))
     actual = [(t.piece, t.start, t.end) for t in result.tokens]
     assert actual[-2:] == [("e", 0, 1), ("\u0301", 1, 2)]
+
+
+def test_imported_composition_and_expansion_share_consumed_source_span(
+    tmp_path: Path,
+) -> None:
+    from tokenizers import Tokenizer, models, normalizers, pre_tokenizers
+
+    from datelier.inspection.text.tokenization import import_tokenizer
+
+    tokenizer = Tokenizer(models.BPE({"e": 0, "\u0301": 1}, []))
+    tokenizer.normalizer = normalizers.Sequence([normalizers.NFC(), normalizers.NFD()])
+    tokenizer.pre_tokenizer = pre_tokenizers.Split("", "isolated")
+    path = tmp_path / "decomposed.json"
+    tokenizer.save(str(path))
+    result = TextTokenizer(
+        TokenSettings(TokenMode.BPE, artifact=import_tokenizer(path))
+    ).encode(document("e\u0301"))
+    assert [(t.piece, t.start, t.end) for t in result.tokens] == [
+        ("e", 0, 2),
+        ("\u0301", 0, 2),
+    ]

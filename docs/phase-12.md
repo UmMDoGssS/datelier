@@ -329,7 +329,7 @@ despite passing the overall frame budget. Character preparation now uses roughly
 normalization joins (including Hangul Jamo) stay intact; offsets remain global
 and no text/token is omitted. Fixtures cover boundary accents, Hangul composition,
 compatibility expansion, independent marks and imported empty-input prefixes.
-Focused text checks: **35 passed**. Pyrefly zero errors; Ruff lint/format
+Focused text checks: **36 passed**. Pyrefly zero errors; Ruff lint/format
 (**409 files**) pass. Native Inspect save/reopen still passes.
 
 `benchmark_text_inspection.py --output docs/evidence/phase12` creates two
@@ -342,27 +342,36 @@ Budgets below, including a separate long-preparation frame gate, are predeclared
 
 | Gate | Measured | Budget |
 | --- | ---: | ---: |
-| All three source metadata/open | 164.84 ms | 3,000 ms |
-| Two complete corpora/shared comparison | 5,171.31 ms | 20,000 ms |
-| Complete 110,012-token character record | 376.91 ms | 3,000 ms |
-| Overall frame p95 | 26.49 ms | 33 ms |
-| Long-record preparation frame p95 | 29.41 ms | 33 ms |
-| Peak process RSS | 435.16 MiB | 768 MiB |
+| All three source metadata/open | 146.70 ms | 3,000 ms |
+| Two complete corpora/shared comparison | 5,073.70 ms | 20,000 ms |
+| Complete 110,012-token character record | 379.28 ms | 3,000 ms |
+| Overall frame p95 | 25.99 ms | 33 ms |
+| Long-record preparation frame p95 | 28.85 ms | 33 ms |
+| Peak process RSS | 436.20 MiB | 768 MiB |
 | Complete retained comparison buffers | 3,748,942 bytes | 8 MiB |
 | Virtual frequency/token rows rendered | 9 / 11 | 20 / 30 |
 | Original source page | 2,048 code points | 2,048 code points |
 | Shared workers / temporary profile storage | 4 / 0 bytes | 4 / 0 bytes |
 
-The **503-frame** run verifies all **784,000 corpus tokens**, complete 104-type
+The **506-frame** run verifies all **784,000 corpus tokens**, complete 104-type
 vocabularies, final original text/token access, source SHA-256 preservation,
 result release after file-tab closure and joined workers.
 [Mixed resource report](evidence/phase12/text-mixed-resources.json) retains phase
 measurements. These are fixture-specific results, not general capacity guarantees.
 
 The final single **100,000-record** profile rerun, including Unicode fonts and
-the offset changes, passes: open **129.53 ms**, exact profile **5,077.93 ms**,
-frame p95 **24.89 ms**, peak RSS **435.61 MiB**, retained profile **3,740,282 bytes**,
+the offset changes, passes: open **126.47 ms**, exact profile **4,902.28 ms**,
+frame p95 **24.26 ms**, peak RSS **440.23 MiB**, retained profile **3,740,282 bytes**,
 **11** visible frequency rows, four joined workers and zero temporary storage.
 All 784,000 tokens/104 types and unchanged source hashes remain verified.
 [Updated profile report](evidence/phase12/text-profile-resources.json) retains evidence.
 Clean-install and final full-suite acceptance remain open.
+
+Imported-normalizer follow-up corrects the prematurely recorded prefix fixture
+above. Offset expansion now recognizes actual NFC/NFKC stages in the serialized
+normalizer, rather than mistaking an inserted prefix for composition. Prefix-only
+models leave independent mark offsets intact. Composed groups subsequently
+decomposed into multiple pieces keep their shared consumed original span.
+**36 focused tests** pass, with zero Pyrefly errors and Ruff lint/format passing.
+The native Inspect and both resource probes pass again; the table/report values
+above now reflect this rerun. The previous failing fixture is resolved.
