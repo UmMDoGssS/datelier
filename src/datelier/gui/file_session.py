@@ -34,6 +34,7 @@ from datelier.gui.workspace.state import (
 )
 from datelier.inspection.arrays.jobs import ArrayJobs
 from datelier.inspection.arrays.slices import SliceSettings
+from datelier.inspection.audio.playback.controller import AudioPlayback
 from datelier.inspection.checkpoints.jobs import CheckpointJobs
 from datelier.inspection.exploration import Explorer
 from datelier.inspection.preview import PreviewCache
@@ -98,6 +99,7 @@ class FileSession:
         workspace_path: Path | None = None,
         loader_override: DatasetLoader | None = None,
         array_store: ArrayStore | None = None,
+        playback: AudioPlayback | None = None,
     ) -> FileSession:
         loader = (
             loader_override
@@ -147,7 +149,7 @@ class FileSession:
             checkpoints=CheckpointJobs(executor),
             text=TextView(executor),
             images=ImageView(executor),
-            audio=AudioView(executor),
+            audio=AudioView(executor, playback),
         )
         return session
 
@@ -313,13 +315,13 @@ class FileSession:
             return
         self.closed = True
         self.record_views.clear()
+        self.audio.close(self.identity)
         self.arrays.close()
         self.array_mapping.close()
         self.array_records.close()
         self.checkpoints.close()
         self.text.close()
         self.images.close()
-        self.audio.close()
         self.array_view.raw_columns.clear()
         self.array_view.plotted.clear()
         self.reference_view.textures.clear()

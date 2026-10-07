@@ -10,6 +10,8 @@ from datelier.gui.file_session import FileSession
 from datelier.gui.images.comparison_session import comparison_inputs, sync_comparisons
 from datelier.gui.workspace.capture import capture_session
 from datelier.gui.workspace.preferences import PreferenceControls
+from datelier.inspection.audio.playback.controller import AudioPlayback, PlaybackPhase
+from datelier.inspection.audio.playback.device import DeviceFactory, SoundDeviceOutput
 from datelier.inspection.comparison_settings import ComparisonSettings
 from datelier.inspection.comparisons.jobs import ComparisonJobs
 from datelier.inspection.comparisons.types import (
@@ -47,8 +49,10 @@ class EditorSession:
         initial_path: Path | None = None,
         initial_workspace: Path | None = None,
         loader_override: DatasetLoader | None = None,
+        playback_factory: DeviceFactory = SoundDeviceOutput,
     ) -> None:
         self.workers = SharedWorkers()
+        self.playback = AudioPlayback(playback_factory, executor=self.workers)
         self.preferences = PreferenceControls(preferences_path, executor=self.workers)
         self.browser = FileBrowser(self.workers, Path.cwd())
         self.opening = OpeningJobs(self.workers)
@@ -73,6 +77,7 @@ class EditorSession:
             source_path=initial_path,
             workspace_path=initial_workspace,
             loader_override=loader_override,
+            playback=self.playback,
         )
         self.files = [first]
         self.active_id = first.identity
@@ -275,7 +280,9 @@ class EditorSession:
         self._recent_workspaces.clear()
         self.files = []
         for result in restored.files:
-            file = FileSession.create(self.preferences, executor=self.workers)
+            file = FileSession.create(
+                self.preferences, executor=self.workers, playback=self.playback
+            )
             file.identity = result.file.identity
             file.install_session_file(result)
             self.files.append(file)
@@ -324,6 +331,15 @@ class EditorSession:
         if not any(file.identity == identity for file in self.files):
             raise ValueError("That file tab is closed")
         self.active_id = identity
+        chosen = self.active.record_views.active(self.active).identity
+        state = self.playback.snapshot
+        if (
+            state.request is not None
+            and state.request.locator.origin.file_id != chosen
+            and state.phase
+            in (PlaybackPhase.STARTING, PlaybackPhase.PLAYING, PlaybackPhase.PAUSED)
+        ):
+            self.playback.stop()
         if focus:
             self.focus_requested = identity
 
@@ -331,7 +347,10 @@ class EditorSession:
         if self.closed:
             raise RuntimeError("Editor is closed")
         file = FileSession.create(
-            self.preferences, executor=self.workers, source_path=source
+            self.preferences,
+            executor=self.workers,
+            source_path=source,
+            playback=self.playback,
         )
         self.files.append(file)
         self.activate(file.identity)
@@ -410,6 +429,15 @@ class EditorSession:
             if path is not None and self._recent_workspaces.get(file.identity) != path:
                 self._recent_workspaces[file.identity] = path
                 self.preferences.remember(RecentSource(str(path), RecentKind.WORKSPACE))
+        selected = self.active.record_views.active(self.active).identity
+        playing = self.playback.snapshot
+        if (
+            playing.request is not None
+            and playing.request.locator.origin.file_id != selected
+            and playing.phase
+            in (PlaybackPhase.STARTING, PlaybackPhase.PLAYING, PlaybackPhase.PAUSED)
+        ):
+            self.playback.stop()
         self.browser.poll()
         restored, recovered = self.workspace_jobs.poll(
             self.stamp, context=self.opening.generation
@@ -540,5 +568,6 @@ class EditorSession:
         self.comparison_jobs.close()
         self.text_comparison_jobs.close()
         self.image_comparison_jobs.close()
+        self.playback.close(wait=True)
         self.preferences.close()
         self.workers.shutdown(wait=True)

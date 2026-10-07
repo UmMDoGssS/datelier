@@ -2,8 +2,8 @@
 
 Phase 14 remains open. Scope and exit gates are in
 [ROADMAP.md](../ROADMAP.md#phase-14--audio-inspection-and-integrated-acceptance).
-Phase 13 passes; the worktree was clean at entry (`97a86bd`). M14.1 passes;
-M14.2–M14.4 remain open.
+Phase 13 passes; the worktree was clean at entry (`97a86bd`). M14.1–M14.2 pass;
+M14.3–M14.4 remain open.
 
 ## Delivery steps
 
@@ -477,3 +477,54 @@ It uses the previously established temporary PortAudio runtime through
 and submitted-cursor checks, with no listening observation claimed. Native GUI
 controls, full fixture resource measurements, actual listening/volume
 observations, comparisons and M14.3 completion remain open.
+
+### Explicit native listening controls and idle restoration (2026-10-08)
+
+Inspect now exposes explicit Play/Resume, Pause, Stop, source-time Seek, volume,
+selected-range/all-record and selected-channel/original-channel controls beside
+supporting columns. Output discovery is an explicit background command; choices
+use device and host-API names rather than transient numeric indices. One editor
+output worker is shared by file and mapped-record views. Switching tabs/views,
+changing the focused record, revision, source/range/channel/rate/device recipe,
+or closing its owner stops that output; closing an unrelated tab does not.
+Volume changes affect the running buffer. Array leases and device closure remain
+worker-owned, and the GUI reports pending stop until closure is acknowledged.
+
+Listening preferences persist independently for each file/view, including
+output, gain, range/channel choice and seek frame. Legacy audio recipes receive
+safe defaults. Loading/restoring does not import SoundDevice, enumerate devices,
+create a playback worker, prepare samples/profiles, or start output. Array record
+views borrow their owner's player; they cannot close another tab's output.
+
+`scripts/audio_listening_smoke.py` exercises genuine native button, checkbox,
+slider-text, combo and seek input returns on a two-second **8 kHz** stereo WAV
+and a sorted three-record compressed NPZ with aligned supporting labels. Both
+select channel 2, original frames **4,000–12,000**, output **Default Sink,
+PulseAudio**, volume **0.250**, pause with a stable cursor, paused seek to frame
+**6,000**, volume **0.125**, resume, acknowledged stop and saved preferences.
+The NPZ stays associated with original row **1** and supporting label **1**.
+The actual output buffers retain **36,864 bytes**, then release; both runs have
+zero observed underruns and unchanged source hashes. PortAudio reports this
+PulseAudio stream's latency as **0 ms**; that API value does not establish
+physical output latency or audibility.
+
+Fresh subprocesses restore the saved recipes with visible playback controls,
+no stream or output query, and no prepared signal/profile. File native save/
+restore frame p95 is **11.99/11.93 ms** over **607/92 frames**; array p95 is
+**13.28/12.57 ms** over **642/115 frames**. See
+[file control evidence](evidence/phase14/audio-listening-file-native.json),
+[file restored controls](evidence/phase14/audio-listening-file-restored.png),
+[array control evidence](evidence/phase14/audio-listening-array-native.json) and
+[array restored controls](evidence/phase14/audio-listening-array-restored.png).
+These are native device/control observations; actual listening remains open.
+
+Regression `audio_spectrum_smoke.py` passes native waveform/FFT/raster and fresh
+restore with **18.91/19.80 ms** p95 over **708/113 frames**. The mapped-array
+sample/profile regression `audio_inspect_smoke.py --array` passes native exact
+controls, original row/support alignment and idle restoration with
+**12.09/11.98 ms** p95 over **391/46 frames**. Focused audio, editor, workspace
+and media checks pass **118 tests in 4.26 s**; Pyrefly reports zero errors and one
+existing suppression. Ruff lint/format (**570 files**), offline lock consistency
+and diff whitespace pass. Full playback fixture
+resource acceptance, actual listening/volume observations, cross-file audio
+comparisons and M14.3 completion remain open.

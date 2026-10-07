@@ -60,6 +60,7 @@ class RecordViews:
             owner.preferences,
             executor=self.executor,
             loader_override=DatasetLoader(extract, executor=self.executor),
+            playback=owner.audio.player,
         )
         file.view_name = node_label(path)
         file.controls.bind_settings(ImportFormat.OBJECT, options)
@@ -108,6 +109,7 @@ class RecordViews:
             owner.preferences,
             executor=self.executor,
             array_store=store,
+            playback=owner.audio.player,
             loader_override=DatasetLoader(extract, executor=self.executor),
         )
         file.view_name = (

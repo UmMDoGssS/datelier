@@ -11,6 +11,7 @@ import soundfile as sf
 from datelier.core.column_roles import ColumnRole
 from datelier.gui.editor_session import EditorSession
 from datelier.gui.workspace.capture import capture_session
+from datelier.inspection.audio.playback.settings import PlaybackSettings
 from datelier.inspection.audio.profile_types import AudioThresholds
 from datelier.inspection.audio.settings import AudioSettings
 from datelier.inspection.audio.types import AudioRange
@@ -64,6 +65,7 @@ def test_audio_settings_and_legacy_workspace_defaults() -> None:
         ),
         gpu_bytes=1024**2,
         plot_height=300,
+        playback=PlaybackSettings(0.25, False, True, "saved output, ALSA", 250),
     )
     views = replace(WorkspaceViews(), audio=settings)
     assert decode_record(WorkspaceViews, encode(views)) == views
@@ -73,7 +75,7 @@ def test_audio_settings_and_legacy_workspace_defaults() -> None:
     assert decode_record(WorkspaceViews, legacy).audio == AudioSettings()
     legacy_audio = encode(AudioSettings())
     assert isinstance(legacy_audio, dict)
-    for name in ("view", "gpu_bytes", "plot_height"):
+    for name in ("view", "gpu_bytes", "plot_height", "playback"):
         del legacy_audio[name]
     assert decode_record(AudioSettings, legacy_audio) == AudioSettings()
     legacy_signal = encode(SignalViewSettings(mode=AudioViewKind.SPECTROGRAM))
@@ -82,6 +84,10 @@ def test_audio_settings_and_legacy_workspace_defaults() -> None:
     assert decode_record(SignalViewSettings, legacy_signal).mel_bands == 64
     for invalid in (
         replace(settings, array_sample_rate=0),
+        replace(settings, playback=PlaybackSettings(volume=float("nan"))),
+        replace(settings, playback=PlaybackSettings(volume=1.01)),
+        replace(settings, playback=PlaybackSettings(seek_frame=-1)),
+        replace(settings, playback=PlaybackSettings(device="")),
         replace(settings, view=replace(settings.view, mel_bands=0)),
         replace(settings, view=replace(settings.view, mel_bands=513)),
         replace(settings, channel=-1),
@@ -109,6 +115,7 @@ def test_two_audio_recipes_restore_idle_with_independent_source_ids(
                     range=AudioRange(10, 50),
                     thresholds=AudioThresholds(0.8, 0.01),
                     channel=i,
+                    playback=PlaybackSettings(0.25, bool(i), bool(i), None, 10),
                     view=SignalViewSettings(
                         fft=512,
                         hop=128,
@@ -156,6 +163,7 @@ def test_two_audio_recipes_restore_idle_with_independent_source_ids(
         text = workspace.read_text()
         assert "AudioSignalProfile" not in text and "PreparedAudio" not in text
         assert "SpectralView" not in text and "WaveformEnvelope" not in text
+        assert "PlaybackSnapshot" not in text and "PlaybackRun" not in text
     finally:
         editor.close()
     restored = EditorSession()
@@ -176,5 +184,7 @@ def test_two_audio_recipes_restore_idle_with_independent_source_ids(
             )
             assert not file.audio.jobs.busy and file.arrays.store.temporary_path is None
             assert file.audio.signal.active is None and not file.audio.signal.busy
+            assert file.audio.player.snapshot.request is None
+            assert not file.audio.player.devices.busy
     finally:
         restored.close()

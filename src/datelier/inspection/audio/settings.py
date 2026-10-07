@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 from math import isfinite
 
+from datelier.inspection.audio.playback.settings import PlaybackSettings
 from datelier.inspection.audio.profile_types import AudioThresholds
 from datelier.inspection.audio.types import AudioRange, validate_sample_rate
 from datelier.inspection.audio.view_types import SignalViewSettings
@@ -18,9 +19,11 @@ class AudioSettings:
     view: SignalViewSettings = SignalViewSettings()
     gpu_bytes: int = 8 * 1024 * 1024
     plot_height: float = 240
+    playback: PlaybackSettings = PlaybackSettings()
 
     def validate(self) -> None:
         self.view.validate()
+        self.playback.validate()
         if self.gpu_bytes < 1024 * 1024:
             raise ValueError("Audio textures require at least 1 MiB GPU retention")
         if (

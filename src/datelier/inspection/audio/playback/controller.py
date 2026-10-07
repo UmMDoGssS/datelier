@@ -1,12 +1,13 @@
 """A single lazy playback worker coalesces commands and owns the output device."""
 
-from concurrent.futures import CancelledError
+from concurrent.futures import CancelledError, Executor
 from dataclasses import dataclass, replace
 from enum import StrEnum
 from math import isfinite
 from threading import Condition, Thread
 
 from datelier.inspection.audio.playback.device import DeviceFactory, SoundDeviceOutput
+from datelier.inspection.audio.playback.outputs import OutputDevices
 from datelier.inspection.audio.playback.types import PlaybackRequest
 from datelier.inspection.audio.playback.worker import (
     PlaybackReleaseError,
@@ -47,8 +48,14 @@ def validate_volume(volume: float) -> None:
 
 
 class AudioPlayback:
-    def __init__(self, factory: DeviceFactory = SoundDeviceOutput) -> None:
+    def __init__(
+        self,
+        factory: DeviceFactory = SoundDeviceOutput,
+        *,
+        executor: Executor | None = None,
+    ) -> None:
         self._factory = factory
+        self.devices = OutputDevices(executor)
         self._condition = Condition()
         self._thread: Thread | None = None
         self._pending: PlaybackRun | None = None
@@ -166,6 +173,7 @@ class AudioPlayback:
         with self._condition:
             self._closed = True
         self.stop()
+        self.devices.close(wait=wait)
         with self._condition:
             if self._thread is None:
                 self._state = replace(self._state, phase=PlaybackPhase.CLOSED)

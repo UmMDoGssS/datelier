@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 from imgui_bundle import imgui
 
 from datelier.gui.audio.canvas import SignalCanvas
+from datelier.gui.audio.listening import ListeningControls
 from datelier.gui.audio.provenance import show_provenance
 from datelier.gui.audio.signal_controls import (
     frame_input,
@@ -15,6 +16,7 @@ from datelier.gui.audio.signal_controls import (
 )
 from datelier.gui.audio.statistics import show_statistics
 from datelier.inspection.audio.jobs import AudioJobs
+from datelier.inspection.audio.playback.controller import AudioPlayback
 from datelier.inspection.audio.profile_types import AudioThresholds
 from datelier.inspection.audio.settings import AudioSettings
 from datelier.inspection.audio.types import AudioRange
@@ -27,10 +29,17 @@ if TYPE_CHECKING:
 
 
 class AudioView:
-    def __init__(self, executor: Executor | None = None) -> None:
+    def __init__(
+        self, executor: Executor | None = None, playback: AudioPlayback | None = None
+    ) -> None:
         self.jobs = AudioJobs(executor)
         self.signal = SignalViewJobs(executor)
         self.canvas = SignalCanvas()
+        self.player = (
+            playback if playback is not None else AudioPlayback(executor=executor)
+        )
+        self._owns_player = playback is None
+        self.listening = ListeningControls(self.player)
         self.settings = AudioSettings()
         self.buttons: dict[str, tuple[float, float]] = {}
         self.rendered_samples = 0
@@ -46,6 +55,23 @@ class AudioView:
         )
         self.jobs.cpu_bytes = self.settings.cpu_bytes
         self.jobs.poll()
+        self.player.devices.poll()
+        records = owner.inspect.jobs.active
+        prepared = self.jobs.metadata
+        if (
+            prepared is not None
+            and prepared[0].catalog is not None
+            and prepared[1].sample_rate != self.settings.array_sample_rate
+        ):
+            prepared = None
+        if prepared is not None and records is not None:
+            focus = min(owner.inspect.settings.focus, max(0, len(records.row_ids) - 1))
+            if (
+                not len(records.row_ids)
+                or int(records.row_ids[focus]) != prepared[0].origin.row_id
+            ):
+                prepared = None
+        self.listening.sync(owner.identity, prepared, self.settings)
         self.signal.bind(self.jobs.metadata)
         self.signal.poll()
         if self.signal.active is None:
@@ -93,6 +119,7 @@ class AudioView:
             imgui.text_wrapped("Choose a command to prepare samples or statistics.")
         self._controls(metadata.frames, metadata.channels)
         self.settings = time_controls(self.settings, metadata)
+        self.settings = self.listening.show(prepared, self.settings, owner.arrays.store)
         self.settings = signal_controls(self.settings)
         start = min(self.settings.range.start, metadata.frames)
         stop = min(
@@ -251,7 +278,11 @@ class AudioView:
         self.buttons[label] = ((lo.x + hi.x) / 2, (lo.y + hi.y) / 2)
         return clicked
 
-    def close(self) -> None:
+    def close(self, file_id: str | None = None) -> None:
+        if self._owns_player:
+            self.player.close(wait=False)
+        elif file_id is not None:
+            self.player.stop(file_id)
         self.canvas.clear()
         self.signal.close()
         self.jobs.close()
