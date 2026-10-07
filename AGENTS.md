@@ -115,7 +115,8 @@ complete original token-span Inspect and shared-tokenizer text comparisons;
 selection/restoration, measured corpus/long-record resources, full-suite checks
 and clean base/CPU-extra installs. Text tools now live in Explore → Profiles;
 [docs/text-profiles-navigation.md](docs/text-profiles-navigation.md) tracks selection
-and restoration checks for this navigation follow-up. Phase 13 and later gates remain open.
+and restoration checks for this navigation follow-up.
+Phase 13 and later gates remain open.
 Phase 8 investigations do not block this approved sequence. Existing v1 evidence
 and unfinished Titanic usability gates retain their status.
 

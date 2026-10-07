@@ -1,0 +1,25 @@
+{
+  "save": {
+    "frames": 78,
+    "stage": 16,
+    "restore": false,
+    "screenshot": "/tmp/datelier-profile-move/training/training-controls.png",
+    "implicit_training": false
+  },
+  "reopen": {
+    "frames": 13,
+    "stage": 23,
+    "restore": true,
+    "screenshot": "/tmp/datelier-profile-move/training/training-restored.png",
+    "implicit_training": false
+  },
+  "models": [
+    "BPE",
+    "Unigram"
+  ],
+  "source_row_ids": [
+    0,
+    2,
+    3
+  ]
+}

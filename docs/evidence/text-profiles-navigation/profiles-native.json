@@ -1,0 +1,33 @@
+{
+  "save": {
+    "frames": 536,
+    "restore": false,
+    "native_actions": true,
+    "text": {
+      "tokens": 6,
+      "types": 5
+    },
+    "numeric_switch": true,
+    "text category": true,
+    "cat": {
+      "tokens": 3,
+      "types": 2
+    },
+    "changed field": true,
+    "notes": {
+      "tokens": 4,
+      "types": 4
+    }
+  },
+  "reopen": {
+    "frames": 59,
+    "restore": true,
+    "native_actions": true,
+    "restored_selection_without_text_work": true,
+    "notes": {
+      "tokens": 4,
+      "types": 4
+    }
+  },
+  "source_preserved": true
+}

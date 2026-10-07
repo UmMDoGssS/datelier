@@ -1,5 +1,6 @@
 """Editor snapshots, source-specific recovery and obsolete session publication."""
 
+from dataclasses import replace
 from pathlib import Path
 from threading import Event, current_thread, main_thread
 from time import monotonic, sleep
@@ -38,6 +39,48 @@ def wait(editor: EditorSession) -> None:
             return
         sleep(0.001)
     raise AssertionError("Editor workspace jobs did not finish")
+
+
+def test_text_profile_selection_restores_independently_for_each_file(
+    tmp_path: Path,
+) -> None:
+    first, second = tmp_path / "first.csv", tmp_path / "second.csv"
+    first.write_text("id,value,cat,text\n1,1,red,alpha beta\n2,2,red,gamma delta\n")
+    second.write_text("id,value,text\n1,3,one two\n2,4,three four\n")
+    workspace = tmp_path / "text.datelier"
+    editor = EditorSession()
+    try:
+        editor.opening.request((first, second), editor.active_id)
+        wait(editor)
+        category, text = editor.files
+        category.exploration.profile.selection.columns = ("cat",)
+        category.exploration.profile.text = True
+        category.text.jobs.settings = replace(category.text.jobs.settings, column="cat")
+        text.exploration.profile.selection.columns = ("text",)
+        text.text.jobs.settings = replace(text.text.jobs.settings, column="text")
+        editor.activate(text.identity)
+        editor.save_workspace(workspace)
+        wait(editor)
+    finally:
+        editor.close()
+    reopened = EditorSession()
+    try:
+        reopened.open_workspace(workspace)
+        wait(reopened)
+        category, text = reopened.files
+        for file, column, preferred in (
+            (category, "cat", True),
+            (text, "text", False),
+        ):
+            profile = file.exploration.profile
+            assert profile.selection.columns == (column,) and profile.text == preferred
+            assert profile.selection.text_column(profile.text) == column
+            assert file.text.jobs.settings.column == column
+            assert not file.text.jobs.busy
+            assert file.text.jobs.active is None and file.text.jobs.profile is None
+        assert reopened.active is text
+    finally:
+        reopened.close()
 
 
 def saved_session(tmp_path: Path) -> Path:

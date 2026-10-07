@@ -367,8 +367,9 @@ Expand **Plot settings** to change bins, top counts and scatter point limits.
 In **Profiles**, the **Columns** checklist accepts one category/date/text field or any
 number of numeric columns, including columns beyond the automatic preparation
 limit. **All numeric**, **Clear**, and **Done** manage the checklist. Selecting a
-category replaces the numeric group; selecting a numeric column replaces the
-category. **Chart type** switches between Histogram, KDE, ECDF, Box, and Violin.
+category/date/text field replaces the numeric group; selecting a numeric
+column replaces that field. Numeric **Chart type** switches between Histogram,
+KDE, ECDF, Box, and Violin. Text fields show the tokenizer and corpus tools.
 Categories have named count bars; temporal histograms use formatted date/time
 ticks. The selection and chart type are saved with workspaces and preferences.
 

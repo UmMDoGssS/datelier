@@ -1,0 +1,16 @@
+{
+  "save": {
+    "frames": 82,
+    "restore": false,
+    "stage": 19,
+    "screenshot": "/tmp/datelier-profile-move/tokenization/tokenizer-controls.png",
+    "implicit_work_on_restore": false
+  },
+  "reopen": {
+    "frames": 41,
+    "restore": true,
+    "stage": 28,
+    "screenshot": "/tmp/datelier-profile-move/tokenization/tokenizer-restore.png",
+    "implicit_work_on_restore": false
+  }
+}

@@ -17,10 +17,11 @@ class ProfileSelection:
     choices: tuple[RoleInfo, ...] = ()
 
     def bind(self, dataset: Dataset, default: str | None = None) -> None:
+        schema = dataset.table.schema
         self.choices = tuple(
             i
             for i in dataset.roles or ()
-            if i.role in PLOTTABLE_ROLES or dataset.table.schema[i.name] == pl.String
+            if i.role in PLOTTABLE_ROLES or schema[i.name] == pl.String
         )
         allowed = {i.name: i.role for i in self.choices}
         if self.columns is None:
