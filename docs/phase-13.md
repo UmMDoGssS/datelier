@@ -336,3 +336,43 @@ also passes **212/80 frames**, p95 **12.82/17.93 ms**, with Fit/zoom/pan, channe
 selection, raw readouts, saved settings and source hashes verified.
 M13.2 deliverable, correctness and native
 restoration exits pass; M13.3–M13.4 remain open.
+
+### Annotation conventions and VOC/YOLO foundation (2026-10-07)
+
+Inspected primary format references before implementing adapters:
+[VOC development kit](https://www.robots.ox.ac.uk/~vgg/projects/pascal/VOC/voc2008/htmldoc/index.html)
+specifies top-left pixel (1,1) and named xyxy boxes;
+[COCO format](https://github.com/cocodataset/cocodataset.github.io/blob/master/dataset/format-data.htm)
+specifies 0-indexed top-left xywh and separate image/category IDs;
+[Ultralytics detection format](https://docs.ultralytics.com/datasets/detect)
+specifies normalized centre xywh, zero-based classes and YAML split paths;
+[its label path helper](https://docs.ultralytics.com/reference/data/utils/#ultralytics.data.utils.img2label_paths)
+replaces the last images directory with labels and the suffix with .txt.
+Manifest root resolution will be explicit: Datelier defaults relative roots to
+the manifest directory and permits an override, rather than depending on an
+Ultralytics installation's global dataset directory. Image-list `./` paths use
+the list file's directory. Local parsing does not import Ultralytics or execute
+manifest download fields. PyYAML 6.0.3 is already locked for the checkpoint
+dependency; a direct base dependency with SafeLoader will be established and
+tested in the manifest slice. [PyYAML documentation](https://pyyaml.org/wiki/PyYAMLDocumentation)
+defines its standard-data-only loader.
+
+The first annotation slice adds immutable original box/class/source/issue
+records, guarded read-only file snapshots, VOC XML and YOLO detection text.
+VOC exposes one-based inclusive xyxy (default) and explicitly selected zero-based
+pixel-edge xyxy for exporters using that convention. Inclusive minima subtract
+one; maxima remain image edges. One-pixel and fractional boxes are tested.
+YOLO retains normalized values until original image dimensions are supplied.
+Trailing confidence is an explicit extension; invalid syntax retains original
+text/XML and line/object locations. Unknown supplied class mappings are diagnostic.
+Nonpositive/nonfinite geometry is rejected on conversion; out-of-bounds geometry
+is retained with warnings, never clipped. Source/class/index/score provenance
+stays distinct from display orientation.
+
+`pytest tests/test_annotation_readers.py tests/test_import_xml.py
+tests/test_image_inspection.py`: **79 passed in 0.53 s**, including equivalent
+VOC/YOLO boxes, all eight EXIF edge transforms, optional scores/flags, explicit
+index choices, empty labels, invalid classes/rows/geometry, duplicate XML fields,
+DTD/entity rejection and changed snapshots. Pyrefly: **zero errors**, one existing
+suppression; Ruff lint/format and diff whitespace pass. This slice introduces no
+GUI controls. COCO/manifests, association and M13.3 exit gates remain open.
