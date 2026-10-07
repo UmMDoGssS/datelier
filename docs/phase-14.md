@@ -635,3 +635,63 @@ Pyrefly reports zero errors and one existing suppression; Ruff lint/format
 (**592 files**) and diff whitespace pass. Full playback fixture resources,
 actual listening/seek/pause/volume observations and M14.3–M14.4 exit gates remain
 open.
+
+### Playback resource budget clarification before final measurements (2026-10-08)
+
+The original **2 s first-play** target is too close to the reference runtime's
+native setup time: one repeat exceeded it, while two measured runs took
+**1.989/1.998 s**. The latter separates **1.976 s** importing/initializing
+SoundDevice/PortAudio from **1.53 ms** opening the selected output; library lookup
+alone takes **70.6 ms**. The original first-play gate is therefore not accepted
+on the basis of those passing samples. Record cold native setup separately from
+normal source startup rather than treating driver initialization as decoding.
+
+Before final measurements, require **3 s for first explicit playback including
+cold SDK/device initialization**, and **300 ms for an already initialized WAV or
+array source**. Keep the existing **300 ms** pause/seek/acknowledged-stop,
+**1 MiB** output-buffer, **96 MiB** fresh peak RSS, source preservation and cleanup
+targets. This changes the self-set startup benchmark target, not playback
+behavior: device setup remains worker-owned and explicit, restoration remains
+idle, and no GUI callback imports or initializes the SDK. Three fresh resource
+processes must pass the clarified cold/warm limits; all such gates remain open
+until measured. The earlier two-second cold-start result is retained as evidence
+of limited headroom rather than claimed as a reliable bound.
+
+### Repeated physical playback resources and native output errors (2026-10-08)
+
+`scripts/benchmark_audio_playback.py` passes three fresh processes under the
+clarified budgets. A **10-minute stereo 48 kHz WAV** starts in
+**1.997/2.018/2.000 s** including cold SDK initialization, then in
+**16.06/18.10/17.12 ms** with the device initialized. The selected compressed
+array's original row **9**, channel 2, starts in **28.54/23.56/20.41 ms**. Pause
+cursor stability is confirmed over **100–104 ms**; paused source seek takes
+**36.97–49.01 ms**, and acknowledged stop/device closure **21.59–26.94 ms**.
+The long file seeks to original frame **21,600,000**; the array to **36,000**.
+All sources retain their original **48 kHz** rate and correct file/view/row.
+
+Output buffers retain **73,728 bytes** for stereo and **36,864 bytes** for one
+selected channel, then zero after stop. Each NPZ play/seek command holds one
+**3,840,128-byte** member lease, so the two explicit commands extract twice and
+retain zero bytes afterward under the **1 MiB** disk limit. Decoder/device
+closure is acknowledged before replacement; all observed devices close and
+all temporary directories disappear. Peak RSS increase including fixtures is
+**24.78/25.04/25.27 MiB**. Sources retain their SHA-256 hashes and all runs have
+zero observed underruns.
+
+A real SDK request for an unavailable named output reports `Playback failed:
+No output device matching 'Datelier missing output acceptance fixture'`, releases
+its ring and retains no array bytes. PulseAudio reports **0 ms** stream latency;
+that value does not establish physical latency. The benchmark uses **volume 0**
+and records device/resource observations only. Actual listening remains open.
+See [first run](evidence/phase14/audio-playback-resources.json),
+[second run](evidence/phase14/audio-playback-resources-repeat-2.json) and
+[third run](evidence/phase14/audio-playback-resources-repeat-3.json).
+
+Focused playback/editor checks pass **26 tests in 1.64 s**. Pyrefly reports zero
+errors and one existing suppression; Ruff lint/format (**593 files**) and diff
+whitespace pass. The earlier full suite passes **1,013 tests**; this step adds
+only the reproducible resource probe and evidence, with no GUI behavior change.
+M14.3 still requires the human listening/seek/pause/volume observation. A quiet
+21-second **48 kHz** fixture (440/660/880 Hz in seven-second sections) is open in
+Datelier and idle until the user chooses Play. M14.4's entry and completion gates
+remain open pending M14.3 acceptance.
