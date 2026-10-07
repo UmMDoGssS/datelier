@@ -399,3 +399,37 @@ document links and diff whitespace pass. M14.2 now passes original extrema,
 spectral/mel references, independent invalidation, saved provenance, native
 file/array restoration, long navigation, resource and full-suite gates.
 M14.3–M14.4 and overall Phase 14 remain open.
+
+### M14.3 bounded playback-buffer foundation (2026-10-08)
+
+Playback preparation now has an explicit original-source/range/channel/seek
+recipe and a preallocated output ring, independently testable without a device
+or GUI. All channels are preserved unless one is explicitly selected. The ring
+tracks contiguous original frame positions, handles wrap/backpressure and final
+zero padding without counting padding as source data, and returns silence
+without waiting when its producer is busy. Pause preserves its source cursor;
+stop discards output. Float64 buffering applies current gain before clipping
+and Float32 device conversion. Finite values above full scale therefore retain
+their gain behavior. Nonfinite samples become zero solely for playback; original
+arrays remain unchanged. Integer arrays use explicit signed rails or unsigned
+midpoint PCM mapping, independently of their physical-unit statistics.
+
+**11 focused buffer/conversion tests** pass, including signed/unsigned 16–64-bit
+rails, original-source preservation, oversized Float128 diagnostics, missing
+rates, full/selected channel budgets, pause/mute/stop, underrun and queued-block
+invariants. Default retained output storage is bounded by **1 MiB**, including
+preallocated conversion scratch; wide sources can use one selected channel.
+Pyrefly reports **zero errors**, one existing suppression; Ruff lint/format
+(**558 files**) and diff whitespace pass. No GUI behavior or device output is
+introduced by this foundation. Device lifecycle, actual playback/listening,
+native controls, cross-file audio comparisons and M14.3 exit gates remain open.
+
+Before device acceptance, use the established 10-minute stereo **48 kHz WAV**
+and selected compressed-array fixtures. Require at most **1 MiB retained output
+buffers**, fresh-process peak RSS increase under **96 MiB** including fixture
+creation, selected-record source preservation and release of decoder/array/device
+resources after stop/seek/closure. Known local WAV startup should take at most
+**2 s**, and acknowledged pause/stop/seek should take at most **300 ms**, with
+device latency recorded separately. Source/device errors must appear without
+claiming stopped output while closure is still running. Native frames retain
+the **33 ms** p95 target. These gates remain open until measured.
