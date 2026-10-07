@@ -767,6 +767,8 @@ clean installations with and without the optional checkpoint dependency.
 [M12.1–M12.4 evidence](docs/phase-12.md) verifies tokenization, local training,
 exact corpus profiles, full token-span Inspect, shared-tokenizer cross-file
 comparisons, native/restoration/resource gates and clean installations.
+The authorized [text navigation follow-up](docs/text-profiles-navigation.md) places
+these tools in Explore → Profiles, selected through the shared column checklist.
 
 - [x] **Phase complete.** **Entry:** Phase 11 passes. **Exit:** M12.1–M12.4 pass; multilingual text statistics and token spans are correct and cross-file comparisons use compatible tokenization.
 

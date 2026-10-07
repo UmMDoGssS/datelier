@@ -1,11 +1,13 @@
-"""Exclusive categories and unrestricted numeric profile selection."""
+"""Exclusive nonnumeric fields and unrestricted numeric profile selection."""
 
 from dataclasses import dataclass
 
-from datelier.core.column_roles import ColumnRole, RoleInfo
+import polars as pl
+
+from datelier.core.column_roles import PLOTTABLE_ROLES, ColumnRole, RoleInfo
 from datelier.core.dataset import Dataset
 
-PROFILE_ROLES = (ColumnRole.NUMERIC, ColumnRole.CATEGORY, ColumnRole.TEMPORAL)
+PROFILE_ROLES = (*PLOTTABLE_ROLES, ColumnRole.TEXT)
 
 
 @dataclass
@@ -15,7 +17,11 @@ class ProfileSelection:
     choices: tuple[RoleInfo, ...] = ()
 
     def bind(self, dataset: Dataset, default: str | None = None) -> None:
-        self.choices = tuple(i for i in dataset.roles or () if i.role in PROFILE_ROLES)
+        self.choices = tuple(
+            i
+            for i in dataset.roles or ()
+            if i.role in PLOTTABLE_ROLES or dataset.table.schema[i.name] == pl.String
+        )
         allowed = {i.name: i.role for i in self.choices}
         if self.columns is None:
             self.columns = (
@@ -50,3 +56,13 @@ class ProfileSelection:
         self.columns = tuple(
             i.name for i in self.choices if i.role == ColumnRole.NUMERIC
         )
+
+    def text_column(self, prefer_text: bool = False) -> str | None:
+        """Route String fields to text tools without changing their interpretation."""
+        if not self.columns or len(self.columns) != 1:
+            return None
+        selected = next((i for i in self.choices if i.name == self.columns[0]), None)
+        if selected is not None and selected.dtype == str(pl.String):
+            if prefer_text or selected.role not in PLOTTABLE_ROLES:
+                return selected.name
+        return None

@@ -73,7 +73,11 @@ def run(root: Path, output: Path, *, restore: bool) -> dict[str, object]:
             stage, entered = next_stage, evidence.frames
 
         if stage == 0:
-            hello_imgui.get_runner_params().docking_params.focus_dockable_window("Text")
+            file.exploration.profile.selection.columns = ("text",)
+            file.exploration.tab = "Profiles"
+            hello_imgui.get_runner_params().docking_params.focus_dockable_window(
+                "Explore"
+            )
             if restore:
                 assert jobs.settings.tokens.mode == TokenMode.UNIGRAM
                 assert jobs.settings.scope.mode == CorpusMode.SELECTION
@@ -131,11 +135,13 @@ def run(root: Path, output: Path, *, restore: bool) -> dict[str, object]:
         elif stage == 11 and jobs.message.startswith("Trained Unigram"):
             assert (root / "unigram.json").is_file()
             # Close the form so artifact/result controls are immediately visible.
-            hello_imgui.get_runner_params().docking_params.focus_dockable_window("Text")
+            hello_imgui.get_runner_params().docking_params.focus_dockable_window(
+                "Explore"
+            )
             stage, entered = 12, evidence.frames
         elif stage == 12 and age > 8:
             # The header is at the top of a scrollable panel after form input.
-            file.panel_scroll["Text"] = (0, 0)
+            file.panel_scroll["Explore"] = (0, 0)
             editor.save_workspace(workspace)
             stage = 16
         elif stage == 16 and editor.workspace_jobs.saved:

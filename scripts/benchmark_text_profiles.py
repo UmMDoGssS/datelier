@@ -88,6 +88,8 @@ def measure(source: Path, output: Path, *, snapshot: bool = False) -> dict[str, 
             stage, entered = next_stage, evidence.frames
 
         if stage == 0 and file.loader.active:
+            file.exploration.profile.selection.columns = ("text",)
+            file.exploration.tab = "Profiles"
             report["metadata_ms"] = (perf_counter() - started) * 1000
             assert jobs.profile is None and not jobs.busy
             jobs.settings = TextSettings(
@@ -96,7 +98,9 @@ def measure(source: Path, output: Path, *, snapshot: bool = False) -> dict[str, 
                 tokens=TokenSettings(normalization=Normalization.NFC),
                 scope=TextScope(CorpusMode.COLLECTION),
             )
-            hello_imgui.get_runner_params().docking_params.focus_dockable_window("Text")
+            hello_imgui.get_runner_params().docking_params.focus_dockable_window(
+                "Explore"
+            )
             stage, entered = 1, evidence.frames
         elif stage == 1 and age > 10 and "Calculate corpus profile" in pixels:
             assert not jobs.busy and jobs.profile is None

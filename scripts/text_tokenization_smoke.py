@@ -78,7 +78,11 @@ def run(root: Path, *, restore: bool, output: Path) -> dict[str, object]:
             stage, entered = next_stage, evidence.frames
 
         if stage == 0:
-            hello_imgui.get_runner_params().docking_params.focus_dockable_window("Text")
+            file.exploration.profile.selection.columns = ("text",)
+            file.exploration.tab = "Profiles"
+            hello_imgui.get_runner_params().docking_params.focus_dockable_window(
+                "Explore"
+            )
             if restore:
                 assert jobs.settings.tokens.mode == TokenMode.BPE
                 assert jobs.settings.tokens.lowercase

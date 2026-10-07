@@ -1,6 +1,7 @@
 """Docked exploration dashboard; renders bounded, prepared values."""
 
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
 from imgui_bundle import imgui
 
@@ -18,6 +19,9 @@ from datelier.gui.profiles.view import ProfileView
 from datelier.inspection.exploration import Dashboard, Explorer
 from datelier.plotting.data import Scatter
 from datelier.plotting.selection import LinkedSelection
+
+if TYPE_CHECKING:
+    from datelier.gui.file_session import FileSession
 
 
 @dataclass
@@ -87,6 +91,7 @@ class ExplorationView:
         plots: PlotControls | None = None,
         dataset: Dataset | None = None,
         analysis: AnalysisSession | None = None,
+        owner: FileSession | None = None,
     ) -> None:
         self.dock_id = imgui.get_window_dock_id()
         dashboard = explorer.active
@@ -108,6 +113,8 @@ class ExplorationView:
                     "Scatter",
                     "Relationships",
                 ):
+                    if self.profile.selection.columns is not None:
+                        self.show_profile(explorer, None, dataset, owner)
                     return
                 if plots.relationship_chart != "Scatter":
                     self.categories.controls(plots, explorer, dataset)
@@ -128,7 +135,9 @@ class ExplorationView:
             for label, callback in (
                 (
                     "Profiles",
-                    lambda dashboard: self.show_profile(explorer, dashboard, dataset),
+                    lambda dashboard: self.show_profile(
+                        explorer, dashboard, dataset, owner
+                    ),
                 ),
                 (
                     "Relationships",
@@ -154,10 +163,15 @@ class ExplorationView:
             imgui.end_tab_bar()
 
     def show_profile(
-        self, explorer: Explorer, dashboard: Dashboard, dataset: Dataset | None
+        self,
+        explorer: Explorer,
+        dashboard: Dashboard | None,
+        dataset: Dataset | None,
+        owner: FileSession | None = None,
     ) -> None:
         if (
             self.profile.selection.columns is None
+            and dashboard is not None
             and dashboard.comparison is not None
             and self.comparison_mode < 5
         ):
@@ -165,7 +179,7 @@ class ExplorationView:
             self.profile.mode = self.comparison_mode
             if not self.profile.area.height:
                 self.profile.area.height = self.comparison_area.height
-        if self.profile.show(explorer, dashboard, dataset):
+        if self.profile.show(explorer, dashboard, dataset, owner):
             self.plot_frames += 1
 
     def show_correlations(

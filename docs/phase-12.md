@@ -1,5 +1,9 @@
 # Phase 12 — Text profiling and token inspection
 
+Text tools now live in **Explore → Profiles**, selected through its Columns
+checklist; the original native evidence below predates this navigation change.
+[Text navigation follow-up](text-profiles-navigation.md) records its checks.
+
 Phase 12 is complete. M12.1–M12.4 pass configurable tokenization, explicit local
 training, exact corpus profiles, full token Inspect and shared-tokenizer cross-file
 comparisons, with native/restoration/resource and clean-install evidence below.

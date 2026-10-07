@@ -50,9 +50,6 @@ class TextControls:
     def show(self, jobs: TextJobs) -> Path | None:
         import_path = None
         settings = jobs.settings
-        names = ["Choose field", *self.columns]
-        chosen = names.index(settings.column) if settings.column in names else 0
-        _, chosen = imgui.combo("Text field", chosen, names)
         sources = list(TextSource)
         _, source = imgui.combo(
             "Text source", sources.index(settings.source), [s.value for s in sources]
@@ -83,7 +80,6 @@ class TextControls:
         _, position = imgui.input_int("Text table row", settings.position + 1)
         jobs.settings = replace(
             settings,
-            column=names[chosen] if chosen else None,
             source=sources[source],
             encoding=encodings[encoding],
             position=max(0, position - 1),

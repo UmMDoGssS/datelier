@@ -2,7 +2,7 @@
 
 from imgui_bundle import imgui
 
-from datelier.core.column_roles import ColumnRole
+from datelier.core.column_roles import PLOTTABLE_ROLES, ColumnRole
 from datelier.inspection.profile_selection import PROFILE_ROLES, ProfileSelection
 
 
@@ -34,7 +34,11 @@ def show_selector(selection: ProfileSelection) -> None:
         imgui.close_current_popup()
     if imgui.begin_child("Choices", (-1, -1)):
         for role in PROFILE_ROLES:
-            choices = tuple(i for i in selection.choices if i.role == role)
+            choices = tuple(
+                i
+                for i in selection.choices
+                if (i.role if i.role in PLOTTABLE_ROLES else ColumnRole.TEXT) == role
+            )
             if not choices:
                 continue
             imgui.separator_text(
@@ -43,6 +47,8 @@ def show_selector(selection: ProfileSelection) -> None:
                 else "Categories"
                 if role == ColumnRole.CATEGORY
                 else "Dates / times"
+                if role == ColumnRole.TEMPORAL
+                else "Text / string fields"
             )
             clipper = imgui.ListClipper()
             clipper.begin(len(choices), imgui.get_frame_height_with_spacing())

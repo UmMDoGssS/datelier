@@ -3,10 +3,9 @@
 from concurrent.futures import Executor, Future
 from dataclasses import dataclass
 
-from datelier.core.column_roles import ColumnRole
+from datelier.core.column_roles import PLOTTABLE_ROLES, ColumnRole
 from datelier.core.dataset import Dataset, DatasetRevision
 from datelier.core.jobs import JobExecutor
-from datelier.inspection.profile_selection import PROFILE_ROLES
 from datelier.inspection.profiles import Profiles, prepare_profiles
 from datelier.plotting.data import Bars, prepare_bars
 from datelier.plotting.distributions import (
@@ -35,7 +34,7 @@ def prepare_profile_group(dataset: Dataset, request: ProfileRequest) -> ProfileG
     names = request.distribution.columns
     request.distribution.validate()
     roles = tuple(dataset.role(name).role for name in names)
-    if any(r not in PROFILE_ROLES for r in roles) or (
+    if any(r not in PLOTTABLE_ROLES for r in roles) or (
         len(roles) > 1 and any(r != ColumnRole.NUMERIC for r in roles)
     ):
         raise ValueError("Choose one category/date or any number of numeric columns")

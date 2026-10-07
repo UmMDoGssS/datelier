@@ -31,7 +31,8 @@ def controls(
         imgui.text_wrapped(f"Local artifact: {tokens.artifact.path}")
         imgui.text_wrapped(f"SHA-256: {tokens.artifact.sha256}")
     imgui.text_wrapped(
-        "Configure tokenization in Text, then copy it here. This shared configuration "
+        "Configure tokenization in Explore → Profiles, then copy it here. "
+        "This shared configuration "
         "applies to every mapped field; no training or downloads start here."
     )
     _, bins = imgui.input_int("Shared length bins", settings.bins)

@@ -187,6 +187,7 @@ def capture_views(session: GuiSession) -> WorkspaceViews:
         else None,
         session.checkpoints.store.limit,
         session.text.jobs.settings,
+        view.profile.text,
     )
 
 
@@ -224,6 +225,7 @@ def restore_view_settings(session: GuiSession, saved: WorkspaceViews) -> None:
     )
     view.profile_index = saved.profile_index
     view.profile_mode = saved.profile_mode
+    view.profile.text = saved.profile_text
     view.profile.selection.columns = saved.profile_selection
     legacy_comparison = (
         saved.profile_selection is None

@@ -302,8 +302,10 @@ for native checks, restoration and fixture-specific resource measurements.
 
 ## Local text tokenization, training, inspection and comparisons
 
-Open the dockable **Text** panel and expand **Text settings** to choose a String
-field, inline/external source, encoding and tokenization. **Character** counts
+In **Explore → Profiles**, choose a text column from the **Columns** checklist.
+Expand **Text settings** to choose inline/external source, encoding and tokenization.
+String categories also offer **Text tokens** under **Chart type**; **Counts** retains
+their category view without changing the column interpretation. **Character** counts
 normalized Unicode code points, **Whitespace** counts non-whitespace runs and
 **Word** counts Unicode word/punctuation runs. NFC/NFKC, lowercase, character
 whitespace and special-token counting are visible choices. **Prepare text record**
@@ -333,7 +335,7 @@ Offsets count original Unicode code points; control characters use visible symbo
 Large token pieces have separate pages. Record and page choices restore as recipes.
 
 In **Compare files → Text corpora**, add a text comparison and expand **Text mappings
-and shared tokenizer**. Configure tokenization in the active view's **Text** panel,
+and shared tokenizer**. Configure tokenization in the active view's **Explore → Profiles**,
 then click **Use active view tokenizer** to apply that configuration to every mapped
 source. Select each file/view's field, interpretation, encoding and corpus scope,
 then click **Prepare text comparison**. Lengths use common bins; statistics remain
@@ -362,7 +364,7 @@ evenly spaced input rows with pairwise finite values. Scatter plots show up to
 use Float64, so very large integers and high-precision decimals may round.
 
 Expand **Plot settings** to change bins, top counts and scatter point limits.
-In **Profiles**, the **Columns** checklist accepts one category/date or any
+In **Profiles**, the **Columns** checklist accepts one category/date/text field or any
 number of numeric columns, including columns beyond the automatic preparation
 limit. **All numeric**, **Clear**, and **Done** manage the checklist. Selecting a
 category replaces the numeric group; selecting a numeric column replaces the

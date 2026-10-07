@@ -42,7 +42,42 @@ def test_exclusive_category_numeric_group_and_intentional_empty_selection() -> N
     assert selection.columns == ()
     selection.select_numeric()
     assert selection.columns == ("a", "b")
-    assert {c.name for c in selection.choices} == {"a", "b", "cat"}
+    assert {c.name for c in selection.choices} == {"a", "b", "cat", "text"}
+
+
+def test_text_is_exclusive_and_string_categories_keep_their_interpretation() -> None:
+    dataset = data()
+    selection = ProfileSelection(("a", "b"))
+    selection.bind(dataset)
+    selection.toggle("text")
+    assert selection.columns == ("text",)
+    assert selection.text_column() == "text"
+    selection.toggle("cat")
+    assert selection.text_column() is None
+    assert selection.text_column(prefer_text=True) == "cat"
+    assert dataset.role("cat").role == ColumnRole.CATEGORY
+    selection.toggle("a")
+    assert selection.columns == ("a",)
+    assert selection.text_column(prefer_text=True) is None
+    selection.select_numeric()
+    assert selection.columns == ("a", "b")
+
+
+def test_every_string_field_remains_accessible_and_removed_text_is_pruned() -> None:
+    dataset = data()
+    for role in (
+        ColumnRole.EXTERNAL_TEXT,
+        ColumnRole.PATH,
+        ColumnRole.IDENTIFIER,
+        ColumnRole.IMAGE,
+        ColumnRole.AUDIO,
+    ):
+        selection = ProfileSelection(("text",))
+        selection.bind(dataset.with_role("text", role))
+        assert selection.text_column() == "text"
+        selection.bind(dataset.with_rows(dataset.table.drop("text"), dataset.row_ids))
+        assert selection.columns == ()
+        assert selection.text_column() is None
 
 
 def test_selection_follows_names_and_role_changes() -> None:
@@ -109,13 +144,16 @@ def test_unrepresentable_plot_keeps_exact_statistics_and_histogram_fallback() ->
 
 
 def test_selection_recipe_roundtrip_and_legacy_default() -> None:
-    for columns in (("b", "a"), (), ("cat",)):
-        saved = WorkspaceViews(profile_selection=columns, profile_mode=2)
+    for columns in (("b", "a"), (), ("cat",), ("text",)):
+        saved = WorkspaceViews(
+            profile_selection=columns, profile_mode=2, profile_text=True
+        )
         saved.validate()
         assert decode_record(WorkspaceViews, encode(saved)) == saved
     assert (
         decode_record(WorkspaceViews, {"kind": "WorkspaceViews"}).profile_selection
         is None
     )
+    assert not decode_record(WorkspaceViews, {"kind": "WorkspaceViews"}).profile_text
     with pytest.raises(ValueError, match="distinct"):
         WorkspaceViews(profile_selection=("a", "a")).validate()

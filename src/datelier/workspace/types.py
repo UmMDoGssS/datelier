@@ -56,6 +56,7 @@ class WorkspaceViews:
     checkpoint_slice: SliceSettings | None = None
     checkpoint_retention_bytes: int = 256 * 1024 * 1024
     text: TextSettings = TextSettings()
+    profile_text: bool = False
 
     def validate(self) -> None:
         self.text.validate()

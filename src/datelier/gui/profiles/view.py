@@ -1,8 +1,10 @@
 """Render prepared profiles in value space or with explicit category names."""
 
 from dataclasses import dataclass, field, replace
+from typing import TYPE_CHECKING
 
 import numpy as np
+import polars as pl
 from imgui_bundle import imgui, implot
 
 from datelier.core.column_roles import ColumnRole
@@ -18,6 +20,9 @@ from datelier.inspection.profile_preview import ProfileRequest
 from datelier.inspection.profile_selection import ProfileSelection
 from datelier.inspection.profiles import COUNT_ROW_LIMIT, ColumnProfile, ProfileKind
 from datelier.plotting.data import Bars
+
+if TYPE_CHECKING:
+    from datelier.gui.file_session import FileSession
 
 
 def profile_summary(profile: ColumnProfile, rows: int) -> str:
@@ -39,15 +44,27 @@ class ProfileView:
     mode: int = 0
     area: PlotArea = field(default_factory=PlotArea)
     selection: ProfileSelection = field(default_factory=ProfileSelection)
+    text: bool = False
 
     def show(
-        self, explorer: Explorer, dashboard: Dashboard, dataset: Dataset | None
+        self,
+        explorer: Explorer,
+        dashboard: Dashboard | None,
+        dataset: Dataset | None,
+        owner: FileSession | None = None,
     ) -> bool:
         if dataset is None:
             return False
-        automatic = dashboard.profiles.columns
-        self.index = min(self.index, max(0, len(automatic) - 1))
-        default = automatic[self.index].name if automatic else None
+        automatic = dashboard.profiles.columns if dashboard else ()
+        if dashboard is not None:
+            self.index = min(self.index, max(0, len(automatic) - 1))
+        default = (
+            automatic[self.index].name
+            if automatic
+            else owner.text.jobs.settings.column
+            if owner is not None
+            else None
+        )
         self.selection.bind(dataset, default)
         if imgui.begin_table(
             "Profile controls", 2, imgui.TableFlags_.sizing_stretch_prop
@@ -67,13 +84,24 @@ class ProfileView:
             imgui.set_next_item_width(-1)
             if numeric:
                 _, self.mode = imgui.combo("##Chart type", self.mode, MODES)
+            elif (
+                selected
+                and dataset.role(selected[0]).role == ColumnRole.CATEGORY
+                and dataset.table.schema[selected[0]] == pl.String
+            ):
+                _, choice = imgui.combo(
+                    "##Chart type", int(self.text), ["Counts", "Text tokens"]
+                )
+                self.text = bool(choice)
             else:
                 imgui.begin_disabled()
                 imgui.combo(
                     "##Chart type",
                     0,
                     [
-                        "Counts"
+                        "Text tokens"
+                        if self.selection.text_column() is not None
+                        else "Counts"
                         if selected
                         and dataset.role(selected[0]).role == ColumnRole.CATEGORY
                         else "Histogram"
@@ -85,6 +113,15 @@ class ProfileView:
         if not selected:
             explorer.profiles.clear()
             imgui.text("Choose columns to inspect.")
+            return False
+        column = self.selection.text_column(self.text)
+        if column is not None:
+            explorer.profiles.clear()
+            if owner is not None:
+                owner.text.show(owner, column)
+            return False
+        if dashboard is None:
+            imgui.text_wrapped(explorer.message)
             return False
         request = ProfileRequest(
             replace(dashboard.settings.comparison, columns=selected),

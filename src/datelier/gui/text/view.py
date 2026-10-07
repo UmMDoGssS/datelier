@@ -76,9 +76,13 @@ class TextView:
         self.pages.close()
         self.jobs.close()
 
-    def show(self, owner: FileSession) -> None:
+    def show(self, owner: FileSession, column: str) -> None:
+        if self.jobs.settings.column != column:
+            self.jobs.settings = replace(
+                self.jobs.settings, column=column, viewport=TextViewport()
+            )
         if not self.controls.columns:
-            imgui.text_wrapped("Open a source with a String field to inspect text.")
+            imgui.text_wrapped("Choose a String column to inspect text.")
             return
         import_path = None
         if imgui.collapsing_header("Text settings"):
