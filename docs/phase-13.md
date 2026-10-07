@@ -593,3 +593,35 @@ class filter metadata and persisted view choices without reassociation. Pyrefly:
 and diff whitespace pass. This native overlay/profile slice passes. Cross-file
 image comparisons, larger native overlay resources and final M13.4/full-phase
 acceptance remain open.
+
+### Shared physical image-bin foundation (2026-10-07)
+
+Image collection preparation now separates the source-aligned first-pass scan
+from histogram completion. Typed scans retain metadata, row/channel outcomes and
+moments, without decoded grids. Completion accepts read-only physical bounds for
+dimensions and each mode/channel/dtype family; source summaries keep their own
+original extrema and moments. The normal profile command keeps its existing
+two-pass behavior and compressed-member lease. Scan, histogram and command
+responsibilities now have separate modules below the 300-line review trigger.
+This is the foundation for comparisons using common bins rather than combining
+incompatible independently binned pixel counts.
+
+Focused image/profile/job/workspace/window checks: **55 passed in 1.80 s**,
+including known shared edges/counts with unchanged source statistics and identity,
+seeded scope alignment, exact integer/nonfinite values, edited sources between
+passes and compressed-member leases. Pyrefly: **zero errors**, one existing
+suppression; Ruff lint/format (**499 Python files**) and diff whitespace pass.
+The first extraction of the scan missed a bounds-variable replacement and a
+test's patched lookup moved modules; both were fixed within this step and checks
+rerun. No source/display behavior is changed by the scan refactor.
+
+Resource regressions on 100×256² images pass: folder **2.76 s**, RSS increase
+**18.31 MiB**, one decoded file at a time and zero retained bytes; compressed array
+**2.92 s**, **35.20 MiB**, one **19,660,928-byte** extraction above its 1 MiB cache,
+zero retained bytes afterward. Hashes and cleanup pass. The native mapped-image/
+profile regression passes **94 frames**, p95 **13.65 ms**, with original pixels,
+sorted **[1,2,0]** profile identity, **12,288** pixels and red mean **20**.
+Its GPU assertion now bounds the visible window rather than requiring the whole
+64×64 record in a shorter dock. One frame-budget attempt overlapped background
+verification and failed; the final isolated run passes the 33 ms target. Cross-file
+commands, saved comparison mappings and final M13.4 acceptance remain open.

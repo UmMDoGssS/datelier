@@ -1,5 +1,6 @@
 """Explicit collection scope and source-aligned scalar image profile results."""
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from enum import StrEnum
 from threading import Lock
@@ -81,6 +82,9 @@ class ChannelKey:
     @property
     def family_label(self) -> str:
         return f"{self.mode} · {np.dtype(self.dtype)}"
+
+
+type ImageBounds = Mapping[ChannelKey, tuple[int | float, int | float]]
 
 
 @dataclass(frozen=True)

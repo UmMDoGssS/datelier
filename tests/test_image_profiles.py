@@ -11,7 +11,9 @@ from PIL import Image
 
 from datelier.core.dataset import Dataset, SourceReference
 from datelier.inspection.arrays.mapping import ArrayLayout, ArrayRecordMapping
+from datelier.inspection.images.profile_scan import scan_image_profile
 from datelier.inspection.images.profile_types import (
+    ChannelKey,
     ImageProfile,
     ImageProfileSettings,
     ImageProgress,
@@ -19,7 +21,12 @@ from datelier.inspection.images.profile_types import (
     ImageScopeMode,
     PixelScope,
 )
-from datelier.inspection.images.profiles import prepare_image_profile
+from datelier.inspection.images.profiles import (
+    finish_image_profile,
+    image_positions,
+    prepare_image_profile,
+)
+from datelier.inspection.images.storage import ImageStore
 from datelier.inspection.references.index import ReferenceIndex
 from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.arrays.metadata import inspect_arrays
@@ -282,7 +289,6 @@ def test_changed_image_between_statistics_and_histograms_rejects_the_snapshot(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     from datelier.inspection.images.profile_records import ProfileRecord, profile_record
-    from datelier.inspection.images.storage import ImageStore
     from datelier.inspection.images.types import ImageLocator, ImageMetadata
 
     path = tmp_path / "image.png"
@@ -303,7 +309,52 @@ def test_changed_image_between_statistics_and_histograms_rejects_the_snapshot(
         Image.new("RGB", (3, 2), (4, 5, 6)).save(path)
         return record
 
-    monkeypatch.setattr("datelier.inspection.images.profiles.profile_record", changed)
+    monkeypatch.setattr(
+        "datelier.inspection.images.profile_scan.profile_record", changed
+    )
     with pytest.raises(ValueError, match="changed"):
         profile(dataset(tmp_path, ["image.png"]))
     assert temporary and not temporary[0].exists()
+
+
+def test_shared_physical_bins_preserve_source_statistics_and_row_identity(
+    tmp_path: Path,
+) -> None:
+    Image.new("RGB", (3, 2), (20, 30, 40)).save(tmp_path / "image.png")
+    table = dataset(tmp_path, ["image.png"])
+    settings = ImageProfileSettings("image", bins=4)
+    arrays, images = ArrayStore(), ImageStore(retained_bytes=0)
+    try:
+        scan = scan_image_profile(
+            table,
+            "file",
+            "records",
+            settings,
+            image_positions(table, settings, ()),
+            ReferenceSettings(),
+            None,
+            images,
+            arrays,
+            Event(),
+            ImageProgress(),
+        )
+        key = ChannelKey("RGB", "R", "|u1")
+        width_key = ChannelKey("Dimensions", "Width", "<u8")
+        shared = {key: (0, 100), width_key: (1, 5)}
+        result = finish_image_profile(
+            scan, images, arrays, Event(), ImageProgress(), shared
+        )
+        summary = next(item for item in result.summaries if item.key == key)
+        assert (summary.minimum, summary.maximum, summary.mean) == (20, 20, 20.0)
+        chart = result.channels[0]
+        assert chart.edges.tolist() == [0.0, 25.0, 50.0, 75.0, 100.0]
+        assert chart.counts.tolist() == [6.0, 0.0, 0.0, 0.0]
+        assert result.dimensions[0].edges.tolist() == [1.0, 2.0, 3.0, 4.0, 5.0]
+        assert result.dimensions[0].counts.tolist() == [0.0, 0.0, 1.0, 0.0]
+        assert result.records["row_id"].to_list() == [0]
+        assert result.file_id == "file" and result.view_name == "records"
+        assert result.total_pixels == 6 and result.profiled_pixels == 6
+        assert images.stored_bytes == 0 and arrays.extractions == 0
+    finally:
+        arrays.close()
+        images.cleanup()
