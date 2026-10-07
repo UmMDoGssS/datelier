@@ -412,3 +412,41 @@ and mid-command external edits. Pyrefly: **zero errors**, one existing suppressi
 Ruff lint/format (**469 Python files**) and diff whitespace pass. No GUI behavior
 changes in this foundation slice. M13.3 entry passes; explicit image association,
 native source controls and its exit gate remain open. M13.4 remains open.
+
+### Explicit image association foundation (2026-10-07)
+
+Typed source recipes now prepare annotations against current image references
+or confirmed array records. Match choices are resolved physical paths, unique
+filenames/stems or an explicit key column; duplicate candidates remain ambiguous.
+Explicit source-image-key → source-row mappings capture the current logical key
+and image reference. Sorting preserves them; excluded rows and changed references
+(including the same basename in another directory) require confirmation instead
+of reassigning boxes. Logical references within the source root keep relinks
+independent of absolute root spelling.
+
+Prepared boxes carry file, record-view, revision, source-row, field, source recipe,
+annotation path/ordinal and annotation-image key identity. Original geometry and
+EXIF-oriented continuous edge geometry stay separate. Declared dimension
+mismatches are diagnostic; conversion uses original target dimensions without
+clipping source boxes. Mapped array association reads headers and scalar keys,
+without member extraction. Missing/corrupt targets, invalid boxes and absent
+manual keys retain outcomes. Unreadable annotation sources preserve other usable
+sources. Final snapshots retire a source edited after its association, including
+failed files in directory scopes; commands never publish mixed source geometry.
+
+VOC/YOLO folders retain relative label keys and per-file provenance. Parsing,
+target-key indexing, headers and box preparation occur outside rendering;
+bounded index batches yield and check abandonment. Module responsibilities were
+reviewed at the 300-line trigger: matching, per-source association and combined
+commands now have separate typed boundaries.
+
+Focused association/adapter/image/array checks: **84 passed in 0.57 s**. Fixtures
+cover duplicate filenames, explicit/sorted/excluded/changed row mappings,
+namespace collisions between equal rows in separate files, all original/oriented
+geometry, key/path and hierarchical folder matches, dimension mismatch,
+missing/corrupt targets, one failed source beside usable sources, array IDs with
+payload extraction forbidden, abandonment and external edits after association.
+Pyrefly: **zero errors**, one existing suppression; Ruff lint/format (**476 Python
+files**) and diff whitespace pass. No GUI changes in this foundation. Explicit
+native loading/mapping controls, saved recipes and M13.3 exit remain open;
+overlays, profiles and image comparisons remain open in M13.4.
