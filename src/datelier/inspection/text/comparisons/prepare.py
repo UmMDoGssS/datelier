@@ -113,6 +113,11 @@ def compare_profiles(
         frequencies,
         tuple(repr(piece[:60]) for piece in top["piece"]),
         np.arange(top.height, dtype=np.float64),
+        tuple(
+            np.arange(top.height, dtype=np.float64)
+            + (i - (len(profiles) - 1) / 2) * 0.8 / len(profiles)
+            for i in range(len(profiles))
+        ),
         tuple(token_arrays),
         tuple(document_arrays),
     )

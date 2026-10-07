@@ -282,3 +282,33 @@ The session codec saves recipes without computed profiles or tokenizer models.
 Focused comparison/statistics/session fixtures: **23 passed**; Pyrefly zero errors,
 Ruff lint/format (**402 files**) and diff whitespace pass. Native integration and
 final acceptance remain open.
+
+## M12.4 — Native cross-file text comparisons
+
+Compare files now has separate Columns and Text corpora tabs. Text comparisons
+copy the active file/view's tokenizer into one visible shared recipe, explicitly
+map source fields/encoding/scopes, and offer complete statistics, common-bin
+length overlays and common-order tf/df charts. Both frequency policies have
+complete virtual raw-count tables; proportion views state their denominators.
+Corpus computation starts only with Prepare text comparison. Changes abandon
+obsolete work and require another command. Native legends identify each source.
+
+Whole-session capture/restore preserves text comparisons and their active recipe.
+Mapped recovery tabs remain usable independently; closing files or named views
+removes their mappings and prevents late publication. Source-bin selection returns
+to the owning tab/view and correct original rows. GUI references to large prepared
+comparisons are weak, allowing closure to release results even when another panel
+is visible.
+
+Focused comparison/editor/session checks: **32 passed**, including partial source
+recovery, persisted selections and explicit preparation after restoration.
+Pyrefly reports zero errors; Ruff lint/format (**407 files**) and diff whitespace
+pass. `text_comparison_smoke.py` exercises native shared-tokenizer copy, explicit
+prepare, length/statistic/frequency tabs and linked selection in save/reopen runs.
+Equal source-row **2** in different files remains independently selected; a fresh
+process restores settings/selection and has **zero** implicit text comparison jobs.
+Native counts are **3/8 tokens**. Sources retain their exact original bytes.
+[Frequency report](evidence/phase12/text-comparison-frequencies-native.json),
+[length view](evidence/phase12/text-comparison-lengths.png) and
+[statistics view](evidence/phase12/text-comparison-statistics.png) retain evidence.
+Final mixed text resources, clean installation and milestone checks remain open.

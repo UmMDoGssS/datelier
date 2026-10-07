@@ -88,6 +88,16 @@ def capture_session(
     sources: list[tuple[str, SourceReference]] = []
     files = tuple(capture_file(file, sources) for file in editor.files)
     return SessionSnapshot(
-        SessionWorkspace(files, editor.active_id, editor.comparisons, layout, hidden),
+        SessionWorkspace(
+            files,
+            editor.active_id,
+            editor.comparisons,
+            layout,
+            hidden,
+            text_comparisons=editor.text_comparisons,
+            text_comparison_index=min(
+                editor.text_comparison_index, max(0, len(editor.text_comparisons) - 1)
+            ),
+        ),
         tuple(sources),
     )

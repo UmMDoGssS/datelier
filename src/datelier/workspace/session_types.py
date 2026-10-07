@@ -138,6 +138,7 @@ class SessionWorkspace:
     hidden_windows: tuple[str, ...] = ()
     version: int = 2
     text_comparisons: tuple[TextComparisonSettings, ...] = ()
+    text_comparison_index: int = 0
 
     def validate(self) -> None:
         if self.version != 2:
@@ -152,6 +153,8 @@ class SessionWorkspace:
             raise ValueError("Session files must be unique and include the active tab")
         for file in self.files:
             file.validate()
+        if not 0 <= self.text_comparison_index < max(1, len(self.text_comparisons)):
+            raise ValueError("Invalid active text comparison")
         if len(self.text_comparisons) > 32:
             raise ValueError("Save at most 32 text comparisons")
         for comparison in self.text_comparisons:

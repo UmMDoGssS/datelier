@@ -37,6 +37,7 @@ class PreparedTextComparison:
     frequencies: pl.DataFrame
     frequency_labels: tuple[str, ...]
     frequency_positions: NDArray[np.float64]
+    frequency_series_positions: tuple[NDArray[np.float64], ...]
     token_frequencies: tuple[NDArray[np.float64], ...]
     document_frequencies: tuple[NDArray[np.float64], ...]
 
@@ -55,6 +56,7 @@ class PreparedTextComparison:
                     self.centers,
                     self.frequency_positions,
                     *self.lengths,
+                    *self.frequency_series_positions,
                     *self.token_frequencies,
                     *self.document_frequencies,
                 )

@@ -11,7 +11,16 @@ from datelier.gui.workspace.capture import capture_session
 from datelier.gui.workspace.preferences import PreferenceControls
 from datelier.inspection.comparison_settings import ComparisonSettings
 from datelier.inspection.comparisons.jobs import ComparisonJobs
-from datelier.inspection.comparisons.types import PreparedComparison
+from datelier.inspection.comparisons.types import (
+    ComparisonSelection,
+    PreparedComparison,
+)
+from datelier.inspection.text.comparisons.jobs import TextComparisonJobs
+from datelier.inspection.text.comparisons.settings import TextComparisonSettings
+from datelier.inspection.text.comparisons.types import (
+    PreparedTextComparison,
+    TextComparisonInput,
+)
 from datelier.io.loading import DatasetLoader, LoadPhase
 from datelier.io.opening import OpeningJobs, OpeningRequest
 from datelier.workspace.recent import RecentKind, RecentSource
@@ -35,6 +44,9 @@ class EditorSession:
         self.workspace_jobs = SessionJobs(self.workers)
         self.comparison_jobs = ComparisonJobs(executor=self.workers)
         self.comparisons: tuple[ComparisonSettings, ...] = ()
+        self.text_comparisons: tuple[TextComparisonSettings, ...] = ()
+        self.text_comparison_index = 0
+        self.text_comparison_jobs = TextComparisonJobs(self.workers)
         self.order_reset = False
         self.pending_layout: tuple[str, tuple[str, ...]] | None = None
         self.workspace_path = ""
@@ -81,6 +93,37 @@ class EditorSession:
         if dataset is None:
             raise ValueError("The mapped file is unavailable")
         self.comparison_jobs.request_selection(result, series, bin_index, dataset)
+
+    def text_comparison_inputs(
+        self, recipe: TextComparisonSettings
+    ) -> tuple[TextComparisonInput, ...]:
+        files = {file.identity: file for file in self.file_sessions}
+        inputs = []
+        for source in recipe.sources:
+            file = files.get(source.file_id)
+            if file is None or file.loader.active is None:
+                continue
+            dataset = file.loader.active.dataset
+            label = f"{dataset.source.path.name} {file.view_name} / {source.column}"
+            inputs.append(
+                TextComparisonInput(
+                    source,
+                    dataset,
+                    label,
+                    file.references.settings,
+                    file.references.index,
+                    tuple(sorted(file.selection.row_ids)),
+                )
+            )
+        return tuple(inputs)
+
+    def select_text_comparison(
+        self, result: PreparedTextComparison, series: int, bin_index: int
+    ) -> None:
+        dataset = self.datasets.get(result.profiles[series].file_id)
+        if dataset is None:
+            raise ValueError("Mapped text source is unavailable")
+        self.text_comparison_jobs.request_selection(result, series, bin_index, dataset)
 
     @property
     def source_paths(self) -> tuple[Path, ...]:
@@ -155,6 +198,7 @@ class EditorSession:
 
     def _install_session(self, restored: RestoredSession) -> None:
         self.comparison_jobs.clear()
+        self.text_comparison_jobs.clear()
         self.browser.cancel()
         self.opening.abandon()
         for file in self.files:
@@ -169,6 +213,8 @@ class EditorSession:
             self.files.append(file)
             self._remember_file(file)
         self.comparisons = restored.workspace.comparisons
+        self.text_comparisons = restored.workspace.text_comparisons
+        self.text_comparison_index = restored.workspace.text_comparison_index
         self.pending_layout = (
             restored.workspace.layout,
             restored.workspace.hidden_windows,
@@ -228,7 +274,22 @@ class EditorSession:
         if index is None:
             return
         file = self.files.pop(index)
+        closed_ids = {
+            f.identity
+            for f in (file, *file.record_views.files, *file.record_views.pending)
+        }
         file.close()
+        self.text_comparisons = tuple(
+            replace(
+                recipe,
+                sources=tuple(
+                    source
+                    for source in recipe.sources
+                    if source.file_id not in closed_ids
+                ),
+            )
+            for recipe in self.text_comparisons
+        )
         self.comparisons = tuple(
             replace(
                 recipe,
@@ -294,27 +355,50 @@ class EditorSession:
         for request, paths in self.opening.poll({file.identity for file in self.files}):
             self._open_resolved(request, paths)
         self.preferences.poll()
+        known = {file.identity for file in self.file_sessions}
+        self.text_comparisons = tuple(
+            replace(
+                recipe, sources=tuple(s for s in recipe.sources if s.file_id in known)
+            )
+            for recipe in self.text_comparisons
+        )
         datasets = self.datasets
         self.comparison_jobs.sync(self.comparisons, datasets)
-        selection = self.comparison_jobs.poll_selection(datasets)
-        if selection is not None:
-            file = next(
-                file
-                for file in self.file_sessions
-                if file.identity == selection.origin.file_id
+        recipe = (
+            self.text_comparisons[
+                min(self.text_comparison_index, len(self.text_comparisons) - 1)
+            ]
+            if self.text_comparisons
+            else None
+        )
+        self.text_comparison_jobs.bind(
+            recipe, self.text_comparison_inputs(recipe) if recipe else ()
+        )
+        for selection in (
+            self.comparison_jobs.poll_selection(datasets),
+            self.text_comparison_jobs.poll_selection(datasets),
+        ):
+            if selection is not None:
+                self._apply_comparison_selection(selection)
+
+    def _apply_comparison_selection(self, selection: ComparisonSelection) -> None:
+        file = next(
+            file
+            for file in self.file_sessions
+            if file.identity == selection.origin.file_id
+        )
+        if file.selection.choose(selection.origin.revision, selection.row_ids):
+            owner = next(
+                owner
+                for owner in self.files
+                if file is owner or file in owner.record_views.files
             )
-            if file.selection.choose(selection.origin.revision, selection.row_ids):
-                owner = next(
-                    owner
-                    for owner in self.files
-                    if file is owner or file in owner.record_views.files
-                )
-                if file is not owner:
-                    owner.record_views.active_id = file.identity
-                self.activate(owner.identity)
-                if selection.first_position is not None:
-                    file.table.target_row = selection.first_position + 1
-                    file.table.jump = True
+            if file is not owner:
+                owner.record_views.active_id = file.identity
+            self.activate(owner.identity)
+            if selection.first_position is not None:
+                file.table.target_row = selection.first_position + 1
+                file.table.jump = True
 
     def _open_resolved(self, request: OpeningRequest, paths: tuple[Path, ...]) -> None:
         owner = next(file for file in self.files if file.identity == request.owner)
@@ -369,5 +453,6 @@ class EditorSession:
         self.opening.close()
         self.workspace_jobs.close()
         self.comparison_jobs.close()
+        self.text_comparison_jobs.close()
         self.preferences.close()
         self.workers.shutdown(wait=True)

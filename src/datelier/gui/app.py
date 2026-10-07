@@ -19,6 +19,7 @@ from datelier.gui.fonts import load_fonts
 from datelier.gui.layout import configure_layout
 from datelier.gui.objects.browser import ObjectBrowser, show_view_selector
 from datelier.gui.tabs import EditorTabs
+from datelier.gui.text.comparison_view import TextComparisonView
 from datelier.gui.welcome import Welcome
 from datelier.io.loading import DatasetLoader, LoadPhase
 from datelier.workspace.preferences import preference_path
@@ -76,6 +77,7 @@ def run_gui(
     controls = EditorControls()
     welcome = Welcome()
     comparisons = ComparisonView()
+    text_comparisons = TextComparisonView()
     objects = ObjectBrowser()
     evidence = InspectionEvidence()
 
@@ -153,7 +155,14 @@ def run_gui(
             objects.show(owner)
 
     def compare_files() -> None:
-        comparisons.show(editor)
+        if imgui.begin_tab_bar("File comparison types"):
+            if imgui.begin_tab_item("Columns")[0]:
+                comparisons.show(editor)
+                imgui.end_tab_item()
+            if imgui.begin_tab_item("Text corpora")[0]:
+                text_comparisons.show(editor)
+                imgui.end_tab_item()
+            imgui.end_tab_bar()
         evidence.comparison_frames = comparisons.plot_frames
         evidence.comparison_apply_pixel = comparisons.controls.apply_pixel
         evidence.comparison_select_pixel = comparisons.select_pixel
