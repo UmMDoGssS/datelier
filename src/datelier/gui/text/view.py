@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 from imgui_bundle import imgui
 
 from datelier.gui.text.controls import TextControls, pixel
+from datelier.gui.text.training import training_controls
 from datelier.inspection.text.jobs import TextJobs
 
 if TYPE_CHECKING:
@@ -23,7 +24,11 @@ class TextView:
         dataset = owner.loader.active.dataset if owner.loader.active else None
         self.controls.bind(self.jobs, dataset)
         self.jobs.bind(
-            dataset, owner.identity, owner.references.settings, owner.references.index
+            dataset,
+            owner.identity,
+            owner.references.settings,
+            owner.references.index,
+            tuple(sorted(owner.selection.row_ids)),
         )
         self.jobs.poll()
 
@@ -34,6 +39,9 @@ class TextView:
         import_path = None
         if imgui.collapsing_header("Text settings"):
             import_path = self.controls.show(self.jobs)
+        train = False
+        if imgui.collapsing_header("Local tokenizer training"):
+            train = training_controls(self.jobs)
         settings = self.jobs.settings
         imgui.text_wrapped(
             f"{settings.column} · {settings.tokens.mode} · {settings.source}"
@@ -42,6 +50,8 @@ class TextView:
         self.sync(owner)
         if import_path is not None:
             self.jobs.request_import(import_path)
+        if train:
+            self.jobs.request_training()
         if imgui.button("Prepare text record"):
             self.jobs.request_document()
         self.controls.prepare_pixel = pixel()
@@ -57,7 +67,12 @@ class TextView:
                 self.jobs.message = (
                     "Result abandoned; executing work may still be running."
                 )
+            phase, done, total = self.jobs.progress.value
+            if phase:
+                imgui.text_wrapped(f"{phase} · {done:,}/{total:,} records")
         imgui.text_wrapped(self.jobs.message)
+        if artifact and artifact.provenance_path:
+            imgui.text_wrapped(f"Training provenance: {artifact.provenance_path}")
         active = self.jobs.active
         if active is None:
             return

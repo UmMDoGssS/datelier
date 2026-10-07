@@ -28,7 +28,21 @@ def import_tokenizer(path: Path) -> TokenizerReference:
     mode = TokenMode(json.loads(tokenizer.to_str())["model"]["type"])
     if mode not in (TokenMode.BPE, TokenMode.UNIGRAM):
         raise ValueError("Choose a BPE or Unigram tokenizer JSON")
-    return TokenizerReference(str(path), hashlib.sha256(payload).hexdigest(), mode)
+    digest = hashlib.sha256(payload).hexdigest()
+    sidecar = path.with_name(path.name + ".provenance.json")
+    if sidecar.is_file():
+        provenance = sidecar.read_bytes()
+        saved = json.loads(provenance)
+        if not isinstance(saved, dict) or saved.get("tokenizer_sha256") != digest:
+            raise ValueError("Training provenance does not match this tokenizer")
+        return TokenizerReference(
+            str(path),
+            digest,
+            mode,
+            str(sidecar),
+            hashlib.sha256(provenance).hexdigest(),
+        )
+    return TokenizerReference(str(path), digest, mode)
 
 
 def normalization(settings: TokenSettings) -> normalizers.Normalizer:
@@ -68,6 +82,15 @@ class TextTokenizer:
                     "Tokenizer changed; explicitly reload its configuration"
                 )
             tokenizer = Tokenizer.from_str(payload.decode("utf8"))
+            if reference.provenance_path is not None:
+                provenance = Path(reference.provenance_path).read_bytes()
+                if (
+                    hashlib.sha256(provenance).hexdigest()
+                    != reference.provenance_sha256
+                ):
+                    raise ValueError(
+                        "Training provenance changed; reload the tokenizer"
+                    )
             if (
                 TokenMode(json.loads(tokenizer.to_str())["model"]["type"])
                 != settings.mode

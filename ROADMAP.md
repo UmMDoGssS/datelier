@@ -761,8 +761,8 @@ clean installations with and without the optional checkpoint dependency.
 
 ## Phase 12 — Text profiling and token inspection
 
-[M12.1 dependency, tokenization and native restoration evidence](docs/phase-12.md)
-is verified; local training, corpus profiles and token comparison gates remain open.
+[M12.1–M12.2 tokenization, explicit local training and restoration evidence](docs/phase-12.md)
+is verified; corpus profiles and token inspection/comparison gates remain open.
 
 - [ ] **Phase complete.** **Entry:** Phase 11 passes. **Exit:** M12.1–M12.4 pass; multilingual text statistics and token spans are correct and cross-file comparisons use compatible tokenization.
 
@@ -776,11 +776,11 @@ is verified; local training, corpus profiles and token comparison gates remain o
 
 ### M12.2 — Explicit local BPE and Unigram training
 
-- [ ] **Deliverables:** explicit training on selected text records, visible training settings, local tokenizer artifacts and training-source provenance; cancellable or safely abandoned jobs; imported/trained configuration persistence.
-- [ ] **Entry gate:** M12.1 passes; training records and normalization are selectable without hidden corpus inclusion.
-- [ ] **Exit gate:** training begins only on command, produces reusable BPE/Unigram tokenizers and records its inputs/settings; failures/abandonment leave prior settings intact; reopening references the saved artifact without retraining or downloading.
-- [ ] **Verification evidence:** small deterministic training corpora, selected-row provenance and artifact round trips, missing/changed tokenizer recovery, worker lifecycle and native explicit-training checks.
-- [ ] **Suggested step commits:** `feat: train local text tokenizers` → `feat: retain tokenizer provenance and references`.
+- [x] **Deliverables:** explicit training on selected text records, visible training settings, local tokenizer artifacts and training-source provenance; cancellable or safely abandoned jobs; imported/trained configuration persistence.
+- [x] **Entry gate:** M12.1 passes; training records and normalization are selectable without hidden corpus inclusion.
+- [x] **Exit gate:** training begins only on command, produces reusable BPE/Unigram tokenizers and records its inputs/settings; failures/abandonment leave prior settings intact; reopening references the saved artifact without retraining or downloading.
+- [x] **Verification evidence:** small deterministic training corpora, selected-row provenance and artifact round trips, missing/changed tokenizer recovery, worker lifecycle and native explicit-training checks.
+- [x] **Suggested step commits:** `feat: train local text tokenizers` → `feat: retain tokenizer provenance and references`.
 
 ### M12.3 — Text statistics and profiles
 

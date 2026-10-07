@@ -13,6 +13,9 @@ Phase 11 adds structured JSON/TOML trees, named table views, lazy NumPy array
 inspection, confirmed record mappings and optional CPU checkpoint inspection.
 All M11.1–M11.4 gates pass; [Phase 11 evidence](docs/phase-11.md) records
 restoration, native interaction, resource and clean-install checks.
+Phase 12 is underway: configurable text tokenization and explicit local
+BPE/Unigram training pass M12.1–M12.2; corpus profiles and token comparison gates
+remain open. See [Phase 12 evidence](docs/phase-12.md).
 See [ROADMAP.md](ROADMAP.md) for delivery gates and [AGENTS.md](AGENTS.md) for
 contributor conventions.
 
@@ -288,9 +291,31 @@ source identity, and each file keeps its own selection and Inspect settings.
 Workspaces preserve these controls, reference mappings and record manifests;
 decoded previews remain session caches. Missing records restore with diagnostics.
 Exports and workspace writes preserve collection members as well as individual
-source files. Full text statistics/tokenization, image tools and audio playback
+source files. Full text statistics/token-span inspection, image tools and audio playback
 arrive in the later authorized phases. See [Phase 10 evidence](docs/phase-10.md)
 for native checks, restoration and fixture-specific resource measurements.
+
+## Local text tokenization and training
+
+Open the dockable **Text** panel and expand **Text settings** to choose a String
+field, inline/external source, encoding and tokenization. **Character** counts
+normalized Unicode code points, **Whitespace** counts non-whitespace runs and
+**Word** counts Unicode word/punctuation runs. NFC/NFKC, lowercase, character
+whitespace and special-token counting are visible choices. **Prepare text record**
+reads/tokenizes one current-table row without modifying its values or source.
+
+For BPE/Unigram, **Load local tokenizer** accepts a local tokenizer JSON; Datelier
+never downloads one. **Local tokenizer training** chooses the corpus scope and
+trainer settings. Enter a new JSON output path and click **Train local tokenizer**.
+It saves a reusable model and a `.provenance.json` sidecar recording source rows,
+hashes, settings and excluded null/empty/tokenless records. Existing destinations
+are refused. Abandoning a command keeps the prior tokenizer settings; executing
+native work may still finish before its result is discarded.
+
+Workspaces save configuration and artifact references. Reopening performs no
+training or text preparation. Keep both trained files available; missing/changed
+artifacts need **Reload saved tokenizer** or an explicit local import. Corpus
+statistics, full token-span Inspect and text comparisons remain under development.
 
 ## Exploration
 

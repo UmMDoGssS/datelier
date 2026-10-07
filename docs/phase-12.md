@@ -1,6 +1,6 @@
 # Phase 12 — Text profiling and token inspection
 
-Phase 11 is complete. Phase 12 is underway; M12.1 passes. M12.2–M12.4
+Phase 11 is complete. Phase 12 is underway; M12.1–M12.2 pass. M12.3–M12.4
 implementation, native, restoration and resource gates remain open.
 
 ## Delivery steps
@@ -86,3 +86,53 @@ file, clicks reload and explicitly prepares the original record (**41 frames**).
 The default GUI font lacks CJK/emoji coverage on this machine; multilingual
 values/offsets are correct in behavioral fixtures, and native glyph coverage
 must be established with M12.4 token-span rendering.
+
+## M12.2 — Explicit selected-record local training
+
+Text → Local tokenizer training exposes range, linked selection, seeded random
+sample and all-current-row scopes, BPE/Unigram, vocabulary size, BPE minimum
+frequency, Unigram piece length/pruning iterations/shrinking factor, special
+tokens and a new local JSON output path. It uses the selected physical text
+field/source/encoding and visible NFC/NFKC/lowercase settings; no imported
+normalizer is silently included in training. The fixed pre-tokenizer uses
+Unicode word/punctuation runs. Tokenizers exposes no training seed; the saved
+artifact provides reproducible subsequent encoding. This is visible in controls.
+
+Training starts only on **Train local tokenizer**. Shared workers read the chosen
+records incrementally, report reading progress and label unavailable native
+trainer progress. Null, empty and normalization/whitespace-only documents are
+counted separately; decoding failures fail the command rather than hiding
+unreadable inputs. The source fingerprint is checked before/after training.
+Artifacts are complete tokenizer JSON plus `.provenance.json`, recording library
+version, source fingerprint, file/view/revision, field, encoding, requested
+source-row IDs, effective input digest, scope, normalization, trainer settings
+and excluded outcomes. Workspaces reference both paths and SHA-256 values, not
+training corpora. Reload validates their relationship and content identities.
+
+Publication writes/fsyncs staged files and uses exclusive hard links, refusing
+existing destinations even if created during training; failure removes only
+the job's published files and temporary staging. Abandonment checks occur between
+records and before/during publication. Executing native training can continue
+until it returns, but cannot publish settings after abandonment/closure. Completed
+unaccepted artifact cleanup uses a separate ownership scope on the same shared
+scheduler so closing preparation cannot cancel its queued cleanup. Accepted
+artifacts remain reusable local files. Failed training/import keeps the previous
+tokenizer recipe; missing/changed artifacts require explicit recovery.
+
+Focused training/tokenization/worker/editor-workspace checks: **26 passed**.
+They cover both local models, selected-row provenance after reverse/filter,
+known null/empty/tokenless outcomes, scope/seed identity, source preservation,
+artifact/reference round trips, provenance mutation/removal, strict decoding
+failures, no usable training documents, publication races, running abandonment
+and completed unaccepted cleanup. The full suite: **713 passed** in **19.39 s**,
+with three upstream checkpoint fixture warnings. Pyrefly: **zero errors**, one
+existing suppression; Ruff lint/format (**381 files**) and diff whitespace pass.
+
+`LIBGL_ALWAYS_SOFTWARE=1 POLARS_MAX_THREADS=8 .venv/bin/python
+scripts/text_training_smoke.py --output docs/evidence/phase12` uses native mouse
+commands to train BPE then Unigram (**77 frames**) on source rows **0,2,3**,
+including one null and one empty record while excluding row 1. A separate process
+restores the Unigram configuration/selection and provenance references, verifies
+no implicit job, and explicitly tokenizes the original record (**13 frames**).
+[Training report](evidence/phase12/training-native.json) and
+[native controls](evidence/phase12/training-controls.png) preserve the evidence.
