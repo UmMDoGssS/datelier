@@ -14,6 +14,7 @@ from datelier.inspection.comparison_settings import ComparisonSettings
 from datelier.inspection.comparisons.jobs import ComparisonJobs
 from datelier.inspection.comparisons.types import (
     ComparisonSelection,
+    Origin,
     PreparedComparison,
 )
 from datelier.inspection.images.comparisons.jobs import ImageComparisonJobs
@@ -61,6 +62,7 @@ class EditorSession:
         self.image_comparison_index = 0
         self.image_comparison_view = ImageComparisonViewSettings()
         self.image_comparison_jobs = ImageComparisonJobs(self.workers)
+        self.comparison_tab = "Columns"
         self.order_reset = False
         self.pending_layout: tuple[str, tuple[str, ...]] | None = None
         self.workspace_path = ""
@@ -143,6 +145,38 @@ class EditorSession:
         self, recipe: ImageComparisonSettings
     ) -> tuple[ImageComparisonInput, ...]:
         return comparison_inputs(self, recipe)
+
+    def open_image_comparison_record(
+        self, result: PreparedImageComparison, source: int, row: int
+    ) -> None:
+        if self.image_comparison_jobs.active is not result:
+            raise ValueError("Image comparison changed; prepare a current result")
+        profile = result.profiles[source]
+        file = next(
+            (file for file in self.file_sessions if file.identity == profile.file_id),
+            None,
+        )
+        if file is None or file.loader.revision != profile.revision:
+            raise ValueError("Image source changed or closed")
+        row_id, position = (
+            int(profile.records["row_id"][row]),
+            int(profile.records["position"][row]),
+        )
+        self._apply_comparison_selection(
+            ComparisonSelection(
+                Origin(
+                    profile.file_id,
+                    profile.revision,
+                    profile.settings.column or "",
+                    profile.view_name,
+                ),
+                (row_id,),
+                1,
+                position,
+            )
+        )
+        file.images.open_profile_record(file, profile, row)
+        self.active.focus_inspect = True
 
     def select_image_comparison(
         self,
@@ -252,6 +286,7 @@ class EditorSession:
         self.image_comparisons = restored.workspace.image_comparisons
         self.image_comparison_index = restored.workspace.image_comparison_index
         self.image_comparison_view = restored.workspace.image_comparison_view
+        self.comparison_tab = restored.workspace.comparison_tab
         self.pending_layout = (
             restored.workspace.layout,
             restored.workspace.hidden_windows,

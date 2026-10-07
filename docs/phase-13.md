@@ -678,3 +678,36 @@ relink and immediate closed-source recipe pruning. Pyrefly: **zero errors**, one
 existing suppression; Ruff lint/format (**508 Python files**) and diff whitespace
 pass. This step adds no visible GUI controls. Native comparison views, restoration
 and final M13.4 acceptance remain open.
+
+### Native image comparisons and restoration (2026-10-07)
+
+Compare files now includes Images with explicit file/field or confirmed array
+view mappings, independent collection/pixel scopes and common physical bins.
+Dimensions and mode/dtype color families have native source legends and count or
+proportion curves. Source statistics retain original weighted values; absent
+families and sampling/outcomes remain visible. Scaled numeric axes explain their
+original bounds. Dimension-bin commands link sorted rows in the correct source;
+record outcomes activate its tab/view and open the selected image in Inspect.
+Unavailable saved fields require an explicit choice rather than silently choosing
+another mapped member. Main comparison navigation also persists with legacy
+Columns defaults. Restoration starts no collection profiling.
+
+`scripts/image_comparison_smoke.py` verifies native mapping checkboxes, two common
+bins, explicit preparation, weighted red means **23.333333/55**, shared width
+edges **32/64/96**, count controls, Statistics, sorted-source bin selection and
+Records-to-Inspect pixels **(70,20,30)**. Save: **657 frames**, p95 **13.10 ms**;
+fresh-process reopen: **106 frames**, p95 **12.84 ms**. The reopened Images/Colors
+view is idle until its native Prepare command. Source hashes remain unchanged.
+The smoke harness uses captured native popup item rectangles for source/bin
+choices after keyboard navigation proved unreliable. Both final screenshots were
+visually reviewed; legends, axis labels and scope captions are visible.
+
+Focused editor/comparison/image/profile/workspace checks: **47 passed**. Tests
+also cover correct record owner/focus, stale record rejection, saved main tab
+defaults and unavailable mapped-member rejection without another extraction.
+Pyrefly: **zero errors**, one existing suppression; Ruff lint/format (**512 Python
+files**) and diff whitespace pass. Production controls, chart rendering and view
+ownership are separated; the native scenario remains one cohesive script.
+Evidence is in [image-comparison-native.json](evidence/phase13/image-comparison-native.json)
+and its save/reopen screenshots. Larger native overlay resources, comparison
+resource measurements and final M13.4/full-phase acceptance remain open.

@@ -146,6 +146,7 @@ class SessionWorkspace:
     image_comparisons: tuple[ImageComparisonSettings, ...] = ()
     image_comparison_index: int = 0
     image_comparison_view: ImageComparisonViewSettings = ImageComparisonViewSettings()
+    comparison_tab: str = "Columns"
 
     def validate(self) -> None:
         if self.version != 2:
@@ -161,6 +162,8 @@ class SessionWorkspace:
         for file in self.files:
             file.validate()
         self.image_comparison_view.validate()
+        if self.comparison_tab not in ("Columns", "Text corpora", "Images"):
+            raise ValueError("Unknown file comparison panel")
         if not 0 <= self.image_comparison_index < max(1, len(self.image_comparisons)):
             raise ValueError("Invalid active image comparison")
         if len(self.image_comparisons) > 32:

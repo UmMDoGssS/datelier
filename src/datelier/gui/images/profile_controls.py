@@ -11,7 +11,9 @@ from datelier.inspection.images.profile_types import (
 )
 
 
-def profile_controls(settings: ImageProfileSettings) -> ImageProfileSettings:
+def profile_controls(
+    settings: ImageProfileSettings, *, show_bins: bool = True
+) -> ImageProfileSettings:
     if not imgui.collapsing_header("Image collection scope"):
         return settings
     scope = settings.scope
@@ -40,5 +42,7 @@ def profile_controls(settings: ImageProfileSettings) -> ImageProfileSettings:
         settings = replace(
             settings, pixel_count=max(1, count), pixel_seed=max(0, min(2**32 - 1, seed))
         )
-    _, bins = imgui.input_int("Image histogram bins", settings.bins)
-    return replace(settings, bins=max(1, min(256, bins)))
+    if show_bins:
+        _, bins = imgui.input_int("Image histogram bins", settings.bins)
+        settings = replace(settings, bins=max(1, min(256, bins)))
+    return settings

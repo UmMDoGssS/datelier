@@ -4,6 +4,7 @@ from pathlib import Path
 from time import monotonic, sleep
 from unittest.mock import patch
 
+import pytest
 from PIL import Image
 
 from datelier.gui.editor_session import EditorSession
@@ -48,7 +49,12 @@ def test_legacy_session_defaults_preserve_empty_image_comparisons() -> None:
     workspace = SessionWorkspace((SessionFile("empty"),), "empty")
     raw = encode(workspace)
     assert isinstance(raw, dict)
-    for key in ("image_comparisons", "image_comparison_index", "image_comparison_view"):
+    for key in (
+        "image_comparisons",
+        "image_comparison_index",
+        "image_comparison_view",
+        "comparison_tab",
+    ):
         raw.pop(key)
     assert decode_record(SessionWorkspace, raw) == workspace
 
@@ -84,6 +90,7 @@ def test_saved_image_comparison_reopens_idle_links_correct_file_and_recovers(
         )
         editor.image_comparisons = (recipe,)
         editor.image_comparison_view = view
+        editor.comparison_tab = "Images"
         editor.poll()
         assert (
             editor.image_comparison_jobs.started == 0
@@ -100,12 +107,18 @@ def test_saved_image_comparison_reopens_idle_links_correct_file_and_recovers(
             sleep(0.001)
         assert second.selection.row_ids == {0} and not first.selection.row_ids
         assert editor.active is second and second.table.target_row == 1
+        editor.open_image_comparison_record(result, 0, 1)
+        assert editor.active is first and first.selection.row_ids == {1}
+        assert first.inspect.settings.focus == 0 and first.focus_inspect
+        assert first.table.target_row == 2
+        assert first.exploration.tab == "Inspect"
         editor.save_workspace(workspace)
         wait(editor, tmp_path)
         saved = read_session_workspace(workspace)
         assert (
             saved.image_comparisons == (recipe,) and saved.image_comparison_view == view
         )
+        assert saved.comparison_tab == "Images"
         assert (
             "curves" not in workspace.read_text()
             and "channel_records" not in workspace.read_text()
@@ -123,6 +136,9 @@ def test_saved_image_comparison_reopens_idle_links_correct_file_and_recovers(
             editor.image_comparisons == (recipe,)
             and editor.image_comparison_view == view
         )
+        assert editor.comparison_tab == "Images"
+        with pytest.raises(ValueError, match="changed"):
+            editor.open_image_comparison_record(result, 0, 1)
         assert (
             editor.image_comparison_jobs.active is None
             and not editor.image_comparison_jobs.busy

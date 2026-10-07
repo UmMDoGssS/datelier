@@ -336,8 +336,14 @@ decoded previews remain session caches. Missing records restore with diagnostics
 Exports and workspace writes preserve collection members as well as individual
 source files. Image/heatmap controls and collection recipes are saved alongside
 text tools, including annotation sources and confirmed mappings. Restoring leaves
-annotation loading and profiles idle. Cross-file image comparisons and audio
-playback remain in
+annotation loading and profiles idle. In **Compare files → Images**, add a
+comparison and expand **Image mappings and scopes** to include file fields or
+confirmed image views. Set each source's record/pixel scope and common bin count,
+then **Prepare image comparison**. Dimensions and physical color families use
+common bins with counts or proportions and native source legends. Statistics
+retain original weighted values; dimension bins link matching rows in the chosen
+file, and Records open the matching image in Inspect. Comparison recipes and view
+choices restore without starting image profiling. Audio playback remains in
 the authorized sequence. See [Phase 10 evidence](docs/phase-10.md) and
 [Phase 13 evidence](docs/phase-13.md) for native checks, restoration and
 fixture-specific resource measurements.

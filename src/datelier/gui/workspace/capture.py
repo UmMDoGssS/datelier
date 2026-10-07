@@ -100,6 +100,7 @@ def capture_session(
                 editor.image_comparison_index, max(0, len(editor.image_comparisons) - 1)
             ),
             image_comparison_view=editor.image_comparison_view,
+            comparison_tab=editor.comparison_tab,
             text_comparison_index=min(
                 editor.text_comparison_index, max(0, len(editor.text_comparisons) - 1)
             ),

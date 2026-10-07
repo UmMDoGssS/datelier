@@ -16,6 +16,7 @@ from datelier.gui.editor_controls import EditorControls
 from datelier.gui.editor_session import EditorSession
 from datelier.gui.file_session import FileSession
 from datelier.gui.fonts import load_fonts
+from datelier.gui.images.comparison_view import ImageComparisonView
 from datelier.gui.layout import configure_layout
 from datelier.gui.objects.browser import ObjectBrowser, show_view_selector
 from datelier.gui.tabs import EditorTabs
@@ -78,6 +79,8 @@ def run_gui(
     welcome = Welcome()
     comparisons = ComparisonView()
     text_comparisons = TextComparisonView()
+    image_comparisons = ImageComparisonView()
+    observed_comparison_tab: str | None = None
     objects = ObjectBrowser()
     evidence = InspectionEvidence()
 
@@ -156,14 +159,25 @@ def run_gui(
             objects.show(owner)
 
     def compare_files() -> None:
+        nonlocal observed_comparison_tab
+        requested = (
+            editor.comparison_tab
+            if observed_comparison_tab != editor.comparison_tab
+            else ""
+        )
         if imgui.begin_tab_bar("File comparison types"):
-            if imgui.begin_tab_item("Columns")[0]:
-                comparisons.show(editor)
-                imgui.end_tab_item()
-            if imgui.begin_tab_item("Text corpora")[0]:
-                text_comparisons.show(editor)
-                imgui.end_tab_item()
+            for label, view in (
+                ("Columns", comparisons),
+                ("Text corpora", text_comparisons),
+                ("Images", image_comparisons),
+            ):
+                flags = imgui.TabItemFlags_.set_selected if requested == label else 0
+                if imgui.begin_tab_item(label, flags=flags)[0]:
+                    editor.comparison_tab = label
+                    view.show(editor)
+                    imgui.end_tab_item()
             imgui.end_tab_bar()
+        observed_comparison_tab = editor.comparison_tab
         evidence.comparison_frames = comparisons.plot_frames
         evidence.comparison_apply_pixel = comparisons.controls.apply_pixel
         evidence.comparison_select_pixel = comparisons.select_pixel

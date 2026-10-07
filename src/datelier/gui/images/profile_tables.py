@@ -1,5 +1,6 @@
 """Virtual scalar image results and linked record navigation."""
 
+from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 from imgui_bundle import imgui
@@ -62,7 +63,11 @@ def statistics(label: str, values: tuple[ChannelSummary, ...], height: float) ->
     imgui.end_table()
 
 
-def record_outcomes(profile: ImageProfile, owner: FileSession) -> int:
+def record_outcomes(
+    profile: ImageProfile,
+    owner: FileSession,
+    on_select: Callable[[int], None] | None = None,
+) -> int:
     flags = (
         imgui.TableFlags_.borders
         | imgui.TableFlags_.row_bg
@@ -115,7 +120,10 @@ def record_outcomes(profile: ImageProfile, owner: FileSession) -> int:
                 if imgui.selectable(
                     f"{row_id}##Image profile record", row_id in owner.selection.row_ids
                 )[0]:
-                    owner.images.open_profile_record(owner, profile, row)
+                    if on_select is not None:
+                        on_select(row)
+                    else:
+                        owner.images.open_profile_record(owner, profile, row)
                 for index in indices[1:]:
                     imgui.table_next_column()
                     cell = values[index]

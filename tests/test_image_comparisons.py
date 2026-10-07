@@ -240,6 +240,13 @@ def test_compressed_array_is_leased_once_across_both_global_passes(
         )
         assert arrays.extractions == 1 and arrays.stored_bytes == 0
         assert result.profiles[0].summaries[0].mean == 20
+        unavailable = replace(source, profile=replace(source.profile, column="other"))
+        with pytest.raises(ValueError, match="current confirmed"):
+            prepare(
+                (replace(item, source=unavailable), inputs[1]),
+                ImageComparisonSettings((unavailable, inputs[1].source), 4),
+            )
+        assert arrays.extractions == 1
     finally:
         temporary = arrays.temporary_path
         arrays.close()

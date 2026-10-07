@@ -58,6 +58,8 @@ def validate_profile_input(
     if settings.column is None:
         raise ValueError("Choose an image field or confirmed image mapping")
     if mapping is not None:
+        if settings.column != mapping.member:
+            raise ValueError("Choose the current confirmed image member")
         if catalog is None or mapping.layout != ArrayLayout.IMAGE:
             raise ValueError("Collection colors require a confirmed image mapping")
         mapping.record_count(catalog)
