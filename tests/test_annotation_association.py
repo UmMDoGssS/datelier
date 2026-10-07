@@ -94,8 +94,10 @@ def test_ambiguous_filenames_require_mapping_and_sort_retains_original_row(
     with patch.object(
         Image.Image, "load", side_effect=AssertionError("association decoded pixels")
     ):
-        active = prepare(sorted_data, source).sources[0]
+        prepared = prepare(sorted_data, source)
+        active = prepared.sources[0]
     assert active.images[0].status == "Ready" and len(active.boxes) == 1
+    assert prepared.by_image == {active.boxes[0].origin: active.boxes}
     pin = active.recipe.mappings[0].expected_key
     assert pin is not None and "b/scene.png" in pin
     box = active.boxes[0]

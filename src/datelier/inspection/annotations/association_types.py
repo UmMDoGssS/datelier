@@ -1,6 +1,6 @@
 """File/view/source-row-qualified annotation preparation and association outcomes."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from datelier.core.dataset import DatasetRevision
 from datelier.inspection.annotations.settings import AnnotationSource
@@ -59,3 +59,4 @@ class PreparedAnnotations:
     revision: DatasetRevision
     column: str
     sources: tuple[AssociatedSource, ...]
+    by_image: dict[ImageOrigin, tuple[AssociatedBox, ...]] = field(default_factory=dict)

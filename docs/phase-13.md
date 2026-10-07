@@ -517,3 +517,27 @@ files**) and diff whitespace pass. Responsibilities were reviewed near the
 modules; the native harness retains one coherent multi-process scenario.
 M13.3 deliverable and exits pass; M13.4 entry passes. Overlays, annotation profiles
 and cross-file image comparisons remain open, so Phase 13 remains incomplete.
+
+### Prepared box profile and overlay foundation (2026-10-07)
+
+Association commands now index boxes by complete file/view/revision/source-row/
+field origin, so rendering can retrieve one image's boxes without scanning a
+collection. Pure overlay choices distinguish source and physical class IDs,
+optional score thresholds and unscored boxes. Screen-edge transforms, viewport
+visibility and point picking consume the prepared oriented geometry.
+
+Explicit shared-worker profiles summarize the associated snapshot: class counts,
+original width/height/area/aspect statistics and exact histograms, complete linked
+box rows and separate image/label/association/error/warning counts. Missing labels
+remain distinct from present labels without boxes. Failed sources retain quality
+outcomes. Changing prepared sources or bins retires profiles; binding never starts
+computation. Profile preparation reads no annotation/image files.
+
+Focused profile/geometry/association/reader/image checks: **59 passed in 0.42 s**;
+the final association subset also passes after adding the prepared-index invariant.
+Fixtures cover known class/size/quality statistics, empty failures, all eight EXIF
+orientations under zoom/pan/picking, class/source/score identity and late worker
+completion after retirement. Pyrefly: **zero errors**, one existing suppression;
+Ruff lint/format (**492 Python files**) and diff whitespace pass. No new GUI behavior
+in this foundation. Native overlays/profiles, saved display controls and cross-file
+image comparisons remain open in M13.4.

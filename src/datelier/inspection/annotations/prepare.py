@@ -9,6 +9,7 @@ from datelier.inspection.annotations.associate import (
     verify_associated_source,
 )
 from datelier.inspection.annotations.association_types import (
+    AssociatedBox,
     AssociatedSource,
     PreparedAnnotations,
 )
@@ -16,7 +17,7 @@ from datelier.inspection.annotations.settings import AnnotationSettings
 from datelier.inspection.arrays.mapping import ArrayRecordMapping
 from datelier.inspection.arrays.types import ArrayCatalog
 from datelier.inspection.images.profile_types import ImageProgress
-from datelier.inspection.images.types import ImageLocator, ImageMetadata
+from datelier.inspection.images.types import ImageLocator, ImageMetadata, ImageOrigin
 from datelier.inspection.references.index import ReferenceIndex
 from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.annotations.loading import load_annotations
@@ -80,6 +81,16 @@ def prepare_annotations(
                     error=str(error),
                 )
     progress.update("Annotations ready", len(sources), len(sources))
+    grouped: dict[ImageOrigin, list[AssociatedBox]] = {}
+    for source in sources:
+        for box in source.boxes:
+            check_cancelled(stop)
+            grouped.setdefault(box.origin, []).append(box)
     return PreparedAnnotations(
-        file_id, view_name, dataset.revision, settings.column, tuple(sources)
+        file_id,
+        view_name,
+        dataset.revision,
+        settings.column,
+        tuple(sources),
+        {origin: tuple(boxes) for origin, boxes in grouped.items()},
     )
