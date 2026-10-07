@@ -55,6 +55,16 @@ RSS increase under **64 MiB** including fixture preparation. Preparation must
 not decode image pixels or allocate temporary image/array caches. Sources remain
 unchanged; overlays and profile rendering have separate M13.4 gates.
 
+Final M13.4 resource fixtures use two independent 100×256² image collections:
+exact or seeded-pixel common-bin comparison should finish in **20 s**, with
+fresh-process peak RSS increase under **128 MiB**, including fixture creation.
+Files retain only one decoded image at a time; two compressed members above
+their 1 MiB budgets remain leased across both global passes, each extracted once
+and released afterward. Peak temporary disk and source hashes are recorded.
+Native overlay acceptance exercises **2,200 visible boxes**, the default **2,000**
+display limit and an explicit increase to show all boxes; p95 remains **33 ms**.
+These fixture budgets are established before running their measurements.
+
 ## Evidence
 
 Planning (2026-10-07): inspected the current source, shared workers, references,
@@ -711,3 +721,17 @@ ownership are separated; the native scenario remains one cohesive script.
 Evidence is in [image-comparison-native.json](evidence/phase13/image-comparison-native.json)
 and its save/reopen screenshots. Larger native overlay resources, comparison
 resource measurements and final M13.4/full-phase acceptance remain open.
+
+### Bounded annotation class links (2026-10-07)
+
+Class links now follow the existing 10,000-row publication limit, retaining the
+complete class count and explaining the first-N image selection. Previously a
+larger class could raise the selection limit exception from a frame callback.
+Focused annotation profile/workspace checks: **16 passed**, including 10,003
+matching rows, bounded publication and stale-file rejection. Pyrefly: **zero
+errors**, one existing suppression; Ruff lint/format (**512 files**) and diff
+whitespace pass. Native cross-format class/profile/overlay regression and idle
+fresh-process restore pass **1,305/291 frames**, p95 **12.50/12.42 ms**; source
+hashes remain unchanged. See [regression evidence](evidence/phase13/box-overlay-link-regression.json).
+Final comparison and larger-overlay resource budgets above were established
+before their measurements; those gates remain open.

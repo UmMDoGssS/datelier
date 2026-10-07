@@ -14,6 +14,7 @@ from datelier.inspection.annotations.profile_types import (
     AnnotationProfiles,
 )
 from datelier.inspection.annotations.view_settings import AnnotationViewSettings
+from datelier.plotting.selection import SELECTION_LIMIT
 
 if TYPE_CHECKING:
     from datelier.gui.file_session import FileSession
@@ -137,6 +138,10 @@ def classes(
                 imgui.text_unformatted(str(item.id))
                 imgui.table_next_column()
                 imgui.text_unformatted(str(item.count))
+                if len(item.row_ids) > SELECTION_LIMIT:
+                    imgui.text_wrapped(
+                        f"Links first {SELECTION_LIMIT:,}/{len(item.row_ids):,} images."
+                    )
                 imgui.pop_id()
         imgui.end_table()
 

@@ -10,6 +10,7 @@ from datelier.inspection.annotations.association_types import (
     PreparedAnnotations,
 )
 from datelier.inspection.records.types import RecordMode
+from datelier.plotting.selection import SELECTION_LIMIT
 
 if TYPE_CHECKING:
     from datelier.gui.file_session import FileSession
@@ -29,7 +30,12 @@ def open_rows(
         prepared.revision,
     ):
         return
-    owner.selection.choose(prepared.revision, rows)
+    owner.selection.choose(prepared.revision, rows[:SELECTION_LIMIT])
+    if len(rows) > SELECTION_LIMIT:
+        owner.selection.message = (
+            f"{len(rows):,} matching image rows; selected the first "
+            f"{SELECTION_LIMIT:,}. Narrow the class/source scope for other rows."
+        )
     owner.inspect.settings = replace(
         owner.inspect.settings,
         mode=RecordMode.SELECTION,
