@@ -147,3 +147,25 @@ def test_line_record_default_uses_one_line_and_supporting_identity(
         assert file.loader.active.dataset.table["line"].to_list() == [1, 2]
     finally:
         editor.close()
+
+
+def test_character_offsets_keep_independent_combining_marks() -> None:
+    raw = "e\u0301\u0303"
+    original = document(raw)
+    identity = TextTokenizer(TokenSettings(TokenMode.CHARACTER)).encode(original)
+    assert [(t.piece, t.start, t.end) for t in identity.tokens] == [
+        ("e", 0, 1),
+        ("\u0301", 1, 2),
+        ("\u0303", 2, 3),
+    ]
+    composed = TextTokenizer(
+        TokenSettings(TokenMode.CHARACTER, Normalization.NFC)
+    ).encode(original)
+    assert [(t.piece, t.start, t.end) for t in composed.tokens] == [
+        ("é", 0, 2),
+        ("\u0303", 2, 3),
+    ]
+    first = prepare_text_page(identity, TextViewport(selected_token=0))
+    assert first.selected_source == "e" and first.selected_span == (0, 1)
+    second = prepare_text_page(composed, TextViewport(selected_token=1))
+    assert second.selected_source == "\u0303" and second.selected_span == (2, 3)

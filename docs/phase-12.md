@@ -312,3 +312,11 @@ Native counts are **3/8 tokens**. Sources retain their exact original bytes.
 [length view](evidence/phase12/text-comparison-lengths.png) and
 [statistics view](evidence/phase12/text-comparison-statistics.png) retain evidence.
 Final mixed text resources, clean installation and milestone checks remain open.
+
+Final offset audit distinguishes independent combining code points from marks
+consumed by normalization. Character/None on `é̃` now keeps spans **[0,1),
+[1,2), [2,3)**; Character/NFC keeps **[0,2), [2,3)**. Composition extends only
+consumed marks, leaving the remaining mark independently selectable. This also
+preserves raw offsets for imported normalizers. Focused text fixtures: **33 passed**;
+Pyrefly zero errors; Ruff lint/format (**408 files**) pass. The native Inspect
+save/reopen check passes again with original highlighted span **[2,4)**.

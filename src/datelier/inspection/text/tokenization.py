@@ -56,11 +56,19 @@ def normalization(settings: TokenSettings) -> normalizers.Normalizer:
     return normalizers.Sequence(steps)
 
 
-def source_span(original: str, start: int, end: int) -> tuple[int, int]:
-    # Tokenizers maps a composed character to its starter. Include trailing
-    # source combining marks so highlighting covers the original sequence.
+def source_span(
+    original: str, start: int, end: int, normalizer: normalizers.Normalizer
+) -> tuple[int, int]:
+    # Tokenizers maps a composed character to its starter. Extend only the
+    # marks actually combined by normalization; independent code points and
+    # marks left after composition retain their own original spans.
     if end > start:
         while end < len(original) and unicodedata.category(original[end])[0] == "M":
+            prefix = normalizer.normalize_str(original[start:end])
+            mark = normalizer.normalize_str(original[end : end + 1])
+            combined = normalizer.normalize_str(original[start : end + 1])
+            if combined == prefix + mark:
+                break
             end += 1
     return start, end
 
@@ -122,7 +130,7 @@ class TextTokenizer:
                 encoding.special_tokens_mask,
                 strict=True,
             ):
-                start, end = source_span(text, *span)
+                start, end = source_span(text, *span, self.normalizer)
                 tokens.append(
                     TextToken(
                         piece,
@@ -151,7 +159,7 @@ class TextTokenizer:
                     and piece.isspace()
                 ):
                     continue
-                start, end = source_span(text, *span)
+                start, end = source_span(text, *span, self.normalizer)
                 tokens.append(TextToken(piece, None, start, end))
         return TokenizedDocument(
             document,
