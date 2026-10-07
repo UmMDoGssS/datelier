@@ -71,6 +71,7 @@ class AnnotationCatalog:
     classes: tuple[AnnotationClass, ...] = ()
     issues: tuple[AnnotationIssue, ...] = ()
     description: str = ""
+    class_count: int | None = None
 
 
 @dataclass(frozen=True)

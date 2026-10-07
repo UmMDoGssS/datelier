@@ -835,7 +835,7 @@ comparisons remain outstanding in M13.3–M13.4.
 ### M13.3 — Detection annotation adapters and image association
 
 - [ ] **Deliverables:** Pascal VOC XML, YOLO detection text, COCO JSON and Ultralytics dataset manifests/labels; shared pixel-coordinate boxes retaining original coordinates, classes, optional scores and provenance; explicit image-key/path mappings.
-- [ ] **Entry gate:** M13.2 passes; verify format coordinate conventions and minimal manifest-parser dependencies against representative fixtures without adding model inference.
+- [x] **Entry gate:** M13.2 passes; format coordinate conventions and the minimal safe YAML parser are verified against representative VOC/YOLO/COCO/Ultralytics fixtures without model inference; [Phase 13 evidence](docs/phase-13.md) records the foundations.
 - [ ] **Exit gate:** each named format resolves known boxes to the correct image; normalized/pixel and indexing conversions are explicit; class mappings, missing labels, invalid boxes and ambiguous image associations have diagnostics rather than silent reassignment.
 - [ ] **Verification evidence:** equivalent cross-format boxes, normalized edge cases, duplicate stems/class mappings, missing/invalid/out-of-bounds annotations and source-preservation tests.
 - [ ] **Suggested step commits:** `feat: load voc and yolo box annotations` → `feat: load coco and ultralytics detection datasets` → `feat: associate annotations with image records`.

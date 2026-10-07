@@ -20,7 +20,10 @@ def read_yolo(
     image_key: str | None = None,
     classes: tuple[AnnotationClass, ...] = (),
     scores: bool = False,
+    class_count: int | None = None,
 ) -> AnnotationCatalog:
+    if class_count is not None and class_count < 1:
+        raise ValueError("YOLO class count must be positive")
     names = {item.id: item.name for item in classes}
     if len(names) != len(classes) or any(
         not isinstance(item.id, int)
@@ -56,9 +59,18 @@ def read_yolo(
                     raise ValueError("YOLO class IDs start at zero")
                 original = coordinates(fields[1:5])
                 score = finite_number(fields[5]) if len(fields) == 6 else None
+                unknown = (
+                    names
+                    and class_id not in names
+                    or class_count is not None
+                    and class_id >= class_count
+                )
                 diagnostics = (
-                    (f"Class {class_id} has no name in the supplied mapping",)
-                    if names and class_id not in names
+                    (
+                        f"Class {class_id} has no entry in the "
+                        "supplied class mapping/count",
+                    )
+                    if unknown
                     else ()
                 )
                 if score is not None and not 0 <= score <= 1:
@@ -70,7 +82,12 @@ def read_yolo(
                         key,
                         str(line),
                         class_id,
-                        names.get(class_id, str(class_id)),
+                        names.get(
+                            class_id,
+                            f"Class {class_id}"
+                            if class_count is not None
+                            else str(class_id),
+                        ),
                         original,
                         BoxCoordinates.YOLO,
                         score,
@@ -91,4 +108,5 @@ def read_yolo(
         tuple(issues),
         "Normalized centre/size; zero-based classes; original source grid"
         + ("; optional trailing confidence enabled" if scores else ""),
+        class_count,
     )

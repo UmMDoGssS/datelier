@@ -29,7 +29,7 @@ def _constant(value: str) -> object:
     raise ValueError(f"Nonstandard JSON value {value}; use null for missing values.")
 
 
-def _decode(text: str) -> object:
+def decode_json(text: str) -> object:
     # The standard JSON decoder is untyped; validation below narrows every value.
     return cast(
         object, json.loads(text, object_pairs_hook=_object, parse_constant=_constant)
@@ -71,7 +71,9 @@ def load_json(
                     if not raw.strip():
                         continue
                     try:
-                        yield _record(_decode(raw.decode("utf-8")), f"Line {number}")
+                        yield _record(
+                            decode_json(raw.decode("utf-8")), f"Line {number}"
+                        )
                     except ValueError as error:
                         raise ValueError(f"Line {number}: {error}") from error
             else:

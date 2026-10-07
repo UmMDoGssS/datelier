@@ -1,6 +1,6 @@
 """Read-only annotation snapshots and narrow scalar parsing boundaries."""
 
-from collections.abc import Iterator
+from collections.abc import Iterable, Iterator
 from contextlib import contextmanager
 from math import isfinite
 from pathlib import Path
@@ -37,3 +37,12 @@ def coordinates(values: list[str]) -> tuple[float, float, float, float]:
         raise ValueError("Detection boxes require four coordinates")
     a, b, c, d = (finite_number(value) for value in values)
     return a, b, c, d
+
+
+def verify_sources(sources: Iterable[AssetIdentity]) -> None:
+    for asset in sources:
+        stat = asset.path.stat()
+        if (stat.st_size, stat.st_mtime_ns) != (asset.size, asset.modified_ns):
+            raise ValueError(
+                f"Annotation/image source changed during command: {asset.path}"
+            )

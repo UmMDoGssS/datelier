@@ -81,47 +81,46 @@ def locate_image(
     return ImageLocator(origin, asset=resolved.asset)
 
 
+def file_metadata(asset: AssetIdentity) -> ImageMetadata:
+    check_asset(asset)
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", Image.DecompressionBombWarning)
+        with Image.open(asset.path) as image:
+            if image.format == "PNG" and "exif" not in image.info:
+                exif = exif_chunk(asset)
+                if exif is not None:
+                    image.info["exif"] = exif
+            # The PNG override calls load() when EXIF is absent. The base
+            # method reads header metadata without decoding source pixels.
+            orientation = int(Image.Image.getexif(image).get(274, 1))
+            orientation = orientation if 1 <= orientation <= 8 else 1
+            mode, channels, dtype = image_mode(image.mode)
+            width, height = image.size
+            if isinstance(image, TiffImagePlugin.TiffImageFile):
+                # TIFF's header size is already orientation-adjusted by
+                # Pillow; the original grid remains in the directory tags.
+                width, height = int(image.tag_v2[256]), int(image.tag_v2[257])
+            w, h = (height, width) if orientation >= 5 else (width, height)
+            result = ImageMetadata(
+                width,
+                height,
+                w,
+                h,
+                channels,
+                dtype,
+                mode,
+                orientation,
+                getattr(image, "n_frames", 1),
+                f"{image.mode}; original decoded pixels; first frame"
+                + ("; palette expanded to RGBA" if image.mode in ("P", "PA") else ""),
+            )
+    check_asset(asset)
+    return result
+
+
 def image_metadata(locator: ImageLocator) -> ImageMetadata:
-    asset = locator.asset
-    if asset is not None:
-        check_asset(asset)
-        with warnings.catch_warnings():
-            warnings.simplefilter("error", Image.DecompressionBombWarning)
-            with Image.open(asset.path) as image:
-                if image.format == "PNG" and "exif" not in image.info:
-                    exif = exif_chunk(asset)
-                    if exif is not None:
-                        image.info["exif"] = exif
-                # The PNG override calls load() when EXIF is absent. The base
-                # method reads header metadata without decoding source pixels.
-                orientation = int(Image.Image.getexif(image).get(274, 1))
-                orientation = orientation if 1 <= orientation <= 8 else 1
-                mode, channels, dtype = image_mode(image.mode)
-                width, height = image.size
-                if isinstance(image, TiffImagePlugin.TiffImageFile):
-                    # TIFF's header size is already orientation-adjusted by
-                    # Pillow; the original grid remains in the directory tags.
-                    width, height = int(image.tag_v2[256]), int(image.tag_v2[257])
-                w, h = (height, width) if orientation >= 5 else (width, height)
-                result = ImageMetadata(
-                    width,
-                    height,
-                    w,
-                    h,
-                    channels,
-                    dtype,
-                    mode,
-                    orientation,
-                    getattr(image, "n_frames", 1),
-                    f"{image.mode}; original decoded pixels; first frame"
-                    + (
-                        "; palette expanded to RGBA"
-                        if image.mode in ("P", "PA")
-                        else ""
-                    ),
-                )
-        check_asset(asset)
-        return result
+    if locator.asset is not None:
+        return file_metadata(locator.asset)
     catalog, mapping = locator.catalog, locator.mapping
     if catalog is None or mapping is None:
         raise ValueError("Image source is unavailable")

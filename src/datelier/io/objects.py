@@ -15,7 +15,7 @@ from datelier.inspection.objects.types import (
     ObjectNode,
     node_label,
 )
-from datelier.io.json import _decode
+from datelier.io.json import decode_json
 from datelier.io.records import ScalarValue, records_to_table
 from datelier.io.source import read_source
 from datelier.io.types import ImportFormat, ImportResult, ObjectOptions
@@ -90,7 +90,7 @@ def load_object(path: Path, options: ObjectOptions | None = None) -> ImportResul
         value = (
             tomllib.load(source)
             if syntax == "toml"
-            else _decode(source.read().decode("utf8"))
+            else decode_json(source.read().decode("utf8"))
         )
         root = build_node(value, finite=syntax == "json")
         if options.node_path is not None:

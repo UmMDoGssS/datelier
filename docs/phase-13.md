@@ -352,8 +352,8 @@ Manifest root resolution will be explicit: Datelier defaults relative roots to
 the manifest directory and permits an override, rather than depending on an
 Ultralytics installation's global dataset directory. Image-list `./` paths use
 the list file's directory. Local parsing does not import Ultralytics or execute
-manifest download fields. PyYAML 6.0.3 is already locked for the checkpoint
-dependency; a direct base dependency with SafeLoader will be established and
+manifest download fields. PyYAML 6.0.3 is already locked through the base
+Hugging Face Hub dependency; a direct dependency with SafeLoader will be established and
 tested in the manifest slice. [PyYAML documentation](https://pyyaml.org/wiki/PyYAMLDocumentation)
 defines its standard-data-only loader.
 
@@ -376,3 +376,39 @@ index choices, empty labels, invalid classes/rows/geometry, duplicate XML fields
 DTD/entity rejection and changed snapshots. Pyrefly: **zero errors**, one existing
 suppression; Ruff lint/format and diff whitespace pass. This slice introduces no
 GUI controls. COCO/manifests, association and M13.3 exit gates remain open.
+
+### COCO and local Ultralytics manifest foundation (2026-10-07)
+
+COCO dataset JSON retains original xywh, sparse image/category IDs, scores,
+crowd flags and source-array locations. Identity joins are exact; duplicate image
+or category headers fail as ambiguous, while orphan/duplicate/invalid annotation
+records retain diagnostics and original representations. Unknown category IDs
+remain visible. Strict shared JSON decoding rejects duplicate fields/nonstandard
+constants before interpretation.
+
+Ultralytics YAML now uses a direct **PyYAML ≥6.0.3,<7** base requirement; `uv add`
+regenerated the lock, keeping the existing **6.0.3** and all package versions.
+`uv lock --check --offline` passes. The isolated SafeLoader rejects duplicate
+keys (including merges) and arbitrary object tags, while standard aliases work.
+Local splits support directories, individual images, lists of split paths and
+UTF-8 image-list files, with explicit dataset-root override. Image headers share
+the original image metadata reader, including original dimensions before EXIF,
+and never decode pixels. Download fields remain source data and get a diagnostic.
+
+Empty, missing and unreadable labels stay distinct; a missing file does not imply
+a negative image. Shared label stems across image extensions require explicit
+association, with both raw records and ambiguity retained. Repeated image entries
+across splits share boxes and remain diagnostic. `nc` without names stores a
+declared count and only encountered names, avoiding a two-million-name metadata
+allocation. Guarded file snapshots and final source-identity checks reject
+changes between image/label records, without publishing mixed data.
+
+Focused annotation/JSON/object/image/dependency/profile checks: **135 passed in
+17.22 s**; the final expanded dataset-reader subset: **16 passed**. These include
+equivalent COCO boxes, noncontiguous IDs, unknown/orphan/duplicate annotations,
+header-only oriented image metadata, list/alias/root path handling, empty/missing
+labels, shared-stem ambiguity, malformed/unsafe YAML, unchanged file sets/hashes
+and mid-command external edits. Pyrefly: **zero errors**, one existing suppression;
+Ruff lint/format (**469 Python files**) and diff whitespace pass. No GUI behavior
+changes in this foundation slice. M13.3 entry passes; explicit image association,
+native source controls and its exit gate remain open. M13.4 remains open.
