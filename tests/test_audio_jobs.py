@@ -11,7 +11,9 @@ import numpy as np
 import soundfile as sf
 
 from datelier.inspection.audio.jobs import AudioJobs
+from datelier.inspection.audio.profile_types import AudioThresholds
 from datelier.inspection.audio.sources import prepare_metadata
+from datelier.inspection.audio.statistics import profile_signal
 from datelier.inspection.audio.types import AudioRange
 from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.arrays.storage import ArrayStore
@@ -52,6 +54,11 @@ def test_audio_jobs_read_only_headers_until_window_command(tmp_path: Path) -> No
         wait(jobs)
         assert jobs.active is not None and jobs.active.raw.shape == (20, 1)
         np.testing.assert_array_equal(jobs.active.raw, np.full((20, 1), 0.25))
+        assert jobs.profile is None  # Metadata/window preparation never profiles.
+        jobs.request_profile(AudioRange(), AudioThresholds(), store)
+        wait(jobs)
+        assert jobs.profile is not None and jobs.profile.channels[0].rms == 0.25
+        assert jobs.progress.value == (100, 100)
         jobs.sync("a", "another-view", table.revision, ReferenceSettings(), None)
         assert jobs.active is jobs.metadata is None
         jobs.request_record(table, "missing", 0)
@@ -134,6 +141,37 @@ def test_close_during_decode_releases_decoder_and_discards_window(
             assert jobs.active is jobs.metadata is None and not jobs.busy
             with sf.SoundFile(path) as reopened:
                 assert reopened.read().shape == (100,)
+        finally:
+            release.set()
+            jobs.close()
+            store.close()
+
+
+def test_superseded_signal_profile_cannot_publish_into_another_view(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "tone.wav"
+    sf.write(path, np.zeros(100), 8000)
+    table = load_media(path).dataset
+    entered, release = Event(), Event()
+    store = ArrayStore()
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        jobs = AudioJobs(pool)
+        try:
+            jobs.sync("a", "first", table.revision, ReferenceSettings(), None)
+            jobs.request_record(table, "path", 0)
+            wait(jobs)
+            with patch(
+                "datelier.inspection.audio.jobs.profile_signal",
+                gated(profile_signal, entered, release),
+            ):
+                jobs.request_profile(AudioRange(), AudioThresholds(), store)
+                assert entered.wait(5)
+                jobs.sync("b", "second", table.revision, ReferenceSettings(), None)
+                release.set()
+                pool.shutdown(wait=True)
+            jobs.poll()
+            assert jobs.profile is jobs.metadata is None and not jobs.profiling
         finally:
             release.set()
             jobs.close()

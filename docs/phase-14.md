@@ -114,3 +114,34 @@ extracts its selected member once (**7,680,128 temporary bytes**) for a final
 close removes its temporary directory. Peak RSS increase, including fixture
 creation, is **28.64 MiB**, within the established 64 MiB target. Source hashes
 remain unchanged. See [loading resource evidence](evidence/phase14/audio-loading-resources.json).
+
+### Exact signal statistics foundation (2026-10-08)
+
+Explicit commands scan the selected record/range for per-channel original
+minimum/maximum/peak, finite/nonfinite counts, mean and stable RMS, clipping and
+silence counts. Default clipping uses original PCM/dtype rails (including the
+asymmetric positive PCM16 rail); custom clipping amplitudes are symmetric and
+explicit. Silence uses an absolute threshold in original signal units. Aggregate
+silence requires every channel to be finite and silent; longest runs remain exact
+across decoding blocks. Nonfinite values are excluded from finite denominators
+and never count as silent or clipped. Thresholds and range accompany the result.
+Original integer extrema remain exact, including UInt64. Scaled long-double RMS
+avoids overflow from finite 1e300 samples. Summaries outside Float64 reporting
+range receive a diagnostic while original extrema remain available.
+
+Metadata and sample-window preparation do not launch a statistics scan. Profile
+jobs have separate cooperative cancellation/progress; switching record/rate/
+file/view/revision or closing retires their publication. File handles and array
+leases remain worker-owned. Native controls and persistence are still pending.
+
+Focused audio/statistics/storage/record/media tests: **57 passed**. Pyrefly:
+**zero errors**, one existing suppression; Ruff lint/format (**530 files**) and
+diff whitespace pass. No GUI behavior changed in this backend slice.
+The extended loading benchmark scans all **28,800,000 stereo frames** in
+**2.31 s**, producing exact mean/RMS **0.25** per channel, zero silence/clipping,
+and original **600 s** duration. Peak RSS increase including fixtures is
+**31.03 MiB**; file temporary storage remains zero. Compressed-array extraction
+and cleanup/source-hash gates continue to pass.
+See [signal resource evidence](evidence/phase14/audio-signal-resources.json).
+M14.1 remains open for native controls, saved configuration and full acceptance;
+M14.2–M14.4 also remain open.

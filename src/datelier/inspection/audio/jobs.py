@@ -7,8 +7,14 @@ from datelier.core.dataset import Dataset, DatasetRevision
 from datelier.core.jobs import JobExecutor
 from datelier.inspection.arrays.mapping import ArrayRecordMapping
 from datelier.inspection.arrays.types import ArrayCatalog
+from datelier.inspection.audio.profile_types import (
+    AudioProgress,
+    AudioSignalProfile,
+    AudioThresholds,
+)
 from datelier.inspection.audio.reading import prepare_window
 from datelier.inspection.audio.sources import prepare_metadata
+from datelier.inspection.audio.statistics import profile_signal
 from datelier.inspection.audio.types import (
     AudioLocator,
     AudioMetadata,
@@ -28,6 +34,8 @@ class AudioJobs:
         )
         self.metadata: tuple[AudioLocator, AudioMetadata] | None = None
         self.active: PreparedAudio | None = None
+        self.profile: AudioSignalProfile | None = None
+        self.progress = AudioProgress()
         self.message = "Choose an audio record."
         self.closed = False
         self.cpu_bytes = 16 * 1024 * 1024
@@ -40,12 +48,22 @@ class AudioJobs:
         )
         self._metadata: Future[tuple[AudioLocator, AudioMetadata]] | None = None
         self._window: Future[PreparedAudio] | None = None
+        self._profile: Future[AudioSignalProfile] | None = None
+        self._profile_stop = Event()
         self._requested: tuple[AudioRange, int] | None = None
         self._stop = Event()
 
     @property
     def busy(self) -> bool:
-        return self._metadata is not None or self._window is not None
+        return (
+            self._metadata is not None
+            or self._window is not None
+            or self._profile is not None
+        )
+
+    @property
+    def profiling(self) -> bool:
+        return self._profile is not None
 
     def sync(
         self,
@@ -143,8 +161,45 @@ class AudioJobs:
             except Exception as error:
                 self.message = f"Audio window failed: {error}. Retry preparation."
                 self._requested = None
+        if self._profile is not None and self._profile.done():
+            future, self._profile = self._profile, None
+            try:
+                self.profile = future.result()
+                self.message = "Exact original-signal statistics ready."
+            except Exception as error:
+                self.message = f"Audio profile failed: {error}. Retry profiling."
+
+    def request_profile(
+        self, selected: AudioRange, thresholds: AudioThresholds, arrays: ArrayStore
+    ) -> None:
+        if self.closed or self.metadata is None:
+            return
+        selected.bounds(self.metadata[1].frames)
+        thresholds.validate()
+        self.metadata[1].require_rate()
+        self.abandon_profile()
+        self._profile_stop = Event()
+        self.progress = AudioProgress()
+        self._profile = self._jobs.submit(
+            profile_signal,
+            *self.metadata,
+            selected,
+            thresholds,
+            arrays,
+            self._profile_stop.is_set,
+            self.progress,
+        )
+        self.message = "Profiling original audio samples…"
+
+    def abandon_profile(self) -> None:
+        self._profile_stop.set()
+        if self._profile is not None:
+            self._profile.cancel()
+        self._profile = None
+        self.profile = None
 
     def abandon(self) -> None:
+        self.abandon_profile()
         self._stop.set()
         for future in (self._metadata, self._window):
             if future is not None:

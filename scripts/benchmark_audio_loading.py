@@ -12,8 +12,10 @@ import numpy as np
 import soundfile as sf
 
 from datelier.inspection.arrays.mapping import ArrayLayout, ArrayRecordMapping
+from datelier.inspection.audio.profile_types import AudioThresholds
 from datelier.inspection.audio.reading import audio_blocks, prepare_window
 from datelier.inspection.audio.sources import audio_metadata, locate_audio
+from datelier.inspection.audio.statistics import profile_signal
 from datelier.inspection.audio.types import AudioRange
 from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.arrays.metadata import inspect_arrays
@@ -70,6 +72,18 @@ def main() -> None:
                 counted += len(decoded.samples)
                 largest = max(largest, decoded.samples.nbytes)
         assert counted == frames and largest <= 1024 * 1024
+        started = perf_counter()
+        profile = profile_signal(
+            locator, metadata, AudioRange(), AudioThresholds(), store
+        )
+        profile_seconds = perf_counter() - started
+        assert profile.frames == frames and profile.duration == 600
+        assert all(
+            channel.rms == channel.mean == 0.25
+            and channel.clipped == channel.silent == 0
+            for channel in profile.channels
+        )
+        assert profile_seconds < 10
         assert digest(path) == before
         archive = root / "waves.npz"
         waves = np.full((20, 48000, 2), 0.125, dtype=np.float32)
@@ -121,6 +135,9 @@ def main() -> None:
             "decoded_frames": counted,
             "largest_block_bytes": largest,
             "file_temporary_bytes": 0,
+            "exact_profile_seconds": profile_seconds,
+            "exact_profile_frames": profile.frames,
+            "exact_profile_rms": [channel.rms for channel in profile.channels],
             "array_metadata_seconds": array_metadata_seconds,
             "array_window_seconds": array_window_seconds,
             "array_extractions": store.extractions,
