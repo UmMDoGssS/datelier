@@ -260,3 +260,25 @@ rechecks original span **[2, 4)**. Save/reopen runs take **96/31 frames**.
 The native font check also verifies fixture coverage at the normal **13 px** UI
 size as well as the larger sample. Shared-tokenizer cross-file comparison and
 final milestone acceptance remain open.
+
+## M12.4 — Exact shared-tokenizer comparison foundation
+
+Serializable source mappings retain each file/view, field, decoding interpretation,
+encoding and explicit corpus scope. One shared token recipe is applied to all
+mapped corpora. Worker preparation keeps complete per-source statistics/outcomes,
+uses common token-length bin edges and a full union of vocabulary keys (piece
+and ID). The first 12 union types are plotted in one shared ordering; the full
+frequency table remains available. Count and density/proportion views keep
+raw exact tables; density integrates to one per nonempty source and tf/df use
+counted-token/decoded-document denominators respectively.
+
+Compatibility checks include normalization, count policy and learned tokenizer
+JSON digest. Different learned vocabulary IDs are rejected; identical copied
+artifacts are compatible regardless of local path. Scope, revision, references
+and source closure invalidate results without silently recalculating corpora.
+Linked length-bin selection is prepared in workers and carries file/view/revision
+identity, retaining at most 10,000 selected IDs with the full match count.
+The session codec saves recipes without computed profiles or tokenizer models.
+Focused comparison/statistics/session fixtures: **23 passed**; Pyrefly zero errors,
+Ruff lint/format (**402 files**) and diff whitespace pass. Native integration and
+final acceptance remain open.

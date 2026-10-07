@@ -6,6 +6,7 @@ from dataclasses import dataclass
 
 from datelier.inspection.comparison_settings import ComparisonSettings
 from datelier.inspection.objects.types import NodePath
+from datelier.inspection.text.comparisons.settings import TextComparisonSettings
 from datelier.io.types import (
     ArrayOptions,
     CheckpointOptions,
@@ -136,6 +137,7 @@ class SessionWorkspace:
     layout: str = ""
     hidden_windows: tuple[str, ...] = ()
     version: int = 2
+    text_comparisons: tuple[TextComparisonSettings, ...] = ()
 
     def validate(self) -> None:
         if self.version != 2:
@@ -150,6 +152,12 @@ class SessionWorkspace:
             raise ValueError("Session files must be unique and include the active tab")
         for file in self.files:
             file.validate()
+        if len(self.text_comparisons) > 32:
+            raise ValueError("Save at most 32 text comparisons")
+        for comparison in self.text_comparisons:
+            comparison.validate()
+            if any(source.file_id not in identities for source in comparison.sources):
+                raise ValueError("Text comparison mapping refers to a closed file")
         if len(self.comparisons) > 32:
             raise ValueError("Save at most 32 profile comparisons")
         for comparison in self.comparisons:
