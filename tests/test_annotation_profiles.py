@@ -5,6 +5,7 @@ from dataclasses import replace
 from pathlib import Path
 from threading import Event
 from time import monotonic, sleep
+from uuid import uuid4
 
 import pytest
 
@@ -43,7 +44,7 @@ from datelier.inspection.references.types import AssetIdentity
 
 
 def prepared() -> PreparedAnnotations:
-    revision = DatasetRevision("dataset")
+    revision = DatasetRevision(uuid4())
     origin = ImageOrigin("file", "records", revision, 7, "image")
     asset = AssetIdentity(Path("annotations.json"), 100, 1)
     boxes = []
@@ -188,7 +189,7 @@ def test_profiles_require_explicit_commands_and_retire_on_new_source_results() -
         jobs.request()
         wait(jobs)
         assert jobs.active is not None and jobs.active.bins == 10
-        jobs.bind(replace(source, revision=DatasetRevision("another")))
+        jobs.bind(replace(source, revision=DatasetRevision(uuid4())))
         assert jobs.active is None
     finally:
         jobs.close()

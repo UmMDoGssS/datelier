@@ -541,3 +541,7 @@ completion after retirement. Pyrefly: **zero errors**, one existing suppression;
 Ruff lint/format (**492 Python files**) and diff whitespace pass. No new GUI behavior
 in this foundation. Native overlays/profiles, saved display controls and cross-file
 image comparisons remain open in M13.4.
+
+Verification repair: the final type-check output was read after the foundation
+commit and reported two string revision IDs in its new tests. The fixtures now
+use UUIDs; Pyrefly and focused checks were rerun before starting native UI work.
