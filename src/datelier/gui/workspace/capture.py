@@ -95,6 +95,11 @@ def capture_session(
             layout,
             hidden,
             text_comparisons=editor.text_comparisons,
+            image_comparisons=editor.image_comparisons,
+            image_comparison_index=min(
+                editor.image_comparison_index, max(0, len(editor.image_comparisons) - 1)
+            ),
+            image_comparison_view=editor.image_comparison_view,
             text_comparison_index=min(
                 editor.text_comparison_index, max(0, len(editor.text_comparisons) - 1)
             ),

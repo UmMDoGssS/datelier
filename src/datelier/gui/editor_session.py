@@ -7,6 +7,7 @@ from datelier.core.dataset import Dataset
 from datelier.core.jobs import SharedWorkers
 from datelier.gui.file_browser import FileBrowser
 from datelier.gui.file_session import FileSession
+from datelier.gui.images.comparison_session import comparison_inputs, sync_comparisons
 from datelier.gui.workspace.capture import capture_session
 from datelier.gui.workspace.preferences import PreferenceControls
 from datelier.inspection.comparison_settings import ComparisonSettings
@@ -14,6 +15,15 @@ from datelier.inspection.comparisons.jobs import ComparisonJobs
 from datelier.inspection.comparisons.types import (
     ComparisonSelection,
     PreparedComparison,
+)
+from datelier.inspection.images.comparisons.jobs import ImageComparisonJobs
+from datelier.inspection.images.comparisons.settings import (
+    ImageComparisonSettings,
+    ImageComparisonViewSettings,
+)
+from datelier.inspection.images.comparisons.types import (
+    ImageComparisonInput,
+    PreparedImageComparison,
 )
 from datelier.inspection.text.comparisons.jobs import TextComparisonJobs
 from datelier.inspection.text.comparisons.settings import TextComparisonSettings
@@ -47,6 +57,10 @@ class EditorSession:
         self.text_comparisons: tuple[TextComparisonSettings, ...] = ()
         self.text_comparison_index = 0
         self.text_comparison_jobs = TextComparisonJobs(self.workers)
+        self.image_comparisons: tuple[ImageComparisonSettings, ...] = ()
+        self.image_comparison_index = 0
+        self.image_comparison_view = ImageComparisonViewSettings()
+        self.image_comparison_jobs = ImageComparisonJobs(self.workers)
         self.order_reset = False
         self.pending_layout: tuple[str, tuple[str, ...]] | None = None
         self.workspace_path = ""
@@ -125,6 +139,25 @@ class EditorSession:
             raise ValueError("Mapped text source is unavailable")
         self.text_comparison_jobs.request_selection(result, series, bin_index, dataset)
 
+    def image_comparison_inputs(
+        self, recipe: ImageComparisonSettings
+    ) -> tuple[ImageComparisonInput, ...]:
+        return comparison_inputs(self, recipe)
+
+    def select_image_comparison(
+        self,
+        result: PreparedImageComparison,
+        source: int,
+        dimension: str,
+        bin_index: int,
+    ) -> None:
+        dataset = self.datasets.get(result.profiles[source].file_id)
+        if dataset is None:
+            raise ValueError("Mapped image source is unavailable")
+        self.image_comparison_jobs.request_selection(
+            result, source, dimension, bin_index, dataset
+        )
+
     @property
     def source_paths(self) -> tuple[Path, ...]:
         paths: list[Path] = []
@@ -199,6 +232,7 @@ class EditorSession:
     def _install_session(self, restored: RestoredSession) -> None:
         self.comparison_jobs.clear()
         self.text_comparison_jobs.clear()
+        self.image_comparison_jobs.clear()
         self.browser.cancel()
         self.opening.abandon()
         for file in self.files:
@@ -215,6 +249,9 @@ class EditorSession:
         self.comparisons = restored.workspace.comparisons
         self.text_comparisons = restored.workspace.text_comparisons
         self.text_comparison_index = restored.workspace.text_comparison_index
+        self.image_comparisons = restored.workspace.image_comparisons
+        self.image_comparison_index = restored.workspace.image_comparison_index
+        self.image_comparison_view = restored.workspace.image_comparison_view
         self.pending_layout = (
             restored.workspace.layout,
             restored.workspace.hidden_windows,
@@ -279,6 +316,17 @@ class EditorSession:
             for f in (file, *file.record_views.files, *file.record_views.pending)
         }
         file.close()
+        self.image_comparisons = tuple(
+            replace(
+                recipe,
+                sources=tuple(
+                    source
+                    for source in recipe.sources
+                    if source.file_id not in closed_ids
+                ),
+            )
+            for recipe in self.image_comparisons
+        )
         self.text_comparisons = tuple(
             replace(
                 recipe,
@@ -363,6 +411,7 @@ class EditorSession:
             for recipe in self.text_comparisons
         )
         datasets = self.datasets
+        sync_comparisons(self)
         self.comparison_jobs.sync(self.comparisons, datasets)
         recipe = (
             self.text_comparisons[
@@ -377,6 +426,7 @@ class EditorSession:
         for selection in (
             self.comparison_jobs.poll_selection(datasets),
             self.text_comparison_jobs.poll_selection(datasets),
+            self.image_comparison_jobs.poll_selection(datasets),
         ):
             if selection is not None:
                 self._apply_comparison_selection(selection)
@@ -454,5 +504,6 @@ class EditorSession:
         self.workspace_jobs.close()
         self.comparison_jobs.close()
         self.text_comparison_jobs.close()
+        self.image_comparison_jobs.close()
         self.preferences.close()
         self.workers.shutdown(wait=True)

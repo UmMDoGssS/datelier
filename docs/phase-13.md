@@ -654,3 +654,27 @@ pass. Production responsibilities are split by recipe, inputs/results, preparati
 selection and job lifecycle; the larger behavioral test fixture remains cohesive.
 This foundation changes no GUI behavior. Editor/session integration, native
 comparison controls/restoration and final M13.4 acceptance remain open.
+
+### Editor/session image comparison integration (2026-10-07)
+
+The editor now owns image comparison recipes, an active recipe/view and shared
+jobs. Inputs include independent file/view revisions, reference settings, selected
+rows and borrowed array stores/catalogs/mappings. Numbered source labels remain
+distinct when filenames match. Results bind and retire during editor polling
+without implicit preparation. Dimension selections activate the correct parent
+tab/record view and table position. Closing a source prunes its mappings immediately
+for safe same-frame saving; polling also handles closed record views.
+
+Version-two sessions persist comparison mappings, scope/pixel options and view
+choices, with empty legacy defaults. Derived curves/pixel caches remain excluded.
+Reopening stays idle; missing-source recovery preserves other usable tabs and
+recipes, and relinking does not profile implicitly. Input construction/binding has
+a separate image-session helper, keeping lifecycle ownership in the editor.
+
+Focused editor/session/image/column/text comparison checks: **25 passed**.
+Tests cover legacy decoding, explicit dispatch, correct file/table linking, saved
+view settings, reopen with comparison preparation forbidden, partial recovery,
+relink and immediate closed-source recipe pruning. Pyrefly: **zero errors**, one
+existing suppression; Ruff lint/format (**508 Python files**) and diff whitespace
+pass. This step adds no visible GUI controls. Native comparison views, restoration
+and final M13.4 acceptance remain open.

@@ -5,6 +5,10 @@ import string
 from dataclasses import dataclass
 
 from datelier.inspection.comparison_settings import ComparisonSettings
+from datelier.inspection.images.comparisons.settings import (
+    ImageComparisonSettings,
+    ImageComparisonViewSettings,
+)
 from datelier.inspection.objects.types import NodePath
 from datelier.inspection.text.comparisons.settings import TextComparisonSettings
 from datelier.io.types import (
@@ -139,6 +143,9 @@ class SessionWorkspace:
     version: int = 2
     text_comparisons: tuple[TextComparisonSettings, ...] = ()
     text_comparison_index: int = 0
+    image_comparisons: tuple[ImageComparisonSettings, ...] = ()
+    image_comparison_index: int = 0
+    image_comparison_view: ImageComparisonViewSettings = ImageComparisonViewSettings()
 
     def validate(self) -> None:
         if self.version != 2:
@@ -153,6 +160,15 @@ class SessionWorkspace:
             raise ValueError("Session files must be unique and include the active tab")
         for file in self.files:
             file.validate()
+        self.image_comparison_view.validate()
+        if not 0 <= self.image_comparison_index < max(1, len(self.image_comparisons)):
+            raise ValueError("Invalid active image comparison")
+        if len(self.image_comparisons) > 32:
+            raise ValueError("Save at most 32 image comparisons")
+        for comparison in self.image_comparisons:
+            comparison.validate()
+            if any(source.file_id not in identities for source in comparison.sources):
+                raise ValueError("Image comparison mapping refers to a closed file")
         if not 0 <= self.text_comparison_index < max(1, len(self.text_comparisons)):
             raise ValueError("Invalid active text comparison")
         if len(self.text_comparisons) > 32:
