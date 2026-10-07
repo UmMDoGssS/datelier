@@ -1,0 +1,17 @@
+{
+  "file_frames": 28800000,
+  "file_duration_seconds": 600,
+  "header_seconds": 0.002755968999963443,
+  "exact_window_seconds": 0.0007431139999880543,
+  "decoded_frames": 28800000,
+  "largest_block_bytes": 1048576,
+  "file_temporary_bytes": 0,
+  "array_metadata_seconds": 3.480700002000958e-05,
+  "array_window_seconds": 0.002814510000007431,
+  "array_extractions": 1,
+  "array_peak_temporary_bytes": 7680128,
+  "array_retained_bytes_after_window": 0,
+  "peak_rss_increase_bytes": 30035968,
+  "source_preserved": true,
+  "temporary_cleanup": true
+}

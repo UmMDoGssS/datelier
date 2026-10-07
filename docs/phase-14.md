@@ -75,3 +75,42 @@ dependency step. A default-quality libsndfile-generated anti-phase MP3 fixture
 changed RMS markedly; final MP3 feasibility uses an independent FFmpeg encoder.
 Inspection must preserve decoded input values rather than assume a lossy
 encoding matches its uncompressed generator. M14.1–M14.4 remain open.
+
+### Header and block-loading foundation (2026-10-08)
+
+Audio locators retain file/view/revision/column/source-row identity. File
+headers are read before samples; mapped array headers retain original dtype,
+sample/channel axes and stable source indices after sorting. Missing array rates
+remain unknown, and time-based consumers must request explicit configuration.
+File rates are always original; a configured array rate cannot change them.
+Raw array values, including integer byte order and nonfinite floats, are preserved.
+Files expose libsndfile's decoded float64 full-scale amplitudes with original
+format/subtype/rate provenance. Unsupported/corrupt/missing sources have diagnostics.
+
+Worker-only readers stream bounded blocks (at most 65,536 frames/**1 MiB**),
+hold one file handle/array lease per command and return read-only owned windows.
+Windows exceeding CPU retention ask for a smaller range; streaming consumers can
+still inspect the complete signal. Superseding a file/view/revision or closing
+during metadata/sample work retires publication and cooperatively releases
+decoder handles and oversized temporary-array leases. No playback backend is
+imported by this subsystem.
+
+Focused audio/storage/record/media tests: **44 passed**. They cover varied rates,
+mono/stereo/four-channel values, source preservation, three mapped axis orders,
+compressed/uncompressed and big-endian arrays, null/corrupt/missing sources,
+explicit duplicate-stem mappings, nonfinite/empty ranges, budget diagnostics,
+cancellation and closure during executing work. Pyrefly reports **zero errors**,
+one existing suppression; Ruff lint/format (**527 files**) and diff whitespace pass.
+No native controls changed in this foundation slice; signal statistics/native
+Inspect integration and milestone/full-suite acceptance remain open.
+
+`scripts/benchmark_audio_loading.py` passes in a fresh process. A **10-minute
+stereo 48 kHz PCM16 WAV** (28,800,000 frames) prepares metadata in **2.76 ms**
+and an exact final-second window in **0.74 ms**. Complete block iteration retains
+at most **1,048,576 bytes** per block with no file temporary storage. A compressed
+**20×48,000×2 float32** mapped array reads headers without extraction, then
+extracts its selected member once (**7,680,128 temporary bytes**) for a final
+500-frame window in **2.81 ms**. Oversized member retention returns to zero and
+close removes its temporary directory. Peak RSS increase, including fixture
+creation, is **28.64 MiB**, within the established 64 MiB target. Source hashes
+remain unchanged. See [loading resource evidence](evidence/phase14/audio-loading-resources.json).
