@@ -885,7 +885,7 @@ long-recording navigation and measured resources. M14.3–M14.4 remain open.
 ### M14.3 — Listening and cross-file audio comparison
 
 - [ ] **Deliverables:** play/pause/stop, seeking, volume and selected-range playback in Inspect with supporting columns; cross-file audio-statistic profiles and saved view controls; no autoplay.
-- [ ] **Entry gate:** M14.2 passes; a bounded playback-buffer/device lifecycle is established independently of GUI rendering.
+- [x] **Entry gate:** M14.2 passes; a bounded playback-buffer/device lifecycle is established independently of GUI rendering.
 - [ ] **Exit gate:** actual Linux playback follows the selected record/range and reports device failures; seeking/stop/tab closure release playback resources; loading/restoring never starts sound; audio comparisons retain source identity and compatible units.
 - [ ] **Verification evidence:** playback lifecycle/device-error and range-buffer tests, actual listening/seek/pause/volume observations on reference Linux hardware, native supporting-column/comparison workflows and workspace restore.
 - [ ] **Suggested step commits:** `feat: listen to selected audio records` → `feat: compare audio profiles across files`.

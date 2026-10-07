@@ -433,3 +433,47 @@ resources after stop/seek/closure. Known local WAV startup should take at most
 device latency recorded separately. Source/device errors must appear without
 claiming stopped output while closure is still running. Native frames retain
 the **33 ms** p95 target. These gates remain open until measured.
+
+### Original-rate output-device lifecycle foundation (2026-10-08)
+
+A single lazy playback worker now owns one decoder/array lease and one output
+device. Rapid play/seek commands coalesce to the latest source; replacement waits
+for the old device to close. Pause/volume affect the existing bounded output
+buffer, while seeking reopens the source at an original frame and preserves
+paused state. Scoped stop ignores unrelated file owners. Stop/close show pending
+closure until the worker confirms release. Changed-source, missing-device,
+start/disconnection and callback errors retire output and report a diagnostic;
+an unconfirmed closure prevents a pending replacement device from opening.
+Initialization and idle closure never import SoundDevice or start a worker.
+
+The [SoundDevice stream contract](https://python-sounddevice.readthedocs.io/en/0.5.6/api/streams.html)
+is isolated behind typed output interfaces. Source reads and conversion stay on
+the worker; callbacks consume preallocated ring/scratch arrays without file IO
+or waiting for the producer. The adapter requests Float32 output at the original
+sample rate and rejects an API-reported rate change. Device/host conversion
+beyond the application's output API is not inferred. The cursor reports original
+frames submitted to the device, with device latency exposed separately.
+
+**23 focused playback tests** and **94 focused audio tests** pass, covering
+gain/pause/mute, exact selected-channel/end padding, seek/source identity,
+coalesced replacements, slow closure acknowledgement, device failures,
+in-flight read cancellation, changed assets and one compressed-member lease.
+Oversized array data returns to zero retained disk after stop, and close removes
+temporary paths without changing source bytes. Pyrefly reports **zero errors**,
+one existing suppression; Ruff lint/format (**563 files**) and diff whitespace
+pass. No GUI behavior changes in this worker/device foundation.
+
+An explicit generated two-second stereo **48 kHz** tone completes on the
+reference Linux output **HDA NVidia: HDMI 0 (hw:0,3)** with **96,000 original
+frames**, zero underruns and released output storage/device. The subsequent
+fresh-process `scripts/audio_playback_smoke.py` lifecycle run uses quiet generated
+440/660/880 Hz sections: cold startup **1.924 s**, stable pause **100.19 ms**,
+paused seek to original frame **96,000** **5.16 ms**, acknowledged stop/closure
+**5.11 ms**, reported device latency **10.67 ms**, **73,728 retained output
+bytes**, zero bytes after stop and zero underruns. Source hashes are unchanged;
+see [device lifecycle evidence](evidence/phase14/audio-output-lifecycle.json).
+It uses the previously established temporary PortAudio runtime through
+`LD_LIBRARY_PATH`; it does not install system packages. These are actual device
+and submitted-cursor checks, with no listening observation claimed. Native GUI
+controls, full fixture resource measurements, actual listening/volume
+observations, comparisons and M14.3 completion remain open.
