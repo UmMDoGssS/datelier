@@ -30,6 +30,10 @@ uv run --no-dev datelier /path/to/data.csv
 ```
 
 The tested environment is Linux x86_64, Python 3.14.7 and Mesa software OpenGL.
+Native multilingual text uses installed Noto Sans/DejaVu Sans and Noto Sans CJK
+(Linux packages `fonts-noto-core` and `fonts-noto-cjk`). Outline emoji glyphs use
+the packaged [Noto Emoji](https://github.com/google/fonts/tree/main/ofl/notoemoji)
+font under its [SIL OFL license](src/datelier/gui/assets/fonts/OFL-NotoEmoji.txt).
 If the default renderer stalls, use
 `LIBGL_ALWAYS_SOFTWARE=1 uv run --no-dev datelier /path/to/data.csv`.
 Tables must fit in memory; sampling bounds plots/analysis, not source loading.

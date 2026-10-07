@@ -15,6 +15,7 @@ from datelier.gui.data.schema import show_schema
 from datelier.gui.editor_controls import EditorControls
 from datelier.gui.editor_session import EditorSession
 from datelier.gui.file_session import FileSession
+from datelier.gui.fonts import load_fonts
 from datelier.gui.layout import configure_layout
 from datelier.gui.objects.browser import ObjectBrowser, show_view_selector
 from datelier.gui.tabs import EditorTabs
@@ -257,6 +258,7 @@ def run_gui(
     params.imgui_window_params.show_menu_bar = True
     params.imgui_window_params.show_menu_view_themes = False
     params.callbacks.setup_imgui_style = preferences.apply_theme
+    params.callbacks.load_additional_fonts = load_fonts
     params.callbacks.post_init = lambda: preferences.before_frame(params)
     params.callbacks.pre_new_frame = lambda: preferences.before_frame(params)
     params.callbacks.show_menus = guard(lambda: controls.show_menu(editor, params))

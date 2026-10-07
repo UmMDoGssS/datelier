@@ -211,3 +211,23 @@ existing suppression); Ruff lint/format (**388 files**) and diff whitespace pass
 The full suite passes **718 tests**, with three upstream checkpoint warnings.
 M12.3 is complete. Full token-span Inspect, shared-tokenizer cross-file comparison,
 final whole-session/clean-install and mixed text resource gates remain M12.4.
+
+## M12.4 — Native Unicode font foundation
+
+GUI initialization loads installed Noto Sans (or DejaVu Sans), merges installed
+Noto Sans CJK, and merges a packaged outline Noto Emoji font. The outline font
+is included under its SIL OFL license, with attribution in README; no font
+downloads occur at runtime. Its SHA-256 is
+`de6c18832938afc99caf132b39d6a30a19bac7f2e812e28db2535b4608d27551`.
+The installed bitmap-only color emoji font reported character coverage but
+produced empty glyphs at normal UI sizes, so that configuration is not used.
+
+`unicode_fonts_smoke.py` verifies actual loaded glyphs and visible nonzero emoji
+geometry, then renders `Tiếng Việt é · Ελληνικά · 中文日本語 · 🙂🚀` on the reference
+Linux/Mesa renderer (**16 frames**). [Native font report](evidence/phase12/unicode-fonts.json)
+and [readable sample](evidence/phase12/unicode-fonts.png) retain the evidence.
+Focused existing text/workspace fixtures: **25 passed**. Pyrefly reports zero
+errors; Ruff lint/format and diff whitespace pass. This establishes native
+coverage for the multilingual fixtures; complex-script shaping/RTL layout and
+other system-font configurations are not claimed verified.
+M12.4 token Inspect/comparison and final acceptance gates remain open.
