@@ -67,12 +67,13 @@ class ImageWindow:
     top: int = 0
     width: int = 512
     height: int = 512
+    step: int = 1
 
     def validate(self) -> None:
         if min(self.left, self.top) < 0 or not 1 <= min(self.width, self.height):
             raise ValueError("Image windows require nonnegative origins and sizes")
-        if max(self.width, self.height) > 1024:
-            raise ValueError("Image windows are at most 1024 pixels per axis")
+        if self.step < 1:
+            raise ValueError("Image sampling step must be positive")
 
 
 @dataclass(frozen=True)
@@ -93,6 +94,9 @@ class PreparedImage:
     def pixel(self, x: int, y: int) -> tuple[object, ...] | None:
         """Read exact oriented coordinates from the prepared original-pixel tile."""
         x, y = x - self.window.left, y - self.window.top
+        if x % self.window.step or y % self.window.step:
+            return None
+        x, y = x // self.window.step, y // self.window.step
         if not 0 <= x < self.raw.shape[1] or not 0 <= y < self.raw.shape[0]:
             return None
         return tuple(np.atleast_1d(self.raw[y, x]).tolist())

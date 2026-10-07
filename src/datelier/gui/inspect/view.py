@@ -7,13 +7,16 @@ from typing import TYPE_CHECKING
 import polars as pl
 from imgui_bundle import imgui
 
+from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset
 from datelier.gui.data.table import TableView
 from datelier.gui.inspect.controls import InspectControls
 from datelier.gui.references.view import ReferenceView
+from datelier.inspection.arrays.mapping import ArrayLayout
 from datelier.inspection.records.jobs import RecordJobs
 from datelier.inspection.records.types import InspectSettings, RecordCard
 from datelier.inspection.references.jobs import ReferenceJobs
+from datelier.io.types import ArrayOptions
 from datelier.plotting.selection import LinkedSelection
 
 CARD_HEIGHT = 240
@@ -142,6 +145,29 @@ class InspectView:
         if gallery and imgui.small_button("Focus record"):
             self.settings = replace(self.settings, gallery=False, focus=slot)
         primary = card.primary
+        if not gallery and owner is not None and owner.loader.active is not None:
+            dataset = owner.loader.active.dataset
+            options = owner.loader.active.imported.options
+            mapped_image = (
+                isinstance(options, ArrayOptions)
+                and options.mapping is not None
+                and options.mapping.layout == ArrayLayout.IMAGE
+            )
+            if mapped_image or (
+                primary is not None
+                and dataset.role(primary.name).role == ColumnRole.IMAGE
+            ):
+                column = (
+                    options.mapping.member
+                    if mapped_image
+                    and isinstance(options, ArrayOptions)
+                    and options.mapping is not None
+                    else primary.name
+                    if primary
+                    else ""
+                )
+                self._image_card(owner, card, column)
+                return
         text_field = (
             not gallery
             and owner is not None
@@ -217,6 +243,21 @@ class InspectView:
             else:
                 imgui.text_wrapped(primary.text)
                 imgui.text("Prepare this record for complete text and tokens.")
+            imgui.table_next_column()
+            self._fields(card, 0)
+            imgui.end_table()
+
+    def _image_card(self, owner: FileSession, card: RecordCard, column: str) -> None:
+        if imgui.begin_table(
+            "Focused image and supporting fields",
+            2,
+            imgui.TableFlags_.sizing_stretch_prop,
+        ):
+            imgui.table_setup_column("Image", init_width_or_weight=3)
+            imgui.table_setup_column("Supporting", init_width_or_weight=1)
+            imgui.table_next_row()
+            imgui.table_next_column()
+            owner.images.show_record(owner, column, card.position)
             imgui.table_next_column()
             self._fields(card, 0)
             imgui.end_table()

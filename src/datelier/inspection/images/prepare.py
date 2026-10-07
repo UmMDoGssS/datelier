@@ -2,6 +2,7 @@
 
 from collections.abc import Callable
 from dataclasses import replace
+from math import ceil
 from typing import cast
 
 import numpy as np
@@ -35,10 +36,11 @@ def bounded_window(
         min(window.height, metadata.height - top),
     )
     per_pixel = metadata.dtype.itemsize * len(metadata.channels) + 4
-    if width * height * per_pixel > cpu_bytes:
-        scale = (cpu_bytes / (width * height * per_pixel)) ** 0.5
-        width, height = max(1, int(width * scale)), max(1, int(height * scale))
-    return ImageWindow(left, top, width, height)
+    step = max(window.step, ceil(width / 1024), ceil(height / 1024))
+    step = max(step, ceil((width * height * per_pixel / cpu_bytes) ** 0.5))
+    while ceil(width / step) * ceil(height / step) * per_pixel > cpu_bytes:
+        step += 1
+    return ImageWindow(left, top, width, height, step)
 
 
 def default_range(dtype: np.dtype[np.generic]) -> tuple[float, float]:
@@ -96,8 +98,8 @@ def prepare_window(
 ) -> PreparedImage:
     window = bounded_window(requested, metadata, cpu_bytes)
     spatial = (
-        slice(window.top, window.top + window.height),
-        slice(window.left, window.left + window.width),
+        slice(window.top, window.top + window.height, window.step),
+        slice(window.left, window.left + window.width, window.step),
     )
     if locator.asset is not None:
         with images.open_file(locator.asset, stopped) as array:

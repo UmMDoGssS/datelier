@@ -6,6 +6,7 @@ from dataclasses import dataclass, replace
 from datelier.analysis.types import Algorithm, AnalysisRequest
 from datelier.inspection.arrays.slices import SliceSettings
 from datelier.inspection.exploration import PlotSettings
+from datelier.inspection.images.settings import ImageSettings
 from datelier.inspection.presentation import TablePresentation
 from datelier.inspection.records.types import InspectSettings
 from datelier.inspection.references.types import ReferenceSettings
@@ -57,8 +58,10 @@ class WorkspaceViews:
     checkpoint_retention_bytes: int = 256 * 1024 * 1024
     text: TextSettings = TextSettings()
     profile_text: bool = False
+    image: ImageSettings = ImageSettings()
 
     def validate(self) -> None:
+        self.image.validate()
         self.text.validate()
         if self.checkpoint_slice is not None:
             self.checkpoint_slice.validate()

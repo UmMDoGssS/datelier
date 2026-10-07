@@ -83,8 +83,8 @@ Native prerequisite: `LIBGL_ALWAYS_SOFTWARE=1 POLARS_MAX_THREADS=8
 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 .venv/bin/python
 scripts/image_texture_probe.py --output docs/evidence/phase13/image-texture.json`
 passes on the desktop display with **Pillow 12.3.0**, Python **3.14.7**. A
-2048×1536 RGB fixture opens metadata in **0.0009 s**, prepares a 1024×1024 original
-window in **0.0615 s**, and a cached channel window in **0.0107 s**. It retains
+2048×1536 RGB fixture opens metadata in **0.0007 s**, prepares a 1024×1024 original
+window in **0.0599 s**, and a cached channel window in **0.0100 s**. It retains
 **7,340,032 CPU bytes**, **4,194,304 GPU bytes**, and **9,437,312 temporary bytes**,
 with one decode, six texture uploads over 30 frames and verified handle/file
 cleanup. [Machine-readable report](evidence/phase13/image-texture.json) records
@@ -92,3 +92,56 @@ the probe. The sandbox cannot open `:0`; native verification uses desktop access
 
 This foundation does not yet add product controls. Native zoom/pan/readouts,
 saved settings, collection statistics and all M13 exit gates remain open.
+
+### Focused image Inspect and saved controls (2026-10-07)
+
+Focused **Explore → Inspect** now routes Image fields and confirmed image-array
+records to a worker-backed pixel canvas, beside aligned supporting fields.
+Files/folders already use the same image-reference records. Native controls
+include Fit, 1:1, pointer-centred wheel zoom, anchored drag-to-pan, composite or
+individual channels, original-value hover readouts and configurable CPU/GPU/disk
+retention. Oversized/zoomed-out views sample bounded overviews with explicit
+stride labels; zooming exposes every original pixel, and readouts identify the
+actual sampled coordinate. EXIF readouts also identify its original source
+coordinate. Unsupported channels reset visibly to Composite on another record.
+
+Image settings are optional typed workspace fields, with legacy defaults.
+Headless opening/restoration starts no image decoding; focused visible records
+prepare lazily. Settings and file/view/revision/reference changes retire pending
+results. Cached source pixels remain separate from display buffers. Window
+refreshes preserve an anchored drag, including movement outside the canvas.
+GPU handles release before normal renderer shutdown and exception teardown.
+
+Focused image/file/array/session/workspace/text-comparison checks: **72 passed**;
+the additional image job/navigation/source/file subset: **42 passed**, including
+executing-window retirement on revision changes and closure. The final full
+suite: **778 passed in 20.78 s**, with three existing upstream checkpoint warnings.
+Pyrefly: **zero errors**, one existing suppression. Ruff lint/format (**433 Python
+files**) and diff whitespace pass. The full-suite run exposed a shutdown-order
+failure when an empty image store queued unnecessary cleanup after the shared
+pool had closed; cleanup now follows the existing array-store lifecycle and
+the full suite passes.
+
+`LIBGL_ALWAYS_SOFTWARE=1 POLARS_MAX_THREADS=8 OMP_NUM_THREADS=1
+OPENBLAS_NUM_THREADS=1 .venv/bin/python scripts/image_inspect_smoke.py
+--output docs/evidence/phase13` uses native mouse clicks for focused records,
+Fit/1:1 and G-channel selection, native wheel zoom and drag-to-pan, and checks
+known gradient pixel values. A fresh process restores its G channel and zoom/pan
+recipe. It passes **212/80 frames**, with frame p95 **12.35/17.35 ms**, under 33 ms.
+[Native report](evidence/phase13/image-native.json),
+[focused image](evidence/phase13/image-inspect.png) and
+[restored image](evidence/phase13/image-restored.png) record acceptance; both
+screenshots were visually inspected.
+
+`scripts/image_array_smoke.py --output docs/evidence/phase13` confirms an NHWC
+mapping, sorts scalar labels, then uses native Next record input. Source rows
+**1/2** retain known pixels **(20,5,9)/(30,5,9)** and labels **1/2**, independent
+of display order and parent-file identity. Only labels and the chosen image
+member are extracted; no image-file decoder is invoked. It passes **47 frames**,
+frame p95 **11.59 ms**, with source preservation and GPU retention asserted.
+[Array report](evidence/phase13/image-array-native.json) and the visually reviewed
+[array Inspect](evidence/phase13/image-array.png) record results.
+
+Original-resolution decoding/texture/navigation now satisfy the M13.1 entry
+gate. Its collection summaries, exact color/channel statistics and measured
+mixed-collection resources remain outstanding. M13.2–M13.4 remain open.

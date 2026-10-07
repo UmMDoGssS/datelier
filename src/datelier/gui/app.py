@@ -90,6 +90,7 @@ def run_gui(
                 # Owning GPU handles must be released while it is still alive.
                 for file in editor.file_sessions:
                     file.reference_view.textures.clear()
+                    file.images.canvas.clear()
                 raise
 
         return protected
@@ -267,6 +268,7 @@ def run_gui(
     def before_exit() -> None:
         for file in editor.file_sessions:
             file.reference_view.textures.clear()
+            file.images.canvas.clear()
         preferences.save(editor.active, params, sources=editor.source_paths)
 
     params.callbacks.before_exit = before_exit

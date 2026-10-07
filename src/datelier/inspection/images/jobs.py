@@ -69,7 +69,8 @@ class ImageJobs:
             ):
                 old = self.store
                 old.abandon()
-                self._jobs.submit(old.cleanup)
+                if old.temporary_path is not None:
+                    self._jobs.submit(old.cleanup)
                 self.store = ImageStore(retained_bytes=old.limit)
             self._context = context
         self._reference_index = index
@@ -135,6 +136,13 @@ class ImageJobs:
         )
         self.message = "Preparing original-pixel window…"
 
+    def set_retention(self, limit: int) -> None:
+        if limit < 0:
+            raise ValueError("Image retention bytes must be nonnegative")
+        if self.store.limit != limit:
+            self.store.limit = limit
+            self._jobs.submit(self.store.trim)
+
     def poll(self) -> None:
         if self.closed:
             return
@@ -176,5 +184,6 @@ class ImageJobs:
         self._context = None
         self._reference_index = None
         self.store.abandon()
-        self._jobs.submit(self.store.cleanup)
+        if self.store.temporary_path is not None:
+            self._jobs.submit(self.store.cleanup)
         self._jobs.shutdown(wait=False)

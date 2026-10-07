@@ -1,0 +1,22 @@
+{
+  "frames": 47,
+  "source_rows": [
+    1,
+    2
+  ],
+  "pixels": [
+    [
+      20,
+      5,
+      9
+    ],
+    [
+      30,
+      5,
+      9
+    ]
+  ],
+  "supporting_alignment": true,
+  "source_preserved": true,
+  "frame_p95_ms": 11.58964329661103
+}
