@@ -625,3 +625,32 @@ Its GPU assertion now bounds the visible window rather than requiring the whole
 64×64 record in a shorter dock. One frame-budget attempt overlapped background
 verification and failed; the final isolated run passes the 33 ms target. Cross-file
 commands, saved comparison mappings and final M13.4 acceptance remain open.
+
+### Scoped cross-file image comparison foundation (2026-10-07)
+
+Explicit comparison commands now scan mapped image fields/views with independent
+record/pixel scopes, then complete every source's dimension and physical
+mode/channel/dtype histograms against common bounds. Weighted original channel
+statistics remain per source. Prepared count/proportion curves distinguish absent
+families from zero values. Metadata, null/unresolved/decode outcomes, sampling
+provenance and complete file/view/revision/row identities remain available.
+Compressed members stay leased across both global passes, including members above
+their cache budgets. Final snapshots recheck earlier contributors after later ones
+finish; source edits reject mixed results. No data files are changed.
+
+Shared-worker binding starts no work. Changed or closed contributors retire
+results and pending selections without rerunning. Exact dimension-bin selection
+uses prepared records and current revisions, preserving sorted table positions;
+publication follows the existing 10,000-row limit while reporting all matches.
+
+Focused comparison/image/profile/job/column/text checks: **38 passed in 1.71 s**.
+Fixtures cover known shared edges, weighted color means and proportions, absent
+RGBA families, null/missing/corrupt records, seeded/linked scopes under sorting,
+equal row numbers in independent files, one compressed extraction with zero
+retention, late external edits, abandonment, parser completion after source closure,
+closed-source selections and bounded publication. Pyrefly: **zero errors**, one
+existing suppression; Ruff lint/format (**506 Python files**) and diff whitespace
+pass. Production responsibilities are split by recipe, inputs/results, preparation,
+selection and job lifecycle; the larger behavioral test fixture remains cohesive.
+This foundation changes no GUI behavior. Editor/session integration, native
+comparison controls/restoration and final M13.4 acceptance remain open.
