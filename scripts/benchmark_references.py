@@ -105,8 +105,9 @@ def main() -> None:
             if args.inspect and file.inspect.shown_cards and first_record_ms is None:
                 first_record_ms = elapsed
             if args.inspect and evidence.frames == 2:
+                file.exploration.tab = "Inspect"
                 hello_imgui.get_runner_params().docking_params.focus_dockable_window(
-                    "Inspect"
+                    "Explore"
                 )
             if file.references.index and index_ms is None:
                 index_ms = elapsed

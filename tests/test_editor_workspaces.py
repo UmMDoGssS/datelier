@@ -55,6 +55,7 @@ def test_text_profile_selection_restores_independently_for_each_file(
         category, text = editor.files
         category.exploration.profile.selection.columns = ("cat",)
         category.exploration.profile.text = True
+        category.exploration.active_tab = "Inspect"
         category.text.jobs.settings = replace(category.text.jobs.settings, column="cat")
         text.exploration.profile.selection.columns = ("text",)
         text.text.jobs.settings = replace(text.text.jobs.settings, column="text")
@@ -78,6 +79,11 @@ def test_text_profile_selection_restores_independently_for_each_file(
             assert file.text.jobs.settings.column == column
             assert not file.text.jobs.busy
             assert file.text.jobs.active is None and file.text.jobs.profile is None
+            assert (
+                file.exploration.tab
+                == file.exploration.active_tab
+                == ("Inspect" if file is category else "Profiles")
+            )
         assert reopened.active is text
     finally:
         reopened.close()

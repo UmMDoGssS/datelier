@@ -83,11 +83,12 @@ def run_stage(root: Path, mode: str) -> dict[str, object]:
                 stage = 3
             elif stage == 3 and all(f.loader.active for f in editor.files):
                 editor.activate(first_id)
+                editor.active.exploration.tab = "Inspect"
                 params = hello_imgui.get_runner_params()
                 params.docking_params.dockable_window_of_name(
                     "Analysis"
                 ).is_visible = False
-                params.docking_params.focus_dockable_window("Inspect")
+                params.docking_params.focus_dockable_window("Explore")
                 stage, entered = 4, evidence.frames
             elif stage == 4 and evidence.frames > entered + 15:
                 file = next(f for f in editor.files if f.identity == first_id)

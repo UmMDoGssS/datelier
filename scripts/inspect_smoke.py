@@ -85,8 +85,9 @@ def main() -> None:
             io = imgui.get_io()
             age = evidence.frames - entered
             if stage == 0:
+                file.exploration.tab = "Inspect"
                 hello_imgui.get_runner_params().docking_params.focus_dockable_window(
-                    "Inspect"
+                    "Explore"
                 )
                 first_id = file.identity
                 stage, entered = 1, evidence.frames

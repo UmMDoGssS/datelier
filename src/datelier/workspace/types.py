@@ -77,7 +77,13 @@ class WorkspaceViews:
             set(self.profile_selection)
         ) != len(self.profile_selection):
             raise ValueError("Profile selection must contain distinct column names")
-        if self.tab not in ("Profiles", "Scatter", "Relationships", "Correlations"):
+        if self.tab not in (
+            "Profiles",
+            "Scatter",
+            "Relationships",
+            "Correlations",
+            "Inspect",
+        ):
             raise ValueError("Unknown exploration view")
         if not 0 <= self.comparison_mode <= 5 or self.relationship_mode not in (0, 1):
             raise ValueError("Unknown comparison or relationship view")

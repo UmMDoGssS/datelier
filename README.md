@@ -286,7 +286,7 @@ linear min/max or custom scales, stable category colors and interpretation badge
 `<`/`>` mark values outside the scale, `=` a flat scale, `(null)` typed nulls and
 `!` nonfinite values. Selected rows use their selection color.
 
-Open **Inspect** through **View**, or open a media collection to focus it. Choose
+Open **Explore → Inspect**, or open a media collection to focus it. Choose
 Gallery or focused Previous/Next navigation. **Inspect settings** selects current
 row ranges, linked selection or reproducible seeded samples and a primary field.
 **Supporting fields** can include every column, with search, All/Clear and Done.
@@ -327,8 +327,8 @@ statistics require **Calculate corpus profile**. It provides document/token
 totals, length statistics/quantiles, vocabulary/hapax ratios, entropy in bits,
 length distributions, token/document frequencies and record outcomes. The chart
 shows twelve ranked types; the virtual table retains every exact frequency row.
-In **Inspect**, turn off **Gallery**, choose a text primary field, and click
-**Inspect text tokens** to show complete text and tokens beside supporting fields.
+In **Explore → Inspect**, turn off **Gallery**, choose a text primary field, and
+click **Inspect text tokens** to show complete text and tokens beside supporting fields.
 Navigate with original offsets, text pages, token index or the complete virtual
 token list. Selecting a token highlights its original span even after normalization.
 Offsets count original Unicode code points; control characters use visible symbols.
@@ -350,8 +350,8 @@ and shared tokenizer references without training or corpus work on reopening.
 
 The **Explore** panel automatically prepares numeric, categorical, and temporal
 profiles after import and successful edits. Choose **Profiles**, **Relationships**,
-or **Correlations**. Schema shows `Shape: (rows, cols)` above **Column**, **Non
-nulls**, **Uniques**, **Type**, and **Interpretation**. Non-null and unique counts
+**Correlations**, or **Inspect**. Schema shows `Shape: (rows, cols)` above **Column**,
+**Non nulls**, **Uniques**, **Type**, and **Interpretation**. Non-null and unique counts
 exclude nulls; NaNs and infinities remain non-null values. Interpretation allows
 reversible overrides of inferred column roles.
 

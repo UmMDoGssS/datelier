@@ -204,7 +204,8 @@ def measure(root: Path, output: Path) -> dict[str, object]:
             file.text.sync(file)
             long_started = perf_counter()
             file.text.jobs.request_document()
-            focus("Inspect")
+            file.exploration.tab = "Inspect"
+            focus("Explore")
             stage, entered = 10, evidence.frames
         elif stage == 10 and editor.files[2].text.jobs.active:
             file = editor.files[2]

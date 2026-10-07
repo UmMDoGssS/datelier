@@ -116,6 +116,9 @@ selection/restoration, measured corpus/long-record resources, full-suite checks
 and clean base/CPU-extra installs. Text tools now live in Explore → Profiles;
 [docs/text-profiles-navigation.md](docs/text-profiles-navigation.md) tracks selection
 and restoration checks for this navigation follow-up.
+Inspect now shares Explore's tab row with Profiles, Relationships and Correlations;
+[docs/inspect-navigation.md](docs/inspect-navigation.md) records native navigation,
+direct media opening and saved-session restoration checks.
 Phase 13 and later gates remain open.
 Phase 8 investigations do not block this approved sequence. Existing v1 evidence
 and unfinished Titanic usability gates retain their status.

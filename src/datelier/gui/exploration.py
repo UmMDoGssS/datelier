@@ -95,6 +95,45 @@ class ExplorationView:
     ) -> None:
         self.dock_id = imgui.get_window_dock_id()
         dashboard = explorer.active
+        if dashboard is not None:
+            profiles = dashboard.profiles
+            imgui.text(
+                f"{profiles.row_count:,} rows · {profiles.total_columns} columns"
+            )
+        requested_tab, self.tab = self.tab, ""
+        if requested_tab == "Scatter":
+            requested_tab = "Relationships"
+        if imgui.begin_tab_bar("Exploration views"):
+            for label in ("Profiles", "Relationships", "Correlations", "Inspect"):
+                flags = (
+                    imgui.TabItemFlags_.set_selected if requested_tab == label else 0
+                )
+                opened, _ = imgui.begin_tab_item(label, flags=flags)
+                if opened:
+                    self.active_tab = label
+                    self._show_tab(
+                        explorer, selection, table, plots, dataset, analysis, owner
+                    )
+                    imgui.end_tab_item()
+            imgui.end_tab_bar()
+
+    def _show_tab(
+        self,
+        explorer: Explorer,
+        selection: LinkedSelection,
+        table: TableView,
+        plots: PlotControls | None,
+        dataset: Dataset | None,
+        analysis: AnalysisSession | None,
+        owner: FileSession | None,
+    ) -> None:
+        if self.active_tab == "Inspect":
+            if owner is not None:
+                owner.inspect.show(
+                    owner.references, owner.reference_view, selection, table, owner
+                )
+            return
+        dashboard = explorer.active
         if dashboard is None:
             imgui.text_wrapped(explorer.message)
             if plots is not None and dataset is not None:
@@ -109,10 +148,7 @@ class ExplorationView:
                         dataset,
                     )
                     return
-                if self.active_tab == "Profiles" and self.tab not in (
-                    "Scatter",
-                    "Relationships",
-                ):
+                if self.active_tab == "Profiles":
                     if self.profile.selection.columns is not None:
                         self.show_profile(explorer, None, dataset, owner)
                     return
@@ -126,41 +162,16 @@ class ExplorationView:
                 else:
                     plots.show_axes(explorer, dataset)
             return
-        profiles = dashboard.profiles
-        imgui.text(f"{profiles.row_count:,} rows · {profiles.total_columns} columns")
-        requested_tab, self.tab = self.tab, ""
-        if requested_tab == "Scatter":
-            requested_tab = "Relationships"
-        if imgui.begin_tab_bar("Exploration views"):
-            for label, callback in (
-                (
-                    "Profiles",
-                    lambda dashboard: self.show_profile(
-                        explorer, dashboard, dataset, owner
-                    ),
-                ),
-                (
-                    "Relationships",
-                    lambda dashboard: self.show_relationship_charts(
-                        explorer, dashboard, selection, table, plots, dataset, analysis
-                    ),
-                ),
-                (
-                    "Correlations",
-                    lambda dashboard: self.show_correlations(
-                        explorer, dashboard, selection, table, plots, dataset, analysis
-                    ),
-                ),
-            ):
-                flags = (
-                    imgui.TabItemFlags_.set_selected if requested_tab == label else 0
-                )
-                opened, _ = imgui.begin_tab_item(label, flags=flags)
-                if opened:
-                    self.active_tab = label
-                    callback(dashboard)
-                    imgui.end_tab_item()
-            imgui.end_tab_bar()
+        if self.active_tab == "Profiles":
+            self.show_profile(explorer, dashboard, dataset, owner)
+        elif self.active_tab == "Relationships":
+            self.show_relationship_charts(
+                explorer, dashboard, selection, table, plots, dataset, analysis
+            )
+        elif self.active_tab == "Correlations":
+            self.show_correlations(
+                explorer, dashboard, selection, table, plots, dataset, analysis
+            )
 
     def show_profile(
         self,

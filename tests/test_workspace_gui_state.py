@@ -309,11 +309,19 @@ def test_pending_default_correlations_preserve_saved_pair_grid(
     plots = PlotControls()
     plots.bind(dataset)
     plots.relationship_features = []  # A legacy empty recipe uses numeric defaults.
-    view = ExplorationView(active_tab="Correlations")
+    view = ExplorationView(tab="Correlations", active_tab="Correlations")
     view.relationships.mode = 1
     monkeypatch.setattr(imgui, "get_window_dock_id", lambda: 0)
     monkeypatch.setattr(imgui, "text_wrapped", lambda _text: None)
     monkeypatch.setattr(imgui, "begin_table", lambda *_args: False)
+    monkeypatch.setattr(imgui, "begin_tab_bar", lambda _label: True)
+    monkeypatch.setattr(
+        imgui,
+        "begin_tab_item",
+        lambda label, **_kwargs: (label == "Correlations", None),
+    )
+    monkeypatch.setattr(imgui, "end_tab_item", lambda: None)
+    monkeypatch.setattr(imgui, "end_tab_bar", lambda: None)
     explorer = Explorer()
     try:
         view.show(explorer, LinkedSelection(), TableView(), plots, dataset)
