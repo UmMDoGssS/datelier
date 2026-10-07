@@ -136,3 +136,25 @@ restores the Unigram configuration/selection and provenance references, verifies
 no implicit job, and explicitly tokenizes the original record (**13 frames**).
 [Training report](evidence/phase12/training-native.json) and
 [native controls](evidence/phase12/training-controls.png) preserve the evidence.
+
+## M12.3 — Exact statistical foundation
+
+Worker-callable `calculate_profile` calculates exact scoped token/document
+frequencies keyed by piece/ID, vocabulary size, hapax counts and both
+vocabulary/token hapax ratios, type-token ratio and Shannon entropy in bits.
+It retains complete Polars record-length/outcome and frequency tables; display
+histograms convert only prepared scalar lengths to NumPy. Null/failed documents
+are excluded from length statistics; empty decoded documents are included,
+respecting special-token counting. Original and normalized code-point totals
+are distinct. Token and original-character length summaries use population
+standard deviation and linear quantiles at 0/25/50/75/95/99/100 percent.
+No-event ratios/entropy and no-document lengths are explicitly undefined.
+
+Hand-calculated fixtures verify `a a b`, `b c`, empty, null and `a`: six tokens,
+three vocabulary types, one hapax, type-token ratio 0.5, original source identity,
+token/document frequencies and exact length/entropy outcomes. Additional
+fixtures verify no records, strict decoding failure versus zero-length documents,
+abandonment and counted/uncounted inserted specials. Focused text checks:
+**22 passed**. Pyrefly zero errors; Ruff lint/format and diff whitespace pass.
+This preparation foundation introduces no GUI behavior. M12.3 remains open
+until worker publication, native displays and corpus resources pass.
