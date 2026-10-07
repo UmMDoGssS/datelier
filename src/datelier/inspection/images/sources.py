@@ -14,6 +14,10 @@ from datelier.inspection.references.index import ReferenceIndex, resolve
 from datelier.inspection.references.types import AssetIdentity, ReferenceSettings
 
 
+class ImageReferenceError(ValueError):
+    """An unresolved reference; its diagnostic retains missing/ambiguous evidence."""
+
+
 def check_asset(asset: AssetIdentity) -> None:
     stat = asset.path.stat()
     if (stat.st_size, stat.st_mtime_ns) != (asset.size, asset.modified_ns):
@@ -71,7 +75,9 @@ def locate_image(
         raise ValueError("Image reference requires a nonempty path or mapped value")
     resolved = resolve(dataset.source.path, column, value, references, index)
     if resolved.asset is None:
-        raise ValueError(resolved.message or "Choose an explicit image mapping")
+        raise ImageReferenceError(
+            resolved.message or "Choose an explicit image mapping"
+        )
     return ImageLocator(origin, asset=resolved.asset)
 
 

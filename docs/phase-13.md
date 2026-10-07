@@ -145,3 +145,39 @@ frame p95 **11.59 ms**, with source preservation and GPU retention asserted.
 Original-resolution decoding/texture/navigation now satisfy the M13.1 entry
 gate. Its collection summaries, exact color/channel statistics and measured
 mixed-collection resources remain outstanding. M13.2–M13.4 remain open.
+
+### Image collection profile foundation (2026-10-07)
+
+Explicit worker commands now prepare scalar image profiles for all current
+records, a row range, linked source-row selections or a seeded record sample.
+Pixels are exact by default, with a separately configured deterministic pixel
+sample. Sample seeds use original source-row identity, so sorting retains the
+same chosen records and pixel samples. Results retain file/view/revision,
+source references, mappings, scope/settings and per-asset identities.
+
+The first pass prepares orientation-aware dimensions/aspect ratios and channel
+moments; the second prepares shared channel bins from the same source identities.
+Channels and physical modes/dtypes stay separate. Pixel-weighted means and
+population deviations use extended-precision accumulation; original integer
+extrema are retained, including UInt64 values that cannot be distinguished on a
+double-precision plot axis. Those plots explicitly use scaled coordinates with
+raw bounds. Null references, unresolved missing/ambiguous references and decode
+failures remain separate per-record outcomes. A changed asset between passes
+rejects the complete result rather than mixing moment and histogram snapshots.
+
+Original grids are leased, with bounded spatial/sample batches and zero retained
+decoded-file bytes for profiling. No source-sized presentation arrays or GPU
+textures are created. Complete record/channel result tables remain available;
+the renderer and resource acceptance are the next slice. Binding/restoring a
+profile owner launches no work; only an explicit command dispatches it. Changes
+to file/view/revision, settings, reference discovery or linked scope retire its
+executing result, with safe abandonment and cleanup.
+
+Image profile/source/job/reference tests: **53 passed in 0.50 s**. Fixtures cover
+known grayscale/RGB/RGBA weighted counts, varied dimensions, oriented floats and
+nonfinite values, UInt64 extrema/deviation/scaled bins, empty/null/ambiguous and
+missing/corrupt collections, deterministic record/pixel samples after sorting,
+NHWC/NCHW mappings with zero retention, changed snapshots and closure/scope
+retirement. Pyrefly: **zero errors**, one existing suppression. Ruff lint/format
+(**441 Python files**) and diff whitespace pass. This foundation adds no native
+controls; M13.1 exit and resource gates remain open.
