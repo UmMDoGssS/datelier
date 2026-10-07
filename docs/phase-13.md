@@ -49,3 +49,46 @@ correctness; resource acceptance must not substitute for those checks.
 Planning (2026-10-07): inspected the current source, shared workers, references,
 Inspect, mapped-array storage and persistence. Documentation links and diff
 whitespace reviewed. Implementation and acceptance gates remain open.
+
+### Original-pixel foundation (2026-10-07)
+
+The image subsystem resolves file/view/source-row locators in workers and reads
+metadata before pixels. PNG EXIF chunks are scanned without decoding IDAT;
+Pillow's usual PNG `getexif()` fallback would otherwise decode the entire image.
+TIFF's implicit load-time orientation is inverted in stored source pixels,
+then all formats share the same explicit EXIF geometry. Display buffers are
+separate from read-only original pixel windows. Palette images explicitly expand
+to RGBA; grayscale, RGB/RGBA, bool, 16-bit and float values retain their decoded
+values. Confirmed NHWC/NCHW mappings read only the chosen record/window while
+preserving supporting-table identity after sort/filter.
+
+Decoded files use leased temporary NPY storage; byte limits bound retained disk
+data and CPU windows, including access to images larger than the budget.
+Closure/replacement retire publication and release files after active leases.
+Source decoding transiently uses Pillow memory; huge-image decompression-bomb
+checks and unsupported modes produce diagnostics. PNG EXIF is limited to 1 MiB.
+The file adapter displays the first frame, visibly recorded in metadata.
+
+`uv run --offline --no-sync pytest tests/test_image_inspection.py
+tests/test_array_mappings.py tests/test_array_storage.py tests/test_references.py`:
+**56 passed**. Fixtures cover all eight PNG/TIFF orientations, header reads with
+pixel loading forbidden (including EXIF after IDAT), exact grayscale/RGB/RGBA,
+16-bit/float/bool/palette pixels, NHWC/NCHW sort alignment, missing/corrupt/changed
+files, oversize retention/active-lease cleanup and obsolete file/view jobs.
+Pyrefly: **zero errors**, one existing suppression. Ruff lint/format and diff
+whitespace pass. Runs use `UV_CACHE_DIR=/tmp/datelier-uv-cache`, existing locked
+dependencies and `POLARS_MAX_THREADS=8`.
+
+Native prerequisite: `LIBGL_ALWAYS_SOFTWARE=1 POLARS_MAX_THREADS=8
+OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 .venv/bin/python
+scripts/image_texture_probe.py --output docs/evidence/phase13/image-texture.json`
+passes on the desktop display with **Pillow 12.3.0**, Python **3.14.7**. A
+2048×1536 RGB fixture opens metadata in **0.0009 s**, prepares a 1024×1024 original
+window in **0.0615 s**, and a cached channel window in **0.0107 s**. It retains
+**7,340,032 CPU bytes**, **4,194,304 GPU bytes**, and **9,437,312 temporary bytes**,
+with one decode, six texture uploads over 30 frames and verified handle/file
+cleanup. [Machine-readable report](evidence/phase13/image-texture.json) records
+the probe. The sandbox cannot open `:0`; native verification uses desktop access.
+
+This foundation does not yet add product controls. Native zoom/pan/readouts,
+saved settings, collection statistics and all M13 exit gates remain open.
