@@ -862,7 +862,7 @@ and the full correctness suite. Phase 13 is complete; Phase 14 remains open.
 
 [Verified M14.1 implementation](docs/phase-14.md) covers header-first signal
 loading, original-unit statistics, native controls, saved configuration and
-codec/resource acceptance. M14.2–M14.4 remain open.
+codec/resource acceptance. M14.3–M14.4 remain open.
 
 - [x] **Deliverables:** common local audio inputs including WAV/FLAC/OGG/MP3 and mapped waveform arrays; header-first sample rate/channel/duration metadata; amplitude/RMS, clipping and silence statistics; sample-rate configuration when arrays lack it.
 - [x] **Entry gate:** verify SoundFile/SoundDevice/SciPy and decoder/system requirements on Python 3.14/Linux; establish worker-side block decoding and preserved original signal metadata.
@@ -872,11 +872,15 @@ codec/resource acceptance. M14.2–M14.4 remain open.
 
 ### M14.2 — Waveform, spectrogram, and mel views
 
-- [ ] **Deliverables:** worker-prepared waveform envelopes, spectrograms and mel spectrograms; channel/time-range, FFT/window/hop, mel-band/frequency-limit and scale controls; bounded display preparation with full-resolution access.
-- [ ] **Entry gate:** M14.1 passes; signal conversion/preparation has explicit provenance and never silently changes original sample rates.
-- [ ] **Exit gate:** known tones/impulses produce correct time/frequency/mel representations; channel/window/range changes invalidate affected work only; long recordings remain navigable and settings/provenance restore accurately.
-- [ ] **Verification evidence:** reference signal/frequency and mel-filter fixtures, envelope extrema and time-axis alignment, native waveform/mel controls, long-recording resource and stale-result gates.
-- [ ] **Suggested step commits:** `feat: prepare waveform and spectral views` → `feat: inspect configurable mel spectrograms`.
+[Verified M14.2 implementation](docs/phase-14.md) covers original extrema,
+PSD/HTK mel references, native saved controls, bounded full-resolution access,
+long-recording navigation and measured resources. M14.3–M14.4 remain open.
+
+- [x] **Deliverables:** worker-prepared waveform envelopes, spectrograms and mel spectrograms; channel/time-range, FFT/window/hop, mel-band/frequency-limit and scale controls; bounded display preparation with full-resolution access.
+- [x] **Entry gate:** M14.1 passes; signal conversion/preparation has explicit provenance and never silently changes original sample rates.
+- [x] **Exit gate:** known tones/impulses produce correct time/frequency/mel representations; channel/window/range changes invalidate affected work only; long recordings remain navigable and settings/provenance restore accurately.
+- [x] **Verification evidence:** reference signal/frequency and mel-filter fixtures, envelope extrema and time-axis alignment, native waveform/mel controls, long-recording resource and stale-result gates.
+- [x] **Suggested step commits:** `feat: prepare waveform and spectral views` → `feat: inspect configurable mel spectrograms`.
 
 ### M14.3 — Listening and cross-file audio comparison
 

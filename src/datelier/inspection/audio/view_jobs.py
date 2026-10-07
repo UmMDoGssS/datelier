@@ -31,6 +31,10 @@ def computation_settings(settings: SignalViewSettings) -> SignalViewSettings:
         db_floor=-120,
         colormap=Colormap.BLUE_YELLOW,
         color_range=None,
+        mel_bands=settings.mel_bands if settings.mode == AudioViewKind.MEL else 64,
+        frequency_bins=1024
+        if settings.mode == AudioViewKind.MEL
+        else settings.frequency_bins,
     )
 
 
@@ -80,7 +84,7 @@ class SignalViewJobs:
         selected.bounds(self._source[1].frames)
         self._source[1].require_rate()
         relevant = computation_settings(settings)
-        if settings.mode == AudioViewKind.SPECTROGRAM:
+        if settings.mode != AudioViewKind.WAVEFORM:
             relevant = replace(
                 relevant,
                 scale=settings.scale,

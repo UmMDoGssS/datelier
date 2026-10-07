@@ -1,0 +1,35 @@
+{
+  "save": {
+    "band_center_hz": 2021.6514284157936,
+    "source_tone_hz": 2000,
+    "band_power": 0.02383922529078253,
+    "source_row": 0,
+    "cpu_bytes": 38488,
+    "gpu_bytes": 7552,
+    "empty_bands": 0,
+    "original_sample_rate": 8000,
+    "supporting_label": "two tones",
+    "profiles_and_samples_idle": true,
+    "restore": false,
+    "frames": 626,
+    "frame_p95_ms": 18.335814499550906,
+    "mel_raster_orientation": true
+  },
+  "restore": {
+    "band_center_hz": 2021.6514284157936,
+    "source_tone_hz": 2000,
+    "band_power": 0.02383922529078253,
+    "source_row": 0,
+    "cpu_bytes": 38488,
+    "gpu_bytes": 7552,
+    "empty_bands": 0,
+    "original_sample_rate": 8000,
+    "supporting_label": "two tones",
+    "profiles_and_samples_idle": true,
+    "restore": true,
+    "frames": 90,
+    "frame_p95_ms": 19.057933449857956,
+    "mel_raster_orientation": true
+  },
+  "source_preserved": true
+}

@@ -308,3 +308,94 @@ remain unchanged.
 suppression; Ruff lint/format (**549 files**) and diff whitespace pass.
 M14.2 remains open for mel representations, native mel/array controls and
 milestone/full-suite acceptance. M14.3–M14.4 remain open.
+
+### Mel preparation targets (2026-10-08)
+
+The next slice uses the HTK mel scale and unit-height triangular filters in Hz,
+without area normalization, consistent with the
+[documented filter-bank convention](https://docs.pytorch.org/audio/stable/generated/torchaudio.functional.melscale_fbanks.html).
+It integrates original one-sided PSD × FFT-bin Hz width into band power in
+original amplitude units², before any time display aggregation. Mel-axis hover
+reports each band's center in Hz. Empty supports remain zero, counted explicitly.
+Sparse supports avoid a dense bands×FFT matrix. FFT/window/hop and original rate
+retain the preceding slice's provenance; colors and decibels remain display-only.
+
+Before measurement, require the final **60 s** of the same 10-minute stereo
+48 kHz recording, FFT **1,024**, hop **256** and **64 mel bands** to prepare
+within **10 s**, retain at most **16 MiB**, and keep fresh-process peak RSS
+increase under **96 MiB** including fixture creation. A compressed-array
+**512-band**, FFT **65,536** selected-record command must extract once, return to
+zero retained oversized disk data and remove temporary paths on close. Native
+file/mapped-array controls and fresh restoration retain **33 ms** frame p95.
+Mel and M14.2 exit gates remain open until these measurements and checks pass.
+
+### M14.2 mel and milestone acceptance (2026-10-08)
+
+HTK mel views now expose **1–512 bands**, original-frequency limits,
+FFT/window/hop and linear band power or display-only decibels. Uniform mel
+coordinates retain nonlinear Hz centers for hover. Sparse triangles integrate
+each original PSD window before explicit time peak aggregation; no original-rate
+resampling or prior frequency display aggregation occurs. Empty filters remain
+visible and counted. Waveforms ignore mel settings, ordinary spectra ignore band
+counts, and mel views ignore ordinary frequency-display bins. Display color/scale
+conversion reuses band power. Source/range/channel/band changes retire affected
+work. Saved independent recipes include mel settings; earlier signal recipes
+without band counts use defaults. Prepared signals, profiles and playback are
+excluded from workspaces.
+
+Analytical Hz edges **0/700/2,100/4,900/10,500** and triangle integrals
+**1,050/2,100/4,200** verify the filter convention independently. Dense
+SciPy-based references cover rates **8,000/22,050 Hz**, FFT **64/512**,
+**1/8/64/512 bands**, frequency cropping, exact original time centers, band-power
+units, decibels and peak aggregation. All-empty narrow-band fixtures stay zero
+and labelled. A **512-band/65,536-FFT** bank retains sparse support proportional
+to FFT bins, below **2 MiB**, rather than allocating a dense matrix.
+**71 focused audio tests** pass, including original-source and stale/closed-job
+contracts from the preceding slices.
+
+`scripts/audio_mel_smoke.py` drives native file and sorted mapped-array controls:
+second channel, **0.5–1.5 s**, FFT **512**, hop **128**, Hamming,
+**32 bands**, **500–3,000 Hz**, explicit linear/decibel choices,
+**−80 dB** floor and **4/1 MiB** CPU/GPU retention. Known **2,000/2,500 Hz**
+tones fall in the expected filter supports; native Hz hover and asymmetric
+mel-raster peak colors agree. File workflow/restoration: **626/90 frames**,
+p95 **18.34/19.06 ms**. Array workflow/restoration: **658/104 frames**,
+p95 **19.07/19.97 ms**, preserving original source row **1**, supporting label
+**1**, **8 kHz** configuration and selected record. Each retains **38,488 CPU
+bytes** and **7,552 GPU bytes**. Original samples/profiles stay idle, playback is
+not imported, and source hashes are unchanged. See
+[file evidence](evidence/phase14/audio-mel-file-native.json) and
+[array evidence](evidence/phase14/audio-mel-array-native.json); screenshots,
+including fresh restoration, are visually checked.
+
+`scripts/audio_long_signal_smoke.py` opens **28,800,000 stereo sample frames**
+at **48 kHz**, natively selects the whole recording, then navigates between
+**480–540 s** and **540–600 s** mel ranges. The original row/rate/channel,
+time coordinates and known **1,500 Hz** tone remain aligned. Native rendering
+passes **372 frames**, p95 **18.97 ms**; waveform retention is **98,352 bytes**,
+mel retention **2,415,512 CPU / 480,000 GPU bytes**. See
+[long-navigation evidence](evidence/phase14/audio-long-signal-native.json).
+The shared native input capture/dispatch helper has configured Pyrefly script
+resolution and runs through real library return values. The waveform/spectrogram
+regression also passes **688/103 frames**, p95 **18.78/19.64 ms** after the helper
+change; see [regression evidence](evidence/phase14/audio-spectrum-mel-regression.json).
+Performance checks run separately from the full suite: an overlapping heavy test
+run exceeded the restore timing budget, while the isolated final run passes.
+
+The [mel resource run](evidence/phase14/audio-mel-resources.json) passes the
+predeclared fixture budgets. Final **60 s**, FFT **1,024**, hop **256**, **64 bands**:
+**0.239 s**, **2,415,512 retained bytes**, **64×1,875** cells over **11,247**
+windows, with six-window time peak aggregation and the known tone's peak band
+center **1,513.56 Hz**. Peak RSS increase including fixture creation is
+**20.94 MiB**. Compressed **10×48,000×2** data inspected at **512 bands / FFT
+65,536** takes **8.01 ms**, extracts once (**3,840,128 temporary bytes**), returns
+to zero retained disk and removes temporary paths on close. Source hashes remain
+unchanged.
+
+Full M14.2 suite: **967 passed in 24.43 s**, with three existing restricted-
+checkpoint warnings. Pyrefly reports **zero errors**, one existing suppression;
+Ruff lint/format (**554 files**), offline lock validation (**50 packages**),
+document links and diff whitespace pass. M14.2 now passes original extrema,
+spectral/mel references, independent invalidation, saved provenance, native
+file/array restoration, long navigation, resource and full-suite gates.
+M14.3–M14.4 and overall Phase 14 remain open.

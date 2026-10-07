@@ -76,8 +76,14 @@ def test_audio_settings_and_legacy_workspace_defaults() -> None:
     for name in ("view", "gpu_bytes", "plot_height"):
         del legacy_audio[name]
     assert decode_record(AudioSettings, legacy_audio) == AudioSettings()
+    legacy_signal = encode(SignalViewSettings(mode=AudioViewKind.SPECTROGRAM))
+    assert isinstance(legacy_signal, dict)
+    del legacy_signal["mel_bands"]
+    assert decode_record(SignalViewSettings, legacy_signal).mel_bands == 64
     for invalid in (
         replace(settings, array_sample_rate=0),
+        replace(settings, view=replace(settings.view, mel_bands=0)),
+        replace(settings, view=replace(settings.view, mel_bands=513)),
         replace(settings, channel=-1),
         replace(settings, cpu_bytes=0),
         replace(settings, range=AudioRange(4, 1)),
@@ -104,10 +110,11 @@ def test_two_audio_recipes_restore_idle_with_independent_source_ids(
                     thresholds=AudioThresholds(0.8, 0.01),
                     channel=i,
                     view=SignalViewSettings(
-                        mode=AudioViewKind.SPECTROGRAM,
                         fft=512,
                         hop=128,
                         frequency_high=3000,
+                        mel_bands=32,
+                        mode=AudioViewKind.MEL if i else AudioViewKind.SPECTROGRAM,
                     ),
                 )
             )

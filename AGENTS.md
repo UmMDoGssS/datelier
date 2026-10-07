@@ -134,7 +134,10 @@ in [docs/phase-13.md](docs/phase-13.md).
 Phase 14 M14.1 passes header-first file/mapped-array audio loading, explicit
 original-signal statistics, native Inspect controls and saved configuration;
 [docs/phase-14.md](docs/phase-14.md) records codec, correctness, fresh-process
-restoration and measured resource evidence. M14.2–M14.4 remain open.
+restoration and measured resource evidence. M14.2 passes worker-prepared
+waveform extrema, PSD/HTK mel views, original-rate controls/provenance,
+native file/array restoration and measured long-recording resource gates.
+M14.3–M14.4 remain open.
 Phase 8 investigations do not block this approved sequence. Existing v1 evidence
 and unfinished Titanic usability gates retain their status.
 

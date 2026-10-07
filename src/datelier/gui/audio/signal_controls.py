@@ -87,13 +87,21 @@ def signal_controls(settings: AudioSettings) -> AudioSettings:
             for i, candidate in enumerate(SpectrumScale):
                 if i:
                     imgui.same_line()
-                if imgui.radio_button(candidate.value, scale == candidate):
+                label = (
+                    "Linear band power"
+                    if candidate == SpectrumScale.POWER
+                    and view.mode == AudioViewKind.MEL
+                    else candidate.value
+                )
+                if imgui.radio_button(label, scale == candidate):
                     scale = candidate
             _, floor = imgui.input_double("Decibel floor", view.db_floor)
             _, times = imgui.input_int("Time display bins", view.time_bins)
-            _, frequencies = imgui.input_int(
-                "Frequency display bins", view.frequency_bins
-            )
+            frequencies, bands = view.frequency_bins, view.mel_bands
+            if view.mode == AudioViewKind.MEL:
+                _, bands = imgui.input_int("Mel bands (HTK)", bands)
+            else:
+                _, frequencies = imgui.input_int("Frequency display bins", frequencies)
             maps = list(Colormap)
             _, choice = imgui.combo(
                 "Spectral colors", maps.index(view.colormap), [m.value for m in maps]
@@ -127,6 +135,7 @@ def signal_controls(settings: AudioSettings) -> AudioSettings:
                 else view.db_floor,
                 time_bins=max(1, min(times, 16384)),
                 frequency_bins=max(1, min(frequencies, 32769)),
+                mel_bands=max(1, min(bands, 512)),
                 colormap=maps[choice],
                 color_range=bounds,
             )

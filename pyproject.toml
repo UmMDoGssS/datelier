@@ -36,6 +36,7 @@ url = "https://download.pytorch.org/whl/cpu"
 explicit = true
 
 [tool.pyrefly]
+search-path = ["src", "scripts"]
 project-includes = [
     "**/*.py*",
     "**/*.ipynb",

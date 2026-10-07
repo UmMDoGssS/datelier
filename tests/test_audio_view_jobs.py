@@ -170,3 +170,61 @@ def test_running_view_closure_discards_results_and_releases_source(
             release.set()
             jobs.close()
             arrays.close()
+
+
+def test_mel_relevance_display_reuse_and_band_changes(tmp_path: Path) -> None:
+    path = tmp_path / "tone.wav"
+    sf.write(path, np.ones(4000), 8000, subtype="DOUBLE")
+    source = prepare_metadata(
+        load_media(path).dataset, "a", "records", "path", 0, ReferenceSettings(), None
+    )
+    jobs, arrays = SignalViewJobs(), ArrayStore()
+    settings = SignalViewSettings(mode=AudioViewKind.MEL, mel_bands=32)
+    selected = AudioRange(0, 4000)
+    try:
+        jobs.bind(source)
+        jobs.request(selected, 0, settings, arrays, 1024**2)
+        wait(jobs)
+        previous = jobs.active
+        assert isinstance(previous, SpectralView) and previous.power.shape[0] == 32
+        jobs.request(
+            selected,
+            0,
+            replace(settings, frequency_bins=1, waveform_bins=16),
+            arrays,
+            1024**2,
+        )
+        assert not jobs.busy and jobs.active is previous
+        with patch(
+            "datelier.inspection.audio.view_jobs.prepare_spectrogram",
+            side_effect=AssertionError("must reuse band power"),
+        ):
+            jobs.request(
+                selected,
+                0,
+                replace(
+                    settings, scale=SpectrumScale.POWER, colormap=Colormap.PURPLE_GOLD
+                ),
+                arrays,
+                1024**2,
+            )
+            wait(jobs)
+        assert (
+            isinstance(jobs.active, SpectralView)
+            and jobs.active.power is previous.power
+        )
+        jobs.request(selected, 0, replace(settings, mel_bands=16), arrays, 1024**2)
+        assert jobs.active is None
+        wait(jobs)
+        assert (
+            isinstance(jobs.active, SpectralView) and jobs.active.power.shape[0] == 16
+        )
+        spectral = replace(settings, mode=AudioViewKind.SPECTROGRAM)
+        jobs.request(selected, 0, spectral, arrays, 1024**2)
+        wait(jobs)
+        previous = jobs.active
+        jobs.request(selected, 0, replace(spectral, mel_bands=16), arrays, 1024**2)
+        assert not jobs.busy and jobs.active is previous
+    finally:
+        jobs.close()
+        arrays.close()

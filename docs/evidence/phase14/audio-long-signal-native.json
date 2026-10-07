@@ -1,0 +1,15 @@
+{
+  "whole_frames": 28800000,
+  "waveform_bytes": 98352,
+  "mel_start_seconds": 540,
+  "spectral_bytes": 2415512,
+  "gpu_bytes": 480000,
+  "spectral_windows": 11247,
+  "time_step": 6,
+  "earlier_start_seconds": 480,
+  "later_start_seconds": 540,
+  "final_start_seconds": 540,
+  "frames": 372,
+  "frame_p95_ms": 18.96725190035795,
+  "source_preserved": true
+}

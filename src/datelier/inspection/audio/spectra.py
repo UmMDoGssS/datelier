@@ -1,15 +1,17 @@
-"""Streaming one-sided PSD grids with labelled peak aggregation and display scales."""
+"""Streaming PSD/mel band-power grids with explicit peak aggregation and scales."""
 
 from collections.abc import Callable
 from math import ceil
 
 import numpy as np
 
+from datelier.inspection.audio.mel import mel_filters
 from datelier.inspection.audio.profile_types import AudioProgress
 from datelier.inspection.audio.spectral_display import spectral_display
 from datelier.inspection.audio.spectral_frames import power_frames
 from datelier.inspection.audio.types import AudioLocator, AudioMetadata, AudioRange
 from datelier.inspection.audio.view_types import (
+    AudioViewKind,
     SignalViewSettings,
     SpectralView,
 )
@@ -43,13 +45,24 @@ def prepare_spectrogram(
     indices = np.flatnonzero(
         (frequencies >= settings.frequency_low) & (frequencies <= high)
     )
-    if not len(indices):
+    if not len(indices) and settings.mode != AudioViewKind.MEL:
         raise ValueError(
             "Frequency range contains no FFT bins; widen it or increase FFT length"
         )
     spectral_frames = 1 + (stop - start - window) // settings.hop
-    frequency_step = ceil(len(indices) / settings.frequency_bins)
-    rows = ceil(len(indices) / frequency_step)
+    bank = (
+        mel_filters(
+            rate, settings.fft, settings.mel_bands, settings.frequency_low, high
+        )
+        if settings.mode == AudioViewKind.MEL
+        else None
+    )
+    frequency_step = (
+        1 if bank is not None else ceil(len(indices) / settings.frequency_bins)
+    )
+    rows = (
+        settings.mel_bands if bank is not None else ceil(len(indices) / frequency_step)
+    )
     # Two Float64 grids and RGBA, plus both Float64 axes. Even a full
     # 32,769-frequency axis must stay inside the configured retained budget.
     maximum_columns = (cpu_bytes - rows * 8) // (rows * 20 + 8)
@@ -67,8 +80,15 @@ def prepare_spectrogram(
         locator, metadata, selected, channel, settings, arrays, stopped, progress
     ) as scan:
         for index, values in enumerate(scan.frames):
-            cropped = values[indices]
-            grouped = np.maximum.reduceat(cropped, frequency_starts)
+            grouped = (
+                bank.apply(values)
+                if bank is not None
+                else np.maximum.reduceat(values[indices], frequency_starts)
+            )
+            if not np.isfinite(grouped).all():
+                raise ValueError(
+                    "Mel band power exceeds Float64 range; inspect original values"
+                )
             np.maximum(
                 power[:, index // time_step], grouped, out=power[:, index // time_step]
             )
@@ -79,11 +99,15 @@ def prepare_spectrogram(
     times = (
         start + window / 2 + (time_starts + (time_counts - 1) / 2) * settings.hop
     ) / rate
-    frequencies = np.array(
-        [
-            frequencies[indices[i : i + frequency_step]].mean()
-            for i in range(0, len(indices), frequency_step)
-        ]
+    frequencies = (
+        bank.centers
+        if bank is not None
+        else np.array(
+            [
+                frequencies[indices[i : i + frequency_step]].mean()
+                for i in range(0, len(indices), frequency_step)
+            ]
+        )
     )
     time_width = settings.hop * time_step / rate
     frequency_width = rate / settings.fft * frequency_step
@@ -92,12 +116,16 @@ def prepare_spectrogram(
         (start + window / 2 - settings.hop / 2) / rate + columns * time_width,
     )
     frequency_bounds = (
-        float(indices[0] * rate / settings.fft - rate / settings.fft / 2),
-        float(
-            indices[0] * rate / settings.fft
-            - rate / settings.fft / 2
-            + rows * frequency_width
-        ),
+        bank.bounds
+        if bank is not None
+        else (
+            float(indices[0] * rate / settings.fft - rate / settings.fft / 2),
+            float(
+                indices[0] * rate / settings.fft
+                - rate / settings.fft / 2
+                + rows * frequency_width
+            ),
+        )
     )
     for array in (power, values, times, frequencies):
         array.flags.writeable = False
@@ -122,4 +150,5 @@ def prepare_spectrogram(
         tiles,
         color_bounds,
         (int(power.argmax()) // columns, int(power.argmax()) % columns),
+        bank.empty if bank is not None else 0,
     )

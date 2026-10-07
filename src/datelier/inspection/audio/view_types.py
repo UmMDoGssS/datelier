@@ -14,6 +14,7 @@ from datelier.inspection.heatmaps import Colormap, validate_range
 class AudioViewKind(StrEnum):
     WAVEFORM = "Waveform"
     SPECTROGRAM = "Spectrogram"
+    MEL = "Mel spectrogram"
 
 
 class SpectrumScale(StrEnum):
@@ -48,6 +49,7 @@ class SignalViewSettings:
     frequency_bins: int = 1024
     colormap: Colormap = Colormap.BLUE_YELLOW
     color_range: tuple[float, float] | None = None
+    mel_bands: int = 64
 
     def validate(self) -> None:
         validate_range(self.color_range)
@@ -76,6 +78,8 @@ class SignalViewSettings:
             raise ValueError("Decibel floor must be from −300 to below 0 dB")
         if not 1 <= self.time_bins <= 16384 or not 1 <= self.frequency_bins <= 32769:
             raise ValueError("Spectral display bins exceed supported bounds")
+        if not 1 <= self.mel_bands <= 512:
+            raise ValueError("Mel views require 1–512 bands")
 
 
 @dataclass(frozen=True)
@@ -129,7 +133,7 @@ class SpectralView:
     range: AudioRange
     channel: int
     settings: SignalViewSettings
-    power: NDArray[np.float64]  # One-sided PSD, original amplitude units²/Hz.
+    power: NDArray[np.float64]  # PSD units²/Hz, or HTK mel band power units².
     values: NDArray[np.float64]  # Display-only scale; frequency × time.
     times: NDArray[np.float64]
     frequencies: NDArray[np.float64]
@@ -144,6 +148,7 @@ class SpectralView:
     tiles: tuple[SpectralTile, ...]
     color_bounds: tuple[float, float]
     peak: tuple[int, int]
+    mel_empty_bands: int = 0
 
     @property
     def retained_bytes(self) -> int:

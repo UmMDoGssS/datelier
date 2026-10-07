@@ -32,7 +32,9 @@ def digest(path: Path) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", required=True, type=Path)
+    parser.add_argument("--mel", action="store_true")
     args = parser.parse_args()
+    mode = AudioViewKind.MEL if args.mel else AudioViewKind.SPECTROGRAM
     baseline = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
     with TemporaryDirectory(prefix="datelier-audio-views-") as temporary:
         root = Path(temporary)
@@ -72,11 +74,12 @@ def main() -> None:
             metadata,
             AudioRange(frames - rate * 60, frames),
             0,
-            SignalViewSettings(mode=AudioViewKind.SPECTROGRAM),
+            SignalViewSettings(mode=mode),
             arrays,
         )
         spectral_seconds = perf_counter() - started
-        assert spectrum.frequencies[int(spectrum.power[:, 0].argmax())] == 1500
+        peak = float(spectrum.frequencies[int(spectrum.power[:, 0].argmax())])
+        assert 1350 < peak < 1650 if args.mel else peak == 1500
         assert spectral_seconds < 10 and spectrum.retained_bytes <= 16 * 1024 * 1024
         assert arrays.temporary_path is None and digest(path) == before
         file_report = {
@@ -88,7 +91,8 @@ def main() -> None:
             "spectral_frames": spectrum.spectral_frames,
             "time_step": spectrum.time_step,
             "frequency_step": spectrum.frequency_step,
-            "peak_hz": 1500,
+            "peak_hz": peak,
+            "view": mode.value,
             "file_temporary_bytes": 0,
         }
         del spectrum, envelope
@@ -122,12 +126,15 @@ def main() -> None:
             metadata,
             AudioRange(),
             1,
-            SignalViewSettings(mode=AudioViewKind.SPECTROGRAM),
+            SignalViewSettings(mode=mode, fft=65536, mel_bands=512)
+            if args.mel
+            else SignalViewSettings(mode=mode),
             arrays,
         )
         array_seconds = perf_counter() - started
         assert arrays.extractions == 1 and arrays.stored_bytes == 0
-        assert spectrum.frequencies[int(spectrum.power[:, 0].argmax())] == 1500
+        peak = float(spectrum.frequencies[int(spectrum.power[:, 0].argmax())])
+        assert 1480 < peak < 1520 if args.mel else peak == 1500
         temporary_path = arrays.temporary_path
         arrays.close()
         assert (
@@ -142,6 +149,9 @@ def main() -> None:
         report = {
             **file_report,
             "array_seconds": array_seconds,
+            "array_shape": list(spectrum.power.shape),
+            "array_fft": spectrum.settings.fft,
+            "array_peak_hz": peak,
             "array_extractions": arrays.extractions,
             "array_peak_temporary_bytes": arrays.extracted_bytes,
             "array_retained_bytes_after_view": arrays.stored_bytes,

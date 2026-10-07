@@ -6,7 +6,9 @@ from imgui_bundle import hello_imgui, imgui, implot
 
 from datelier.gui.plots.area import PlotArea
 from datelier.gui.plots.axes import AxisControls
+from datelier.inspection.audio.mel import hz_to_mel
 from datelier.inspection.audio.view_types import (
+    AudioViewKind,
     PreparedSignalView,
     SpectralView,
     SpectrumScale,
@@ -109,13 +111,18 @@ class SignalCanvas:
             implot.plot_line("Minimum", data.plot_times, data.plot_minimum)
             implot.plot_line("Maximum", data.plot_times, data.plot_maximum)
         else:
-            implot.setup_axes("Time (s)", "Frequency (Hz)")
+            mel = data.settings.mode == AudioViewKind.MEL
+            implot.setup_axes(
+                "Time (s)", "Frequency (mel, HTK)" if mel else "Frequency (Hz)"
+            )
             if fit:
+                low = data.settings.frequency_low
+                high = min(data.settings.frequency_high or rate / 2, rate / 2)
                 implot.setup_axes_limits(
                     first,
                     last,
-                    data.settings.frequency_low,
-                    min(data.settings.frequency_high or rate / 2, rate / 2),
+                    hz_to_mel(low) if mel else low,
+                    hz_to_mel(high) if mel else high,
                     imgui.Cond_.always,
                 )
             axes.apply()
@@ -184,13 +191,21 @@ class SignalCanvas:
             float(data.values[y, x]),
         )
         time, frequency, power, value = self.readout
+        mel = data.settings.mode == AudioViewKind.MEL
+        units = "unit²" if mel else "unit²/Hz"
         label = (
-            "dB re 1 unit²/Hz"
+            f"dB re 1 {units}"
             if data.settings.scale == SpectrumScale.DECIBELS
-            else "unit²/Hz"
+            else units
         )
+        aggregation = (
+            f"Peak of {data.time_step} windows · HTK mel band {y + 1}/{height}"
+            if mel
+            else f"Peak of {data.time_step} windows × {data.frequency_step} FFT bins"
+        )
+        power_label = "Band power" if mel else "PSD"
         imgui.set_tooltip(
             f"{time:.6g} s · {frequency:.6g} Hz\n"
-            f"PSD {power:.6g}; display {value:.6g} {label}\n"
-            f"Peak of {data.time_step} windows × {data.frequency_step} FFT bins"
+            f"{power_label} {power:.6g}; display {value:.6g} {label}\n"
+            f"{aggregation}"
         )

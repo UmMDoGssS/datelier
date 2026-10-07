@@ -7,10 +7,10 @@ import subprocess
 import sys
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from unittest.mock import patch
 
 import numpy as np
 import soundfile as sf
+from audio_smoke_controls import NativeControls
 from imgui_bundle import hello_imgui, imgui
 from PIL import Image
 
@@ -33,19 +33,8 @@ def run(
     large_fft: bool = False,
     waveform_only: bool = False,
 ) -> dict[str, object]:
-    points: dict[str, tuple[float, float]] = {}
-    clips: dict[str, tuple[float, float]] = {}
-    scroll: dict[str, tuple[float, float]] = {}
-    original_button, original_checkbox, original_int = (
-        imgui.button,
-        imgui.checkbox,
-        imgui.input_int,
-    )
-    original_double, original_radio, original_header = (
-        imgui.input_double,
-        imgui.radio_button,
-        imgui.collapsing_header,
-    )
+    controls = NativeControls()
+    points, clips, scroll = controls.points, controls.clips, controls.scroll
     actions = (
         [
             "Gallery",
@@ -97,55 +86,6 @@ def run(
     expected_pixel: tuple[int, int, int] | None = None
     peak_pixel: tuple[int, int] | None = None
     timings: dict[str, list[float]] = {}
-
-    def capture(label: str, numeric: bool = False) -> None:
-        low, high = imgui.get_item_rect_min(), imgui.get_item_rect_max()
-        points[label] = (
-            low.x + 30 if numeric else (low.x + high.x) / 2,
-            (low.y + high.y) / 2,
-        )
-        position, size = imgui.get_window_pos(), imgui.get_window_size()
-        clips[label] = (position.y + 25, position.y + size.y - 20)
-        scroll[label] = (position.x + size.x - 7, position.y + size.y / 2)
-
-    def button(label: str, size: imgui.ImVec2 | None = None) -> bool:
-        value = original_button(label, size)
-        capture(label)
-        return value
-
-    def checkbox(label: str, value: bool) -> tuple[bool, bool]:
-        updated = original_checkbox(label, value)
-        capture(label)
-        return updated
-
-    def integer(
-        label: str, value: int, step: int = 1, step_fast: int = 100, flags: int = 0
-    ) -> tuple[bool, int]:
-        updated = original_int(label, value, step, step_fast, flags)
-        capture(label, True)
-        return updated
-
-    def double(
-        label: str,
-        value: float,
-        step: float = 0,
-        step_fast: float = 0,
-        format: str = "%.6f",
-        flags: int = 0,
-    ) -> tuple[bool, float]:
-        updated = original_double(label, value, step, step_fast, format, flags)
-        capture(label, True)
-        return updated
-
-    def radio(label: str, active: bool) -> bool:
-        updated = original_radio(label, active)
-        capture(label)
-        return updated
-
-    def header(label: str, flags: int = 0) -> bool:
-        updated = original_header(label, flags)
-        capture(label)
-        return updated
 
     def frame(
         editor: EditorSession, tabs: EditorTabs, evidence: InspectionEvidence
@@ -292,14 +232,7 @@ def run(
         elif phase == 6 and age > 7:
             action, phase, entered = action + 1, 0, evidence.frames
 
-    with (
-        patch.object(imgui, "button", button),
-        patch.object(imgui, "checkbox", checkbox),
-        patch.object(imgui, "input_int", integer),
-        patch.object(imgui, "input_double", double),
-        patch.object(imgui, "radio_button", radio),
-        patch.object(imgui, "collapsing_header", header),
-    ):
+    with controls.patched():
         evidence = run_gui(
             None if restore else root / "source.csv",
             initial_workspace=root / "session.datelier.json" if restore else None,
