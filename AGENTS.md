@@ -119,14 +119,18 @@ and restoration checks for this navigation follow-up.
 Inspect now shares Explore's tab row with Profiles, Relationships and Correlations;
 [docs/inspect-navigation.md](docs/inspect-navigation.md) records native navigation,
 direct media opening and saved-session restoration checks.
-Phase 13 is in progress: M13.1 passes original-pixel file/array Inspect, explicit
+Phase 13 passes: M13.1 delivers original-pixel file/array Inspect, explicit
 exact/sampled collection profiles, saved controls and measured resource gates;
 [docs/phase-13.md](docs/phase-13.md) records evidence. M13.2 also passes numeric
 heatmap channels/slices, display-only colormaps/ranges, exact values and native
 saved-record restoration. M13.3 passes VOC/YOLO/COCO/local manifest adapters,
 explicit source/image-key association controls, saved mappings, native restoration
-and header-only resource gates. M13.4 has verified native overlay and annotation
-profile slices; cross-file image comparisons and its final acceptance remain open.
+and header-only resource gates. M13.4 passes multiple-source overlays, annotation
+profiles and scoped cross-file image comparisons, saved controls and idle
+fresh-process restoration. Dense-label avoidance and cached viewport scenes pass
+the native overlay budget; exact/sampled comparisons pass bounded retention and
+source-preservation resource checks. Full-suite and final acceptance evidence are
+in [docs/phase-13.md](docs/phase-13.md).
 Phase 14 remains open.
 Phase 8 investigations do not block this approved sequence. Existing v1 evidence
 and unfinished Titanic usability gates retain their status.

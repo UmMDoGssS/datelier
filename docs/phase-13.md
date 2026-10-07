@@ -1,8 +1,9 @@
 # Phase 13 — Images, heatmaps, and detection annotations
 
-Phase 13 is in progress. Its scope is M13.1–M13.4 in [ROADMAP.md](../ROADMAP.md#phase-13--images-heatmaps-and-detection-annotations).
+Phase 13 is complete. Its scope is M13.1–M13.4 in [ROADMAP.md](../ROADMAP.md#phase-13--images-heatmaps-and-detection-annotations).
 Phase 12 and the Inspect navigation follow-up are complete; the worktree was
-clean at entry (`6cd56e2`). M13.1–M13.3 pass; M13.4 remains open.
+clean at entry (`6cd56e2`). M13.1–M13.4 pass. Entries below retain the status at
+each delivery slice; final acceptance records the complete milestone decision.
 
 ## Delivery steps
 
@@ -786,3 +787,31 @@ legacy overlap-control persistence. Pyrefly: **zero errors**, one existing
 suppression; Ruff lint/format (**517 Python files**) and diff whitespace pass.
 This hardening/resource step passes; final M13.4/full-phase suite acceptance
 remains open until its final verification.
+
+### Final M13.4 and Phase 13 acceptance (2026-10-07)
+
+After the verified resource-hardening commit `6ec1c80`, the full suite passes
+**896 tests in 22.85 s**, with three existing restricted-checkpoint Torch warnings.
+`uv run pyrefly check` reports **zero errors**, one existing suppression;
+`uv run ruff check .` and `uv run ruff format --check .` pass (**517 Python files**).
+`uv lock --check --offline` passes with **46 packages**. The worktree was clean
+before this documentation-only acceptance update. Markdown links, milestone
+consistency and diff whitespace are reviewed before its commit.
+
+M13.1–M13.3 retain their recorded original-pixel, heatmap, format-association,
+native restoration and measured resource gates. M13.4 now passes selectable
+multiple-source class/score overlays, preserved EXIF/zoom/pan geometry, exact
+annotation profiles, bounded linked rows and common-bin image dimension/color
+comparisons with independent scope/provenance. Saved mappings and view choices
+restore idle in fresh processes; explicit commands rebuild results. Known-value
+fixtures, source hashes, stale/closed-result rejection, cache cleanup, original
+record alignment and measured comparison/overlay budgets all pass as recorded
+above. No image or annotation source is modified by inspection or restoration.
+
+All Phase 13 deliverables and exit/verification gates pass. These are Linux,
+Python 3.14 and Mesa software OpenGL fixture measurements, not a general capacity
+guarantee. Showing all overlapping labels can still be slower; the default avoids
+overlap with a visible count and an explicit override. Accelerated rendering and
+other platforms retain their existing unverified status. Existing Titanic
+usability gates remain unchanged. Phase 14 audio inspection and integrated
+acceptance remains open as the next authorized sequence.

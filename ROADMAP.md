@@ -49,7 +49,10 @@ confirmed record mappings and optional restricted CPU checkpoints;
 acceptance. Phase 12 passes local tokenization/training, exact text profiles,
 original token-span Inspect and shared-tokenizer cross-file comparisons;
 [Phase 12 evidence](docs/phase-12.md) records native/restoration, resource and
-clean-install acceptance. Phase 13 and later implementation gates remain open.
+clean-install acceptance. Phase 13 passes original-pixel images, numeric heatmaps,
+detection annotations, overlays/profiles and scoped image comparisons;
+[Phase 13 evidence](docs/phase-13.md) records native restoration, source integrity
+and measured resources. Phase 14 audio and integrated acceptance remains open.
 These gates do not change existing feature or usability acceptance.
 
 A concrete post-v1 usability need is recorded in the
@@ -647,8 +650,8 @@ the corresponding dependency or behavior gates.
 [Verified implementation and resources](docs/phase-9.md) cover file ownership,
 native tabs, independent inactive-file jobs, nonblocking closure and M9.2
 Welcome/recent opening/editor controls, whole-session recovery and cross-file
-comparisons. The completed Phase 10/11 inspection expansion is recorded below;
-Phase 13 is the next outstanding phase.
+comparisons. The completed Phase 10–13 inspection expansion is recorded below;
+Phase 14 is the next outstanding phase.
 
 - [x] **Deliverables:** application/file session separation; top file tab bar with switching, reordering, closing, and New Tab; independent source/revision, operations, selections, jobs, analysis settings, and views; dockable panels bound to the active file.
 - [x] **Entry gate:** inspect current GuiSession and job/persistence boundaries; define typed file-session ownership and the shared worker lifecycle before introducing tabs.
@@ -812,11 +815,12 @@ inspection in Explore → Inspect alongside Profiles, Relationships and Correlat
 foundation, native focused image Inspect and explicit image collection profiles,
 including array-backed records, saved controls and measured resources. M13.1
 passes alongside M13.2 numeric heatmap controls and restoration. M13.3 passes
-annotation adapters, explicit associations and saved recipes. Native overlay and
-annotation profile slices pass; image comparisons and final M13.4 acceptance
-remain outstanding.
+annotation adapters, explicit associations and saved recipes. M13.4 passes native
+multiple-source overlays, annotation profiles and scoped image comparisons,
+fresh-process restoration, bounded selections, dense-overlay/comparison resources
+and the full correctness suite. Phase 13 is complete; Phase 14 remains open.
 
-- [ ] **Phase complete.** **Entry:** Phase 12 passes. **Exit:** M13.1–M13.4 pass; images, numeric heatmaps and box overlays retain correct values, provenance and geometry.
+- [x] **Phase complete.** **Entry:** Phase 12 passes. **Exit:** M13.1–M13.4 pass; images, numeric heatmaps and box overlays retain correct values, provenance and geometry.
 
 ### M13.1 — Image inspection and collection profiles
 
@@ -844,11 +848,11 @@ remain outstanding.
 
 ### M13.4 — Box overlays, annotation profiles, and image comparisons
 
-- [ ] **Deliverables:** selectable box/class/score overlays with multiple annotation sources; class counts, box size/aspect-ratio and annotation-quality profiles; cross-file image dimension/color comparisons with saved inspection settings.
+- [x] **Deliverables:** selectable box/class/score overlays with multiple annotation sources; class counts, box size/aspect-ratio and annotation-quality profiles; cross-file image dimension/color comparisons with saved inspection settings.
 - [x] **Entry gate:** M13.3 passes; image-space geometry and source-record identities are available to rendering without annotation parsing in frames.
-- [ ] **Exit gate:** overlays stay aligned under zoom/pan and orientation transforms; multiple sources can be inspected on one image; profiles and linked selections match known annotations; workspaces restore mappings without editing annotation files.
-- [ ] **Verification evidence:** native cross-format geometry and source-toggle smoke, overlay picking and row alignment, known annotation statistics, fresh-process image/box comparison restore and resource checks.
-- [ ] **Suggested step commits:** `feat: overlay and compare detection annotations` → `feat: profile boxes and compare image collections`.
+- [x] **Exit gate:** overlays stay aligned under zoom/pan and orientation transforms; multiple sources can be inspected on one image; profiles and linked selections match known annotations; workspaces restore mappings without editing annotation files.
+- [x] **Verification evidence:** native cross-format geometry and source-toggle smoke, overlay picking and row alignment, known annotation statistics, fresh-process image/box comparison restore and resource checks in [Phase 13 evidence](docs/phase-13.md).
+- [x] **Suggested step commits:** `feat: overlay and compare detection annotations` → `feat: profile boxes and compare image collections` (delivered in verified foundation, native control, persistence and resource-hardening slices).
 
 ## Phase 14 — Audio inspection and integrated acceptance
 
