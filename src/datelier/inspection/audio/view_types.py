@@ -8,6 +8,7 @@ import numpy as np
 from numpy.typing import NDArray
 
 from datelier.inspection.audio.types import AudioLocator, AudioMetadata, AudioRange
+from datelier.inspection.heatmaps import Colormap, validate_range
 
 
 class AudioViewKind(StrEnum):
@@ -34,7 +35,7 @@ class AudioWindow(StrEnum):
 
 @dataclass(frozen=True)
 class SignalViewSettings:
-    kind: AudioViewKind = AudioViewKind.WAVEFORM
+    mode: AudioViewKind = AudioViewKind.WAVEFORM
     waveform_bins: int = 2048
     fft: int = 1024
     hop: int = 256
@@ -45,10 +46,15 @@ class SignalViewSettings:
     db_floor: float = -120
     time_bins: int = 2048
     frequency_bins: int = 1024
+    colormap: Colormap = Colormap.BLUE_YELLOW
+    color_range: tuple[float, float] | None = None
 
     def validate(self) -> None:
+        validate_range(self.color_range)
+        if self.colormap not in Colormap:
+            raise ValueError("Unknown spectral colormap")
         if (
-            self.kind not in AudioViewKind
+            self.mode not in AudioViewKind
             or self.window not in AudioWindow
             or self.scale not in SpectrumScale
         ):
@@ -85,14 +91,16 @@ class WaveformEnvelope:
     maximum: NDArray[np.generic]
     finite: NDArray[np.uint64]
     times: NDArray[np.float64]
+    plot_times: NDArray[np.float64]
     plot_minimum: NDArray[np.float64]
     plot_maximum: NDArray[np.float64]
     nonfinite: int
     bin_frames: int
+    amplitude_bounds: tuple[float, float]
 
     @property
     def retained_bytes(self) -> int:
-        return sum(
+        return (0 if self.plot_times is self.times else self.plot_times.nbytes) + sum(
             array.nbytes
             for array in (
                 self.starts,
@@ -105,6 +113,13 @@ class WaveformEnvelope:
                 self.plot_maximum,
             )
         )
+
+
+@dataclass(frozen=True)
+class SpectralTile:
+    row: int
+    column: int
+    rgba: NDArray[np.uint8]
 
 
 @dataclass(frozen=True)
@@ -126,6 +141,9 @@ class SpectralView:
     nonfinite: int
     time_bounds: tuple[float, float]
     frequency_bounds: tuple[float, float]
+    tiles: tuple[SpectralTile, ...]
+    color_bounds: tuple[float, float]
+    peak: tuple[int, int]
 
     @property
     def retained_bytes(self) -> int:
@@ -134,7 +152,20 @@ class SpectralView:
             + (0 if self.values is self.power else self.values.nbytes)
             + self.times.nbytes
             + self.frequencies.nbytes
+            + self.texture_bytes
         )
+
+    @property
+    def texture_bytes(self) -> int:
+        return sum(tile.rgba.nbytes for tile in self.tiles)
+
+    def color_pixel(self, row: int, column: int) -> tuple[int, int, int, int]:
+        for tile in self.tiles:
+            y, x = row - tile.row, column - tile.column
+            if 0 <= y < tile.rgba.shape[0] and 0 <= x < tile.rgba.shape[1]:
+                pixel = tile.rgba[y, x]
+                return int(pixel[0]), int(pixel[1]), int(pixel[2]), int(pixel[3])
+        raise IndexError("Spectral color cell lies outside the prepared grid")
 
     @property
     def aggregated(self) -> bool:

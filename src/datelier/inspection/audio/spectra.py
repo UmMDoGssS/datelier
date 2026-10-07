@@ -6,12 +6,12 @@ from math import ceil
 import numpy as np
 
 from datelier.inspection.audio.profile_types import AudioProgress
+from datelier.inspection.audio.spectral_display import spectral_display
 from datelier.inspection.audio.spectral_frames import power_frames
 from datelier.inspection.audio.types import AudioLocator, AudioMetadata, AudioRange
 from datelier.inspection.audio.view_types import (
     SignalViewSettings,
     SpectralView,
-    SpectrumScale,
 )
 from datelier.io.arrays.storage import ArrayStore
 
@@ -50,9 +50,10 @@ def prepare_spectrogram(
     spectral_frames = 1 + (stop - start - window) // settings.hop
     frequency_step = ceil(len(indices) / settings.frequency_bins)
     rows = ceil(len(indices) / frequency_step)
-    # Two Float64 grids plus axes; reserve fixed overhead before allocation.
-    maximum_cells = (cpu_bytes - 65536) // 16
-    columns = min(settings.time_bins, spectral_frames, maximum_cells // rows)
+    # Two Float64 grids and RGBA, plus both Float64 axes. Even a full
+    # 32,769-frequency axis must stay inside the configured retained budget.
+    maximum_columns = (cpu_bytes - rows * 8) // (rows * 20 + 8)
+    columns = min(settings.time_bins, spectral_frames, maximum_columns)
     if columns < 1:
         raise ValueError(
             "Spectral CPU budget cannot hold a frequency column; "
@@ -72,14 +73,7 @@ def prepare_spectrogram(
                 power[:, index // time_step], grouped, out=power[:, index // time_step]
             )
     nonfinite = scan.nonfinite
-    values = (
-        power
-        if settings.scale == SpectrumScale.POWER
-        else np.maximum(
-            10 * np.log10(np.maximum(power, 10 ** (settings.db_floor / 10))),
-            settings.db_floor,
-        )
-    )
+    values, tiles, color_bounds = spectral_display(power, settings)
     time_starts = np.arange(0, spectral_frames, time_step, dtype=np.int64)
     time_counts = np.minimum(time_step, spectral_frames - time_starts)
     times = (
@@ -125,4 +119,7 @@ def prepare_spectrogram(
         nonfinite,
         time_bounds,
         frequency_bounds,
+        tiles,
+        color_bounds,
+        (int(power.argmax()) // columns, int(power.argmax()) % columns),
     )

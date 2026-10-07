@@ -13,6 +13,7 @@ from scipy.signal import get_window, stft
 from datelier.inspection.arrays.mapping import ArrayLayout, ArrayRecordMapping
 from datelier.inspection.audio.sources import audio_metadata, locate_audio
 from datelier.inspection.audio.spectra import prepare_spectrogram
+from datelier.inspection.audio.spectral_display import spectral_display
 from datelier.inspection.audio.types import AudioRange
 from datelier.inspection.audio.view_types import (
     AudioViewKind,
@@ -20,12 +21,99 @@ from datelier.inspection.audio.view_types import (
     SignalViewSettings,
     SpectrumScale,
 )
-from datelier.inspection.audio.waveforms import prepare_waveform
+from datelier.inspection.audio.waveforms import compress_envelope, prepare_waveform
 from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.arrays.metadata import inspect_arrays
 from datelier.io.arrays.records import prepare_array_records
 from datelier.io.arrays.storage import ArrayStore
 from datelier.io.media import load_media
+
+
+def test_plot_compression_preserves_run_edges_peaks_and_nonfinite_gaps() -> None:
+    times = np.arange(14, dtype=np.float64)
+    lower = np.array([0, 0, 0, -1, -1, -1, 0, np.nan, np.nan, np.nan, 0, 0, 0, 0])
+    upper = np.array([1, 1, 1, 1, 1, 1, 9, np.nan, np.nan, np.nan, 1, 1, 1, 1])
+    x, lo, hi = compress_envelope(times, lower, upper)
+    assert x.tolist() == [0, 2, 3, 5, 6, 7, 9, 10, 13]
+    np.testing.assert_equal(lo, lower[x.astype(int)])
+    np.testing.assert_equal(hi, upper[x.astype(int)])
+    # Every finite original segment still lies on the same piecewise-linear path.
+    dense = np.linspace(0, 13, 131)
+    np.testing.assert_equal(np.interp(dense, x, lo), np.interp(dense, times, lower))
+    np.testing.assert_equal(np.interp(dense, x, hi), np.interp(dense, times, upper))
+    distinct = np.arange(14, dtype=np.float64)
+    original = compress_envelope(times, distinct, upper)
+    assert original[0] is times and original[1] is distinct
+
+
+def test_full_fft_frequency_resolution_uses_bounded_color_tiles(tmp_path: Path) -> None:
+    path = tmp_path / "impulse.wav"
+    signal = np.zeros(512)
+    signal[256] = 1
+    sf.write(path, signal, 8000, subtype="DOUBLE")
+    dataset = load_media(path).dataset
+    locator = locate_audio(dataset, "f", "v", "path", 0, ReferenceSettings(), None)
+    settings = SignalViewSettings(
+        mode=AudioViewKind.SPECTROGRAM, fft=65536, frequency_bins=32769
+    )
+    store = ArrayStore()
+    try:
+        view = prepare_spectrogram(
+            locator, audio_metadata(locator), AudioRange(), 0, settings, store
+        )
+        assert view.power.shape == (32769, 1) and view.frequency_step == 1
+        assert len(view.tiles) == 17 and view.texture_bytes == 32769 * 4
+        assert all(
+            max(tile.rgba.shape[:2]) <= 2048 and not tile.rgba.flags.writeable
+            for tile in view.tiles
+        )
+        assert view.color_pixel(2047, 0) == view.color_pixel(2048, 0)
+        assert view.color_pixel(32768, 0)[3] == 255
+        with pytest.raises(ValueError, match="budget"):
+            prepare_spectrogram(
+                locator,
+                audio_metadata(locator),
+                AudioRange(),
+                0,
+                settings,
+                store,
+                cpu_bytes=700000,
+            )
+        with pytest.raises(IndexError):
+            view.color_pixel(32769, 0)
+        # Both dimensions tile, without retaining an underlying whole-grid RGBA.
+        _, tiles, _ = spectral_display(np.ones((2049, 2050)), settings)
+        assert len(tiles) == 4
+        assert sum(tile.rgba.nbytes for tile in tiles) == 2049 * 2050 * 4
+        assert all(tile.rgba.base is None for tile in tiles)
+    finally:
+        store.close()
+
+
+def test_full_frequency_axis_is_included_in_retention_budget(tmp_path: Path) -> None:
+    path = tmp_path / "long.wav"
+    sf.write(path, np.ones(70000), 8000, subtype="DOUBLE")
+    dataset = load_media(path).dataset
+    locator = locate_audio(dataset, "f", "v", "path", 0, ReferenceSettings(), None)
+    store = ArrayStore()
+    try:
+        view = prepare_spectrogram(
+            locator,
+            audio_metadata(locator),
+            AudioRange(),
+            0,
+            SignalViewSettings(
+                mode=AudioViewKind.SPECTROGRAM,
+                fft=32768,
+                hop=4096,
+                frequency_bins=32769,
+            ),
+            store,
+            cpu_bytes=1024**2,
+        )
+        assert view.power.shape == (16385, 2) and view.retained_bytes <= 1024**2
+    finally:
+        store.close()
 
 
 @pytest.mark.parametrize("bins", [1, 7, 1000])
@@ -107,7 +195,7 @@ def test_spectrum_matches_scipy_density_and_original_time_axes(
     metadata = audio_metadata(locator)
     selected = AudioRange(23, 67000)
     settings = SignalViewSettings(
-        kind=AudioViewKind.SPECTROGRAM,
+        mode=AudioViewKind.SPECTROGRAM,
         fft=512,
         hop=hop,
         window=window,
@@ -178,7 +266,7 @@ def test_nonfinite_short_impulse_padding_cropping_and_decibels(tmp_path: Path) -
     locator = locate_audio(dataset, "f", "", "path", 0, ReferenceSettings(), None)
     metadata = audio_metadata(locator)
     settings = SignalViewSettings(
-        kind=AudioViewKind.SPECTROGRAM,
+        mode=AudioViewKind.SPECTROGRAM,
         fft=512,
         hop=512,
         window=AudioWindow.RECTANGULAR,
@@ -254,7 +342,7 @@ def test_array_extrema_preserve_uint64_and_spectrum_extracts_once(
             metadata,
             AudioRange(),
             0,
-            SignalViewSettings(kind=AudioViewKind.SPECTROGRAM),
+            SignalViewSettings(mode=AudioViewKind.SPECTROGRAM),
             store,
         )
         assert (
@@ -302,7 +390,7 @@ def test_selected_array_channel_does_not_require_full_frame_retention(
             metadata,
             AudioRange(),
             262144,
-            SignalViewSettings(kind=AudioViewKind.SPECTROGRAM),
+            SignalViewSettings(mode=AudioViewKind.SPECTROGRAM),
             store,
             cpu_bytes=100000,
         )

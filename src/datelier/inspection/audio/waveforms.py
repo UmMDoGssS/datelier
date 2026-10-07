@@ -2,6 +2,7 @@
 
 from collections.abc import Callable
 from math import ceil
+from sys import float_info
 from typing import cast
 
 import numpy as np
@@ -12,6 +13,22 @@ from datelier.inspection.audio.reading import audio_blocks
 from datelier.inspection.audio.types import AudioLocator, AudioMetadata, AudioRange
 from datelier.inspection.audio.view_types import SignalViewSettings, WaveformEnvelope
 from datelier.io.arrays.storage import ArrayStore
+
+
+def compress_envelope(
+    times: NDArray[np.float64],
+    lower: NDArray[np.float64],
+    upper: NDArray[np.float64],
+) -> tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.float64]]:
+    """Keep endpoints of identical extrema runs; preserve the exact plot paths."""
+    same = (
+        (lower[1:] == lower[:-1]) | (np.isnan(lower[1:]) & np.isnan(lower[:-1]))
+    ) & ((upper[1:] == upper[:-1]) | (np.isnan(upper[1:]) & np.isnan(upper[:-1])))
+    keep = np.ones(len(times), dtype=bool)
+    keep[1:-1] = ~(same[:-1] & same[1:])
+    if np.all(keep):
+        return times, lower, upper
+    return times[keep], lower[keep], upper[keep]
 
 
 def prepare_waveform(
@@ -33,7 +50,7 @@ def prepare_waveform(
     frames = stop - start
     if not frames:
         raise ValueError("Choose a nonempty waveform range")
-    per_bin = 48 + metadata.dtype.itemsize * 2
+    per_bin = 56 + metadata.dtype.itemsize * 2
     bins = min(settings.waveform_bins, cpu_bytes // per_bin, frames)
     if bins < 1:
         raise ValueError("Waveform CPU budget cannot hold one envelope bin")
@@ -75,7 +92,29 @@ def prepare_waveform(
             "Waveform exceeds Float64 plotting range; inspect original sample values"
         )
     lower[finite == 0] = upper[finite == 0] = np.nan
-    for array in (starts, stops, minimum, maximum, finite, times, lower, upper):
+    chosen = finite > 0
+    low, high = (
+        (float(lower[chosen].min()), float(upper[chosen].max()))
+        if np.any(chosen)
+        else (-1.0, 1.0)
+    )
+    padding = max(abs(low) * 0.05, abs(high) * 0.05, 1e-12)
+    amplitude_bounds = (
+        max(-float_info.max, low - padding),
+        min(float_info.max, high + padding),
+    )
+    plot_times, lower, upper = compress_envelope(times, lower, upper)
+    for array in (
+        starts,
+        stops,
+        minimum,
+        maximum,
+        finite,
+        times,
+        plot_times,
+        lower,
+        upper,
+    ):
         array.flags.writeable = False
     return WaveformEnvelope(
         locator,
@@ -89,8 +128,10 @@ def prepare_waveform(
         maximum,
         finite,
         times,
+        plot_times,
         lower,
         upper,
         nonfinite,
         width,
+        amplitude_bounds,
     )

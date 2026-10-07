@@ -1,9 +1,11 @@
 """Saved audio controls; decoded samples/statistics/playback are not serialized."""
 
 from dataclasses import dataclass
+from math import isfinite
 
 from datelier.inspection.audio.profile_types import AudioThresholds
 from datelier.inspection.audio.types import AudioRange, validate_sample_rate
+from datelier.inspection.audio.view_types import SignalViewSettings
 
 
 @dataclass(frozen=True)
@@ -13,8 +15,20 @@ class AudioSettings:
     thresholds: AudioThresholds = AudioThresholds()
     channel: int = 0
     cpu_bytes: int = 16 * 1024 * 1024
+    view: SignalViewSettings = SignalViewSettings()
+    gpu_bytes: int = 8 * 1024 * 1024
+    plot_height: float = 240
 
     def validate(self) -> None:
+        self.view.validate()
+        if self.gpu_bytes < 1024 * 1024:
+            raise ValueError("Audio textures require at least 1 MiB GPU retention")
+        if (
+            not isfinite(self.plot_height)
+            or self.plot_height != 0
+            and self.plot_height < 170
+        ):
+            raise ValueError("Audio plot height requires auto/zero or at least 170 px")
         validate_sample_rate(self.array_sample_rate)
         self.thresholds.validate()
         self.range.bounds(max(self.range.start, self.range.stop or 0))

@@ -249,3 +249,62 @@ Pyrefly reports **zero errors**, one existing suppression; Ruff lint/format
 (**544 files**) and diff whitespace pass. No GUI behavior changed in this
 foundation step. M14.2 remains open for native controls, mel views, saved
 recipes and milestone/full-suite acceptance. M14.3–M14.4 remain open.
+
+### Native waveform/spectrogram inspection (2026-10-08)
+
+Inspect now prepares the visible original-rate signal range independently of
+exact sample windows and explicit profiles. Time/sample-frame navigation,
+channel, FFT/hop/window, frequency limits, scale/floor, display bins, colors,
+CPU/GPU retention and plot height are saved. Narrowing the visible time range
+requests more detailed source-aligned preparation. Metadata without a known
+array rate continues to require configuration. No playback backend is imported.
+Color/scale changes reuse immutable PSD through a worker conversion. Workspace
+round trips also cover independent file recipes, old defaults and exclusion of
+prepared grids, profiles and decoded samples. A codec-reserved field collision
+was fixed before registering the new view recipe.
+
+Native mouse/key/scroll controls pass the selected **0.5–1.5 s**, second-channel
+waveform extrema **±0.25**, then FFT **512**, hop **128**, Hamming,
+**500–3,000 Hz**, **−90 dB** floor and **4/1 MiB** CPU/GPU settings. The
+**2,000 Hz** tone has correct hover values and raster frequency orientation,
+checked against its prepared color pixel in an asymmetric frequency range.
+Save workflow: **688 frames**, p95 **18.91 ms**; fresh-process restore:
+**103 frames**, p95 **19.58 ms**, one texture upload, no implicit original-sample
+or profile command. See [native evidence](evidence/phase14/audio-spectrum-native.json)
+and [restored screenshot](evidence/phase14/audio-spectrum-restored.png).
+
+The first expanded-waveform measurement exceeded the **33 ms** target.
+Worker-side removal of redundant drawing points within identical extrema runs
+preserves the exact piecewise-linear paths, source bin values, sparse peaks and
+nonfinite gaps. The final separate waveform workflow passes **201 frames**,
+p95 **19.96 ms**; its [screenshot](evidence/phase14/audio-waveform.png) is visually
+checked. No new approximation is introduced by this drawing optimization.
+Initial axis padding keeps extrema lines visible at the recording's amplitude
+limits.
+
+Full FFT **65,536** resolution retains **32,769 frequency rows** and uses
+**17** textures of at most **2,048×2,048** cells. No extra frequency sampling is
+needed to fit hardware texture dimensions. Native controls, a visible configured
+color range, hover and rendered peak pixel pass **443 frames**, p95 **20.32 ms**,
+with **131,076 GPU bytes** retained; see
+[large-grid evidence](evidence/phase14/audio-spectrum-large-native.json).
+Texture buffers are released while the GL context still exists. CPU budgeting
+includes both axes, grids and color tiles, including a tall-frequency fixture
+under a **1 MiB** budget. File/sample/profile regression also passes; mapped-array
+native controls and fresh-process restoration pass **371/46 frames**, p95
+**12.09/11.38 ms**, preserving original row **1** and source hashes; see
+[array regression](evidence/phase14/audio-view-array-regression.json).
+
+The final [colored-view resource run](evidence/phase14/audio-view-gpu-resources.json)
+passes the predeclared budgets: complete 10-minute waveform **0.146 s**,
+**98,352 retained bytes**; final 60-second spectrum **0.233 s**, **16,504,780
+retained bytes**, **513×1,607** cells with explicit seven-window peak aggregation.
+Peak RSS increase including fixture creation is **64.97 MiB**. Compressed-array
+preparation takes **8.57 ms**, extracts once (**3,840,128 temporary bytes**) and
+returns to zero retained disk; close removes temporary paths and source hashes
+remain unchanged.
+
+**64 focused audio tests** pass. Pyrefly reports **zero errors**, one existing
+suppression; Ruff lint/format (**549 files**) and diff whitespace pass.
+M14.2 remains open for mel representations, native mel/array controls and
+milestone/full-suite acceptance. M14.3–M14.4 remain open.

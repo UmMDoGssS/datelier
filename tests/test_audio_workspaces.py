@@ -14,6 +14,13 @@ from datelier.gui.workspace.capture import capture_session
 from datelier.inspection.audio.profile_types import AudioThresholds
 from datelier.inspection.audio.settings import AudioSettings
 from datelier.inspection.audio.types import AudioRange
+from datelier.inspection.audio.view_types import (
+    AudioViewKind,
+    AudioWindow,
+    SignalViewSettings,
+    SpectrumScale,
+)
+from datelier.inspection.heatmaps import Colormap
 from datelier.workspace.codec import decode_record, encode
 from datelier.workspace.session_jobs import save_snapshot
 from datelier.workspace.types import WorkspaceViews
@@ -27,6 +34,7 @@ def wait(editor: EditorSession) -> None:
             (not file.controls.path or file.loader.active is not None)
             and not file.references.busy
             and not file.audio.jobs.busy
+            and not file.audio.signal.busy
             for file in editor.file_sessions
         ):
             return
@@ -39,12 +47,35 @@ def test_audio_settings_and_legacy_workspace_defaults() -> None:
         22050, AudioRange(200, 300), AudioThresholds(0.75, 0.01), 1, 1024 * 1024
     )
     settings.validate()
+    settings = replace(
+        settings,
+        view=SignalViewSettings(
+            mode=AudioViewKind.SPECTROGRAM,
+            fft=512,
+            hop=128,
+            window=AudioWindow.HAMMING,
+            frequency_low=500,
+            frequency_high=3000,
+            scale=SpectrumScale.POWER,
+            time_bins=16,
+            frequency_bins=64,
+            colormap=Colormap.PURPLE_GOLD,
+            color_range=(0, 1),
+        ),
+        gpu_bytes=1024**2,
+        plot_height=300,
+    )
     views = replace(WorkspaceViews(), audio=settings)
     assert decode_record(WorkspaceViews, encode(views)) == views
     legacy = encode(WorkspaceViews())
     assert isinstance(legacy, dict)
     del legacy["audio"]
     assert decode_record(WorkspaceViews, legacy).audio == AudioSettings()
+    legacy_audio = encode(AudioSettings())
+    assert isinstance(legacy_audio, dict)
+    for name in ("view", "gpu_bytes", "plot_height"):
+        del legacy_audio[name]
+    assert decode_record(AudioSettings, legacy_audio) == AudioSettings()
     for invalid in (
         replace(settings, array_sample_rate=0),
         replace(settings, channel=-1),
@@ -72,6 +103,12 @@ def test_two_audio_recipes_restore_idle_with_independent_source_ids(
                     range=AudioRange(10, 50),
                     thresholds=AudioThresholds(0.8, 0.01),
                     channel=i,
+                    view=SignalViewSettings(
+                        mode=AudioViewKind.SPECTROGRAM,
+                        fft=512,
+                        hop=128,
+                        frequency_high=3000,
+                    ),
                 )
             )
         wait(editor)
@@ -92,6 +129,15 @@ def test_two_audio_recipes_restore_idle_with_independent_source_ids(
             file.audio.jobs.request_profile(
                 AudioRange(), file.audio.settings.thresholds, file.arrays.store
             )
+            assert file.audio.jobs.metadata is not None
+            file.audio.signal.bind(file.audio.jobs.metadata)
+            file.audio.signal.request(
+                AudioRange(10, 50),
+                file.audio.settings.channel,
+                file.audio.settings.view,
+                file.arrays.store,
+                file.audio.settings.cpu_bytes,
+            )
         wait(editor)
         profiles = [file.audio.jobs.profile for file in files]
         assert profiles[0] is not None and profiles[1] is not None
@@ -102,6 +148,7 @@ def test_two_audio_recipes_restore_idle_with_independent_source_ids(
         save_snapshot(workspace, capture_session(editor), False)
         text = workspace.read_text()
         assert "AudioSignalProfile" not in text and "PreparedAudio" not in text
+        assert "SpectralView" not in text and "WaveformEnvelope" not in text
     finally:
         editor.close()
     restored = EditorSession()
@@ -121,5 +168,6 @@ def test_two_audio_recipes_restore_idle_with_independent_source_ids(
                 is None
             )
             assert not file.audio.jobs.busy and file.arrays.store.temporary_path is None
+            assert file.audio.signal.active is None and not file.audio.signal.busy
     finally:
         restored.close()

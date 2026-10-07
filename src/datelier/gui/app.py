@@ -94,6 +94,7 @@ def run_gui(
                 for file in editor.file_sessions:
                     file.reference_view.textures.clear()
                     file.images.canvas.clear()
+                    file.audio.canvas.clear()
                 raise
 
         return protected
@@ -283,6 +284,7 @@ def run_gui(
         for file in editor.file_sessions:
             file.reference_view.textures.clear()
             file.images.canvas.clear()
+            file.audio.canvas.clear()
         preferences.save(editor.active, params, sources=editor.source_paths)
 
     params.callbacks.before_exit = before_exit

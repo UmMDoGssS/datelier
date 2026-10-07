@@ -72,7 +72,7 @@ def main() -> None:
             metadata,
             AudioRange(frames - rate * 60, frames),
             0,
-            SignalViewSettings(kind=AudioViewKind.SPECTROGRAM),
+            SignalViewSettings(mode=AudioViewKind.SPECTROGRAM),
             arrays,
         )
         spectral_seconds = perf_counter() - started
@@ -122,7 +122,7 @@ def main() -> None:
             metadata,
             AudioRange(),
             1,
-            SignalViewSettings(kind=AudioViewKind.SPECTROGRAM),
+            SignalViewSettings(mode=AudioViewKind.SPECTROGRAM),
             arrays,
         )
         array_seconds = perf_counter() - started

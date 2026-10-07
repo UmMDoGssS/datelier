@@ -4,11 +4,10 @@ from concurrent.futures import Executor, Future
 from dataclasses import replace
 from threading import Event
 
-import numpy as np
-
 from datelier.core.jobs import JobExecutor
 from datelier.inspection.audio.profile_types import AudioProgress
 from datelier.inspection.audio.spectra import prepare_spectrogram
+from datelier.inspection.audio.spectral_display import spectral_display
 from datelier.inspection.audio.types import AudioLocator, AudioMetadata, AudioRange
 from datelier.inspection.audio.view_types import (
     AudioViewKind,
@@ -18,28 +17,28 @@ from datelier.inspection.audio.view_types import (
     SpectrumScale,
 )
 from datelier.inspection.audio.waveforms import prepare_waveform
+from datelier.inspection.heatmaps import Colormap
 from datelier.io.arrays.storage import ArrayStore
 
 
 def computation_settings(settings: SignalViewSettings) -> SignalViewSettings:
-    if settings.kind == AudioViewKind.WAVEFORM:
+    if settings.mode == AudioViewKind.WAVEFORM:
         return SignalViewSettings(waveform_bins=settings.waveform_bins)
     return replace(
-        settings, waveform_bins=2048, scale=SpectrumScale.POWER, db_floor=-120
+        settings,
+        waveform_bins=2048,
+        scale=SpectrumScale.POWER,
+        db_floor=-120,
+        colormap=Colormap.BLUE_YELLOW,
+        color_range=None,
     )
 
 
 def rescale_spectrum(view: SpectralView, settings: SignalViewSettings) -> SpectralView:
-    values = (
-        view.power
-        if settings.scale == SpectrumScale.POWER
-        else np.maximum(
-            10 * np.log10(np.maximum(view.power, 10 ** (settings.db_floor / 10))),
-            settings.db_floor,
-        )
+    values, tiles, bounds = spectral_display(view.power, settings)
+    return replace(
+        view, values=values, tiles=tiles, color_bounds=bounds, settings=settings
     )
-    values.flags.writeable = False
-    return replace(view, values=values, settings=settings)
 
 
 class SignalViewJobs:
@@ -81,13 +80,15 @@ class SignalViewJobs:
         selected.bounds(self._source[1].frames)
         self._source[1].require_rate()
         relevant = computation_settings(settings)
-        if settings.kind == AudioViewKind.SPECTROGRAM:
+        if settings.mode == AudioViewKind.SPECTROGRAM:
             relevant = replace(
                 relevant,
                 scale=settings.scale,
                 db_floor=settings.db_floor
                 if settings.scale == SpectrumScale.DECIBELS
                 else -120,
+                colormap=settings.colormap,
+                color_range=settings.color_range,
             )
         requested = (selected, channel, relevant, cpu_bytes)
         if requested == self._requested:
@@ -110,7 +111,7 @@ class SignalViewJobs:
         else:
             prepare = (
                 prepare_waveform
-                if settings.kind == AudioViewKind.WAVEFORM
+                if settings.mode == AudioViewKind.WAVEFORM
                 else prepare_spectrogram
             )
             self._future = self._jobs.submit(
@@ -124,7 +125,7 @@ class SignalViewJobs:
                 self._stop.is_set,
                 self.progress,
             )
-        self.message = f"Preparing {settings.kind.lower()}…"
+        self.message = f"Preparing {settings.mode.lower()}…"
 
     def poll(self) -> None:
         if self.closed or self._future is None or not self._future.done():

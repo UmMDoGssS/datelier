@@ -28,6 +28,7 @@ from datelier.pipeline.operations import Sort
 def run(root: Path, output: Path, *, restore: bool, array: bool) -> dict[str, object]:
     pixels: dict[str, tuple[float, float]] = {}
     clips: dict[str, tuple[float, float]] = {}
+    scroll_points: dict[str, tuple[float, float]] = {}
     original_checkbox, original_int, original_double = (
         imgui.checkbox,
         imgui.input_int,
@@ -58,6 +59,7 @@ def run(root: Path, output: Path, *, restore: bool, array: bool) -> dict[str, ob
         pixels[label] = (lo.x + 40 if numeric else (lo.x + hi.x) / 2, (lo.y + hi.y) / 2)
         position, size = imgui.get_window_pos(), imgui.get_window_size()
         clips[label] = (position.y + 25, position.y + size.y - 20)
+        scroll_points[label] = (position.x + size.x - 7, position.y + size.y / 2)
 
     def checkbox(label: str, value: bool) -> tuple[bool, bool]:
         result = original_checkbox(label, value)
@@ -67,8 +69,7 @@ def run(root: Path, output: Path, *, restore: bool, array: bool) -> dict[str, ob
 
     def button(label: str, size: imgui.ImVec2 | None = None) -> bool:
         result = original_button(label, size)
-        if label == "Prepare saved array records":
-            capture(label)
+        capture(label)
         return result
 
     def integer(
@@ -181,7 +182,11 @@ def run(root: Path, output: Path, *, restore: bool, array: bool) -> dict[str, ob
             assert profile.channels[1].clipped == 8000
             assert np.all(samples.raw[:, 1] == -0.5) and samples.raw.shape == (1024, 2)
             if file.audio.rendered_samples == 0:
-                io.mouse_pos = imgui.ImVec2(500, io.display_size.y - 80)
+                io.mouse_pos = imgui.ImVec2(
+                    *scroll_points.get(
+                        "Profile complete audio", (985, io.display_size.y - 80)
+                    )
+                )
                 io.want_set_mouse_pos = True
                 io.add_mouse_wheel_event(0, -3)
                 return
@@ -203,7 +208,9 @@ def run(root: Path, output: Path, *, restore: bool, array: bool) -> dict[str, ob
         if phase == 0 and age > 9 and key in pixels:
             top, bottom = clips.get(key, (430, io.display_size.y - 20))
             if not top <= pixels[key][1] <= bottom:
-                io.mouse_pos = imgui.ImVec2(pixels[key][0], (top + bottom) / 2)
+                io.mouse_pos = imgui.ImVec2(
+                    *scroll_points.get(key, (985, (top + bottom) / 2))
+                )
                 io.want_set_mouse_pos = True
                 io.add_mouse_wheel_event(0, -2 if pixels[key][1] > bottom else 2)
                 entered = evidence.frames

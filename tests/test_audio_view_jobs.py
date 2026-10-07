@@ -21,6 +21,7 @@ from datelier.inspection.audio.view_types import (
     SpectrumScale,
     WaveformEnvelope,
 )
+from datelier.inspection.heatmaps import Colormap
 from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.arrays.storage import ArrayStore
 from datelier.io.media import load_media
@@ -71,7 +72,7 @@ def test_waveform_relevance_and_spectral_scale_reuses_prepared_power(
             1024 * 1024,
         )
         assert not jobs.busy and jobs.active is waveform
-        spectral = replace(settings, kind=AudioViewKind.SPECTROGRAM)
+        spectral = replace(settings, mode=AudioViewKind.SPECTROGRAM)
         jobs.request(selected, 1, spectral, arrays, 1024 * 1024)
         wait(jobs)
         assert isinstance(jobs.active, SpectralView)
@@ -90,6 +91,28 @@ def test_waveform_relevance_and_spectral_scale_reuses_prepared_power(
             wait(jobs)
         assert isinstance(jobs.active, SpectralView) and jobs.active.power is power
         assert jobs.active.values is power
+        with patch(
+            "datelier.inspection.audio.view_jobs.prepare_spectrogram",
+            side_effect=AssertionError("color controls must reuse PSD"),
+        ):
+            jobs.request(
+                selected,
+                1,
+                replace(
+                    spectral,
+                    scale=SpectrumScale.POWER,
+                    colormap=Colormap.PURPLE_GOLD,
+                    color_range=(0, 1),
+                ),
+                arrays,
+                1024**2,
+            )
+            wait(jobs)
+        assert isinstance(jobs.active, SpectralView) and jobs.active.power is power
+        assert jobs.active.color_bounds == (0, 1) and all(
+            not tile.rgba.flags.writeable for tile in jobs.active.tiles
+        )
+        spectral = replace(spectral, colormap=Colormap.PURPLE_GOLD, color_range=(0, 1))
         jobs.request(
             selected,
             1,

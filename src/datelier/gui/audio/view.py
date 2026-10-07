@@ -6,11 +6,20 @@ from typing import TYPE_CHECKING
 
 from imgui_bundle import imgui
 
+from datelier.gui.audio.canvas import SignalCanvas
+from datelier.gui.audio.provenance import show_provenance
+from datelier.gui.audio.signal_controls import (
+    frame_input,
+    signal_controls,
+    time_controls,
+)
 from datelier.gui.audio.statistics import show_statistics
 from datelier.inspection.audio.jobs import AudioJobs
 from datelier.inspection.audio.profile_types import AudioThresholds
 from datelier.inspection.audio.settings import AudioSettings
 from datelier.inspection.audio.types import AudioRange
+from datelier.inspection.audio.view_jobs import SignalViewJobs
+from datelier.inspection.audio.view_types import AudioViewKind
 from datelier.io.types import ArrayOptions
 
 if TYPE_CHECKING:
@@ -20,6 +29,8 @@ if TYPE_CHECKING:
 class AudioView:
     def __init__(self, executor: Executor | None = None) -> None:
         self.jobs = AudioJobs(executor)
+        self.signal = SignalViewJobs(executor)
+        self.canvas = SignalCanvas()
         self.settings = AudioSettings()
         self.buttons: dict[str, tuple[float, float]] = {}
         self.rendered_samples = 0
@@ -35,6 +46,10 @@ class AudioView:
         )
         self.jobs.cpu_bytes = self.settings.cpu_bytes
         self.jobs.poll()
+        self.signal.bind(self.jobs.metadata)
+        self.signal.poll()
+        if self.signal.active is None:
+            self.canvas.clear()
 
     def show_record(self, owner: FileSession, column: str, position: int) -> None:
         active = owner.loader.active
@@ -77,6 +92,8 @@ class AudioView:
         if self.jobs.active is None and self.jobs.profile is None:
             imgui.text_wrapped("Choose a command to prepare samples or statistics.")
         self._controls(metadata.frames, metadata.channels)
+        self.settings = time_controls(self.settings, metadata)
+        self.settings = signal_controls(self.settings)
         start = min(self.settings.range.start, metadata.frames)
         stop = min(
             self.settings.range.stop
@@ -85,6 +102,8 @@ class AudioView:
             metadata.frames,
         )
         selected = AudioRange(start, max(start, stop))
+        if metadata.sample_rate is not None:
+            self._signal(owner, selected)
         if self.button("Prepare sample window"):
             self.jobs.request_window(selected, owner.arrays.store)
         imgui.begin_disabled(metadata.sample_rate is None)
@@ -121,8 +140,8 @@ class AudioView:
             settings.range.stop if settings.range.stop is not None else frames, frames
         )
         imgui.push_item_width(150)
-        _, start = imgui.input_int("First sample frame", start)
-        _, stop = imgui.input_int("End sample frame (exclusive)", stop)
+        _, start = frame_input("First sample frame", start, frames)
+        _, stop = frame_input("End sample frame (exclusive)", stop, frames)
         _, channel = imgui.input_int(
             "Sample channel (1-based)", min(settings.channel, channels - 1) + 1
         )
@@ -149,6 +168,39 @@ class AudioView:
             channel=max(0, min(channel - 1, channels - 1)),
             thresholds=configured,
         )
+
+    def _signal(self, owner: FileSession, selected: AudioRange) -> None:
+        settings = self.settings
+        budget = (
+            settings.cpu_bytes
+            if settings.view.mode == AudioViewKind.WAVEFORM
+            else min(settings.cpu_bytes, settings.gpu_bytes * 5)
+        )
+        try:
+            self.signal.request(
+                selected, settings.channel, settings.view, owner.arrays.store, budget
+            )
+        except ValueError as error:
+            self.signal.message = str(error)
+        if self.button("Retry signal view"):
+            self.signal.abandon()
+        imgui.text_wrapped(self.signal.message)
+        if self.signal.busy:
+            done, total = self.signal.progress.value
+            imgui.text(f"Signal preparation {done:,}/{total:,} frames")
+        data = self.signal.active
+        if data is None:
+            return
+        show_provenance(data)
+        self.canvas.area.height = settings.plot_height
+        self.canvas.show(data, settings.gpu_bytes)
+        self.settings = replace(self.settings, plot_height=self.canvas.area.height)
+        if self.button("Inspect visible time range"):
+            low, high = self.canvas.area.axes.limits[0]
+            rate = data.metadata.require_rate()
+            start = max(0, min(round(low * rate), data.metadata.frames))
+            stop = max(start, min(round(high * rate), data.metadata.frames))
+            self.settings = replace(self.settings, range=AudioRange(start, stop))
 
     def _samples(self) -> None:
         self.rendered_samples = 0
@@ -200,5 +252,7 @@ class AudioView:
         return clicked
 
     def close(self) -> None:
+        self.canvas.clear()
+        self.signal.close()
         self.jobs.close()
         self.buttons.clear()
