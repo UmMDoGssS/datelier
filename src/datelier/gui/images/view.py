@@ -6,15 +6,18 @@ from typing import TYPE_CHECKING
 
 from imgui_bundle import imgui
 
+from datelier.gui.annotations.overlay import AnnotationOverlay
+from datelier.gui.annotations.overlay_controls import overlay_controls
 from datelier.gui.annotations.view import AnnotationView
+from datelier.gui.images.cache_controls import cache_controls
 from datelier.gui.images.canvas import ImageCanvas
 from datelier.gui.images.heatmap_controls import RecordHeatmapControls
 from datelier.gui.images.profile_controls import profile_controls
 from datelier.gui.images.profiles import ImageProfiles
 from datelier.inspection.annotations.jobs import AnnotationJobs
+from datelier.inspection.annotations.profile_jobs import AnnotationProfileJobs
 from datelier.inspection.arrays.mapping import ArrayLayout
 from datelier.inspection.images.jobs import ImageJobs
-from datelier.inspection.images.prepare import default_range
 from datelier.inspection.images.profile_jobs import ImageProfileJobs
 from datelier.inspection.images.profile_types import ImageProfile
 from datelier.inspection.images.settings import ImageSettings
@@ -38,6 +41,8 @@ class ImageView:
         self.heatmap = RecordHeatmapControls()
         self.annotations = AnnotationJobs(executor)
         self.annotation_controls = AnnotationView()
+        self.annotation_profiles = AnnotationProfileJobs(executor)
+        self.overlay = AnnotationOverlay()
 
     def sync(self, owner: FileSession) -> None:
         active = owner.loader.active
@@ -89,6 +94,10 @@ class ImageView:
             self.settings = replace(
                 self.settings, annotations=self.annotations.settings
             )
+        self.overlay.bind(self.annotations.active)
+        self.annotation_profiles.bins = self.settings.annotation_view.bins
+        self.annotation_profiles.bind(self.annotations.active)
+        self.annotation_profiles.poll()
 
     def show_mapped_profile(self, owner: FileSession) -> bool:
         active = owner.loader.active
@@ -191,6 +200,15 @@ class ImageView:
             self.jobs.abandon()
             return
         imgui.text(self.jobs.message.split(";")[0])
+        self.settings = replace(
+            self.settings,
+            annotation_view=replace(
+                self.settings.annotation_view,
+                overlay=overlay_controls(
+                    self.settings.annotation_view.overlay, self.annotations.active
+                ),
+            ),
+        )
         if metadata.mode == "Numeric":
             self.settings = replace(
                 self.settings,
@@ -210,34 +228,7 @@ class ImageView:
         self._capture("Fit image")
         imgui.same_line()
         imgui.text(f"{viewport.zoom * 100:.1f}%")
-        if imgui.tree_node("Image details and caches"):
-            imgui.text_wrapped(metadata.description)
-            imgui.text("Wheel to zoom; drag to pan. Hover for original pixel values.")
-            if metadata.orientation != 1:
-                imgui.text(
-                    f"EXIF {metadata.orientation} · "
-                    f"source {metadata.source_width}×{metadata.source_height}"
-                )
-            lo, hi = self.settings.display.value_range or default_range(metadata.dtype)
-            imgui.text(f"Display values {lo:g}–{hi:g}")
-            for label, name, minimum in (
-                ("CPU MiB", "cpu_bytes", 1),
-                ("GPU MiB", "gpu_bytes", 1),
-                ("Decoded disk MiB", "disk_bytes", 0),
-            ):
-                imgui.set_next_item_width(120)
-                changed, value = imgui.input_int(
-                    label, getattr(self.settings, name) // (1024 * 1024)
-                )
-                if changed and value >= minimum:
-                    size_bytes = value * 1024 * 1024
-                    if name == "cpu_bytes":
-                        self.settings = replace(self.settings, cpu_bytes=size_bytes)
-                    elif name == "gpu_bytes":
-                        self.settings = replace(self.settings, gpu_bytes=size_bytes)
-                    else:
-                        self.settings = replace(self.settings, disk_bytes=size_bytes)
-            imgui.tree_pop()
+        self.settings = cache_controls(self.settings, metadata)
         available = imgui.get_content_region_avail()
         size = max(1.0, available.x), max(40.0, min(540.0, available.y - 35))
         if fit:
@@ -248,8 +239,12 @@ class ImageView:
         self.jobs.request_window(
             viewport.window(size), self.settings.display, owner.arrays.store
         )
+        original_viewport = viewport
         viewport = self.canvas.show(
             self.jobs.active, viewport, size, self.settings.gpu_bytes
+        )
+        self.overlay.show(
+            self.canvas, original_viewport, self.settings.annotation_view.overlay, owner
         )
         self.settings = replace(
             self.settings,
@@ -287,3 +282,4 @@ class ImageView:
         self.jobs.close()
         self.profile_jobs.close()
         self.annotations.close()
+        self.annotation_profiles.close()

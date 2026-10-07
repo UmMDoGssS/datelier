@@ -545,3 +545,51 @@ image comparisons remain open in M13.4.
 Verification repair: the final type-check output was read after the foundation
 commit and reported two string revision IDs in its new tests. The fixtures now
 use UUIDs; Pyrefly and focused checks were rerun before starting native UI work.
+
+### Native overlays and annotation profiles (2026-10-07)
+
+Focused image canvases now render source-colored class/score overlays from the
+prepared origin index, with view-only source and physical class filters, optional
+score thresholds, explicit inclusion of unscored boxes and adjustable visible-box
+limits. Truncation is labeled. Picking links the image's stable source row;
+Ctrl-click cycles overlapping sources. Dragging pans without selecting a box.
+Selections retire with obsolete preparation or a different focused image.
+Unknown observed class IDs are included in the worker-prepared filter metadata,
+alongside declared classes and their diagnostics. No annotation reads occur in
+rendering. Overlay display changes preserve association results.
+
+Detection annotations → Profiles explicitly prepares exact classes, original
+size/aspect histograms, quality counts and linked box records. Worker-prepared
+class row IDs allow class-count selection without table-wide frame computation.
+Sources, profiles and overlay display settings have independent saved recipes;
+restoration starts neither annotation loading nor profiles. Cache/provenance
+controls were separated from the image view at its 300-line responsibility review.
+
+`scripts/annotation_smoke.py --overlays --output docs/evidence/phase13` passes
+**1305/291 frames**, p95 **13.35/13.97 ms**. It verifies equivalent EXIF-6 boxes
+from four formats, native source toggles leaving three visible sources, picking
+and overlap cycling, screen-edge alignment under native zoom/pan, size charts,
+known class/size statistics and linked selection. Fresh-process reopen restores
+source toggles, profile tabs and viewport while leaving work idle until explicit
+commands. The input harness now sends both key and modifier events, separates
+modifier release from text entry and focuses the dock before each click; initial
+attempts exposed those harness input/focus failures. Source hashes pass, and both
+screenshots were visually reviewed.
+[Native report](evidence/phase13/box-overlay-native.json),
+[overlay Inspect](evidence/phase13/box-overlay.png),
+[reopened overlays](evidence/phase13/box-overlay-restored.png).
+
+The extended header-only resource fixture prepares **10,000 boxes** in **0.243 s**
+and exact profiles in **0.090 s**, peak RSS increase **39.46 MiB** including
+fixture/association/profile buffers. Class counts are **3400/3300/3300** with
+100 linked image IDs each; means are width **20**, height **40**, area **800**,
+aspect **0.5**. Pixel loading is forbidden and no temporary caches are allocated.
+[Profile resource report](evidence/phase13/box-profiles-resource.json).
+
+Focused display/job/workspace checks: **50 passed**; final association/profile/
+workspace/image/control/job checks: **43 passed in 1.34 s**, including unknown
+class filter metadata and persisted view choices without reassociation. Pyrefly:
+**zero errors**, one existing suppression; Ruff lint/format (**497 Python files**)
+and diff whitespace pass. This native overlay/profile slice passes. Cross-file
+image comparisons, larger native overlay resources and final M13.4/full-phase
+acceptance remain open.

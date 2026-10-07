@@ -1,0 +1,11 @@
+{
+  "images": 100,
+  "boxes": 10000,
+  "seconds": 0.24263675999827683,
+  "profile_seconds": 0.08952655899338424,
+  "profile_rows": 10000,
+  "peak_rss_increase_bytes": 41373696,
+  "image_pixels_decoded": 0,
+  "temporary_cache_bytes": 0,
+  "sources_preserved": true
+}

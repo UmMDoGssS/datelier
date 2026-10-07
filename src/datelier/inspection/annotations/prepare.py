@@ -14,6 +14,7 @@ from datelier.inspection.annotations.association_types import (
     PreparedAnnotations,
 )
 from datelier.inspection.annotations.settings import AnnotationSettings
+from datelier.inspection.annotations.types import AnnotationClass
 from datelier.inspection.arrays.mapping import ArrayRecordMapping
 from datelier.inspection.arrays.types import ArrayCatalog
 from datelier.inspection.images.profile_types import ImageProgress
@@ -82,10 +83,19 @@ def prepare_annotations(
                 )
     progress.update("Annotations ready", len(sources), len(sources))
     grouped: dict[ImageOrigin, list[AssociatedBox]] = {}
+    classes: dict[str, tuple[AnnotationClass, ...]] = {}
     for source in sources:
+        observed = (
+            {item.id: item for item in source.catalog.classes} if source.catalog else {}
+        )
         for box in source.boxes:
             check_cancelled(stop)
             grouped.setdefault(box.origin, []).append(box)
+            record = box.box.record
+            observed.setdefault(
+                record.class_id, AnnotationClass(record.class_id, record.class_name)
+            )
+        classes[source.recipe.id] = tuple(observed.values())
     return PreparedAnnotations(
         file_id,
         view_name,
@@ -93,4 +103,5 @@ def prepare_annotations(
         settings.column,
         tuple(sources),
         {origin: tuple(boxes) for origin, boxes in grouped.items()},
+        classes,
     )

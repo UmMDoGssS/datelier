@@ -113,6 +113,7 @@ def test_exact_profiles_separate_classes_original_sizes_and_missing_labels() -> 
     assert all(chart.counts.sum() == 3 for chart in profile.distributions)
     assert profile.records["row_id"].to_list() == [7, 7, 7]
     assert profile.records["box_index"].to_list() == [0, 1, 2]
+    assert all(item.row_ids == (7,) for item in profile.classes)
     quality = dict(profile.quality)
     assert (
         quality["Missing labels"] == 1 and quality["Present labels without boxes"] == 1

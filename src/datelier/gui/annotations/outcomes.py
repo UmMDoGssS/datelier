@@ -16,6 +16,12 @@ if TYPE_CHECKING:
 
 
 def open_image(owner: FileSession, prepared: PreparedAnnotations, row: int) -> None:
+    open_rows(owner, prepared, (row,))
+
+
+def open_rows(
+    owner: FileSession, prepared: PreparedAnnotations, rows: tuple[int, ...]
+) -> None:
     active = owner.loader.active
     if active is None or (owner.identity, owner.view_name, active.dataset.revision) != (
         prepared.file_id,
@@ -23,7 +29,7 @@ def open_image(owner: FileSession, prepared: PreparedAnnotations, row: int) -> N
         prepared.revision,
     ):
         return
-    owner.selection.choose(prepared.revision, (row,))
+    owner.selection.choose(prepared.revision, rows)
     owner.inspect.settings = replace(
         owner.inspect.settings,
         mode=RecordMode.SELECTION,
@@ -90,7 +96,7 @@ def outcomes(
                 imgui.pop_id()
         imgui.end_table()
     if source.boxes and imgui.tree_node("Original and pixel boxes"):
-        box_records(source)
+        box_records(source, owner)
         imgui.tree_pop()
     if source.issues and imgui.tree_node("Annotation issues and original records"):
         if imgui.begin_table("Annotation issues", 5, flags, (-1, 160)):
@@ -116,7 +122,7 @@ def outcomes(
         imgui.tree_pop()
 
 
-def box_records(source: AssociatedSource) -> None:
+def box_records(source: AssociatedSource, owner: FileSession) -> None:
     flags = (
         imgui.TableFlags_.borders
         | imgui.TableFlags_.row_bg
@@ -143,9 +149,15 @@ def box_records(source: AssociatedSource) -> None:
         for index in range(clipper.display_start, clipper.display_end):
             box = source.boxes[index]
             record = box.box.record
+            imgui.push_id(index)
             imgui.table_next_row()
+            imgui.table_next_column()
+            if imgui.selectable(
+                f"{box.origin.row_id}##Box source row",
+                owner.images.overlay.selected == box,
+            )[0]:
+                owner.images.overlay.select(box, owner)
             for cell in (
-                str(box.origin.row_id),
                 f"{record.class_name} / {record.class_id}",
                 str(record.score) if record.score is not None else "—",
                 str(record.original),
@@ -156,4 +168,5 @@ def box_records(source: AssociatedSource) -> None:
             ):
                 imgui.table_next_column()
                 imgui.text_unformatted(cell)
+            imgui.pop_id()
     imgui.end_table()

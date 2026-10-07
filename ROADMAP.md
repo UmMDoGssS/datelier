@@ -812,8 +812,9 @@ inspection in Explore → Inspect alongside Profiles, Relationships and Correlat
 foundation, native focused image Inspect and explicit image collection profiles,
 including array-backed records, saved controls and measured resources. M13.1
 passes alongside M13.2 numeric heatmap controls and restoration. M13.3 passes
-annotation adapters, explicit associations and saved recipes; overlays, annotation
-profiles and image comparisons remain outstanding in M13.4.
+annotation adapters, explicit associations and saved recipes. Native overlay and
+annotation profile slices pass; image comparisons and final M13.4 acceptance
+remain outstanding.
 
 - [ ] **Phase complete.** **Entry:** Phase 12 passes. **Exit:** M13.1–M13.4 pass; images, numeric heatmaps and box overlays retain correct values, provenance and geometry.
 

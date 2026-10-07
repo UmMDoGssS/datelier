@@ -125,8 +125,8 @@ exact/sampled collection profiles, saved controls and measured resource gates;
 heatmap channels/slices, display-only colormaps/ranges, exact values and native
 saved-record restoration. M13.3 passes VOC/YOLO/COCO/local manifest adapters,
 explicit source/image-key association controls, saved mappings, native restoration
-and header-only resource gates. Overlays, annotation profiles and image
-comparisons remain open in M13.4.
+and header-only resource gates. M13.4 has verified native overlay and annotation
+profile slices; cross-file image comparisons and its final acceptance remain open.
 Phase 14 remains open.
 Phase 8 investigations do not block this approved sequence. Existing v1 evidence
 and unfinished Titanic usability gates retain their status.

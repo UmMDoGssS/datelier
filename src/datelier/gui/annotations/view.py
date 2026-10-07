@@ -7,6 +7,7 @@ from uuid import uuid4
 from imgui_bundle import imgui
 
 from datelier.gui.annotations.outcomes import outcomes
+from datelier.gui.annotations.profiles import AnnotationProfilesView
 from datelier.gui.annotations.source_controls import SourceControls
 from datelier.inspection.annotations.settings import (
     AnnotationSettings,
@@ -22,6 +23,8 @@ class AnnotationView:
         self.sources: dict[str, SourceControls] = {}
         self.active_tab = "Sources"
         self.shown = 0
+        self.profiles = AnnotationProfilesView()
+        self._observed_tab: str | None = None
 
     def show(self, owner: FileSession, column: str) -> None:
         if not imgui.collapsing_header("Detection annotations"):
@@ -29,6 +32,8 @@ class AnnotationView:
         self.shown += 1
         view = owner.images
         settings = view.settings.annotations
+        view_state = view.settings.annotation_view
+        requested = view_state.tab if self._observed_tab != view_state.tab else ""
         if settings.column is None:
             settings = replace(settings, column=column)
         active = owner.loader.active
@@ -41,12 +46,22 @@ class AnnotationView:
             )
             settings = replace(settings, column=columns[choice])
         if imgui.begin_tab_bar("Annotation inspection"):
-            if imgui.begin_tab_item("Sources")[0]:
+            if imgui.begin_tab_item(
+                "Sources",
+                flags=imgui.TabItemFlags_.set_selected if requested == "Sources" else 0,
+            )[0]:
                 self.active_tab = "Sources"
+                view_state = replace(view_state, tab="Sources")
                 settings = self._sources(settings, columns)
                 imgui.end_tab_item()
-            if imgui.begin_tab_item("Associations")[0]:
+            if imgui.begin_tab_item(
+                "Associations",
+                flags=imgui.TabItemFlags_.set_selected
+                if requested == "Associations"
+                else 0,
+            )[0]:
                 self.active_tab = "Associations"
+                view_state = replace(view_state, tab="Associations")
                 prepared = view.annotations.active
                 if prepared is not None:
                     if imgui.begin_child(
@@ -66,8 +81,22 @@ class AnnotationView:
                         "Load sources to inspect image keys, candidate rows and issues."
                     )
                 imgui.end_tab_item()
+            if imgui.begin_tab_item(
+                "Profiles",
+                flags=imgui.TabItemFlags_.set_selected
+                if requested == "Profiles"
+                else 0,
+            )[0]:
+                self.active_tab = "Profiles"
+                view_state = self.profiles.show(
+                    owner, replace(view_state, tab="Profiles")
+                )
+                imgui.end_tab_item()
             imgui.end_tab_bar()
-        view.settings = replace(view.settings, annotations=settings)
+        self._observed_tab = view_state.tab
+        view.settings = replace(
+            view.settings, annotations=settings, annotation_view=view_state
+        )
         view.sync(owner)
         if imgui.button("Load / associate annotations"):
             try:

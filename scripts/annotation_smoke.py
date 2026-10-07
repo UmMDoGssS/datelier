@@ -20,6 +20,7 @@ from datelier.gui.editor_session import EditorSession
 from datelier.gui.layout import configure_layout
 from datelier.gui.tabs import EditorTabs
 from datelier.inspection.annotations.jobs import AnnotationJobs
+from datelier.inspection.annotations.overlay import screen_box
 from datelier.inspection.annotations.settings import (
     AnnotationSource,
     ImageAssociationMapping,
@@ -106,7 +107,9 @@ def additional(root: Path) -> tuple[AnnotationSource, ...]:
     )
 
 
-def run(root: Path, output: Path, restore: bool) -> dict[str, object]:
+def run(
+    root: Path, output: Path, restore: bool, overlays: bool = False
+) -> dict[str, object]:
     pixels: dict[str, tuple[float, float]] = {}
     originals = {
         name: getattr(imgui, name)
@@ -118,6 +121,7 @@ def run(root: Path, output: Path, restore: bool) -> dict[str, object]:
             "input_int",
             "begin_tab_item",
             "selectable",
+            "checkbox",
         )
     }
 
@@ -171,6 +175,50 @@ def run(root: Path, output: Path, restore: bool) -> dict[str, object]:
         ]
     )
     stage = action = phase = entered = 0
+    if overlays:
+        if restore:
+            actions = [
+                "Detection annotations",
+                "Load / associate annotations",
+                "ready",
+                "Prepare annotation profiles",
+                "profiles ready",
+                "Detection annotations",
+                "Fit image",
+                "pick",
+                "pickctrl",
+                "save",
+            ]
+        else:
+            actions = actions[:-1] + [
+                "Profiles",
+                "Prepare annotation profiles",
+                "profiles ready",
+                "Sizes",
+                "size chart",
+                "Quality",
+                "Classes",
+                "person",
+                "Detection annotations",
+                "Fit image",
+                "Overlay sources and filters",
+                "YOLO",
+                "COCO",
+                "Manifest",
+                "Overlay sources and filters",
+                "Fit image",
+                "pick",
+                "zoom",
+                "pan",
+                "Overlay sources and filters",
+                "YOLO",
+                "COCO",
+                "Overlay sources and filters",
+                "Fit image",
+                "pickctrl",
+                "save",
+            ]
+    prior_zoom = prior_top = 0.0
     report: dict[str, object] = {}
     context_changes: list[object] = []
     original_bind = AnnotationJobs.bind
@@ -194,7 +242,7 @@ def run(root: Path, output: Path, restore: bool) -> dict[str, object]:
     def frame(
         editor: EditorSession, tabs: EditorTabs, evidence: InspectionEvidence
     ) -> None:
-        nonlocal stage, action, phase, entered
+        nonlocal stage, action, phase, entered, prior_zoom, prior_top
         file = editor.active
         if file.loader.active is None:
             ready = next(
@@ -225,6 +273,21 @@ def run(root: Path, output: Path, restore: bool) -> dict[str, object]:
                     and not file.images.annotations.busy
                 )
                 report["restore_idle"] = True
+                if overlays:
+                    display = file.images.settings.annotation_view
+                    assert (
+                        display.tab == "Profiles" and display.profile_tab == "Classes"
+                    )
+                    assert (
+                        display.overlay.sources is not None
+                        and "manifest" not in display.overlay.sources
+                    )
+                    assert file.images.settings.viewport.zoom > 1
+                    assert (
+                        file.images.annotation_profiles.active is None
+                        and not file.images.annotation_profiles.busy
+                    )
+                    report["overlay_controls_restored"] = True
                 stage = 2
             else:
                 file.editor.request(Sort(("label",)))
@@ -250,6 +313,102 @@ def run(root: Path, output: Path, restore: bool) -> dict[str, object]:
                 params.app_shall_exit = True
             return
         age, target = evidence.frames - entered, actions[action]
+        if target == "profiles ready":
+            result = file.images.annotation_profiles.active
+            if result is None or age < 10:
+                return
+            assert len(result.sources) == 4
+            for profile in result.sources:
+                assert len(profile.classes) == 1 and profile.classes[0].count == 1
+                assert profile.classes[0].row_ids == (1,)
+                assert [summary.mean for summary in profile.summaries] == [
+                    40.0,
+                    20.0,
+                    800.0,
+                    2.0,
+                ]
+            report["known_box_statistics"] = True
+            action, phase, entered = action + 1, 0, evidence.frames
+            return
+        if target == "size chart":
+            if file.images.annotation_controls.profiles.plot_frames < 5:
+                return
+            report["native_size_chart"] = True
+            action, phase, entered = action + 1, 0, evidence.frames
+            return
+        if target in ("pick", "pickctrl", "zoom", "pan"):
+            overlay, canvas = file.images.overlay, file.images.canvas
+            if not overlay.drawn or age < 10:
+                return
+            box, (x1, y1, x2, y2) = overlay.drawn[0]
+            io = imgui.get_io()
+            if phase == 0:
+                io.mouse_pos = imgui.ImVec2((x1 + x2) / 2, (y1 + y2) / 2)
+                io.want_set_mouse_pos = True
+                prior_zoom = file.images.settings.viewport.zoom
+                prior_top = file.images.settings.viewport.top
+                if target == "pickctrl":
+                    io.add_key_event(imgui.Key.left_ctrl, True)
+                    io.add_key_event(imgui.Key.mod_ctrl, True)
+                phase, entered = 1, evidence.frames
+            elif phase == 1 and age > 5:
+                if target == "zoom":
+                    io.add_mouse_wheel_event(0, 1)
+                    phase, entered = 4, evidence.frames
+                else:
+                    io.add_mouse_button_event(0, True)
+                    phase, entered = 2, evidence.frames
+            elif phase == 2 and age > 5:
+                if target == "pan":
+                    mouse = io.mouse_pos
+                    io.mouse_pos = imgui.ImVec2(mouse.x - 10, mouse.y - 20)
+                    io.want_set_mouse_pos = True
+                    phase, entered = 3, evidence.frames
+                else:
+                    io.add_mouse_button_event(0, False)
+                    phase, entered = 4, evidence.frames
+            elif phase == 3 and age > 8:
+                io.add_mouse_button_event(0, False)
+                phase, entered = 4, evidence.frames
+            elif phase == 4 and age > 12:
+                selected = overlay.selected
+                assert canvas.bounds is not None
+                for drawn_box, edges in overlay.drawn:
+                    assert drawn_box.origin.row_id == 1
+                    assert np.allclose(
+                        edges,
+                        screen_box(
+                            drawn_box, file.images.settings.viewport, canvas.bounds[:2]
+                        ),
+                    )
+                report["screen_geometry_aligned"] = True
+                if target in ("pick", "pickctrl"):
+                    assert selected is not None and selected.origin.row_id == 1, (
+                        canvas.clicked,
+                        canvas.bounds,
+                    )
+                    assert selected.source_id == (
+                        "yolo"
+                        if target == "pickctrl"
+                        else file.images.settings.annotations.sources[0].id
+                    ), (
+                        target,
+                        selected.source_id,
+                        [box.source_id for box, _ in overlay.drawn],
+                        io.key_ctrl,
+                        file.images.settings.annotation_view.overlay.sources,
+                    )
+                    io.add_key_event(imgui.Key.left_ctrl, False)
+                    io.add_key_event(imgui.Key.mod_ctrl, False)
+                    report["native_overlay_picking"] = True
+                elif target == "zoom":
+                    assert file.images.settings.viewport.zoom > prior_zoom
+                    report["native_overlay_zoom"] = True
+                else:
+                    assert file.images.settings.viewport.top > prior_top
+                    report["native_overlay_pan"] = True
+                action, phase, entered = action + 1, 0, evidence.frames
+            return
         if target in ("first ready", "ready"):
             prepared = file.images.annotations.active
             if age > 180 and prepared is None and not file.images.annotations.busy:
@@ -304,6 +463,13 @@ def run(root: Path, output: Path, restore: bool) -> dict[str, object]:
             ):
                 return
             assert file.selection.row_ids == {1}
+            if overlays:
+                assert (
+                    len(file.images.overlay.drawn) == 3
+                    and file.images.overlay.selected is not None
+                )
+                assert file.images.overlay.selected.source_id == "yolo"
+                report["multiple_visible_sources"] = 3
             if not restore:
                 editor.save_workspace(
                     root / "session.datelier.json",
@@ -315,6 +481,9 @@ def run(root: Path, output: Path, restore: bool) -> dict[str, object]:
         key = target.split("=", 1)[0]
         io = imgui.get_io()
         if phase == 0 and age > 8 and key in pixels:
+            params.docking_params.focus_dockable_window("Explore")
+            phase, entered = 8, evidence.frames
+        elif phase == 8 and age > 4 and key in pixels:
             io.mouse_pos = imgui.ImVec2(*pixels[key])
             io.want_set_mouse_pos = True
             phase, entered = 1, evidence.frames
@@ -325,6 +494,7 @@ def run(root: Path, output: Path, restore: bool) -> dict[str, object]:
             io.add_mouse_button_event(0, False)
             if "=" in target:
                 io.add_key_event(imgui.Key.left_ctrl, True)
+                io.add_key_event(imgui.Key.mod_ctrl, True)
                 io.add_key_event(imgui.Key.a, True)
                 phase, entered = 3, evidence.frames
             else:
@@ -332,12 +502,15 @@ def run(root: Path, output: Path, restore: bool) -> dict[str, object]:
         elif phase == 3 and age > 4:
             io.add_key_event(imgui.Key.a, False)
             io.add_key_event(imgui.Key.left_ctrl, False)
-            io.add_input_characters_utf8(target.split("=", 1)[1])
+            io.add_key_event(imgui.Key.mod_ctrl, False)
             phase, entered = 4, evidence.frames
         elif phase == 4 and age > 4:
-            io.add_key_event(imgui.Key.enter, True)
+            io.add_input_characters_utf8(target.split("=", 1)[1])
             phase, entered = 5, evidence.frames
         elif phase == 5 and age > 4:
+            io.add_key_event(imgui.Key.enter, True)
+            phase, entered = 7, evidence.frames
+        elif phase == 7 and age > 4:
             io.add_key_event(imgui.Key.enter, False)
             phase, entered = 6, evidence.frames
         elif phase == 6 and age > 8:
@@ -364,8 +537,9 @@ def run(root: Path, output: Path, restore: bool) -> dict[str, object]:
                 / ("restore-prefs.json" if restore else "prefs.json"),
             )
     output.mkdir(parents=True, exist_ok=True)
+    prefix = "box-overlay" if overlays else "annotations"
     Image.fromarray(hello_imgui.final_app_window_screenshot()[:, :, :3]).save(
-        output / ("annotations-restored.png" if restore else "annotations.png")
+        output / (prefix + ("-restored.png" if restore else ".png"))
     )
     assert action == len(actions), (actions[action:], pixels)
     p95 = float(np.percentile(evidence.frame_intervals_ms[10:], 95))
@@ -377,12 +551,13 @@ def run(root: Path, output: Path, restore: bool) -> dict[str, object]:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--restore", type=Path)
+    parser.add_argument("--overlays", action="store_true")
     parser.add_argument(
         "--output", type=Path, default=Path("/tmp/datelier-annotations")
     )
     args = parser.parse_args()
     if args.restore:
-        print(json.dumps(run(args.restore, args.output, True)))
+        print(json.dumps(run(args.restore, args.output, True, args.overlays)))
         return
     with TemporaryDirectory(prefix="datelier-annotations-") as directory:
         root = Path(directory)
@@ -392,7 +567,7 @@ def main() -> None:
             for path in root.rglob("*")
             if path.is_file()
         }
-        saved = run(root, args.output, False)
+        saved = run(root, args.output, False, args.overlays)
         completed = subprocess.run(
             [
                 sys.executable,
@@ -401,6 +576,7 @@ def main() -> None:
                 str(root),
                 "--output",
                 str(args.output),
+                *(["--overlays"] if args.overlays else []),
             ],
             capture_output=True,
             text=True,
@@ -415,9 +591,14 @@ def main() -> None:
             "reopen": json.loads(completed.stdout.strip().splitlines()[-1]),
             "sources_preserved": True,
         }
-        (args.output / "annotations-native.json").write_text(
-            json.dumps(report, indent=2) + "\n"
-        )
+        (
+            args.output
+            / (
+                "box-overlay-native.json"
+                if args.overlays
+                else "annotations-native.json"
+            )
+        ).write_text(json.dumps(report, indent=2) + "\n")
         print(json.dumps(report))
 
 

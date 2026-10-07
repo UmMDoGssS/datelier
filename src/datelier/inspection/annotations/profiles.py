@@ -43,12 +43,16 @@ def source_profile(
     source: AssociatedSource, bins: int, stop: Event
 ) -> AnnotationProfile:
     classes: Counter[tuple[int | str, str]] = Counter()
+    class_rows: dict[tuple[int | str, str], set[int]] = {}
     rows: list[tuple[object, ...]] = []
     for number, box in enumerate(source.boxes):
         if number % 512 == 0 and stop.wait(0.001):
             check_cancelled(stop)
         record = box.box.record
         classes[record.class_id, record.class_name] += 1
+        class_rows.setdefault((record.class_id, record.class_name), set()).add(
+            box.origin.row_id
+        )
         x1, y1, x2, y2 = map(np.longdouble, box.box.xyxy)
         width, height = x2 - x1, y2 - y1
         rows.append(
@@ -134,7 +138,7 @@ def source_profile(
     return AnnotationProfile(
         source.recipe.id,
         tuple(
-            ClassCount(key[0], key[1], count)
+            ClassCount(key[0], key[1], count, tuple(sorted(class_rows[key])))
             for key, count in sorted(
                 classes.items(), key=lambda item: (-item[1], str(item[0]))
             )

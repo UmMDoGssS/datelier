@@ -16,6 +16,7 @@ class ImageCanvas:
         self.hovered: tuple[int, int] | None = None
         self.readout: tuple[object, ...] | None = None
         self.bounds: tuple[float, float, float, float] | None = None
+        self.clicked: tuple[float, float] | None = None
         self._drag_view: ImageViewport | None = None
 
     @property
@@ -29,6 +30,7 @@ class ImageCanvas:
         self.hovered = None
         self.readout = None
         self._drag_view = None
+        self.clicked = None
 
     def show(
         self,
@@ -47,6 +49,12 @@ class ImageCanvas:
         hovered = imgui.is_item_hovered()
         active = imgui.is_item_active()
         self.bounds = (origin.x, origin.y, size[0], size[1])
+        self.clicked = None
+        if hovered and imgui.is_mouse_released(0):
+            delta = imgui.get_mouse_drag_delta(0)
+            if abs(delta.x) < 6 and abs(delta.y) < 6:
+                mouse = imgui.get_io().mouse_pos
+                self.clicked = viewport.point(mouse.x - origin.x, mouse.y - origin.y)
         draw = imgui.get_window_draw_list()
         draw.add_rect_filled(
             origin,

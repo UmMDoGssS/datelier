@@ -13,6 +13,7 @@ from unittest.mock import patch
 from PIL import Image
 
 from datelier.inspection.annotations.prepare import prepare_annotations
+from datelier.inspection.annotations.profiles import prepare_profiles
 from datelier.inspection.annotations.settings import (
     AnnotationSettings,
     AnnotationSource,
@@ -98,6 +99,9 @@ def main() -> None:
                 ImageProgress(),
             )
             seconds = perf_counter() - started
+            started = perf_counter()
+            profiles = prepare_profiles(prepared, 32, Event(), ImageProgress())
+            profile_seconds = perf_counter() - started
         prepared_source = prepared.sources[0]
         assert (
             not prepared_source.error
@@ -105,17 +109,25 @@ def main() -> None:
         )
         assert all(item.status == "Ready" for item in prepared_source.images)
         assert prepared_source.boxes[-1].box.xyxy == (99, 10, 119, 50)
+        profile = profiles.sources[0]
+        assert [item.count for item in profile.classes] == [3400, 3300, 3300]
+        assert all(len(item.row_ids) == 100 for item in profile.classes)
+        assert [item.mean for item in profile.summaries] == [20.0, 40.0, 800.0, 0.5]
         assert before.keys() == set(root.iterdir())
         assert all(
             hashlib.sha256(path.read_bytes()).hexdigest() == value
             for path, value in before.items()
         )
         peak = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024
-        assert seconds < 5 and peak - baseline < 64 * 1024 * 1024
+        assert (
+            seconds < 5 and profile_seconds < 5 and peak - baseline < 64 * 1024 * 1024
+        )
         report = {
             "images": count,
             "boxes": count * per_image,
             "seconds": seconds,
+            "profile_seconds": profile_seconds,
+            "profile_rows": profile.records.height,
             "peak_rss_increase_bytes": peak - baseline,
             "image_pixels_decoded": 0,
             "temporary_cache_bytes": 0,

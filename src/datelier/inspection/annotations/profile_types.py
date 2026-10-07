@@ -13,6 +13,7 @@ class ClassCount:
     id: int | str
     name: str
     count: int
+    row_ids: tuple[int, ...] = ()
 
 
 @dataclass(frozen=True)

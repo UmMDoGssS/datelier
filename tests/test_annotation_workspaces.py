@@ -9,6 +9,7 @@ from PIL import Image
 
 from datelier.gui.editor_session import EditorSession
 from datelier.gui.workspace.capture import capture_session
+from datelier.inspection.annotations.overlay import OverlayClass, OverlaySettings
 from datelier.inspection.annotations.settings import (
     AnnotationSettings,
     AnnotationSource,
@@ -16,6 +17,7 @@ from datelier.inspection.annotations.settings import (
     ImageMatch,
 )
 from datelier.inspection.annotations.types import AnnotationClass, AnnotationFormat
+from datelier.inspection.annotations.view_settings import AnnotationViewSettings
 from datelier.workspace.codec import decode_record, encode
 from datelier.workspace.session_jobs import save_snapshot
 from datelier.workspace.types import WorkspaceViews
@@ -69,6 +71,18 @@ def test_saved_confirmed_row_mapping_restores_without_implicit_reading(
     workspace = tmp_path / "session.datelier.json"
     editor = EditorSession()
     expected = None
+    view = AnnotationViewSettings(
+        overlay=OverlaySettings(
+            sources=("truth",),
+            classes=(OverlayClass("truth", 0),),
+            minimum_score=0.5,
+            labels=False,
+        ),
+        tab="Profiles",
+        profile_tab="Quality",
+        distribution="Aspect ratio",
+        bins=12,
+    )
     try:
         file = editor.new_tab(source)
         wait(editor)
@@ -93,6 +107,13 @@ def test_saved_confirmed_row_mapping_restores_without_implicit_reading(
         assert file.images.annotations.active is not None
         expected = file.images.settings.annotations
         assert expected.sources[0].mappings[0].expected_key is not None
+        ready = file.images.annotations.active
+        file.images.settings = replace(file.images.settings, annotation_view=view)
+        file.images.sync(file)
+        assert (
+            file.images.annotations.active is ready and not file.images.annotations.busy
+        )
+        assert file.images.annotation_profiles.active is None
         save_snapshot(workspace, capture_session(editor), False)
     finally:
         editor.close()
@@ -113,6 +134,11 @@ def test_saved_confirmed_row_mapping_restores_without_implicit_reading(
             wait(restored)
         file = restored.active
         assert file.images.settings.annotations == expected
+        assert file.images.settings.annotation_view == view
+        assert (
+            file.images.annotation_profiles.active is None
+            and not file.images.annotation_profiles.busy
+        )
         assert (
             file.images.annotations.active is None and not file.images.annotations.busy
         )

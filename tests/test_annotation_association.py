@@ -236,7 +236,12 @@ def test_coco_ids_associate_mapped_arrays_without_extracting_payloads(
                 ],
                 "categories": [{"id": 9, "name": "cat"}],
                 "annotations": [
-                    {"id": 7, "image_id": 0, "category_id": 9, "bbox": [10, 20, 50, 30]}
+                    {
+                        "id": 7,
+                        "image_id": 0,
+                        "category_id": 99,
+                        "bbox": [10, 20, 50, 30],
+                    }
                 ],
             }
         )
@@ -267,6 +272,8 @@ def test_coco_ids_associate_mapped_arrays_without_extracting_payloads(
         )
     active = result.sources[0]
     assert not active.error and len(active.boxes) == 1
+    assert {item.id for item in result.overlay_classes["truth"]} == {9, 99}
+    assert active.boxes[0].box.record.class_id == 99 and active.boxes[0].box.diagnostics
     assert active.boxes[0].origin.row_id == 0 and active.boxes[0].box.xyxy == (
         10,
         20,

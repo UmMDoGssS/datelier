@@ -6,6 +6,7 @@ from datelier.core.dataset import DatasetRevision
 from datelier.inspection.annotations.settings import AnnotationSource
 from datelier.inspection.annotations.types import (
     AnnotationCatalog,
+    AnnotationClass,
     AnnotationImage,
     AnnotationIssue,
     PixelBox,
@@ -60,3 +61,6 @@ class PreparedAnnotations:
     column: str
     sources: tuple[AssociatedSource, ...]
     by_image: dict[ImageOrigin, tuple[AssociatedBox, ...]] = field(default_factory=dict)
+    overlay_classes: dict[str, tuple[AnnotationClass, ...]] = field(
+        default_factory=dict
+    )
