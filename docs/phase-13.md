@@ -450,3 +450,25 @@ Pyrefly: **zero errors**, one existing suppression; Ruff lint/format (**476 Pyth
 files**) and diff whitespace pass. No GUI changes in this foundation. Explicit
 native loading/mapping controls, saved recipes and M13.3 exit remain open;
 overlays, profiles and image comparisons remain open in M13.4.
+
+### Annotation worker and saved-recipe foundation (2026-10-07)
+
+Annotation commands now use the editor's shared bounded executor, with explicit
+dispatch, progress, abandonment and file/view/revision/settings ownership.
+Binding, opening and restoring a session do not parse labels. Changed references,
+recipes or closed tabs retire executing results. Confirmed manual row pins become
+the saved recipe without invalidating the result that established them. Legacy
+image settings retain empty annotation defaults. Relative image roots use the
+annotation file/folder, and dataset-root overrides use the manifest directory.
+
+Focused worker, association, image/profile, shared-job and session-recovery checks:
+**69 passed in 1.44 s**. They cover late completion after six context changes,
+explicit dispatch, recipe confirmation and fresh-session restoration with label
+reading and image pixel decoding forbidden. Pyrefly: **zero errors**, one existing
+suppression; Ruff lint/format (**479 Python files**) and diff whitespace pass.
+The native mapped-image/profile regression passes **94 frames**, p95 **13.22 ms**,
+including sorted row alignment, native Next/profile commands and source hashes.
+The broader encoded-image and heatmap input scripts failed during automated
+zoom/channel/slice input in this run; their earlier milestone evidence remains,
+and these attempts do not establish new interaction evidence. New annotation
+controls, native mapping/restoration and M13.3 exit remain open.

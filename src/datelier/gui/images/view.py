@@ -10,6 +10,7 @@ from datelier.gui.images.canvas import ImageCanvas
 from datelier.gui.images.heatmap_controls import RecordHeatmapControls
 from datelier.gui.images.profile_controls import profile_controls
 from datelier.gui.images.profiles import ImageProfiles
+from datelier.inspection.annotations.jobs import AnnotationJobs
 from datelier.inspection.arrays.mapping import ArrayLayout
 from datelier.inspection.images.jobs import ImageJobs
 from datelier.inspection.images.prepare import default_range
@@ -34,6 +35,7 @@ class ImageView:
         self.profiles = ImageProfiles()
         self.profile_pixel = (0.0, 0.0)
         self.heatmap = RecordHeatmapControls()
+        self.annotations = AnnotationJobs(executor)
 
     def sync(self, owner: FileSession) -> None:
         active = owner.loader.active
@@ -70,6 +72,21 @@ class ImageView:
             mapping,
         )
         self.profile_jobs.poll()
+        self.annotations.settings = self.settings.annotations
+        self.annotations.bind(
+            active.dataset if active else None,
+            owner.identity,
+            owner.view_name,
+            owner.references.settings,
+            owner.references.index,
+            active.imported.array_catalog if active else None,
+            mapping,
+        )
+        self.annotations.poll()
+        if self.annotations.active is not None:
+            self.settings = replace(
+                self.settings, annotations=self.annotations.settings
+            )
 
     def show_mapped_profile(self, owner: FileSession) -> bool:
         active = owner.loader.active
@@ -267,3 +284,4 @@ class ImageView:
         self.canvas.clear()
         self.jobs.close()
         self.profile_jobs.close()
+        self.annotations.close()

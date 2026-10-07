@@ -143,9 +143,7 @@ def test_resolved_path_and_key_column_keep_known_dimensions_and_diagnostics(
     data = table(tmp_path)
     path = tmp_path / "boxes.xml"
     voc(path, filename="a/scene.png", width=99)
-    source = AnnotationSource(
-        "truth", str(path), match=ImageMatch.PATH, image_root=str(tmp_path)
-    )
+    source = AnnotationSource("truth", str(path), match=ImageMatch.PATH, image_root=".")
     result = prepare(data, source).sources[0]
     assert not result.error and result.images[0].dimensions == (100, 80)
     assert result.boxes[0].origin.row_id == 0 and result.boxes[0].box.diagnostics

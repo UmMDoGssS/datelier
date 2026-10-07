@@ -17,6 +17,7 @@ from datelier.inspection.annotations.types import (
 )
 from datelier.inspection.references.types import AssetIdentity
 from datelier.io.annotations.coco import read_coco
+from datelier.io.annotations.manifest_paths import local_path
 from datelier.io.annotations.source import verify_sources
 from datelier.io.annotations.ultralytics import read_ultralytics
 from datelier.io.annotations.voc import read_voc
@@ -34,7 +35,7 @@ def read_annotation_file(source: AnnotationSource, path: Path) -> AnnotationCata
         case AnnotationFormat.ULTRALYTICS:
             return read_ultralytics(
                 path,
-                root_override=Path(source.dataset_root)
+                root_override=local_path(source.dataset_root, path.parent)
                 if source.dataset_root
                 else None,
                 scores=source.scores,

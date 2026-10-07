@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 from math import isfinite
 
+from datelier.inspection.annotations.settings import AnnotationSettings
 from datelier.inspection.images.profile_types import ImageProfileSettings
 from datelier.inspection.images.types import ImageDisplay
 from datelier.inspection.images.viewport import ImageViewport
@@ -35,12 +36,14 @@ class ImageSettings:
     profile: ImageProfileSettings = ImageProfileSettings()
     profile_view: ImageProfileViewSettings = ImageProfileViewSettings()
     profile_payload: bool = False
+    annotations: AnnotationSettings = AnnotationSettings()
 
     def validate(self) -> None:
         self.display.validate()
         self.viewport.validate()
         self.profile.validate()
         self.profile_view.validate()
+        self.annotations.validate()
         if min(self.cpu_bytes, self.gpu_bytes) < 1024 * 1024 or self.disk_bytes < 0:
             raise ValueError(
                 "Image caches require 1 MiB CPU/GPU and nonnegative disk bytes"

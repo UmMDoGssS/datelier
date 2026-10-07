@@ -33,13 +33,11 @@ def source_key(source: AnnotationSource, image: AnnotationImage) -> str:
         return Path(image.reference).name
     if source.match == ImageMatch.STEM:
         return Path(image.reference).stem
-    root = (
-        Path(source.image_root).expanduser().resolve()
-        if source.image_root
-        else Path(source.path).expanduser().resolve()
-    )
+    root = Path(source.path).expanduser().resolve()
     if not root.is_dir():
         root = root.parent
+    if source.image_root:
+        root = local_path(source.image_root, root)
     return str(local_path(image.reference, root))
 
 

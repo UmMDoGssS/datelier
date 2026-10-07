@@ -19,6 +19,12 @@ from datelier.analysis.types import (
     TSNEParameters,
     UMAPParameters,
 )
+from datelier.inspection.annotations.settings import (
+    AnnotationSettings,
+    AnnotationSource,
+    ImageAssociationMapping,
+)
+from datelier.inspection.annotations.types import AnnotationClass
 from datelier.inspection.arrays.mapping import ArrayRecordMapping, SupportingArray
 from datelier.inspection.arrays.slices import SliceSettings
 from datelier.inspection.comparison_settings import ComparisonSettings, ComparisonSource
@@ -67,6 +73,10 @@ from datelier.workspace.session_types import SessionFile, SessionWorkspace, Sour
 from datelier.workspace.types import Workspace, WorkspaceSource, WorkspaceViews
 
 RECORDS = (
+    AnnotationSettings,
+    AnnotationSource,
+    ImageAssociationMapping,
+    AnnotationClass,
     ImageProfileSettings,
     ImageScope,
     ImageProfileViewSettings,
