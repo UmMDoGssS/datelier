@@ -37,21 +37,40 @@ def read_document(
         file_id, dataset.revision, int(dataset.row_ids[position]), column
     )
     value = table.get_column(column)[position]
-    if value is None:
-        return TextDocument(origin, TextStatus.NULL)
     external = source == TextSource.EXTERNAL or (
         source == TextSource.AUTO
         and dataset.role(column).role in (ColumnRole.EXTERNAL_TEXT, ColumnRole.PATH)
     )
+    return read_value(
+        origin,
+        value,
+        dataset.source.path,
+        external=external,
+        encoding=encoding,
+        references=references or ReferenceSettings(),
+        index=index,
+    )
+
+
+def read_value(
+    origin: TextOrigin,
+    value: str | None,
+    source_path: Path,
+    *,
+    external: bool,
+    encoding: str,
+    references: ReferenceSettings,
+    index: ReferenceIndex | None,
+) -> TextDocument:
+    if value is None:
+        return TextDocument(origin, TextStatus.NULL)
     if not external:
         return TextDocument(
             origin, TextStatus.READY if value else TextStatus.EMPTY, value
         )
     path: Path | None = None
     try:
-        resolution = resolve(
-            dataset.source.path, column, value, references or ReferenceSettings(), index
-        )
+        resolution = resolve(source_path, origin.column, value, references, index)
         asset = resolution.asset
         if asset is None:
             return TextDocument(origin, TextStatus.ERROR, diagnostic=resolution.message)

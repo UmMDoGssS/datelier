@@ -2,20 +2,24 @@
 
 from collections.abc import Iterator
 from threading import Event, Lock
+from typing import cast
 
 import polars as pl
 
+from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset
 from datelier.inspection.records.prepare import prepare_records
 from datelier.inspection.records.types import InspectSettings, RecordMode
 from datelier.inspection.references.index import ReferenceIndex
 from datelier.inspection.references.types import ReferenceSettings
-from datelier.inspection.text.records import read_document
+from datelier.inspection.text.records import read_value
 from datelier.inspection.text.types import (
     CorpusMode,
     TextDocument,
+    TextOrigin,
     TextScope,
     TextSettings,
+    TextSource,
 )
 
 
@@ -63,22 +67,43 @@ def corpus_documents(
 ) -> Iterator[TextDocument]:
     if settings.column is None:
         raise ValueError("Choose a text field")
-    for number, position in enumerate(positions):
-        check_abandoned(stop)
-        yield read_document(
-            dataset,
-            file_id,
-            settings.column,
-            int(position),
-            source=settings.source,
-            encoding=settings.encoding,
-            references=references,
-            index=index,
-        )
-        progress.update("Reading records", number + 1, len(positions))
-    check_abandoned(stop)
-    progress.update(
-        "Training / finalizing (trainer has no progress API)",
-        len(positions),
-        len(positions),
+    table = dataset.table
+    if (
+        settings.column not in table.columns
+        or table.schema[settings.column] != pl.String
+    ):
+        raise ValueError("Choose a physical String field for text inspection")
+    values, row_ids = table.get_column(settings.column), dataset.row_ids
+    external = settings.source == TextSource.EXTERNAL or (
+        settings.source == TextSource.AUTO
+        and dataset.role(settings.column).role
+        in (ColumnRole.EXTERNAL_TEXT, ColumnRole.PATH)
     )
+    for start in range(0, len(positions), 256):
+        check_abandoned(stop)
+        chosen = positions.slice(start, 256)
+        # Polars String dtype was checked above. Small library-input chunks
+        # avoid per-record frame/schema clones and never copy the whole corpus.
+        chunk = cast(list[str | None], values.gather(chosen).to_list())
+        for offset, (row_id, value) in enumerate(
+            zip(row_ids.gather(chosen), chunk, strict=True)
+        ):
+            check_abandoned(stop)
+            origin = TextOrigin(file_id, dataset.revision, int(row_id), settings.column)
+            yield read_value(
+                origin,
+                value,
+                dataset.source.path,
+                external=external,
+                encoding=settings.encoding,
+                references=references,
+                index=index,
+            )
+            progress.update(
+                "Preparing corpus records", start + offset + 1, len(positions)
+            )
+        # CPU-bound Python/token alignment must yield the GIL between chunks
+        # so the native renderer remains responsive during complete analysis.
+        stop.wait(0.001)
+    check_abandoned(stop)
+    progress.update("Corpus records prepared", len(positions), len(positions))

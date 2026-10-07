@@ -32,7 +32,6 @@ def scope_controls(scope: TextScope) -> TextScope:
 def training_controls(jobs: TextJobs) -> bool:
     settings = jobs.settings
     training = settings.training
-    scope = scope_controls(settings.scope)
     modes = [TokenMode.BPE, TokenMode.UNIGRAM]
     _, mode = imgui.combo(
         "Training model", modes.index(training.mode), [m.value for m in modes]
@@ -63,7 +62,6 @@ def training_controls(jobs: TextJobs) -> bool:
     )
     jobs.settings = replace(
         settings,
-        scope=scope,
         training=replace(
             training,
             mode=modes[mode],

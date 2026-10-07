@@ -761,8 +761,8 @@ clean installations with and without the optional checkpoint dependency.
 
 ## Phase 12 — Text profiling and token inspection
 
-[M12.1–M12.2 tokenization, explicit local training and restoration evidence](docs/phase-12.md)
-is verified; corpus profiles and token inspection/comparison gates remain open.
+[M12.1–M12.3 tokenization, local training and exact corpus profile evidence](docs/phase-12.md)
+is verified; full token inspection/comparison and final phase gates remain open.
 
 - [ ] **Phase complete.** **Entry:** Phase 11 passes. **Exit:** M12.1–M12.4 pass; multilingual text statistics and token spans are correct and cross-file comparisons use compatible tokenization.
 
@@ -784,11 +784,11 @@ is verified; corpus profiles and token inspection/comparison gates remain open.
 
 ### M12.3 — Text statistics and profiles
 
-- [ ] **Deliverables:** document/token totals; length mean/std/min/max/median/quantiles; vocabulary size, token/document frequencies, hapax counts/ratios, type-token ratio and Shannon entropy in bits; length distributions and token-frequency views with visible corpus scope.
-- [ ] **Entry gate:** M12.2 passes; statistical preparation runs in workers and keys results by text/tokenizer/settings/revision.
-- [ ] **Exit gate:** hand-calculated corpus statistics match; nulls, empty documents, decoding failures and special-token handling are reported explicitly; complete collection calculations require a command and exact statistics remain accessible when preview displays are bounded.
-- [ ] **Verification evidence:** known count/hapax/entropy/length fixtures, empty-corpus outcomes, settings/revision invalidation, native profile/statistics displays and corpus resource measurements.
-- [ ] **Suggested step commits:** `feat: calculate corpus token statistics` → `feat: profile text lengths and token frequencies`.
+- [x] **Deliverables:** document/token totals; length mean/std/min/max/median/quantiles; vocabulary size, token/document frequencies, hapax counts/ratios, type-token ratio and Shannon entropy in bits; length distributions and token-frequency views with visible corpus scope.
+- [x] **Entry gate:** M12.2 passes; statistical preparation runs in workers and keys results by text/tokenizer/settings/revision.
+- [x] **Exit gate:** hand-calculated corpus statistics match; nulls, empty documents, decoding failures and special-token handling are reported explicitly; complete collection calculations require a command and exact statistics remain accessible when preview displays are bounded.
+- [x] **Verification evidence:** known count/hapax/entropy/length fixtures, empty-corpus outcomes, settings/revision invalidation, native profile/statistics displays and corpus resource measurements.
+- [x] **Suggested step commits:** `feat: calculate corpus token statistics` → `feat: profile text lengths and token frequencies`.
 
 ### M12.4 — Token inspection and cross-file text comparison
 

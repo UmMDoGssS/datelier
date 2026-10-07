@@ -10,8 +10,9 @@ from datelier.core.jobs import JobExecutor
 from datelier.inspection.references.index import ReferenceIndex
 from datelier.inspection.references.types import ReferenceSettings
 from datelier.inspection.text.corpus import TextProgress
-from datelier.inspection.text.records import read_document
-from datelier.inspection.text.tokenization import TextTokenizer, import_tokenizer
+from datelier.inspection.text.preparation import prepare_document
+from datelier.inspection.text.profiles import PreparedTextProfile, prepare_profile
+from datelier.inspection.text.tokenization import import_tokenizer
 from datelier.inspection.text.training import (
     TrainedTokenizer,
     remove_unaccepted,
@@ -23,29 +24,6 @@ from datelier.inspection.text.types import (
     TokenizedDocument,
     TokenizerReference,
 )
-
-
-def prepare_document(
-    dataset: Dataset,
-    file_id: str,
-    settings: TextSettings,
-    references: ReferenceSettings,
-    index: ReferenceIndex | None,
-) -> TokenizedDocument:
-    settings.validate()
-    if settings.column is None:
-        raise ValueError("Choose a text field")
-    document = read_document(
-        dataset,
-        file_id,
-        settings.column,
-        settings.position,
-        source=settings.source,
-        encoding=settings.encoding,
-        references=references,
-        index=index,
-    )
-    return TextTokenizer(settings.tokens).encode(document)
 
 
 class TextJobs:
@@ -66,19 +44,23 @@ class TextJobs:
         self._dataset: Dataset | None = None
         self._index: ReferenceIndex | None = None
         self._document: Future[TokenizedDocument] | None = None
+        self._document_position: int | None = None
         self._import: Future[TokenizerReference] | None = None
         self._training: Future[TrainedTokenizer] | None = None
+        self._profile: Future[PreparedTextProfile] | None = None
         self._stop = Event()
         self.progress = TextProgress()
         self.training_summary = ""
         self.active: TokenizedDocument | None = None
+        self.profile: PreparedTextProfile | None = None
         self.message = "Choose a text field and prepare a record."
         self.closed = False
 
     @property
     def busy(self) -> bool:
         return any(
-            f is not None for f in (self._document, self._import, self._training)
+            f is not None
+            for f in (self._document, self._import, self._training, self._profile)
         )
 
     def bind(
@@ -91,12 +73,21 @@ class TextJobs:
     ) -> None:
         chosen = selection if self.settings.scope.mode == CorpusMode.SELECTION else ()
         stamp = (
-            (file_id, dataset.revision, self.settings, references, chosen)
+            (
+                file_id,
+                dataset.revision,
+                replace(self.settings, position=0),
+                references,
+                chosen,
+            )
             if dataset
             else None
         )
         if stamp != self._stamp or index is not self._index:
-            pending, prepared = self.busy, self.active is not None
+            pending, prepared = (
+                self.busy,
+                self.active is not None or self.profile is not None,
+            )
             self.abandon()
             if pending:
                 self.message = (
@@ -108,11 +99,23 @@ class TextJobs:
             self._dataset = dataset
             self._stamp = stamp
             self._index = index
+        elif (
+            self._document_position is not None
+            and self._document_position != self.settings.position
+        ):
+            if self._document is not None:
+                self._document.cancel()
+            self._document = None
+            self._document_position = None
+            self.active = None
+            self.message = "Text record changed; prepare the chosen record again."
 
     def request_document(self) -> None:
         if self.closed or self._dataset is None or self._stamp is None:
             raise ValueError("Open a text source before preparing records")
-        self.abandon()
+        self.abandon(clear_results=False)
+        self.active = None
+        self._document_position = self.settings.position
         self._document = self._executor.submit(
             prepare_document,
             self._dataset,
@@ -133,6 +136,20 @@ class TextJobs:
     def poll(self) -> None:
         if self.closed:
             return
+        if self._profile and self._profile.done():
+            future, self._profile = self._profile, None
+            try:
+                self.profile = future.result()
+                result = self.profile.profile
+                self.message = (
+                    f"Exact profile: {result.documents:,} decoded documents, "
+                    f"{result.tokens:,} counted tokens; {result.nulls:,} null, "
+                    f"{result.failures:,} failed records."
+                )
+            except Exception as error:
+                self.message = (
+                    f"Text profiling failed: {error}. Retry the corpus command."
+                )
         if self._training and self._training.done():
             future, self._training = self._training, None
             try:
@@ -187,7 +204,7 @@ class TextJobs:
                     f"Cannot prepare text: {error}. Reload the tokenizer or retry."
                 )
 
-    def abandon(self) -> None:
+    def abandon(self, *, clear_results: bool = True) -> None:
         self._stop.set()
         if (
             self._training is not None
@@ -201,12 +218,37 @@ class TextJobs:
         if self._training is not None:
             self._training.cancel()
         self._training = None
-        for future in (self._document, self._import):
+        for future in (self._document, self._import, self._profile):
             if future is not None:
                 future.cancel()
         self._document = None
+        if clear_results or self.active is None:
+            self._document_position = None
         self._import = None
-        self.active = None
+        self._profile = None
+        if clear_results:
+            self.active = None
+            self.profile = None
+
+    def request_profile(self) -> None:
+        if self.closed or self._dataset is None or self._stamp is None:
+            raise ValueError("Open a text source before profiling")
+        self.abandon(clear_results=False)
+        self.profile = None
+        self._stop = Event()
+        self.progress = TextProgress()
+        self._profile = self._executor.submit(
+            prepare_profile,
+            self._dataset,
+            self._stamp[0],
+            self.settings,
+            self._stamp[4],
+            self._stamp[3],
+            self._index,
+            self._stop,
+            self.progress,
+        )
+        self.message = "Calculating exact statistics for the chosen corpus…"
 
     def request_training(self, selection: tuple[int, ...] | None = None) -> None:
         if self.closed or self._dataset is None or self._stamp is None:

@@ -1,6 +1,6 @@
 # Phase 12 — Text profiling and token inspection
 
-Phase 11 is complete. Phase 12 is underway; M12.1–M12.2 pass. M12.3–M12.4
+Phase 11 is complete. Phase 12 is underway; M12.1–M12.3 pass. M12.4
 implementation, native, restoration and resource gates remain open.
 
 ## Delivery steps
@@ -158,3 +158,56 @@ abandonment and counted/uncounted inserted specials. Focused text checks:
 **22 passed**. Pyrefly zero errors; Ruff lint/format and diff whitespace pass.
 This preparation foundation introduces no GUI behavior. M12.3 remains open
 until worker publication, native displays and corpus resources pass.
+
+## M12.3 — Explicit native profiles and resource acceptance
+
+**Corpus scope** now configures the shared training/profile range, selection,
+seeded sample or all-current-row scope, plus length bins. **Calculate corpus
+profile** explicitly starts a shared-worker calculation. Statistics, Length
+distribution, Token frequencies and Record outcomes show prepared results.
+The readable chart displays twelve ranked types; virtual frequency/outcome
+tables retain every exact row. Built-in tokenizers have no learned IDs, shown
+as a dash. Null, empty, failure, special-count and undefined-statistic outcomes
+remain visible. Changing the tokenizer/settings/revision/linked scope or closing
+a file/view rejects obsolete work. Navigating/preparing an individual record
+retains its compatible corpus profile and vice versa. Recipes retain scope/bins;
+restoration starts no corpus calculation.
+
+The initial corpus measurement exceeded the 33 ms frame gate. Source text/ID
+access now uses small **256-record Polars input chunks**, preserving selected
+source IDs and strict decoding without a whole-corpus string copy. A 1 ms
+cooperative wait between chunks lets the renderer acquire the GIL. The command
+still calculates the complete chosen corpus; it does not sample or truncate
+statistics. Single-record preparation is separated from publication ownership.
+
+`benchmark_text_profiles.py --output docs/evidence/phase12` creates its fixture
+outside a fresh measured native process. The **100,000-record** Parquet corpus
+contains multilingual prose, 1,000 null and 1,000 empty records. It verifies
+**99,000 decoded documents, 784,000 counted tokens and all 104 vocabulary types**,
+and native command/tab/wheel input through statistics, length and frequency
+views. Budgets are declared before execution in the script and report.
+
+| Gate | Measured | Budget |
+| --- | ---: | ---: |
+| Metadata/open | 118.81 ms | 3,000 ms |
+| Complete exact profile | 4,500.58 ms | 20,000 ms |
+| Frame p95 | 21.43 ms | 33 ms |
+| Peak process RSS | 420.47 MiB | 768 MiB |
+| Retained complete profile/chart buffers | 3,740,282 bytes | 8 MiB |
+| Rendered virtual frequency rows | 10 | 20 |
+| Shared worker threads | 4 | 4 |
+| Temporary profile storage | 0 bytes | 0 bytes |
+
+The **408-frame** run verifies result release on file-tab closure, joined workers
+and unchanged source SHA-256. [Resource report](evidence/phase12/text-profile-resources.json)
+also records phase-specific frame p95. Native visual review retains a separate
+[frequency view](evidence/phase12/text-profile-native.png); native multilingual
+font coverage remains part of M12.4, as recorded above.
+
+Focused text behavioral checks: **24 passed**, including complete vocabulary
+beyond chart bounds, shared scope identity, stale/closed publication and
+independent record/corpus retention. Final Pyrefly reports **zero errors** (one
+existing suppression); Ruff lint/format (**388 files**) and diff whitespace pass.
+The full suite passes **718 tests**, with three upstream checkpoint warnings.
+M12.3 is complete. Full token-span Inspect, shared-tokenizer cross-file comparison,
+final whole-session/clean-install and mixed text resource gates remain M12.4.

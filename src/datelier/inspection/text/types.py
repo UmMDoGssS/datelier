@@ -136,6 +136,7 @@ class TextSettings:
     position: int = 0
     scope: TextScope = TextScope()
     training: TrainingSettings = TrainingSettings()
+    profile_bins: int = 24
 
     def validate(self) -> None:
         self.tokens.validate()
@@ -145,6 +146,8 @@ class TextSettings:
             raise ValueError("Choose a supported text encoding")
         if self.position < 0:
             raise ValueError("Text row position must be nonnegative")
+        if not 1 <= self.profile_bins <= 200:
+            raise ValueError("Text length histograms require 1–200 bins")
 
 
 @dataclass(frozen=True)

@@ -1,13 +1,15 @@
 """Text configuration and a worker-prepared single-record preview."""
 
 from concurrent.futures import Executor
+from dataclasses import replace
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 from imgui_bundle import imgui
 
 from datelier.gui.text.controls import TextControls, pixel
-from datelier.gui.text.training import training_controls
+from datelier.gui.text.profiles import TextProfiles
+from datelier.gui.text.training import scope_controls, training_controls
 from datelier.inspection.text.jobs import TextJobs
 
 if TYPE_CHECKING:
@@ -19,6 +21,8 @@ class TextView:
         self.jobs = TextJobs(executor)
         self.controls = TextControls()
         self.shown = 0
+        self.profiles = TextProfiles()
+        self.profile_pixel = (0.0, 0.0)
 
     def sync(self, owner: FileSession) -> None:
         dataset = owner.loader.active.dataset if owner.loader.active else None
@@ -39,6 +43,16 @@ class TextView:
         import_path = None
         if imgui.collapsing_header("Text settings"):
             import_path = self.controls.show(self.jobs)
+        if imgui.collapsing_header("Corpus scope"):
+            self.jobs.settings = replace(
+                self.jobs.settings, scope=scope_controls(self.jobs.settings.scope)
+            )
+            _, bins = imgui.input_int(
+                "Text length bins", self.jobs.settings.profile_bins
+            )
+            self.jobs.settings = replace(
+                self.jobs.settings, profile_bins=max(1, min(200, bins))
+            )
         train = False
         if imgui.collapsing_header("Local tokenizer training"):
             train = training_controls(self.jobs)
@@ -52,6 +66,13 @@ class TextView:
             self.jobs.request_import(import_path)
         if train:
             self.jobs.request_training()
+        imgui.text_wrapped(
+            f"Corpus scope: {settings.scope.mode} · commands use only this file/view."
+        )
+        if imgui.button("Calculate corpus profile"):
+            self.jobs.request_profile()
+        self.profile_pixel = pixel()
+        imgui.same_line()
         if imgui.button("Prepare text record"):
             self.jobs.request_document()
         self.controls.prepare_pixel = pixel()
@@ -73,6 +94,8 @@ class TextView:
         imgui.text_wrapped(self.jobs.message)
         if artifact and artifact.provenance_path:
             imgui.text_wrapped(f"Training provenance: {artifact.provenance_path}")
+        if self.jobs.profile is not None:
+            self.profiles.show(self.jobs.profile)
         active = self.jobs.active
         if active is None:
             return

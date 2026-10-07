@@ -108,10 +108,11 @@ mappings with aligned supporting fields and optional restricted CPU checkpoint
 inspection;
 [docs/phase-11.md](docs/phase-11.md) records source/provenance, native restoration
 and measured resource evidence, full-suite checks and clean base/CPU installs.
-Phase 12 M12.1–M12.2 pass local configurable tokenization, explicit selected-record
-BPE/Unigram training, provenance and native saved-artifact recovery;
-[docs/phase-12.md](docs/phase-12.md) records dependency, multilingual offsets,
-worker and restoration evidence. M12.3–M12.4 and later gates remain open.
+Phase 12 M12.1–M12.3 pass local configurable tokenization, explicit selected-record
+BPE/Unigram training/provenance, saved-artifact recovery and exact native corpus
+profiles; [docs/phase-12.md](docs/phase-12.md) records multilingual correctness,
+worker/restoration and measured corpus resource evidence. M12.4 and later gates
+remain open.
 Phase 8 investigations do not block this approved sequence. Existing v1 evidence
 and unfinished Titanic usability gates retain their status.
 

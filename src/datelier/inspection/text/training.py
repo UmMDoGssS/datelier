@@ -115,6 +115,11 @@ def train_tokenizer(
             else:
                 documents += 1
                 yield doc.text
+        progress.update(
+            "Training tokenizer (native progress unavailable)",
+            len(positions),
+            len(positions),
+        )
 
     tokenizer = Tokenizer(
         models.BPE(unk_token="[UNK]")
