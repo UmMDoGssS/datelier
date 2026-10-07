@@ -113,7 +113,9 @@ def load_media(path: Path, options: MediaOptions | None = None) -> ImportResult:
         )
         dataset = Dataset.from_source(table, SourceReference(path, after[0], after[1]))
         path_role = (
-            ColumnRole.PATH
+            ColumnRole.IMAGE
+            if folder and rows and all(row[2] == "Image" for row in rows)
+            else ColumnRole.PATH
             if folder
             else ColumnRole.IMAGE
             if path.suffix.lower() in IMAGE_EXTENSIONS
@@ -121,8 +123,8 @@ def load_media(path: Path, options: MediaOptions | None = None) -> ImportResult:
             if path.suffix.lower() in AUDIO_EXTENSIONS
             else ColumnRole.EXTERNAL_TEXT
         )
-        # Collection paths are references even when a mixed/empty manifest has no
-        # majority extension evidence. This belongs to the source adapter.
+        # An image-only folder has explicit extension evidence for image tools.
+        # Mixed/empty collections remain generic references regardless of counts.
         roles = tuple(
             replace(info, inferred=path_role, reason="Media source record reference.")
             if info.name == "path"

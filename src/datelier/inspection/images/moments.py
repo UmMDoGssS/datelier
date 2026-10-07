@@ -91,15 +91,26 @@ def histogram(
     maximum: int | float | None,
 ) -> ImageHistogram:
     normalized = np.linspace(0, 1, len(counts) + 1, dtype=np.float64)
-    if minimum is None or maximum is None:
-        return ImageHistogram(label, normalized, counts)
-    lo, hi = np.longdouble(minimum), np.longdouble(maximum)
-    if minimum == maximum:
-        lo, hi = lo - 0.5, hi + 0.5
-    physical = np.asarray(
-        lo + (hi - lo) * normalized.astype(np.longdouble), dtype=np.float64
+    physical = normalized
+    if minimum is not None and maximum is not None:
+        lo, hi = np.longdouble(minimum), np.longdouble(maximum)
+        if minimum == maximum:
+            lo, hi = lo - 0.5, hi + 0.5
+        physical = np.asarray(
+            lo + (hi - lo) * normalized.astype(np.longdouble), dtype=np.float64
+        )
+    scaled = not np.isfinite(physical).all() or not np.all(
+        np.diff(physical.astype(np.longdouble)) > 0
     )
-    scaled = not np.isfinite(physical).all() or not np.all(np.diff(physical) > 0)
+    edges = normalized if scaled else physical
     return ImageHistogram(
-        label, normalized if scaled else physical, counts, scaled, minimum, maximum
+        label,
+        edges,
+        counts,
+        scaled,
+        minimum,
+        maximum,
+        np.concatenate(([edges[0]], edges, [edges[-1]])),
+        np.concatenate(([0, counts[0]], counts, [0])),
+        np.concatenate(([normalized[0]], normalized, [normalized[-1]])),
     )

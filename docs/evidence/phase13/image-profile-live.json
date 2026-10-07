@@ -1,0 +1,18 @@
+{
+  "profile_seconds": 3.843147134000901,
+  "running_frames": 350,
+  "running_frame_p95_ms": 11.696042399853468,
+  "peak_preview_cpu_bytes": 131072,
+  "peak_preview_gpu_bytes": 131072,
+  "profile_result_bytes": 49604,
+  "peak_rss_bytes": 392765440,
+  "baseline_rss_bytes": 376446976,
+  "rss_increase_bytes": 16318464,
+  "frames": 379,
+  "images": 100,
+  "dimensions": [
+    256,
+    256
+  ],
+  "source_preserved": true
+}

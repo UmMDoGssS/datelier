@@ -23,7 +23,8 @@ from datelier.inspection.arrays.mapping import ArrayRecordMapping, SupportingArr
 from datelier.inspection.arrays.slices import SliceSettings
 from datelier.inspection.comparison_settings import ComparisonSettings, ComparisonSource
 from datelier.inspection.exploration import PlotSettings
-from datelier.inspection.images.settings import ImageSettings
+from datelier.inspection.images.profile_types import ImageProfileSettings, ImageScope
+from datelier.inspection.images.settings import ImageProfileViewSettings, ImageSettings
 from datelier.inspection.images.types import ImageDisplay
 from datelier.inspection.images.viewport import ImageViewport
 from datelier.inspection.presentation import TablePresentation
@@ -66,6 +67,9 @@ from datelier.workspace.session_types import SessionFile, SessionWorkspace, Sour
 from datelier.workspace.types import Workspace, WorkspaceSource, WorkspaceViews
 
 RECORDS = (
+    ImageProfileSettings,
+    ImageScope,
+    ImageProfileViewSettings,
     ImageSettings,
     ImageDisplay,
     ImageViewport,

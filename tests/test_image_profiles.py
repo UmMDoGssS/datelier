@@ -216,7 +216,7 @@ def test_mapped_image_array_profiles_keep_supporting_record_identity(
             next(s for s in result.summaries if s.key.name == "R").mean
             == nhwc[1, :, :, 0].mean()
         )
-        assert arrays.extractions == 2 and arrays.stored_bytes == 0
+        assert arrays.extractions == 1 and arrays.stored_bytes == 0
         assert path.read_bytes() == original
     finally:
         arrays.close()

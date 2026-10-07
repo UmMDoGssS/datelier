@@ -1,0 +1,30 @@
+{
+  "frames": 94,
+  "source_rows": [
+    1,
+    2
+  ],
+  "pixels": [
+    [
+      20,
+      5,
+      9
+    ],
+    [
+      30,
+      5,
+      9
+    ]
+  ],
+  "supporting_alignment": true,
+  "source_preserved": true,
+  "frame_p95_ms": 12.490039844124112,
+  "native_profile_command": true,
+  "profile_source_rows": [
+    1,
+    2,
+    0
+  ],
+  "profile_red_mean": 20,
+  "profile_pixels": 12288
+}

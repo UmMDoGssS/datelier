@@ -45,6 +45,7 @@ class ProfileView:
     area: PlotArea = field(default_factory=PlotArea)
     selection: ProfileSelection = field(default_factory=ProfileSelection)
     text: bool = False
+    _previous_columns: tuple[str, ...] | None = None
 
     def show(
         self,
@@ -66,6 +67,9 @@ class ProfileView:
             else None
         )
         self.selection.bind(dataset, default)
+        if owner is not None and owner.images.show_mapped_profile(owner):
+            explorer.profiles.clear()
+            return False
         if imgui.begin_table(
             "Profile controls", 2, imgui.TableFlags_.sizing_stretch_prop
         ):
@@ -78,12 +82,25 @@ class ProfileView:
             imgui.table_set_column_index(1)
             imgui.text("Chart type")
             selected = self.selection.columns or ()
+            if (
+                self._previous_columns is not None
+                and selected != self._previous_columns
+                and selected
+                and dataset.role(selected[0]).role == ColumnRole.IMAGE
+            ):
+                self.text = False
+            self._previous_columns = selected
             numeric = (
                 bool(selected) and dataset.role(selected[0]).role == ColumnRole.NUMERIC
             )
             imgui.set_next_item_width(-1)
             if numeric:
                 _, self.mode = imgui.combo("##Chart type", self.mode, MODES)
+            elif selected and dataset.role(selected[0]).role == ColumnRole.IMAGE:
+                _, choice = imgui.combo(
+                    "##Chart type", int(self.text), ["Image collection", "Text tokens"]
+                )
+                self.text = bool(choice)
             elif (
                 selected
                 and dataset.role(selected[0]).role == ColumnRole.CATEGORY
@@ -113,6 +130,11 @@ class ProfileView:
         if not selected:
             explorer.profiles.clear()
             imgui.text("Choose columns to inspect.")
+            return False
+        if dataset.role(selected[0]).role == ColumnRole.IMAGE and not self.text:
+            explorer.profiles.clear()
+            if owner is not None:
+                owner.images.show_profile(owner, selected[0])
             return False
         column = self.selection.text_column(self.text)
         if column is not None:

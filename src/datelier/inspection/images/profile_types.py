@@ -78,6 +78,10 @@ class ChannelKey:
     def label(self) -> str:
         return f"{self.mode} · {self.name} · {np.dtype(self.dtype)}"
 
+    @property
+    def family_label(self) -> str:
+        return f"{self.mode} · {np.dtype(self.dtype)}"
+
 
 @dataclass(frozen=True)
 class ChannelSummary:
@@ -99,6 +103,9 @@ class ImageHistogram:
     scaled: bool = False
     minimum: int | float | None = None
     maximum: int | float | None = None
+    plot_x: NDArray[np.float64] | None = None
+    plot_counts: NDArray[np.float64] | None = None
+    normalized_plot_x: NDArray[np.float64] | None = None
 
 
 @dataclass(frozen=True)
@@ -121,6 +128,7 @@ class ImageProfile:
     failures: int
     total_pixels: int
     profiled_pixels: int
+    dimension_summaries: tuple[ChannelSummary, ...] = ()
 
     @property
     def sampled_pixels(self) -> bool:
@@ -131,6 +139,14 @@ class ImageProfile:
         return int(
             self.records.estimated_size() + self.channel_records.estimated_size()
         ) + sum(
-            chart.edges.nbytes + chart.counts.nbytes
+            chart.edges.nbytes
+            + chart.counts.nbytes
+            + (chart.plot_x.nbytes if chart.plot_x is not None else 0)
+            + (chart.plot_counts.nbytes if chart.plot_counts is not None else 0)
+            + (
+                chart.normalized_plot_x.nbytes
+                if chart.normalized_plot_x is not None
+                else 0
+            )
             for chart in (*self.dimensions, *self.channels)
         )

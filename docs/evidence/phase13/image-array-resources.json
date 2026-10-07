@@ -1,0 +1,27 @@
+{
+  "kind": "array",
+  "sampled": false,
+  "images": 100,
+  "dimensions": [
+    256,
+    256
+  ],
+  "metadata_seconds": 0.0005836310010636225,
+  "profile_seconds": 2.587540123000508,
+  "baseline_rss_bytes": 72024064,
+  "peak_rss_bytes": 109092864,
+  "rss_increase_bytes": 37068800,
+  "result_bytes": 40340,
+  "peak_decoded_disk_bytes": 0,
+  "peak_decoded_files": 0,
+  "retained_decoded_bytes": 0,
+  "array_extractions": 1,
+  "array_extracted_bytes": 19660928,
+  "array_retained_bytes": 0,
+  "profiled_pixels": 6553600,
+  "total_pixels": 6553600,
+  "unresolved": 0,
+  "failures": 0,
+  "cleanup": true,
+  "source_preserved": true
+}

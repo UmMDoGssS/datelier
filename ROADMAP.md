@@ -809,19 +809,19 @@ inspection in Explore → Inspect alongside Profiles, Relationships and Correlat
 ## Phase 13 — Images, heatmaps, and detection annotations
 
 [Delivery and evidence](docs/phase-13.md) record the verified original-pixel
-foundation and native focused image Inspect, including array-backed records and
-saved zoom/channel controls. Collection profiles, heatmaps, annotations and
-comparisons remain outstanding; no Phase 13 exit gate has passed.
+foundation, native focused image Inspect and explicit image collection profiles,
+including array-backed records, saved controls and measured resources. M13.1
+passes; heatmaps, annotations and comparisons remain outstanding in M13.2–M13.4.
 
 - [ ] **Phase complete.** **Entry:** Phase 12 passes. **Exit:** M13.1–M13.4 pass; images, numeric heatmaps and box overlays retain correct values, provenance and geometry.
 
 ### M13.1 — Image inspection and collection profiles
 
-- [ ] **Deliverables:** full-resolution zoom/pan, channel controls and pixel readouts, dimensions/aspect ratios, color/channel distributions and explicit collection summaries; support files/folders, metadata-table references and mapped image arrays.
+- [x] **Deliverables:** full-resolution zoom/pan, channel controls and pixel readouts, dimensions/aspect ratios, color/channel distributions and explicit collection summaries; support files/folders, metadata-table references and mapped image arrays.
 - [x] **Entry gate:** lazy previews, Inspect navigation and array mappings pass; verify original-resolution decoding and texture lifecycle independently of frame rendering.
-- [ ] **Exit gate:** original image dimensions/pixels and collection statistics match known fixtures; supporting columns remain aligned; corrupt/missing assets are counted visibly; complete statistics remain available without requiring every image to stay decoded.
-- [ ] **Verification evidence:** grayscale/RGB/RGBA, orientation, varied-size and array-backed images; known color distributions, native zoom/pan/pixel inspection, exact/sampled provenance and decode/cache resource gates.
-- [ ] **Suggested step commits:** `feat: inspect full-resolution images` → `feat: profile image dimensions and colors`.
+- [x] **Exit gate:** original image dimensions/pixels and collection statistics match known fixtures; supporting columns remain aligned; corrupt/missing assets are counted visibly; complete statistics remain available without requiring every image to stay decoded.
+- [x] **Verification evidence:** grayscale/RGB/RGBA, orientation, varied-size and array-backed images; known color distributions, native zoom/pan/pixel inspection, exact/sampled provenance and decode/cache resource gates in [Phase 13 evidence](docs/phase-13.md).
+- [x] **Suggested step commits:** `feat: inspect full-resolution images` → `feat: profile image dimensions and colors` (delivered in verified foundation/UI slices).
 
 ### M13.2 — Numeric heatmap inspection
 

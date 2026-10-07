@@ -7,7 +7,7 @@ import polars as pl
 from datelier.core.column_roles import PLOTTABLE_ROLES, ColumnRole, RoleInfo
 from datelier.core.dataset import Dataset
 
-PROFILE_ROLES = (*PLOTTABLE_ROLES, ColumnRole.TEXT)
+PROFILE_ROLES = (*PLOTTABLE_ROLES, ColumnRole.TEXT, ColumnRole.IMAGE)
 
 
 @dataclass
@@ -64,6 +64,8 @@ class ProfileSelection:
             return None
         selected = next((i for i in self.choices if i.name == self.columns[0]), None)
         if selected is not None and selected.dtype == str(pl.String):
+            if selected.role == ColumnRole.IMAGE and not prefer_text:
+                return None
             if prefer_text or selected.role not in PLOTTABLE_ROLES:
                 return selected.name
         return None

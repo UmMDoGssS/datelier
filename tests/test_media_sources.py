@@ -51,7 +51,7 @@ def test_folder_manifest_roundtrip_missing_member_and_relink(tmp_path: Path) -> 
     (folder / "sub/loop").symlink_to(folder, target_is_directory=True)
     imported = load_file(folder)
     assert imported.dataset.table["member"].to_list() == ["a.png", "sub/a.png"]
-    assert imported.dataset.role("path").role == ColumnRole.PATH
+    assert imported.dataset.role("path").role == ColumnRole.IMAGE
     assert isinstance(imported.options, MediaOptions) and imported.options.manifest == (
         "a.png",
         "sub/a.png",
@@ -103,6 +103,23 @@ def test_empty_folder_nonrecursive_members_and_manifest_validation(
         from datelier.io.types import CsvOptions
 
         load_file(tmp_path, CsvOptions())
+
+
+def test_image_folder_routes_to_profiles_without_decoding_mixed_folder(
+    tmp_path: Path,
+) -> None:
+    from datelier.inspection.profile_selection import ProfileSelection
+
+    (tmp_path / "broken.png").write_bytes(b"undecodable")
+    images = load_file(tmp_path).dataset
+    assert images.role("path").role == ColumnRole.IMAGE
+    selection = ProfileSelection(("path",))
+    selection.bind(images)
+    assert selection.text_column() is None
+    assert selection.text_column(prefer_text=True) == "path"
+    (tmp_path / "note.txt").write_text("text")
+    mixed = load_file(tmp_path).dataset
+    assert mixed.role("path").role == ColumnRole.PATH
 
 
 def test_missing_or_shorter_line_members_keep_other_record_ids(tmp_path: Path) -> None:

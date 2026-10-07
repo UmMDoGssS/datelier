@@ -74,7 +74,8 @@ def test_every_string_field_remains_accessible_and_removed_text_is_pruned() -> N
     ):
         selection = ProfileSelection(("text",))
         selection.bind(dataset.with_role("text", role))
-        assert selection.text_column() == "text"
+        assert selection.text_column() == (None if role == ColumnRole.IMAGE else "text")
+        assert selection.text_column(prefer_text=True) == "text"
         selection.bind(dataset.with_rows(dataset.table.drop("text"), dataset.row_ids))
         assert selection.columns == ()
         assert selection.text_column() is None

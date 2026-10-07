@@ -1,5 +1,6 @@
 """Explicit image collection statistics, streamed in two source-checked passes."""
 
+from contextlib import ExitStack
 from threading import Event
 
 import numpy as np
@@ -27,6 +28,7 @@ from datelier.inspection.images.profile_records import (
 )
 from datelier.inspection.images.profile_types import (
     ChannelKey,
+    ChannelSummary,
     ImageHistogram,
     ImageProfile,
     ImageProfileSettings,
@@ -64,22 +66,28 @@ def image_positions(
     ).positions
 
 
-def _dimensions(records: pl.DataFrame, bins: int) -> tuple[ImageHistogram, ...]:
+def _dimensions(
+    records: pl.DataFrame, bins: int
+) -> tuple[tuple[ImageHistogram, ...], tuple[ChannelSummary, ...]]:
     ready = records.filter(pl.col("status") == "Ready")
     charts: list[ImageHistogram] = []
+    summaries: list[ChannelSummary] = []
     for name, label in (
         ("width", "Width"),
         ("height", "Height"),
         ("aspect_ratio", "Aspect ratio"),
     ):
         values = ready[name].to_numpy()
+        moments = ChannelMoments()
+        moments.add(values)
+        summaries.append(
+            moments.summary(ChannelKey("Dimensions", label, values.dtype.str))
+        )
         if not len(values):
             charts.append(
                 histogram(label, np.zeros(bins, dtype=np.float64), None, None)
             )
             continue
-        moments = ChannelMoments()
-        moments.add(values)
         assert moments.minimum is not None and moments.maximum is not None
         normalized = normalized_values(values, moments.minimum, moments.maximum)
         counts, _ = np.histogram(normalized, np.linspace(0, 1, bins + 1))
@@ -88,7 +96,7 @@ def _dimensions(records: pl.DataFrame, bins: int) -> tuple[ImageHistogram, ...]:
                 label, counts.astype(np.float64), moments.minimum, moments.maximum
             )
         )
-    return tuple(charts)
+    return tuple(charts), tuple(summaries)
 
 
 def prepare_image_profile(
@@ -123,7 +131,14 @@ def prepare_image_profile(
     pooled: dict[ChannelKey, ChannelMoments] = {}
     total_pixels = profiled_pixels = 0
     images = ImageStore(retained_bytes=0)
+    leases = ExitStack()
     try:
+        if catalog is not None and mapping is not None and len(positions):
+            # Keep the selected compressed member leased for both passes even
+            # when it exceeds retention, avoiding one extraction per record.
+            leases.enter_context(
+                arrays.open_member(catalog, mapping.member, stop.is_set)
+            )
         for number, position in enumerate(positions):
             check_cancelled(stop)
             row_id = int(row_ids[position])
@@ -240,6 +255,7 @@ def prepare_image_profile(
             for key, moments in pooled.items()
         )
         statuses = record_frame["status"].to_list()
+        dimensions, dimension_summaries = _dimensions(record_frame, settings.bins)
         progress.update("Image profile ready", len(positions), len(positions))
         return ImageProfile(
             file_id,
@@ -252,7 +268,7 @@ def prepare_image_profile(
             record_frame,
             channel_frame,
             summaries,
-            _dimensions(record_frame, settings.bins),
+            dimensions,
             charts,
             statuses.count("Ready"),
             statuses.count("Null"),
@@ -260,6 +276,10 @@ def prepare_image_profile(
             statuses.count("Failed"),
             total_pixels,
             profiled_pixels,
+            dimension_summaries,
         )
     finally:
-        images.cleanup()
+        try:
+            leases.close()
+        finally:
+            images.cleanup()

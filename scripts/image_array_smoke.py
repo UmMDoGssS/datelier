@@ -38,6 +38,7 @@ def main() -> None:
         before = hashlib.sha256(source.read_bytes()).hexdigest()
         stage = entered = 0
         next_pixel = (0.0, 0.0)
+        profile_pixels: dict[str, tuple[float, float]] = {}
         original_button = imgui.button
         origins: list[int] = []
         values: list[tuple[object, ...]] = []
@@ -48,6 +49,9 @@ def main() -> None:
             if label == "Next record":
                 lo, hi = imgui.get_item_rect_min(), imgui.get_item_rect_max()
                 next_pixel = (lo.x + hi.x) / 2, (lo.y + hi.y) / 2
+            if label in ("Profile mapped images", "Prepare image profile"):
+                lo, hi = imgui.get_item_rect_min(), imgui.get_item_rect_max()
+                profile_pixels[label] = (lo.x + hi.x) / 2, (lo.y + hi.y) / 2
             return result
 
         def frame(
@@ -112,14 +116,40 @@ def main() -> None:
                     assert owner.arrays.store.extractions == 2
                     assert view.images.jobs.store.decodes == 0
                     assert view.images.canvas.retained_bytes == 64 * 64 * 4
-                    params.app_shall_exit = True
-                    stage = 8
+                    view.exploration.tab = "Profiles"
+                    stage, entered = 8, evidence.frames
             elif stage == 4 and age > 4:
                 io.add_mouse_button_event(0, True)
                 stage, entered = 5, evidence.frames
             elif stage == 5 and age > 4:
                 io.add_mouse_button_event(0, False)
                 stage, entered = 7, evidence.frames
+            elif stage in (8, 11) and age > 8:
+                target = (
+                    "Profile mapped images" if stage == 8 else "Prepare image profile"
+                )
+                if target in profile_pixels:
+                    io.mouse_pos = imgui.ImVec2(*profile_pixels[target])
+                    io.want_set_mouse_pos = True
+                    stage, entered = stage + 1, evidence.frames
+            elif stage in (9, 12) and age > 4:
+                io.add_mouse_button_event(0, True)
+                stage, entered = stage + 1, evidence.frames
+            elif stage in (10, 13) and age > 4:
+                io.add_mouse_button_event(0, False)
+                stage, entered = stage + 1, evidence.frames
+            elif (
+                stage == 14 and age > 8 and view.images.profile_jobs.active is not None
+            ):
+                profile = view.images.profile_jobs.active
+                assert profile.ready == 3 and profile.profiled_pixels == 3 * 64 * 64
+                assert profile.records["row_id"].to_list() == [1, 2, 0]
+                assert (
+                    next(s for s in profile.summaries if s.key.name == "R").mean == 20
+                )
+                assert owner.arrays.store.extractions == 2
+                params.app_shall_exit = True
+                stage = 15
 
         with patch.object(imgui, "button", new=button):
             evidence = run_gui(
@@ -128,11 +158,11 @@ def main() -> None:
                 on_editor_frame=frame,
                 preferences_path=root / "prefs.json",
             )
-        assert stage == 8
+        assert stage == 15
         assert before == hashlib.sha256(source.read_bytes()).hexdigest()
         args.output.mkdir(parents=True, exist_ok=True)
         Image.fromarray(hello_imgui.final_app_window_screenshot()[:, :, :3]).save(
-            args.output / "image-array.png"
+            args.output / "image-array-profile.png"
         )
         p95 = float(np.percentile(evidence.frame_intervals_ms[10:], 95))
         assert p95 < 33
@@ -143,8 +173,12 @@ def main() -> None:
             "supporting_alignment": True,
             "source_preserved": True,
             "frame_p95_ms": p95,
+            "native_profile_command": True,
+            "profile_source_rows": [1, 2, 0],
+            "profile_red_mean": 20,
+            "profile_pixels": 3 * 64 * 64,
         }
-        (args.output / "image-array-native.json").write_text(
+        (args.output / "image-array-profile-native.json").write_text(
             json.dumps(report, indent=2) + "\n"
         )
         print(json.dumps(report))

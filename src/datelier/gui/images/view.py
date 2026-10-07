@@ -7,10 +7,16 @@ from typing import TYPE_CHECKING
 from imgui_bundle import imgui
 
 from datelier.gui.images.canvas import ImageCanvas
+from datelier.gui.images.profile_controls import profile_controls
+from datelier.gui.images.profiles import ImageProfiles
+from datelier.inspection.arrays.mapping import ArrayLayout
 from datelier.inspection.images.jobs import ImageJobs
 from datelier.inspection.images.prepare import default_range
+from datelier.inspection.images.profile_jobs import ImageProfileJobs
+from datelier.inspection.images.profile_types import ImageProfile
 from datelier.inspection.images.settings import ImageSettings
 from datelier.inspection.images.viewport import ImageViewport
+from datelier.inspection.records.types import RecordMode
 from datelier.io.types import ArrayOptions
 
 if TYPE_CHECKING:
@@ -23,6 +29,9 @@ class ImageView:
         self.settings = ImageSettings()
         self.canvas = ImageCanvas()
         self.buttons: dict[str, tuple[float, float]] = {}
+        self.profile_jobs = ImageProfileJobs(executor)
+        self.profiles = ImageProfiles()
+        self.profile_pixel = (0.0, 0.0)
 
     def sync(self, owner: FileSession) -> None:
         active = owner.loader.active
@@ -41,6 +50,101 @@ class ImageView:
             or self.canvas.retained_bytes > self.settings.gpu_bytes
         ):
             self.canvas.clear()
+        self.profile_jobs.settings = self.settings.profile
+        mapping = (
+            active.imported.options.mapping
+            if active and isinstance(active.imported.options, ArrayOptions)
+            else None
+        )
+        self.profile_jobs.bind(
+            active.dataset if active else None,
+            owner.identity,
+            owner.view_name,
+            owner.references.settings,
+            owner.references.index,
+            tuple(sorted(owner.selection.row_ids)),
+            owner.arrays.store,
+            active.imported.array_catalog if active else None,
+            mapping,
+        )
+        self.profile_jobs.poll()
+
+    def show_mapped_profile(self, owner: FileSession) -> bool:
+        active = owner.loader.active
+        options = active.imported.options if active else None
+        if (
+            not isinstance(options, ArrayOptions)
+            or options.mapping is None
+            or options.mapping.layout != ArrayLayout.IMAGE
+        ):
+            return False
+        if imgui.button(
+            "Table columns"
+            if self.settings.profile_payload
+            else "Profile mapped images"
+        ):
+            self.settings = replace(
+                self.settings, profile_payload=not self.settings.profile_payload
+            )
+        if self.settings.profile_payload:
+            self.show_profile(owner, options.mapping.member)
+            return True
+        return False
+
+    def show_profile(self, owner: FileSession, column: str) -> None:
+        settings = replace(self.settings.profile, column=column)
+        self.settings = replace(self.settings, profile=profile_controls(settings))
+        self.sync(owner)
+        if imgui.button("Prepare image profile"):
+            try:
+                self.profile_jobs.request()
+            except ValueError as error:
+                self.profile_jobs.message = str(error)
+        lo, hi = imgui.get_item_rect_min(), imgui.get_item_rect_max()
+        self.profile_pixel = (lo.x + hi.x) / 2, (lo.y + hi.y) / 2
+        if self.profile_jobs.busy:
+            imgui.same_line()
+            if imgui.button("Abandon image profiling"):
+                self.profile_jobs.abandon()
+                self.profile_jobs.message = (
+                    "Profiling abandoned; any executing decode is winding down."
+                )
+            phase, done, total = self.profile_jobs.progress.value
+            imgui.text(f"{phase} · {done:,}/{total:,}")
+        if self.profile_jobs.active is None:
+            imgui.text_wrapped(self.profile_jobs.message)
+        if self.profile_jobs.active is not None:
+            view = self.profiles.show(
+                self.profile_jobs.active, self.settings.profile_view, owner
+            )
+            self.settings = replace(self.settings, profile_view=view)
+
+    def open_profile_record(
+        self, owner: FileSession, profile: ImageProfile, row: int
+    ) -> None:
+        active = owner.loader.active
+        if active is None or (profile.file_id, profile.view_name, profile.revision) != (
+            owner.identity,
+            owner.view_name,
+            active.dataset.revision,
+        ):
+            return
+        row_id, position = (
+            int(profile.records["row_id"][row]),
+            int(profile.records["position"][row]),
+        )
+        owner.selection.choose(profile.revision, (row_id,))
+        owner.table.target_row, owner.table.jump = position + 1, True
+        owner.inspect.settings = replace(
+            owner.inspect.settings,
+            mode=RecordMode.SELECTION,
+            gallery=False,
+            focus=0,
+            primary=profile.settings.column
+            if profile.mapping is None
+            else owner.inspect.settings.primary,
+        )
+        owner.exploration.tab = "Inspect"
 
     def show_record(self, owner: FileSession, column: str, position: int) -> None:
         active = owner.loader.active
@@ -161,3 +265,4 @@ class ImageView:
     def close(self) -> None:
         self.canvas.clear()
         self.jobs.close()
+        self.profile_jobs.close()

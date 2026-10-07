@@ -1,0 +1,27 @@
+{
+  "kind": "folder",
+  "sampled": false,
+  "images": 100,
+  "dimensions": [
+    256,
+    256
+  ],
+  "metadata_seconds": 0.009291565002058633,
+  "profile_seconds": 3.8266329170000972,
+  "baseline_rss_bytes": 71933952,
+  "peak_rss_bytes": 91484160,
+  "rss_increase_bytes": 19550208,
+  "result_bytes": 50305,
+  "peak_decoded_disk_bytes": 262272,
+  "peak_decoded_files": 1,
+  "retained_decoded_bytes": 0,
+  "array_extractions": 0,
+  "array_extracted_bytes": 0,
+  "array_retained_bytes": 0,
+  "profiled_pixels": 6553600,
+  "total_pixels": 6553600,
+  "unresolved": 1,
+  "failures": 1,
+  "cleanup": true,
+  "source_preserved": true
+}
