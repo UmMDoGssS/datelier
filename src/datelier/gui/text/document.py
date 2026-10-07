@@ -101,7 +101,7 @@ class TextDocumentView:
                 + (" … (first 256 code points)" if b - a > 256 else "")
             )
             if a == b:
-                imgui.text("Inserted special token has no original source span.")
+                imgui.text("This token has no original source span.")
         if imgui.begin_child(
             "Original full text",
             (0, 160),

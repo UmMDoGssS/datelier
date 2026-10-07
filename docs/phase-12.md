@@ -320,3 +320,49 @@ consumed marks, leaving the remaining mark independently selectable. This also
 preserves raw offsets for imported normalizers. Focused text fixtures: **33 passed**;
 Pyrefly zero errors; Ruff lint/format (**408 files**) pass. The native Inspect
 save/reopen check passes again with original highlighted span **[2,4)**.
+
+## M12.4 — Final mixed text resource acceptance
+
+An initial long-record preparation had a short **82.79 ms** frame-p95 interval,
+despite passing the overall frame budget. Character preparation now uses roughly
+**4,096-code-point** chunks with cooperative GIL yields. Combining runs and
+normalization joins (including Hangul Jamo) stay intact; offsets remain global
+and no text/token is omitted. Fixtures cover boundary accents, Hangul composition,
+compatibility expansion, independent marks and imported empty-input prefixes.
+Focused text checks: **35 passed**. Pyrefly zero errors; Ruff lint/format
+(**409 files**) pass. Native Inspect save/reopen still passes.
+
+`benchmark_text_inspection.py --output docs/evidence/phase12` creates two
+**50,000-record** Parquet corpora plus one **110,013-code-point** record outside
+a fresh measured native process. Explicit commands prepare complete corpora and
+the complete character record; resource probes select heavy views directly.
+Mouse/command/linked-selection behavior is verified by the separate native smoke
+checks above. Instrumentation does not retain mock call arguments/results.
+Budgets below, including a separate long-preparation frame gate, are predeclared.
+
+| Gate | Measured | Budget |
+| --- | ---: | ---: |
+| All three source metadata/open | 164.84 ms | 3,000 ms |
+| Two complete corpora/shared comparison | 5,171.31 ms | 20,000 ms |
+| Complete 110,012-token character record | 376.91 ms | 3,000 ms |
+| Overall frame p95 | 26.49 ms | 33 ms |
+| Long-record preparation frame p95 | 29.41 ms | 33 ms |
+| Peak process RSS | 435.16 MiB | 768 MiB |
+| Complete retained comparison buffers | 3,748,942 bytes | 8 MiB |
+| Virtual frequency/token rows rendered | 9 / 11 | 20 / 30 |
+| Original source page | 2,048 code points | 2,048 code points |
+| Shared workers / temporary profile storage | 4 / 0 bytes | 4 / 0 bytes |
+
+The **503-frame** run verifies all **784,000 corpus tokens**, complete 104-type
+vocabularies, final original text/token access, source SHA-256 preservation,
+result release after file-tab closure and joined workers.
+[Mixed resource report](evidence/phase12/text-mixed-resources.json) retains phase
+measurements. These are fixture-specific results, not general capacity guarantees.
+
+The final single **100,000-record** profile rerun, including Unicode fonts and
+the offset changes, passes: open **129.53 ms**, exact profile **5,077.93 ms**,
+frame p95 **24.89 ms**, peak RSS **435.61 MiB**, retained profile **3,740,282 bytes**,
+**11** visible frequency rows, four joined workers and zero temporary storage.
+All 784,000 tokens/104 types and unchanged source hashes remain verified.
+[Updated profile report](evidence/phase12/text-profile-resources.json) retains evidence.
+Clean-install and final full-suite acceptance remain open.

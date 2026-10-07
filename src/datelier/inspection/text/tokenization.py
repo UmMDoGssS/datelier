@@ -3,7 +3,9 @@
 import hashlib
 import json
 import unicodedata
+from collections.abc import Iterator
 from pathlib import Path
+from time import sleep
 
 from tokenizers import PreTokenizedString, Tokenizer, normalizers, pre_tokenizers
 from tokenizers.models import BPE
@@ -59,17 +61,34 @@ def normalization(settings: TokenSettings) -> normalizers.Normalizer:
 def source_span(
     original: str, start: int, end: int, normalizer: normalizers.Normalizer
 ) -> tuple[int, int]:
-    # Tokenizers maps a composed character to its starter. Extend only the
-    # marks actually combined by normalization; independent code points and
-    # marks left after composition retain their own original spans.
+    # Tokenizers maps composed characters to their starter. Preserve marks
+    # and Hangul Jamo consumed by normalization, without swallowing independent
+    # code points. Empty-input prefixes (e.g. an imported Prepend normalizer)
+    # are not evidence that two original characters composed.
     if end > start:
-        while end < len(original) and unicodedata.category(original[end])[0] == "M":
-            prefix = normalizer.normalize_str(original[start:end])
-            mark = normalizer.normalize_str(original[end : end + 1])
-            combined = normalizer.normalize_str(original[start : end + 1])
+        while end < len(original):
+            following = original[end]
+            jamo = unicodedata.normalize("NFKC", following)
+            if unicodedata.category(following)[0] != "M" and not any(
+                0x1160 <= ord(ch) <= 0x11FF for ch in jamo
+            ):
+                break
+            values = [
+                normalizer.normalize_str(raw)
+                for raw in (
+                    original[start:end],
+                    original[end : end + 1],
+                    original[start : end + 1],
+                )
+            ]
+            empty = normalizer.normalize_str("")
+            if empty:
+                values = [value.removeprefix(empty) for value in values]
+            prefix, mark, combined = values
             if combined == prefix + mark:
                 break
             end += 1
+
     return start, end
 
 
@@ -142,24 +161,14 @@ class TextTokenizer:
                     )
                 )
         else:
-            prepared = PreTokenizedString(text)
-            prepared.normalize(self.normalizer.normalize)
-            splitter = (
-                pre_tokenizers.Split("", "isolated")
-                if self.settings.mode == TokenMode.CHARACTER
-                else pre_tokenizers.WhitespaceSplit()
-                if self.settings.mode == TokenMode.WHITESPACE
-                else pre_tokenizers.Whitespace()
-            )
-            splitter.pre_tokenize(prepared)
-            for piece, span, _ in prepared.get_splits("original", "char"):
+            for piece, span in self._builtin_splits(text):
                 if (
                     self.settings.mode == TokenMode.CHARACTER
                     and not self.settings.character_whitespace
                     and piece.isspace()
                 ):
                     continue
-                start, end = source_span(text, *span, self.normalizer)
+                start, end = span
                 tokens.append(TextToken(piece, None, start, end))
         return TokenizedDocument(
             document,
@@ -168,3 +177,43 @@ class TextTokenizer:
             tuple(tokens),
             sum(t.counted for t in tokens),
         )
+
+    def _builtin_splits(self, text: str) -> Iterator[tuple[str, tuple[int, int]]]:
+        character = self.settings.mode == TokenMode.CHARACTER
+        splitter = (
+            pre_tokenizers.Split("", "isolated")
+            if character
+            else pre_tokenizers.WhitespaceSplit()
+            if self.settings.mode == TokenMode.WHITESPACE
+            else pre_tokenizers.Whitespace()
+        )
+        start = 0
+        while start < len(text):
+            end = min(start + 4096, len(text)) if character else len(text)
+            if character and self.settings.normalization != Normalization.NONE:
+                # Keep combining runs together for canonical reordering, and
+                # test joins for non-mark composition such as Hangul Jamo.
+                while end < len(text):
+                    if unicodedata.category(text[end])[0] == "M":
+                        end += 1
+                        continue
+                    prefix = self.normalizer.normalize_str(text[start:end])
+                    suffix = self.normalizer.normalize_str(text[end : end + 1])
+                    if (
+                        self.normalizer.normalize_str(text[start : end + 1])
+                        == prefix + suffix
+                    ):
+                        break
+                    end += 1
+            chunk = text[start:end]
+            prepared = PreTokenizedString(chunk)
+            prepared.normalize(self.normalizer.normalize)
+            splitter.pre_tokenize(prepared)
+            for piece, span, _ in prepared.get_splits("original", "char"):
+                a, b = source_span(chunk, *span, self.normalizer)
+                yield piece, (start + a, start + b)
+            start = end
+            if start < len(text):
+                # Native split conversion and Python token construction need
+                # periodic GIL yields while a large record is being prepared.
+                sleep(0.001)

@@ -169,3 +169,40 @@ def test_character_offsets_keep_independent_combining_marks() -> None:
     assert first.selected_source == "e" and first.selected_span == (0, 1)
     second = prepare_text_page(composed, TextViewport(selected_token=1))
     assert second.selected_source == "\u0303" and second.selected_span == (2, 3)
+
+
+def test_character_chunk_boundaries_preserve_normalization_and_global_spans() -> None:
+    raw = "x" * 4095 + "e\u0301" + "y" * 4095 + "\u1100\u1161\u11a8" + "ﬃ 中🙂"
+    for normalization in Normalization:
+        result = TextTokenizer(
+            TokenSettings(TokenMode.CHARACTER, normalization)
+        ).encode(document(raw))
+        assert "".join(t.piece for t in result.tokens) == result.normalized
+        assert all(0 <= t.start < t.end <= len(raw) for t in result.tokens)
+        if normalization == Normalization.NONE:
+            assert result.tokens[4095].piece == "e" and result.tokens[4095].end == 4096
+        else:
+            accent = result.tokens[4095]
+            assert accent.piece == "é" and (accent.start, accent.end) == (4095, 4097)
+            hangul = next(t for t in result.tokens if t.piece == "각")
+            assert raw[hangul.start : hangul.end] == "\u1100\u1161\u11a8"
+        assert result.tokens[-1].piece == "🙂" and result.tokens[-1].end == len(raw)
+
+
+def test_imported_prefix_is_not_evidence_of_character_composition(
+    tmp_path: Path,
+) -> None:
+    from tokenizers import Tokenizer, models, normalizers, pre_tokenizers
+
+    from datelier.inspection.text.tokenization import import_tokenizer
+
+    tokenizer = Tokenizer(models.BPE({"_": 0, "e": 1, "\u0301": 2}, []))
+    tokenizer.normalizer = normalizers.Prepend("_")
+    tokenizer.pre_tokenizer = pre_tokenizers.Split("", "isolated")
+    path = tmp_path / "prefix.json"
+    tokenizer.save(str(path))
+    result = TextTokenizer(
+        TokenSettings(TokenMode.BPE, artifact=import_tokenizer(path))
+    ).encode(document("e\u0301"))
+    actual = [(t.piece, t.start, t.end) for t in result.tokens]
+    assert actual[-2:] == [("e", 0, 1), ("\u0301", 1, 2)]
