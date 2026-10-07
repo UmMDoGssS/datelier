@@ -24,6 +24,7 @@ from datelier.inspection.text.types import (
     TokenizedDocument,
     TokenizerReference,
 )
+from datelier.inspection.text.viewport import TextViewport
 
 
 class TextJobs:
@@ -76,7 +77,7 @@ class TextJobs:
             (
                 file_id,
                 dataset.revision,
-                replace(self.settings, position=0),
+                replace(self.settings, position=0, viewport=TextViewport()),
                 references,
                 chosen,
             )

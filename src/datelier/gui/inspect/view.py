@@ -2,7 +2,9 @@
 
 from concurrent.futures import Executor
 from dataclasses import replace
+from typing import TYPE_CHECKING
 
+import polars as pl
 from imgui_bundle import imgui
 
 from datelier.core.dataset import Dataset
@@ -15,6 +17,9 @@ from datelier.inspection.references.jobs import ReferenceJobs
 from datelier.plotting.selection import LinkedSelection
 
 CARD_HEIGHT = 240
+
+if TYPE_CHECKING:
+    from datelier.gui.file_session import FileSession
 
 
 class InspectView:
@@ -54,6 +59,7 @@ class InspectView:
         reference_view: ReferenceView,
         selection: LinkedSelection,
         table: TableView,
+        owner: FileSession | None = None,
     ) -> None:
         self.dock_id = imgui.get_window_dock_id()
         self.controls.show()
@@ -78,7 +84,13 @@ class InspectView:
                             "Card", (0, CARD_HEIGHT - 4), imgui.ChildFlags_.borders
                         ):
                             self._card(
-                                slot, references, reference_view, selection, table, True
+                                slot,
+                                references,
+                                reference_view,
+                                selection,
+                                table,
+                                True,
+                                owner,
                             )
                         imgui.end_child()
                         imgui.pop_id()
@@ -93,7 +105,9 @@ class InspectView:
             imgui.same_line()
             imgui.text(f"{focus + 1:,}/{len(records.positions):,}")
             self.settings = replace(self.settings, focus=focus)
-            self._card(focus, references, reference_view, selection, table, False)
+            self._card(
+                focus, references, reference_view, selection, table, False, owner
+            )
 
     def _card(
         self,
@@ -103,6 +117,7 @@ class InspectView:
         selection: LinkedSelection,
         table: TableView,
         gallery: bool,
+        owner: FileSession | None = None,
     ) -> None:
         records = self.jobs.active
         assert records
@@ -127,6 +142,16 @@ class InspectView:
         if gallery and imgui.small_button("Focus record"):
             self.settings = replace(self.settings, gallery=False, focus=slot)
         primary = card.primary
+        text_field = (
+            not gallery
+            and owner is not None
+            and owner.loader.active is not None
+            and primary is not None
+            and owner.loader.active.dataset.table.schema.get(primary.name) == pl.String
+        )
+        if text_field and owner is not None and primary is not None:
+            self._text_card(owner, card)
+            return
         if primary:
             imgui.text_unformatted(primary.name)
             if primary.reference is not None:
@@ -154,6 +179,47 @@ class InspectView:
             if primary.truncated:
                 imgui.text("Primary value truncated at 4096 characters.")
         self._fields(card, 72 if gallery else 0)
+
+    def _text_card(self, owner: FileSession, card: RecordCard) -> None:
+        assert card.primary is not None
+        primary = card.primary
+        if imgui.button("Inspect text tokens"):
+            owner.text.request_record(owner, primary.name, card.position)
+        imgui.text_wrapped(owner.text.jobs.message)
+        if imgui.begin_table(
+            "Focused text and supporting fields",
+            2,
+            imgui.TableFlags_.sizing_stretch_prop,
+        ):
+            imgui.table_setup_column("Text", init_width_or_weight=3)
+            imgui.table_setup_column("Supporting", init_width_or_weight=1)
+            imgui.table_next_row()
+            imgui.table_next_column()
+            active = owner.text.jobs.active
+            matches = (
+                active is not None
+                and self.jobs.active is not None
+                and (
+                    active.document.origin.file_id,
+                    active.document.origin.revision,
+                    active.document.origin.row_id,
+                    active.document.origin.column,
+                )
+                == (
+                    owner.identity,
+                    self.jobs.active.revision,
+                    card.row_id,
+                    primary.name,
+                )
+            )
+            if matches:
+                owner.text.show_record()
+            else:
+                imgui.text_wrapped(primary.text)
+                imgui.text("Prepare this record for complete text and tokens.")
+            imgui.table_next_column()
+            self._fields(card, 0)
+            imgui.end_table()
 
     def _fields(self, card: RecordCard, height: int) -> None:
         if imgui.begin_child("Supporting values", (0, height)):

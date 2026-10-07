@@ -19,7 +19,9 @@ class TextControls:
     import_pixel: tuple[float, float] = (0, 0)
     prepare_pixel: tuple[float, float] = (0, 0)
 
-    def bind(self, jobs: TextJobs, dataset: Dataset | None) -> None:
+    def bind(
+        self, jobs: TextJobs, dataset: Dataset | None, default_column: str | None = None
+    ) -> None:
         self.columns = (
             tuple(
                 name
@@ -30,14 +32,18 @@ class TextControls:
             else ()
         )
         if jobs.settings.column is None and self.columns and dataset is not None:
-            preferred = next(
-                (
-                    n
-                    for n in self.columns
-                    if dataset.role(n).role
-                    in (ColumnRole.TEXT, ColumnRole.EXTERNAL_TEXT)
-                ),
-                self.columns[0],
+            preferred = (
+                default_column
+                if default_column in self.columns
+                else next(
+                    (
+                        n
+                        for n in self.columns
+                        if dataset.role(n).role
+                        in (ColumnRole.TEXT, ColumnRole.EXTERNAL_TEXT)
+                    ),
+                    self.columns[0],
+                )
             )
             jobs.settings = replace(jobs.settings, column=preferred)
 

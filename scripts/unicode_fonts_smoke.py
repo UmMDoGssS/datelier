@@ -25,6 +25,14 @@ def main() -> None:
         imgui.set_next_window_size((650, 160), imgui.Cond_.always)
         imgui.set_next_window_pos((410, 410), imgui.Cond_.always)
         imgui.begin("Unicode font verification")
+        imgui.text_unformatted(TEXT)
+        default_font = imgui.get_font()
+        default_missing = tuple(
+            ch
+            for ch in TEXT
+            if not ch.isspace() and not default_font.is_glyph_in_font(ord(ch))
+        )
+        imgui.text(f"Default {imgui.get_font_size()} missing: {default_missing}")
         imgui.push_font(None, 20)
         imgui.text_unformatted(TEXT)
         font = imgui.get_font()
@@ -36,6 +44,7 @@ def main() -> None:
         imgui.pop_font()
         imgui.end()
         if evidence.frames > 15:
+            assert not default_missing, default_missing
             assert not missing, missing
             assert all(
                 baked.find_glyph_no_fallback(ord(ch)) is not None

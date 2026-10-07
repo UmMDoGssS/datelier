@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 
 from datelier.core.dataset import DatasetRevision
+from datelier.inspection.text.viewport import TextViewport
 
 
 class TokenMode(StrEnum):
@@ -137,9 +138,11 @@ class TextSettings:
     scope: TextScope = TextScope()
     training: TrainingSettings = TrainingSettings()
     profile_bins: int = 24
+    viewport: TextViewport = TextViewport()
 
     def validate(self) -> None:
         self.tokens.validate()
+        self.viewport.validate()
         self.scope.validate()
         self.training.validate()
         if self.encoding not in ("utf8", "utf-8-sig", "utf16", "latin1"):

@@ -212,6 +212,7 @@ def run_gui(
                     session.reference_view,
                     session.selection,
                     session.table,
+                    session,
                 )
             ),
             "Table preview": bind(show_table),

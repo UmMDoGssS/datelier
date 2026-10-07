@@ -8,9 +8,13 @@ from typing import TYPE_CHECKING
 from imgui_bundle import imgui
 
 from datelier.gui.text.controls import TextControls, pixel
+from datelier.gui.text.document import TextDocumentView
 from datelier.gui.text.profiles import TextProfiles
 from datelier.gui.text.training import scope_controls, training_controls
 from datelier.inspection.text.jobs import TextJobs
+from datelier.inspection.text.page_jobs import TextPageJobs
+from datelier.inspection.text.viewport import TextViewport
+from datelier.io.types import MediaOptions
 
 if TYPE_CHECKING:
     from datelier.gui.file_session import FileSession
@@ -23,10 +27,19 @@ class TextView:
         self.shown = 0
         self.profiles = TextProfiles()
         self.profile_pixel = (0.0, 0.0)
+        self.pages = TextPageJobs(executor)
+        self.document = TextDocumentView()
 
     def sync(self, owner: FileSession) -> None:
         dataset = owner.loader.active.dataset if owner.loader.active else None
-        self.controls.bind(self.jobs, dataset)
+        options = owner.loader.active.imported.options if owner.loader.active else None
+        self.controls.bind(
+            self.jobs,
+            dataset,
+            "text"
+            if isinstance(options, MediaOptions) and options.text_lines
+            else None,
+        )
         self.jobs.bind(
             dataset,
             owner.identity,
@@ -35,6 +48,33 @@ class TextView:
             tuple(sorted(owner.selection.row_ids)),
         )
         self.jobs.poll()
+        self.pages.sync(self.jobs.active, self.jobs.settings.viewport)
+
+    def request_record(self, owner: FileSession, column: str, position: int) -> None:
+        old = self.jobs.settings
+        viewport = (
+            old.viewport
+            if (old.column, old.position) == (column, position)
+            else TextViewport()
+        )
+        self.jobs.settings = replace(
+            old, column=column, position=position, viewport=viewport
+        )
+        self.sync(owner)
+        self.jobs.request_document()
+
+    def show_record(self) -> None:
+        active = self.jobs.active
+        if active is not None:
+            self.shown += 1
+            viewport = self.document.show(
+                active, self.jobs.settings.viewport, self.pages
+            )
+            self.jobs.settings = replace(self.jobs.settings, viewport=viewport)
+
+    def close(self) -> None:
+        self.pages.close()
+        self.jobs.close()
 
     def show(self, owner: FileSession) -> None:
         if not self.controls.columns:
@@ -106,6 +146,4 @@ class TextView:
         )
         if doc.diagnostic:
             imgui.text_wrapped(doc.diagnostic)
-        imgui.text_wrapped(doc.text[:4096])
-        if len(doc.text) > 4096:
-            imgui.text("Preview: first 4,096 code points.")
+        self.show_record()

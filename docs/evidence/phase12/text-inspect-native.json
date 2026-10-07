@@ -1,0 +1,25 @@
+{
+  "save": {
+    "frames": 96,
+    "restore": false,
+    "screenshot": "docs/evidence/phase12/text-inspect.png",
+    "native_span": [
+      2,
+      4
+    ],
+    "source_row": 0
+  },
+  "reopen": {
+    "frames": 31,
+    "restore": true,
+    "screenshot": "docs/evidence/phase12/text-inspect-restored.png",
+    "native_span": [
+      2,
+      4
+    ],
+    "source_row": 0
+  },
+  "original_code_points": 11013,
+  "full_eof": true,
+  "sort_support_alignment": true
+}

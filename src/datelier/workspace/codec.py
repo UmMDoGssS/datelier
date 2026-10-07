@@ -33,6 +33,7 @@ from datelier.inspection.text.types import (
     TokenSettings,
     TrainingSettings,
 )
+from datelier.inspection.text.viewport import TextViewport
 from datelier.io.types import (
     ArrayOptions,
     CheckpointOptions,
@@ -58,6 +59,7 @@ from datelier.workspace.session_types import SessionFile, SessionWorkspace, Sour
 from datelier.workspace.types import Workspace, WorkspaceSource, WorkspaceViews
 
 RECORDS = (
+    TextViewport,
     TextScope,
     TrainingSettings,
     TextSettings,

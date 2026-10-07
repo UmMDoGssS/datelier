@@ -231,3 +231,32 @@ errors; Ruff lint/format and diff whitespace pass. This establishes native
 coverage for the multilingual fixtures; complex-script shaping/RTL layout and
 other system-font configurations are not claimed verified.
 M12.4 token Inspect/comparison and final acceptance gates remain open.
+
+## M12.4 — Full token Inspect and source pages
+
+Focused Inspect shows complete text and its token list beside supporting fields.
+Original text is paged in workers (128–8,192 code points per page); newline and
+other C0 controls have visible symbols without changing source values or offsets.
+The token table is virtualized and retains every piece/ID/span/count flag.
+Token selection highlights the original span, including decomposed accents and
+normalization expansions. Large pieces have independently navigable 256-code-point
+pages. Original offsets, token index, selected piece offset and record position
+are saved as recipes; no decoding or tokenization starts on restoration.
+
+Correctness checks cover reconstruction of more than 110,000 original code points,
+late/closed page rejection, a 5,000-character normalized token, strict viewport
+round trips and line manifests selecting the inline line rather than rereading
+the whole external file. Focused checks: **23 passed**. Pyrefly: zero errors;
+Ruff lint/format: **396 files**, all pass.
+
+`text_inspect_smoke.py` uses native mouse/wheel input to prepare a record, select
+the decomposed `é` token and navigate to the end of **11,013 original code points**.
+It then sorts the table, reselects source row 0 and verifies supporting field
+`source-zero` still belongs to that row. A separate process restores the saved
+record/token viewport, verifies no implicit text jobs, explicitly prepares and
+rechecks original span **[2, 4)**. Save/reopen runs take **96/31 frames**.
+[Report](evidence/phase12/text-inspect-native.json) and
+[restored Inspect](evidence/phase12/text-inspect-restored.png) retain evidence.
+The native font check also verifies fixture coverage at the normal **13 px** UI
+size as well as the larger sample. Shared-tokenizer cross-file comparison and
+final milestone acceptance remain open.

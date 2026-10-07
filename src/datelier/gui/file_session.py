@@ -309,7 +309,7 @@ class FileSession:
         self.array_mapping.close()
         self.array_records.close()
         self.checkpoints.close()
-        self.text.jobs.close()
+        self.text.close()
         self.array_view.raw_columns.clear()
         self.array_view.plotted.clear()
         self.reference_view.textures.clear()
