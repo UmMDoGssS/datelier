@@ -1,0 +1,12 @@
+{
+  "mode": "reopened",
+  "hidden": true,
+  "idle_reopen": true,
+  "restore_seconds": 0.1474122269974032,
+  "rendered_rows": 2,
+  "frames": 37,
+  "frame_p95_ms": 13.308311199944,
+  "no_playback_or_training": true,
+  "closed_array_bytes": 0,
+  "closed_gpu_bytes": 0
+}

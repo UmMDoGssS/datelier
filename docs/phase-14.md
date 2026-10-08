@@ -1,10 +1,12 @@
 # Phase 14 — Audio inspection and integrated acceptance
 
-Phase 14 remains open. Scope and exit gates are in
+Phase 14 is complete under the user-directed listening assumption below. Scope
+and exit gates are in
 [ROADMAP.md](../ROADMAP.md#phase-14--audio-inspection-and-integrated-acceptance).
 Phase 13 passes; the worktree was clean at entry (`97a86bd`). M14.1–M14.2 pass.
 M14.3 is accepted to proceed with human listening deferred at the user's direction
-on 2026-10-08; audible output is assumed, not observed. M14.4 remains open.
+on 2026-10-08; audible output is assumed, not observed. M14.4 passes integrated
+native/recovery/resource and clean base/CPU-extra installation acceptance.
 
 ## Delivery steps
 
@@ -899,3 +901,109 @@ only an acceptance driver and real-input text capture, with no production change
 The preceding full **1,016-test** suite remains applicable. Clean installed native
 workflows on the wheel containing the Inspect fix remain the final M14.4 gate;
 human listening remains deferred at the user's direction.
+
+### Final installed acceptance and Phase 14 completion (2026-10-08)
+
+The wheel is rebuilt offline at source commit `55f8c15`, including the restored
+Inspect fix from `d5e93b5`. SHA256 is
+`aa151e8ec93600991b8f46431eb4d17140ae328484554f5234a54708eca9118f`.
+It replaces the preparation wheel in both previously clean locked, non-editable
+Python **3.14.7** environments. `uv pip check` passes **36 base / 43 CPU-extra
+packages**; all **349 runtime modules** match checkout, wheel and installed copies.
+The [final manifest](evidence/phase14/installed/final-manifest.json) records
+identity, commands, runtime provisioning, environments and reports. The earlier
+manifest retains the preparation wheel's identity and points to this final one.
+
+Copied drivers and probes execute from `/tmp`, outside the checkout. The base
+and CPU-extra installed applications pass the same genuine native mixed commands,
+source identities, original values, explicit profiles, save and fresh-process
+restore. Array payloads and comparison jobs initially remain deferred, and neither
+training nor playback starts on loading/restoration. Measurements are isolated
+from the separate listening-review window and other heavy checks.
+
+| Installed workflow | Initial / restored frames | Initial / restored frame p95 | Peak prepared CPU / GPU buffers |
+|---|---:|---:|---:|
+| Base | 407 / 431 | 21.73 / 15.88 ms | 185,258 / 31,212 bytes |
+| CPU extra | 406 / 431 | 22.09 / 16.24 ms | 185,250 / 31,212 bytes |
+
+All owned buffers/caches close to zero, and source hashes pass. See
+[base native](evidence/phase14/installed/base-native/multimodal-native.json),
+[base restore](evidence/phase14/installed/base-native/multimodal-restored.json),
+[CPU native](evidence/phase14/installed/cpu-native/multimodal-native.json) and
+[CPU restore](evidence/phase14/installed/cpu-native/multimodal-restored.json).
+Installed missing/changed recovery, idle reopen and legacy migration pass in
+**125/37/37 frames**, with **12.71–13.31 ms** base and **12.66–13.58 ms** CPU frame
+p95. Restores take **0.132–0.156 s**, source/view revisions remain independent,
+changed sources require consent, and all owned GPU/array bytes close to zero:
+[base recovery](evidence/phase14/installed/base-recovery/recover.json),
+[base legacy](evidence/phase14/installed/base-recovery/legacy.json),
+[CPU recovery](evidence/phase14/installed/cpu-recovery/recover.json) and
+[CPU legacy](evidence/phase14/installed/cpu-recovery/legacy.json).
+
+Final installed headless comparisons take **0.052/0.054 s**, retain **30,558 bytes**
+and preserve original arrays, multilingual supporting fields and source hashes.
+The one-byte retention check evicts members and removes temporary directories.
+RSS high-water does not increase beyond imports during these tiny mixed fixtures;
+that is not a zero-allocation claim. Explicit restricted checkpoint inspection
+separately adds **98.75 MiB** with PyTorch **2.14.1+cpu**, correct mapped tensor
+values and zero retained checkpoint bytes. The base has no PyTorch. See
+[base final](evidence/phase14/installed/base-final.json) and
+[CPU final](evidence/phase14/installed/cpu-final.json).
+Local BPE/Unigram training, exact corpus/comparison token counts and packaged
+font/OFL integrity pass in both environments:
+[base text](evidence/phase14/installed/base-text-final.json),
+[CPU text](evidence/phase14/installed/cpu-text-final.json).
+Installed CLI help also passes in both.
+
+WAV/FLAC/OGG/MP3 each retain **24,000 frames**, **24 kHz**, two channels and expected
+lossy-codec tolerance; blocks retain at most **65,536 bytes**, with unchanged
+sources. SoundFile **0.14.0** / bundled libsndfile **1.2.2** and SoundDevice **0.5.6**
+use the explicitly provisioned extracted Linux PortAudio runtime. No global
+system-package installation is claimed. FFmpeg generates the independent MP3
+fixture; it is not an application decoding requirement. See
+[base codecs](evidence/phase14/installed/base-codecs-final.json),
+[CPU codecs](evidence/phase14/installed/cpu-codecs-final.json).
+
+Both final installations explicitly open the real **Default Sink, PulseAudio**
+with volume zero for the bounded ten-minute WAV and mapped-array lifecycle probe.
+Original **48 kHz** is retained; cold readiness is **1.926/0.178 s**, warm file
+readiness **10.29/10.19 ms**, array readiness **15.38/15.28 ms**, stable pause about
+**100 ms**, seek **30.50–30.85 ms**, and acknowledged stop **25.36–25.82 ms**.
+Output buffers retain **73,728 file / 36,864 array bytes**, then zero; underruns
+are zero. The oversized **3,840,128-byte** array member is leased once per play/
+seek and evicted under the **1 MiB** retention limit; closure removes temporary
+directories. Missing-device diagnostics remain visible, and source hashes pass.
+These are muted device/control observations; reported zero SDK latency does not
+establish zero physical latency or audible output. See
+[base playback](evidence/phase14/installed/base-playback-final.json),
+[CPU playback](evidence/phase14/installed/cpu-playback-final.json).
+
+The single-table regression repeats each **10k×8, 100k×8, 1m×8 and 100k×66** CSV
+fixture in three fresh installed processes. CSV-to-prepared times are
+**21.77–29.15 / 21.95–29.11 / 143.46–147.26 / 155.00–159.77 ms**, last-page times
+**0.65–1.03 ms** and peak total RSS at most **630.35 MiB**. Source stat/value/row
+identity checks pass, as do the original narrow/wide loading, summary/page and
+**1 GiB** budgets: [tabular regression](evidence/phase14/installed/tabular-regression.json).
+The existing native table driver, with hidden-window rendering, isolated
+preferences and explicit native panel focus, passes **180 frames**, **566.66 ms**
+first preview, **12.70 ms frame p95**, **272.97 ms** live reload, **34.15/33.37 ms**
+last-row jump/wheel preparation and **863.43 MiB** total RSS. Its first legacy
+attempt assumed previously saved panel focus and therefore did not observe both
+dock IDs; the isolated retry observes them. No application docking change was
+needed. See [million-row native evidence](evidence/phase14/installed/million-table-native.json)
+and [table screenshot](evidence/phase14/installed/million-table-native.png).
+
+Final acceptance reruns the full suite: **1,016 tests pass in 25.16 s**, with the
+three existing upstream restricted-checkpoint warnings. Pyrefly reports zero
+errors and one existing suppression; Ruff lint/format (**599 files**) pass.
+The preceding eighteen mixed open/prepare/close cycles, long audio/spectral
+measurements and native modality controls retain their recorded passing status;
+the final production fix only binds restored Inspect fields and guards absent
+physical columns. Source preservation, independent identity/history, safe
+abandonment, idle restoration and cleanup gates pass.
+
+M14.4 and Phase 14 are accepted complete. The human listening/volume/tone check
+remains a personal follow-up deferred explicitly by the user, with audible
+output assumed rather than observed. Linux Mesa software OpenGL is verified;
+accelerated rendering and other platforms remain unverified. Existing unfinished
+Titanic usability gates keep their status and are not implied complete.

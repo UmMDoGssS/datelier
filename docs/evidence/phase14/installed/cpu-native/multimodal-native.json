@@ -1,0 +1,81 @@
+{
+  "restore": false,
+  "hidden": true,
+  "text_documents": [
+    2,
+    3,
+    3
+  ],
+  "image_records": [
+    2,
+    3,
+    3
+  ],
+  "audio_records": [
+    2,
+    3,
+    3
+  ],
+  "text_tokens": 4,
+  "original_pixel": [
+    80,
+    20,
+    30
+  ],
+  "spectrum-ready": {
+    "range": [
+      2000,
+      6000
+    ],
+    "rate": 8000,
+    "channel": 2,
+    "peak_hz": 500.0
+  },
+  "mel-ready": {
+    "range": [
+      2000,
+      6000
+    ],
+    "rate": 8000,
+    "channel": 2,
+    "peak_hz": 476.6395576048055
+  },
+  "explicit_audio_profile": true,
+  "frames": 406,
+  "frame_p95_ms": 22.093635001510847,
+  "peak_prepared_cpu_bytes": 185250,
+  "peak_gpu_bytes": 31212,
+  "closed_gpu_and_array_bytes": 0,
+  "no_playback_or_training": true,
+  "stage_frame_p95_ms": {
+    "Text corpora": 11.005999600274663,
+    "Prepare text comparison": 10.423899949819315,
+    "text-ready": 13.817855747765861,
+    "Images": 13.331789800577099,
+    "Prepare image comparison": 10.803827299787372,
+    "image-ready": 14.222036999490228,
+    "Audio": 14.428638399840565,
+    "Prepare audio comparison": 11.005372201179853,
+    "audio-ready": 13.667056400299769,
+    "text-inspect": 15.700947850018565,
+    "Inspect text tokens": 14.328120449135893,
+    "tokens-ready": 12.257733700789686,
+    "image-inspect": 12.082019849185599,
+    "Fit image": 13.041612398228608,
+    "1:1 pixels": 13.38322469855484,
+    "pixels-ready": 13.377178848350013,
+    "audio-inspect": 13.431255948853504,
+    "Time start (s)=0.25": 23.409226201329147,
+    "Time end (s)=0.75": 23.147183948276506,
+    "Sample channel (1-based)=2": 20.709843200347677,
+    "Spectrogram": 20.816787100375223,
+    "spectrum-ready": 17.25130340091709,
+    "Mel spectrogram": 15.124312199623091,
+    "mel-ready": 15.360385050007608,
+    "Profile selected range": 16.18590840298566,
+    "profile-ready": 16.401038798721856,
+    "save": 16.19729274952988,
+    "load/save": 16.106930997921154
+  },
+  "source_preserved": true
+}

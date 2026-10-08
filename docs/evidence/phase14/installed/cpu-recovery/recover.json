@@ -1,0 +1,19 @@
+{
+  "mode": "recover",
+  "hidden": true,
+  "independent_failures": true,
+  "restore_seconds": 0.14950031800253782,
+  "missing_relinked": true,
+  "missing-ready_seconds": 0.1422418000001926,
+  "changed_requires_consent": true,
+  "rejected-ready_seconds": 0.12846995899963076,
+  "changed_accepted": true,
+  "changed-ready_seconds": 0.1465958690023399,
+  "saved_recovery": true,
+  "save-ready_seconds": 0.3099153639996075,
+  "frames": 125,
+  "frame_p95_ms": 12.657847599621164,
+  "no_playback_or_training": true,
+  "closed_array_bytes": 0,
+  "closed_gpu_bytes": 0
+}

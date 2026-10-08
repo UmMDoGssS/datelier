@@ -21,7 +21,8 @@ Phase 13 adds original-pixel image inspection, numeric heatmaps, detection
 annotations and scoped image comparisons; [Phase 13 evidence](docs/phase-13.md)
 records its completed gates. Phase 14 adds audio headers, original-signal
 statistics, waveform/PSD/mel views, explicit playback and audio comparisons.
-M14.1–M14.2 pass; listening and integrated acceptance remain open in
+Phase 14 acceptance passes, including mixed-session recovery and clean base/CPU
+installations. Actual human listening is deferred at the user's direction in
 [Phase 14 evidence](docs/phase-14.md).
 See [ROADMAP.md](ROADMAP.md) for delivery gates and [AGENTS.md](AGENTS.md) for
 contributor conventions.
@@ -399,7 +400,7 @@ curves separate compatible amplitude units, dtypes and channels. **Statistics**
 and **Records** retain source outcomes; selected bins/records link to the correct
 file/view and supporting fields in Inspect. Comparison recipes restore without
 scanning signals or starting sound. See [Phase 14 evidence](docs/phase-14.md) for
-verified fixtures, playback resources and outstanding acceptance observations.
+verified fixtures, playback resources and the deferred personal listening check.
 
 ## Local text tokenization, training, inspection and comparisons
 

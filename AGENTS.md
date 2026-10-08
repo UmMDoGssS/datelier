@@ -137,8 +137,14 @@ original-signal statistics, native Inspect controls and saved configuration;
 restoration and measured resource evidence. M14.2 passes worker-prepared
 waveform extrema, PSD/HTK mel views, original-rate controls/provenance,
 native file/array restoration and measured long-recording resource gates.
-M14.3 is accepted to proceed with the human listening check deferred by the
-user on 2026-10-08; actual hearing remains unverified. M14.4 remains open.
+M14.3 is accepted with the human listening check deferred by the user on
+2026-10-08; actual hearing remains unverified. M14.4 passes mixed native
+text/image/audio commands, missing/changed-source recovery and legacy migration,
+source/closure/resource gates, full-suite checks and clean base/CPU-extra wheel
+workflows. Phase 14 is complete under that explicit listening assumption;
+[docs/phase-14.md](docs/phase-14.md) records final evidence and the deferred
+personal follow-up. Linux Mesa rendering is verified; accelerated rendering and
+other platforms remain unverified.
 Phase 8 investigations do not block this approved sequence. Existing v1 evidence
 and unfinished Titanic usability gates retain their status.
 

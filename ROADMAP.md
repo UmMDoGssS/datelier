@@ -52,7 +52,9 @@ original token-span Inspect and shared-tokenizer cross-file comparisons;
 clean-install acceptance. Phase 13 passes original-pixel images, numeric heatmaps,
 detection annotations, overlays/profiles and scoped image comparisons;
 [Phase 13 evidence](docs/phase-13.md) records native restoration, source integrity
-and measured resources. Phase 14 audio and integrated acceptance remains open.
+and measured resources. Phase 14 passes audio and integrated local acceptance
+with human listening deferred at the user's direction;
+[Phase 14 evidence](docs/phase-14.md) records the assumption and verified gates.
 These gates do not change existing feature or usability acceptance.
 
 A concrete post-v1 usability need is recorded in the
@@ -818,7 +820,8 @@ passes alongside M13.2 numeric heatmap controls and restoration. M13.3 passes
 annotation adapters, explicit associations and saved recipes. M13.4 passes native
 multiple-source overlays, annotation profiles and scoped image comparisons,
 fresh-process restoration, bounded selections, dense-overlay/comparison resources
-and the full correctness suite. Phase 13 is complete; Phase 14 remains open.
+and the full correctness suite. Phase 13 is complete; Phase 14 acceptance is
+recorded below with the user's deferred listening check.
 
 - [x] **Phase complete.** **Entry:** Phase 12 passes. **Exit:** M13.1–M13.4 pass; images, numeric heatmaps and box overlays retain correct values, provenance and geometry.
 
@@ -856,13 +859,13 @@ and the full correctness suite. Phase 13 is complete; Phase 14 remains open.
 
 ## Phase 14 — Audio inspection and integrated acceptance
 
-- [ ] **Phase complete.** **Entry:** Phase 13 passes. **Exit:** M14.1–M14.4 pass, including actual Linux playback, correct signal views, mixed-source session recovery, and clean installation.
+- [x] **Phase complete.** **Entry:** Phase 13 passes. **Exit:** M14.1–M14.4 pass, including actual Linux device playback, correct signal views, mixed-source session recovery, and clean installation. Human listening is deferred at the user's direction as recorded under M14.3.
 
 ### M14.1 — Lazy audio loading and signal profiles
 
 [Verified M14.1 implementation](docs/phase-14.md) covers header-first signal
 loading, original-unit statistics, native controls, saved configuration and
-codec/resource acceptance. M14.4 remains open; M14.3's human listening check is
+codec/resource acceptance. M14.4 also passes; M14.3's human listening check is
 deferred by the user as recorded below.
 
 - [x] **Deliverables:** common local audio inputs including WAV/FLAC/OGG/MP3 and mapped waveform arrays; header-first sample rate/channel/duration metadata; amplitude/RMS, clipping and silence statistics; sample-rate configuration when arrays lack it.
@@ -875,7 +878,7 @@ deferred by the user as recorded below.
 
 [Verified M14.2 implementation](docs/phase-14.md) covers original extrema,
 PSD/HTK mel references, native saved controls, bounded full-resolution access,
-long-recording navigation and measured resources. M14.4 remains open.
+long-recording navigation and measured resources. M14.4 also passes.
 
 - [x] **Deliverables:** worker-prepared waveform envelopes, spectrograms and mel spectrograms; channel/time-range, FFT/window/hop, mel-band/frequency-limit and scale controls; bounded display preparation with full-resolution access.
 - [x] **Entry gate:** M14.1 passes; signal conversion/preparation has explicit provenance and never silently changes original sample rates.
@@ -895,14 +898,15 @@ observation; the personal listening follow-up remains unverified.
 - [x] **Exit gate:** actual Linux device output follows the selected record/range and reports device failures; seeking/stop/tab closure release playback resources; loading/restoring never starts sound; audio comparisons retain source identity and compatible units. Audible output is assumed at the user's direction pending their later check.
 - [x] **Verification evidence:** playback lifecycle/device-error and range-buffer tests, native seek/pause/gain/device observations, supporting-column/comparison workflows, workspace restore and measured resources in [Phase 14 evidence](docs/phase-14.md). Human listening is explicitly deferred by the user.
 - [x] **Suggested step commits:** `feat: listen to selected audio records` → `feat: compare audio profiles across files`.
+- [ ] **User-deferred personal follow-up:** verify audible tones, pause/resume, seek and volume when back at the computer. This observation is unverified and does not block the user-authorized continuation/completion.
 
 ### M14.4 — Integrated multimodal and local-install acceptance
 
-- [ ] **Deliverables:** representative mixed text/image/audio and NPZ-backed workflows, training/test comparisons, session recovery/relinking, closure/cache-eviction hardening and updated local installation/usage documentation.
+- [x] **Deliverables:** representative mixed text/image/audio and NPZ-backed workflows, training/test comparisons, session recovery/relinking, closure/cache-eviction hardening and updated local installation/usage documentation.
 - [x] **Entry gate:** M14.3 is accepted with the user-directed listening deferral above; every preceding Phase 9–14 milestone passes; dependency and fixture-specific resource budgets are recorded.
-- [ ] **Exit gate:** full suite, Pyrefly/Ruff, fresh-process mixed-session and legacy workspace workflows, native modality controls, source preservation and resource/cleanup gates pass; clean Linux install verifies both the base application and checkpoint extra with documented codec/playback requirements.
-- [ ] **Verification evidence:** commands/commits/versions, fixtures and manual GUI/listening observations, single-table regression and multimodal CPU/GPU/memory/disk reports, repeated-tab lifecycle runs, clean-wheel workflows and documented material limitations. Existing unfinished Titanic usability gates remain separate.
-- [ ] **Suggested step commits:** `fix: harden mixed-source inspection lifecycles` → `docs: document editor and multimodal workflows` → `test: verify multimodal session and local-install acceptance`.
+- [x] **Exit gate:** full suite, Pyrefly/Ruff, fresh-process mixed-session and legacy workspace workflows, native modality controls, source preservation and resource/cleanup gates pass; clean Linux install verifies both the base application and checkpoint extra with documented codec/playback requirements.
+- [x] **Verification evidence:** commands/commits/versions, fixtures and native GUI/device observations, single-table regression and multimodal CPU/GPU/memory/disk reports, repeated-tab lifecycle runs, clean-wheel workflows and material limitations in [Phase 14 evidence](docs/phase-14.md). Human listening remains deferred as authorized above. Existing unfinished Titanic usability gates remain separate.
+- [x] **Suggested step commits:** `fix: harden mixed-source inspection lifecycles` → `docs: document editor and multimodal workflows` → `test: verify multimodal session and local-install acceptance` (delivered in verified fixture, installation, resource and native recovery slices).
 
 ### Roadmap planning verification
 

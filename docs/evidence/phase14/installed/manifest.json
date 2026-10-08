@@ -17,6 +17,7 @@
     "uv pip check in both environments",
     "installed datelier --help"
   ],
-  "native_gui": "pending",
-  "human_listening": "pending"
+  "native_gui": "Superseded by final-manifest.json after restored Inspect fix",
+  "human_listening": "Deferred at user direction on 2026-10-08; audible output assumed, not observed.",
+  "final_acceptance_manifest": "final-manifest.json"
 }

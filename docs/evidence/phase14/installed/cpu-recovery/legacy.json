@@ -1,0 +1,12 @@
+{
+  "mode": "legacy",
+  "hidden": true,
+  "legacy_source": true,
+  "restore_seconds": 0.1344692339989706,
+  "rendered_rows": 2,
+  "frames": 37,
+  "frame_p95_ms": 13.061647399445064,
+  "no_playback_or_training": true,
+  "closed_array_bytes": 0,
+  "closed_gpu_bytes": 0
+}
