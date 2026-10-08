@@ -779,3 +779,35 @@ and diff whitespace pass. This step adds a reproducible probe and usage/setup
 documentation without changing GUI behavior. Native mixed/installed workflows,
 repeated-tab resource checks and human listening remain open; M14.4 entry and
 completion are not claimed.
+
+### Repeated headless mixed-session resources (2026-10-08)
+
+`benchmark_multimodal_sessions.py` passes three fresh processes with **six
+open/prepare/close cycles each**. Each cycle loads train/test/NPZ sources,
+confirms separate image/audio views, sorts supporting labels, explicitly prepares
+Unicode documents/corpora, original pixels/samples and three-source text/image/
+audio comparisons. Closing the image view invalidates its comparison while the
+audio comparison remains current and the shared array store remains usable.
+All five loaded files/views then close, and retired results cannot publish.
+
+The three-record audio member uses **48,000 frames × 2 channels × Float32** per
+record, **1,152,128 bytes** including its header, exceeding the **1 MiB** retention
+limit. Post-command retained array bytes are **0–1,856** (small supporting/image
+members only), then zero after closure; all temporary directories disappear.
+Prepared comparison/profile/pixel/sample buffers retain **34,328 bytes** each
+cycle. Source loads take **1.27–1.46 s**, confirmed mappings **5.16–21.76 ms**,
+mixed comparisons **0.213–0.305 s**, and acknowledged worker/cache cleanup
+**1.26–5.01 ms**. Fresh peak RSS increases are **53.79/56.14/56.79 MiB**, including
+fixture generation. Original source hashes pass every cycle. No playback buffers,
+decoded stores or prepared document/media results remain after closing the editor;
+SoundDevice and PyTorch stay unimported. GPU measurements remain a native gate.
+See [first run](evidence/phase14/multimodal-sessions.json),
+[second run](evidence/phase14/multimodal-sessions-repeat-2.json) and
+[third run](evidence/phase14/multimodal-sessions-repeat-3.json).
+
+The full suite passes **1,015 tests in 46.28 s**, with the three existing upstream
+restricted-checkpoint warnings. Pyrefly reports zero errors and one existing
+suppression; Ruff lint/format (**597 files**) and diff whitespace pass. No
+production GUI behavior changes in this resource-probe step. Native mixed/source
+recovery/installed workflows and actual human listening remain open, along with
+M14.4 entry/completion.
