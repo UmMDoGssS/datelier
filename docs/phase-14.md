@@ -695,3 +695,39 @@ M14.3 still requires the human listening/seek/pause/volume observation. A quiet
 21-second **48 kHz** fixture (440/660/880 Hz in seven-second sections) is open in
 Datelier and idle until the user chooses Play. M14.4's entry and completion gates
 remain open pending M14.3 acceptance.
+
+### Mixed-session acceptance preparation (2026-10-08)
+
+M14.4's entry remains open for the human M14.3 observation. Independent
+preparation uses two unequal **2/3-row training/test tables** with multilingual
+text, relative image/audio references and supporting labels, plus a compressed
+three-record RGB/audio archive with aligned captions/labels. Compare text,
+image and audio statistics using explicit commands; preserve file/view/revision
+identity, independent history/selection/settings and idle restoration. Exercise
+missing/changed-source recovery, legacy single-source migration, closing a view
+while another owns playback, and repeated cache eviction without rewriting data.
+
+Before mixed measurements, require **33 ms native frame p95**, **3 s** ready
+metadata/tiny-source commands (excluding the separately recorded cold audio SDK),
+**128 MiB fresh peak RSS increase** beyond imports including fixtures, **16 MiB**
+retained prepared scalar/media CPU results and **32 MiB** retained GPU textures
+for this small mixed fixture. Under a **1 MiB** array-retention setting, leased
+larger members may use temporary disk but must release excess bytes after the
+command and remove directories at closure. Require zero active output/decoded
+caches after complete editor closure, no implicit training/profiles/playback on
+restore, and source hashes unchanged. Clean base and checkpoint-extra wheels
+must import/run outside the checkout with packaged assets, documented Linux
+codec/PortAudio requirements and native GUI smoke. These preparation targets
+are not a claim that M14.4 has passed its entry or exit gates.
+
+The deterministic fixture and headless session checks now verify sorted mapped
+image/audio records with aligned Unicode captions, original pixels and samples,
+shared-cache eviction, scoped view closure while another file owns playback,
+atomic failed edits, missing-source relinking, deferred payload restoration and
+legacy single-source migration. Restoration is tested with payload extraction
+and audio comparison preparation forbidden. The fixture sources retain their
+original bytes. Focused mixed/array/editor/workspace/audio checks pass **28 tests
+in 2.44 s**; Pyrefly reports zero errors and one existing suppression, and Ruff
+lint/format (**595 files**) and diff whitespace pass. This preparatory step changes
+no GUI behavior. Native mixed workflows and installation measurements remain
+open, as does the required human listening observation.
