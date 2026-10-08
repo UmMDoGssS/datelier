@@ -731,3 +731,51 @@ in 2.44 s**; Pyrefly reports zero errors and one existing suppression, and Ruff
 lint/format (**595 files**) and diff whitespace pass. This preparatory step changes
 no GUI behavior. Native mixed workflows and installation measurements remain
 open, as does the required human listening observation.
+
+### Installed mixed-inspection preparation (2026-10-08)
+
+`uv build --offline` builds the source archive and wheel. Fresh Python **3.14.7**
+environments `/tmp/datelier-phase14-cached-base` and
+`/tmp/datelier-phase14-cache-check` install the locked runtime and wheel;
+`uv pip check` passes **36/43 packages**. The CPU extra is **PyTorch 2.14.1+cpu**;
+the base has no PyTorch. Existing cached wheels avoid redundant downloads, and
+the new SoundFile wheel is fetched. All **349 runtime modules** match the checkout
+and both installed copies. The packaged Noto Emoji/OFL assets retain their hash.
+The [installation manifest](evidence/phase14/installed/manifest.json) records
+the wheel identity, environments, commands and still-open native/listening gates.
+
+Copied probes run from `/tmp`, resolving Datelier inside each `site-packages`.
+Unequal **2/3-record** text/image/audio comparisons take **0.083/0.141 s**, retain
+**30,558 bytes** of comparison results and preserve supporting Unicode fields.
+Original-rate PSD peaks at **500 Hz**; HTK mel peaks at **476.64 Hz** within the
+stated band tolerance. The reversed NPZ records retain source IDs **2/1/0** and
+separate array Float32 amplitudes from full-scale file amplitudes. One-byte array
+retention forces eviction; post-command bytes are zero and closure removes its
+directory. Mixed fixtures do not increase the process RSS high-water mark beyond
+imports; explicitly importing/inspecting the optional CPU runtime separately
+adds **99.45 MiB**. Restricted mapped tensor values and source hashes pass.
+Text/image/audio work leaves PyTorch and SoundDevice unloaded. Explicit output
+enumeration succeeds afterward and never opens playback. See
+[base](evidence/phase14/installed/base.json) and
+[CPU-extra](evidence/phase14/installed/cpu.json) reports.
+
+Installed WAV/FLAC/OGG/MP3 header/block probes pass with **24,000 frames**, original
+**24 kHz**, expected lossy RMS tolerance and at most **65,536 bytes** per block in
+both runtimes; sources are unchanged. MP3 fixture encoding uses FFmpeg solely as
+an independent fixture generator. SoundFile **0.14.0** bundles libsndfile **1.2.2**.
+Linux PortAudio **19.7.0-devel** is explicitly provisioned from the extracted
+Ubuntu runtime through `LD_LIBRARY_PATH`; no system package install is claimed.
+The README documents `libportaudio2` and decoder-build differences. See
+[base codecs](evidence/phase14/installed/base-codecs.json) and
+[CPU codecs](evidence/phase14/installed/cpu-codecs.json).
+
+Installed local BPE/Unigram training, exact corpus/comparison statistics, tokenizer
+round trips and source/font integrity pass in both environments while PyTorch
+remains unimported: [base text](evidence/phase14/installed/base-text.json) and
+[CPU text](evidence/phase14/installed/cpu-text.json). The installed CLI help passes.
+Focused mixed/comparison/checkpoint checks pass **30 tests in 4.65 s**; Pyrefly
+reports zero errors and one existing suppression; Ruff lint/format (**596 files**)
+and diff whitespace pass. This step adds a reproducible probe and usage/setup
+documentation without changing GUI behavior. Native mixed/installed workflows,
+repeated-tab resource checks and human listening remain open; M14.4 entry and
+completion are not claimed.

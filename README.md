@@ -17,6 +17,12 @@ Phase 12 adds configurable text tokenization, explicit local BPE/Unigram trainin
 exact corpus profiles, complete token-span Inspect and shared-tokenizer text
 comparisons. All M12.1–M12.4 gates pass; [Phase 12 evidence](docs/phase-12.md)
 records native restoration, resources and clean base/CPU-extra installation.
+Phase 13 adds original-pixel image inspection, numeric heatmaps, detection
+annotations and scoped image comparisons; [Phase 13 evidence](docs/phase-13.md)
+records its completed gates. Phase 14 adds audio headers, original-signal
+statistics, waveform/PSD/mel views, explicit playback and audio comparisons.
+M14.1–M14.2 pass; listening and integrated acceptance remain open in
+[Phase 14 evidence](docs/phase-14.md).
 See [ROADMAP.md](ROADMAP.md) for delivery gates and [AGENTS.md](AGENTS.md) for
 contributor conventions.
 
@@ -39,6 +45,14 @@ If the default renderer stalls, use
 `LIBGL_ALWAYS_SOFTWARE=1 uv run --no-dev datelier /path/to/data.csv`.
 Tables must fit in memory; sampling bounds plots/analysis, not source loading.
 See [Phase 7 evidence](docs/phase-7.md) for the measured fixtures and limitations.
+
+Audio playback requires a Linux PortAudio runtime in addition to the Python
+dependencies. On Debian/Ubuntu, install `libportaudio2` with your package manager.
+The tested SoundFile Linux wheel bundles libsndfile; WAV, FLAC, OGG/Vorbis and MP3
+decoding are verified on the reference machine. Other libsndfile builds may have
+different codec support. Datelier reports decoder/output errors and lets you
+choose an available device; it does not install system libraries or change your
+system output. Opening files and restoring workspaces never starts playback.
 
 For optional CPU checkpoint inspection, include the extra when syncing and running:
 
@@ -345,10 +359,47 @@ then **Prepare image comparison**. Dimensions and physical color families use
 common bins with counts or proportions and native source legends. Statistics
 retain original weighted values; dimension bins link matching rows in the chosen
 file, and Records open the matching image in Inspect. Comparison recipes and view
-choices restore without starting image profiling. Audio playback remains in
-the authorized sequence. See [Phase 10 evidence](docs/phase-10.md) and
+choices restore without starting image profiling. See
+[Phase 10 evidence](docs/phase-10.md) and
 [Phase 13 evidence](docs/phase-13.md) for native checks, restoration and
 fixture-specific resource measurements.
+
+## Audio inspection and listening
+
+Open an audio file, a media collection, an audio-reference table field, or a
+confirmed waveform array view. In **Explore → Inspect**, choose the record and
+supporting columns. Headers show original frames, channels, rate and encoding
+before samples are decoded. For arrays, set **Array sample rate (Hz; 0 = unknown)**
+explicitly; an unknown rate still permits exact sample inspection.
+
+Choose **Waveform**, **Spectrogram** or **Mel spectrogram**, then use sample-frame
+or time controls to inspect a range. **Earlier range**, **Later range** and
+**Inspect visible time range** follow original source positions. Waveforms retain
+per-bin extrema; PSD and HTK mel views expose FFT length, hop, periodic window,
+frequency bounds and any peak aggregation. **Signal settings** changes display
+colors/scales without changing samples. **Prepare sample window** exposes exact
+original values; **Profile complete audio** or **Profile selected range** explicitly
+computes channel statistics, clipping and silence using visible thresholds.
+
+Expand **Playback**, choose **Check audio outputs** if needed, then **Play audio**.
+**Pause audio**, **Resume audio** and **Stop audio** control only the selected
+record. **Play selected range**, **Listen selected channel**, **Seek time (s)** /
+**Seek audio** and **Playback volume** use the original rate. Output gain and
+clipping affect listening only; array statistics retain their original units.
+Changing the active file/record or closing it stops its output. Saved controls
+restore idle; the cursor reports submitted samples rather than physical speaker
+latency.
+
+In **Compare files → Audio**, choose **New audio comparison** and expand
+**Audio mappings and scopes**. Include each file field or confirmed waveform
+view, choose independent record scopes/rates/thresholds and **Headers only** or
+**Exact signal statistics**, then **Prepare audio comparison**. Distributions
+use common bins with counts/proportions and native source legends; RMS/peak/mean
+curves separate compatible amplitude units, dtypes and channels. **Statistics**
+and **Records** retain source outcomes; selected bins/records link to the correct
+file/view and supporting fields in Inspect. Comparison recipes restore without
+scanning signals or starting sound. See [Phase 14 evidence](docs/phase-14.md) for
+verified fixtures, playback resources and outstanding acceptance observations.
 
 ## Local text tokenization, training, inspection and comparisons
 

@@ -1,0 +1,22 @@
+{
+  "source_commit": "f5a1947",
+  "wheel_sha256": "80cb7a17c62bdbc5b296fd4e289127d11b45833ebc0529e6e19161f7ce296eae",
+  "python": "3.14.7",
+  "base_packages": 36,
+  "cpu_packages": 43,
+  "identical_runtime_modules": 349,
+  "runtime_source_sha256": "66db9ca097274c3d70c30fc461e30460b6e1dbfc0060e207d0be0a6c3ee6d15b",
+  "build": "uv --cache-dir /tmp/datelier-uv-cache build --offline --out-dir /tmp/datelier-phase14-dist",
+  "install": "Fresh /tmp virtualenvs with uv sync --locked --no-dev --no-install-project; CPU adds --extra checkpoints; uv pip install --no-deps wheel",
+  "dependency_cache": "Existing /home/ummdogsss/.cache/uv wheels plus downloaded SoundFile; abandoned duplicate downloads into /tmp cache",
+  "linux_audio_runtime": "Ubuntu libportaudio2 extracted under /tmp/datelier-audio-system/runtime; LD_LIBRARY_PATH explicitly provisioned. No system package installation claimed.",
+  "probes": [
+    "multimodal_install_probe.py in both environments from /tmp",
+    "text_install_probe.py in both environments from /tmp",
+    "audio_dependency_probe.py in both environments from /tmp",
+    "uv pip check in both environments",
+    "installed datelier --help"
+  ],
+  "native_gui": "pending",
+  "human_listening": "pending"
+}
