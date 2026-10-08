@@ -33,7 +33,7 @@ def defer_array_view(
         or recipe.options.mapping is None
     ):
         raise ValueError("Deferred array records require a saved mapping")
-    metadata_options = replace(recipe.options, mapping=None)
+    metadata_options = replace(recipe.options, mapping=None, record_table=False)
     metadata_recipe = replace(
         recipe,
         options=metadata_options,

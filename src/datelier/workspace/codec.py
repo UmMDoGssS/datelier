@@ -207,6 +207,9 @@ def decode_record[T](cls: type[T], value: object) -> T:
         for name, item in record.items()
         if name != "kind"
     }
+    if cls is ArrayOptions and "record_table" not in arguments:
+        # Existing workspaces address member metadata rows, not first-axis records.
+        arguments["record_table"] = False
     try:
         return cast(T, cls(**arguments))
     except TypeError as error:

@@ -155,15 +155,24 @@ Supported inputs and settings:
   independent transformations and selections. Nested record fields require
   selecting another compatible node; mixed scalar fields can use text mode.
   Whole-session workspaces save node/view recipes and retain the original tree.
-- **NumPy** (`.npy`/`.npz`): opens member names, shapes, dtypes and storage sizes
-  before reading values. In Source browser, choose the member, display axes,
+- **NumPy** (`.npy`/`.npz`): an NPZ whose members are all usable and share a first-axis
+  length opens as a record table: member names are columns and first-axis
+  positions are rows. One-dimensional members retain typed scalar values;
+  larger array cells remain lazy references. Numeric matrices open as heatmaps
+  in focused **Inspect**; unambiguous channel layouts also support image Inspect.
+  Sort/filter operations retain original array-record identity. Unequal lengths,
+  scalar arrays, unsupported members and NPY files retain the member metadata
+  table. Disable **Aligned NPZ members as record columns** in import settings
+  to request that table explicitly. In Source browser, choose the member, display axes,
   fixed coordinates and window, then **Prepare slice**. Vector plots, matrix
   heatmaps and raw values share exact source indices. **Heatmap colors** selects
   a linear ramp; **Heatmap display range** uses automatic finite window bounds
   or explicitly applied limits. Prepare the slice to apply display changes;
   raw values and finite bounds remain independent. Compressed members use
   reusable temporary storage; disk retention is editable. Workspaces save
-  locators/settings and reopen metadata without preparing payloads. Object dtypes
+  locators/settings. Aligned record tables reopen scalar columns and history in
+  workers without decoding array grids. Existing saved metadata views retain
+  their original row identity. Object dtypes
   requiring pickle remain metadata-only with a diagnostic.
   **Configure array records** suggests editable record/layout/channel axes and
   supporting columns. Confirm to open an independent table; unequal lengths

@@ -42,7 +42,7 @@ from datelier.inspection.references.jobs import ReferenceJobs
 from datelier.io.arrays.storage import ArrayStore
 from datelier.io.exporting import DatasetExporter
 from datelier.io.loading import DatasetLoader, LoadPhase, LoadStatus
-from datelier.io.types import ImportFormat, MediaOptions
+from datelier.io.types import ArrayOptions, ImportFormat, MediaOptions
 from datelier.pipeline.editing import DatasetEditor
 from datelier.plotting.selection import LinkedSelection
 from datelier.workspace.jobs import WorkspaceJobs
@@ -258,8 +258,20 @@ class FileSession:
         self.pages.poll()
         self.reference_view.textures.begin_frame()
         active = self.loader.active
+        options = active.imported.options if active else None
+        array_columns = (
+            frozenset(
+                name
+                for name in active.dataset.table.columns
+                if options.mapping_for(active.imported.array_catalog, name) is not None
+            )
+            if active and isinstance(options, ArrayOptions) and options.mapping is None
+            else frozenset()
+        )
+        self.reference_view.array_columns = array_columns
         if active and any(
-            info.role in REFERENCE_ROLES for info in active.dataset.roles or ()
+            info.role in REFERENCE_ROLES and info.name not in array_columns
+            for info in active.dataset.roles or ()
         ):
             if self.references.source != active.dataset.source.path or (
                 self.references.revision is not None

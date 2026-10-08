@@ -43,6 +43,7 @@ class ImportControls:
     object_syntax: int = 0
     array_archive: int = 0
     array_header_bytes: int = 10_000
+    array_record_table: bool = True
     checkpoint_nodes: int = 200_000
     checkpoint_depth: int = 128
     error: str = ""
@@ -84,6 +85,7 @@ class ImportControls:
         elif isinstance(options, ArrayOptions):
             self.array_archive = (None, False, True).index(options.archive)
             self.array_header_bytes = options.max_header_bytes
+            self.array_record_table = options.record_table
         elif isinstance(options, CheckpointOptions):
             self.checkpoint_nodes = options.max_nodes
             self.checkpoint_depth = options.max_depth
@@ -122,7 +124,9 @@ class ImportControls:
             return self._bound[1]
         if selected == ImportFormat.ARRAY:
             return ArrayOptions(
-                (None, False, True)[self.array_archive], self.array_header_bytes
+                (None, False, True)[self.array_archive],
+                self.array_header_bytes,
+                record_table=self.array_record_table,
             )
         if selected == ImportFormat.CHECKPOINT:
             return CheckpointOptions(self.checkpoint_nodes, self.checkpoint_depth)
@@ -196,8 +200,12 @@ class ImportControls:
             _, self.array_header_bytes = imgui.input_int(
                 "Maximum header bytes", self.array_header_bytes
             )
+            _, self.array_record_table = imgui.checkbox(
+                "Aligned NPZ members as record columns", self.array_record_table
+            )
             imgui.text_wrapped(
-                "Open member metadata first; prepare selected values explicitly."
+                "Matching first dimensions open as records with scalar values and "
+                "lazy array cells. Other sources open as member metadata."
             )
             return
         if selected is None:

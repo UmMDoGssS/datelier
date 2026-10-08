@@ -1,4 +1,4 @@
-"""Prepared metadata tables for NumPy sources; payload selection stays explicit."""
+"""Aligned NPZ record tables with member metadata as the fallback."""
 
 from dataclasses import replace
 from pathlib import Path
@@ -8,6 +8,7 @@ import polars as pl
 
 from datelier.core.column_roles import ColumnRole
 from datelier.inspection.arrays.types import ArrayCatalog
+from datelier.io.arrays.aligned import aligned_record_count, prepare_aligned_records
 from datelier.io.arrays.metadata import inspect_arrays
 from datelier.io.arrays.records import prepare_array_records
 from datelier.io.arrays.storage import ArrayStore
@@ -18,7 +19,7 @@ from datelier.io.types import ArrayOptions, ImportFailure, ImportFormat, ImportR
 def load_arrays(path: Path, options: ArrayOptions | None = None) -> ImportResult:
     options = options or ArrayOptions()
     if options.mapping is not None:
-        metadata = load_arrays(path, replace(options, mapping=None))
+        metadata = load_arrays(path, replace(options, mapping=None, record_table=False))
         assert metadata.array_catalog is not None
         store = ArrayStore()
         try:
@@ -84,6 +85,19 @@ def load_arrays(path: Path, options: ArrayOptions | None = None) -> ImportResult
         "Choose a valid NPY/NPZ source or adjust the header limit.",
     )
     assert catalog is not None
+    if options.record_table and aligned_record_count(catalog) is not None:
+        store = ArrayStore()
+        try:
+            dataset, diagnostics = prepare_aligned_records(store, catalog)
+            return replace(
+                result, dataset=dataset, diagnostics=diagnostics, array_catalog=catalog
+            )
+        except (ValueError, TypeError, OSError, pl.exceptions.PolarsError) as error:
+            raise ImportFailure(
+                path, f"Cannot prepare NPZ record table: {error}"
+            ) from error
+        finally:
+            store.close()
     roles = tuple(
         replace(
             info,

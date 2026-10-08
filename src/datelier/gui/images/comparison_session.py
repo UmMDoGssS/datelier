@@ -22,7 +22,11 @@ def comparison_inputs(
             continue
         active = file.loader.active
         options = active.imported.options
-        mapping = options.mapping if isinstance(options, ArrayOptions) else None
+        mapping = (
+            options.mapping_for(active.imported.array_catalog, source.profile.column)
+            if isinstance(options, ArrayOptions)
+            else None
+        )
         label = (
             f"{number + 1}: {active.dataset.source.path.name} {file.view_name} / "
             f"{source.profile.column}"

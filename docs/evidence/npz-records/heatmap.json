@@ -1,0 +1,23 @@
+{
+  "restore": false,
+  "rows": 4,
+  "columns": [
+    "heatmaps",
+    "labels",
+    "scale",
+    "images"
+  ],
+  "sorted_source_ids": [
+    3,
+    1,
+    2,
+    0
+  ],
+  "inspected_columns": [
+    "heatmaps"
+  ],
+  "lazy_grid_open": true,
+  "source_preserved": true,
+  "frames": 57,
+  "frame_p95_ms": 14.312570197944297
+}

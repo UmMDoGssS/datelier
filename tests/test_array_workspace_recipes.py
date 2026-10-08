@@ -45,7 +45,7 @@ def test_mapped_workspace_opens_metadata_and_prepares_history_only_explicitly(
     )
     imported = load_file(source, ArrayOptions(mapping=mapping))
     pipeline = Pipeline.start(imported.dataset).apply(Sort(("label",)))
-    root_import = load_file(source)
+    root_import = load_file(source, ArrayOptions(record_table=False))
     reference = reference_source(root_import.dataset.source)
     child = SessionFile(
         "records",

@@ -732,6 +732,10 @@ expansion is recorded below; text/image/audio tools remain in Phases 12–14.
 [Verified structured browsing, lazy array inspection, record mappings and CPU checkpoints](docs/phase-11.md)
 pass M11.1–M11.4, including native restoration, full-suite/resource checks and
 clean installations with and without the optional checkpoint dependency.
+The [aligned NPZ record-table follow-up](docs/npz-record-tables.md) passes the
+subsequent user-authorized default-opening change: members with equal first-axis
+lengths become columns, scalar members supply typed values and array cells remain
+lazy. Member metadata remains the fallback and an explicit import option.
 
 - [x] **Phase complete.** **Entry:** Phase 10 passes. **Exit:** M11.1–M11.4 pass; structure, mappings and source-record identity survive workspace restoration without eager payload loading.
 
@@ -747,7 +751,7 @@ clean installations with and without the optional checkpoint dependency.
 
 - [x] **Deliverables:** member names, shapes, dtypes and storage sizes before payload loading; vector plots, matrix heatmaps and higher-dimensional slice controls; selected compressed NPZ members decompressed in workers to reusable temporary NPY storage and memory-mapped slices where needed.
 - [x] **Entry gate:** M11.1 passes; verify NumPy header/member access, mapping, temporary-storage lifecycle and renderer boundaries on representative arrays.
-- [x] **Exit gate:** opening an archive does not materialize every member; selecting/slicing preserves dtype and raw values; compressed members remain inspectable through explicit background preparation; corruption, unsupported payloads and disk failures have recoverable diagnostics.
+- [x] **Exit gate:** opening an archive reads headers first and does not eagerly materialize multidimensional payloads; automatic aligned record tables prepare scalar columns in workers; selecting/slicing preserves dtype and raw values; compressed array payloads remain inspectable through background preparation; corruption, unsupported payloads and disk failures have recoverable diagnostics.
 - [x] **Verification evidence:** compressed/uncompressed, empty/structured/string/nonfinite and higher-dimensional fixtures; unselected-member loading checks; native slice/heatmap workflow, cache/disk cleanup and memory/latency measurements.
 - [x] **Suggested step commits:** `feat: browse numpy array metadata` → `feat: cache selected npz members for slicing` → `feat: inspect array slices and heatmaps`.
 
@@ -755,7 +759,7 @@ clean installations with and without the optional checkpoint dependency.
 
 - [x] **Deliverables:** suggested record axes, image/channel and audio layouts, aligned supporting arrays, and confirmation/edit controls; named record views with persisted mappings and stable source-index identity.
 - [x] **Entry gate:** M11.2 passes; arrays and scalar supporting columns share references without copying media into the Polars table.
-- [x] **Exit gate:** images[N,H,W,C] plus labels[N] form correctly aligned records only after confirmation; alternate layouts/record axes are configurable; unequal lengths are diagnosed without truncation; filtering/sampling/undo and workspace reopen retain alignment.
+- [x] **Exit gate:** NPZ members sharing axis 0 form correctly aligned record columns automatically, with lazy image/heatmap cells; alternate layouts/record axes remain confirmable and configurable; unequal lengths retain member metadata and explicit mappings diagnose mismatches without truncation; filtering/sampling/undo and workspace reopen retain alignment.
 - [x] **Verification evidence:** NHWC/NCHW and grayscale/heatmap/waveform fixtures, axis ambiguity and length mismatches, mapping round trips, native confirmation and supporting-column/linked-selection checks.
 - [x] **Suggested step commits:** `feat: configure array record mappings` → `feat: link array payloads with supporting records`.
 

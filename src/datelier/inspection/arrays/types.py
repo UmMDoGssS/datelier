@@ -36,12 +36,24 @@ class ArrayCatalog:
     members: tuple[ArrayMember, ...]
     diagnostics: tuple[str, ...] = ()
     indices: Mapping[str, int] = field(init=False, compare=False, repr=False)
+    aligned_first_dim: int | None = field(init=False)
 
     def __post_init__(self) -> None:
         object.__setattr__(
             self,
             "indices",
             MappingProxyType({m.name: i for i, m in enumerate(self.members)}),
+        )
+        aligned = bool(self.members) and all(
+            m.storage_name is not None and m.usable and m.shape for m in self.members
+        )
+        count = self.members[0].shape[0] if aligned else None
+        object.__setattr__(
+            self,
+            "aligned_first_dim",
+            count
+            if aligned and all(m.shape[0] == count for m in self.members)
+            else None,
         )
 
     def member(self, name: str) -> ArrayMember:

@@ -73,8 +73,12 @@ class InspectView:
         imgui.text_wrapped(self.jobs.message)
         if owner is not None and owner.loader.active is not None:
             options = owner.loader.active.imported.options
-            mapping = options.mapping if isinstance(options, ArrayOptions) else None
             primary = self.settings.primary
+            mapping = (
+                options.mapping_for(owner.loader.active.imported.array_catalog, primary)
+                if isinstance(options, ArrayOptions)
+                else None
+            )
             if mapping is not None and mapping.layout in (
                 ArrayLayout.IMAGE,
                 ArrayLayout.HEATMAP,
@@ -205,6 +209,14 @@ class InspectView:
                 )
                 self._image_card(owner, card, column)
                 return
+        if primary is not None and primary.name in reference_view.array_columns:
+            imgui.text_unformatted(primary.name)
+            imgui.text_wrapped(primary.text)
+            imgui.text(
+                "Choose a primary image field or configure source array records."
+            )
+            self._fields(card, 72 if gallery else 0)
+            return
         text_field = (
             not gallery
             and owner is not None

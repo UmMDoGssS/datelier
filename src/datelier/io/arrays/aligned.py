@@ -13,13 +13,7 @@ from datelier.io.arrays.storage import ArrayStore
 
 
 def aligned_record_count(catalog: ArrayCatalog) -> int | None:
-    members = catalog.members
-    if not members or any(
-        m.storage_name is None or not m.usable or not m.shape for m in members
-    ):
-        return None
-    count = members[0].shape[0]
-    return count if all(m.shape[0] == count for m in members) else None
+    return catalog.aligned_first_dim
 
 
 def column_mapping(catalog: ArrayCatalog, column: str) -> ArrayRecordMapping | None:
@@ -61,6 +55,7 @@ def prepare_aligned_records(
         f"{count} aligned records; columns are NPZ members, rows are original "
         "first-axis positions. Array cells reference original payloads lazily."
     ]
+    diagnostics.extend(catalog.diagnostics)
     for member in catalog.members:
         if len(member.shape) == 1:
             with store.open_member(catalog, member.name) as array:

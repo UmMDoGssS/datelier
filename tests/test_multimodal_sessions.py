@@ -216,6 +216,7 @@ def test_mixed_session_restores_idle_recovers_manifest_and_migrates_legacy(
         train = editor.new_tab(fixtures.train)
         test = editor.new_tab(fixtures.test)
         owner = editor.new_tab(fixtures.arrays)
+        owner.loader.request(fixtures.arrays, ArrayOptions(record_table=False))
         settle(editor, tmp_path)
         image = mapped(editor, owner, "images", ArrayLayout.IMAGE)
         audio = mapped(editor, owner, "audio", ArrayLayout.AUDIO)

@@ -1,5 +1,11 @@
 # Phase 11 — Structured objects, arrays, and checkpoints
 
+The subsequent [aligned NPZ follow-up](npz-record-tables.md) changes new NPZ
+opening to first-axis record tables when all usable members align. The historical
+metadata-only defaults below describe Phase 11's original delivery; explicit
+metadata mode and older saved views retain that behavior. Scalar record columns
+now load in workers while multidimensional payloads remain lazy.
+
 Phase 11 passes M11.1–M11.4 on the verified Phase 10 baseline, including native
 restoration, source/provenance, full-suite/resource and clean-install acceptance.
 The step records below retain their original intermediate gate status; the final

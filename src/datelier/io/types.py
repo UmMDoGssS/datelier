@@ -76,6 +76,18 @@ class ArrayOptions:
     archive: bool | None = None
     max_header_bytes: int = 10_000
     mapping: ArrayRecordMapping | None = None
+    record_table: bool = True
+
+    def mapping_for(
+        self, catalog: ArrayCatalog | None, column: str | None
+    ) -> ArrayRecordMapping | None:
+        if self.mapping is not None:
+            return self.mapping
+        if not self.record_table or catalog is None or column is None:
+            return None
+        from datelier.io.arrays.aligned import column_mapping
+
+        return column_mapping(catalog, column)
 
     def __post_init__(self) -> None:
         if self.mapping is not None:

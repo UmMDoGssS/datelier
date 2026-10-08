@@ -108,6 +108,12 @@ mappings with aligned supporting fields and optional restricted CPU checkpoint
 inspection;
 [docs/phase-11.md](docs/phase-11.md) records source/provenance, native restoration
 and measured resource evidence, full-suite checks and clean base/CPU installs.
+The aligned NPZ opening follow-up is complete;
+[docs/npz-record-tables.md](docs/npz-record-tables.md) records automatic first-axis
+record columns, typed scalar values, lazy array cells, per-column image/heatmap
+Inspect and restoration. Unequal lengths retain member metadata; older saved
+metadata views preserve their original row identity. Automatic aligned tables
+load scalar columns in workers while multidimensional payloads remain lazy.
 Phase 12 passes configurable local tokenization, explicit selected-record
 BPE/Unigram training/provenance, saved-artifact recovery, exact corpus profiles,
 complete original token-span Inspect and shared-tokenizer text comparisons;

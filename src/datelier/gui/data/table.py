@@ -109,7 +109,9 @@ class TableView:
             imgui.get_text_line_height() + 2 * imgui.get_style().cell_padding.y
         )
         reference_columns = any(
-            inspection.dataset.role(c.name).role in REFERENCE_ROLES for c in columns
+            inspection.dataset.role(c.name).role in REFERENCE_ROLES
+            and (reference_view is None or c.name not in reference_view.array_columns)
+            for c in columns
         )
         row_height = ceil(content_height / 8) * 8
         if reference_columns and reference_view is not None:

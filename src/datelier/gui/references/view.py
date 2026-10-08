@@ -11,6 +11,7 @@ from datelier.inspection.references.types import ReferenceMapping, ReferenceSett
 
 class ReferenceView:
     def __init__(self) -> None:
+        self.array_columns: frozenset[str] = frozenset()
         self.textures = PreviewTextures()
         self.thumbnails = True
         self._roots = ""
@@ -93,6 +94,9 @@ class ReferenceView:
         *,
         extent: float = 56,
     ) -> None:
+        if column in self.array_columns:
+            imgui.text_unformatted(label)
+            return
         resolution, preview = jobs.get(column, value)
         shown = bool(
             preview

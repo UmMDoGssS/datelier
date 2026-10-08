@@ -62,9 +62,11 @@ class ImageView:
         ):
             self.canvas.clear()
         self.profile_jobs.settings = self.settings.profile
+        options = active.imported.options if active else None
+        catalog = active.imported.array_catalog if active else None
         mapping = (
-            active.imported.options.mapping
-            if active and isinstance(active.imported.options, ArrayOptions)
+            options.mapping_for(catalog, self.settings.profile.column)
+            if isinstance(options, ArrayOptions)
             else None
         )
         self.profile_jobs.bind(
@@ -87,7 +89,9 @@ class ImageView:
             owner.references.settings,
             owner.references.index,
             active.imported.array_catalog if active else None,
-            mapping,
+            options.mapping_for(catalog, owner.inspect.settings.primary)
+            if isinstance(options, ArrayOptions)
+            else None,
         )
         self.annotations.poll()
         if self.annotations.active is not None:
@@ -181,7 +185,11 @@ class ImageView:
         if active is None:
             return
         options = active.imported.options
-        mapping = options.mapping if isinstance(options, ArrayOptions) else None
+        mapping = (
+            options.mapping_for(active.imported.array_catalog, column)
+            if isinstance(options, ArrayOptions)
+            else None
+        )
         self.jobs.request_record(
             active.dataset, column, position, active.imported.array_catalog, mapping
         )

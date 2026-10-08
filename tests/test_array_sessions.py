@@ -50,7 +50,7 @@ def test_metadata_open_and_workspace_restore_never_prepare_payloads(
     monkeypatch.setattr(np, "memmap", forbidden)
     editor = EditorSession(initial_path=source)
     try:
-        editor.active.loader.request(source)
+        editor.active.loader.request(source, ArrayOptions(record_table=False))
         wait(editor)
         file = editor.active
         assert (
@@ -97,6 +97,7 @@ def test_explicit_prepare_preserves_values_and_cleans_shared_worker_storage(
     editor = EditorSession()
     try:
         file = editor.new_tab(path)
+        file.loader.request(path, ArrayOptions(record_table=False))
         wait(editor)
         file.arrays.request(SliceSettings("values", (1, 2), (1, 0, 0)))
         wait(editor)
@@ -163,6 +164,7 @@ def test_member_paths_identify_arrays_without_nearby_reference_decoding(
     editor = EditorSession()
     try:
         file = editor.new_tab(path)
+        file.loader.request(path, ArrayOptions(record_table=False))
         wait(editor)
         assert file.loader.active
         assert file.loader.active.dataset.role("member").role == ColumnRole.IDENTIFIER
