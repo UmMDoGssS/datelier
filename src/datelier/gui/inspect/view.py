@@ -80,9 +80,9 @@ class InspectView:
                 ArrayLayout.HEATMAP,
             ):
                 owner.images.annotation_controls.show(owner, mapping.member)
-            elif (
-                primary is not None
-                and owner.loader.active.dataset.role(primary).role == ColumnRole.IMAGE
+            elif primary is not None and any(
+                info.name == primary and info.role == ColumnRole.IMAGE
+                for info in owner.loader.active.dataset.roles or ()
             ):
                 owner.images.annotation_controls.show(owner, primary)
         self.rendered_cards = 0

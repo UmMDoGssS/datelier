@@ -27,6 +27,7 @@ from datelier.io.types import ArrayOptions
 from datelier.pipeline.operations import Sort
 from datelier.pipeline.types import CastColumn, TargetType
 from datelier.workspace.session_jobs import save_snapshot
+from datelier.workspace.session_restore import restore_session_workspace
 from datelier.workspace.storage import save_workspace
 
 
@@ -286,5 +287,43 @@ def test_mixed_session_restores_idle_recovers_manifest_and_migrates_legacy(
         settle(reopened, tmp_path)
         assert len(reopened.files) == 1 and reopened.active.identity == "legacy-source"
         assert reopened.playback.snapshot.request is None
+    finally:
+        reopened.close()
+
+
+def test_restored_catalog_inspect_is_bound_before_its_first_frame(
+    tmp_path: Path,
+) -> None:
+    fixtures = make_multimodal(tmp_path)
+    workspace = tmp_path / "stale-inspect.datelier"
+    editor = EditorSession()
+    try:
+        owner = editor.new_tab(fixtures.arrays)
+        settle(editor, tmp_path)
+        owner.inspect.settings = replace(
+            owner.inspect.settings,
+            primary="audio",
+            supporting=("caption", "label"),
+            gallery=False,
+        )
+        save_snapshot(workspace, capture_session(editor), False)
+    finally:
+        editor.close()
+    restored = restore_session_workspace(workspace)
+    reopened = EditorSession()
+    try:
+        file = reopened.active
+        file.install_session_file(
+            next(f for f in restored.files if f.file.identity == owner.identity)
+        )
+        # The GUI renders immediately after installation, before FileSession.poll.
+        assert file.loader.active is not None
+        dataset = file.loader.active.dataset
+        assert file.inspect.settings.primary in dataset.table.columns
+        assert dataset.role(file.inspect.settings.primary or "").name
+        assert file.inspect.settings.supporting == ()
+        assert not file.inspect.settings.gallery
+        assert file.inspect.jobs.active is None
+        assert file.arrays.store.extractions == 0
     finally:
         reopened.close()

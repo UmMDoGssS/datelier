@@ -137,7 +137,8 @@ original-signal statistics, native Inspect controls and saved configuration;
 restoration and measured resource evidence. M14.2 passes worker-prepared
 waveform extrema, PSD/HTK mel views, original-rate controls/provenance,
 native file/array restoration and measured long-recording resource gates.
-M14.3–M14.4 remain open.
+M14.3 is accepted to proceed with the human listening check deferred by the
+user on 2026-10-08; actual hearing remains unverified. M14.4 remains open.
 Phase 8 investigations do not block this approved sequence. Existing v1 evidence
 and unfinished Titanic usability gates retain their status.
 

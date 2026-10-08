@@ -28,11 +28,8 @@ class NativeControls:
             (low.y + high.y) / 2,
         )
         position, size = imgui.get_window_pos(), imgui.get_window_size()
-        self.clips[label] = (
-            (position.y + 3, position.y + size.y - 3)
-            if popup
-            else (position.y + 25, position.y + size.y - 20)
-        )
+        clip = imgui.internal.get_current_window().inner_clip_rect
+        self.clips[label] = (clip.min.y, clip.max.y)
         self.scroll[label] = (position.x + size.x - 7, position.y + size.y / 2)
 
     @contextmanager

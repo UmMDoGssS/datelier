@@ -1,0 +1,81 @@
+{
+  "restore": false,
+  "hidden": true,
+  "text_documents": [
+    2,
+    3,
+    3
+  ],
+  "image_records": [
+    2,
+    3,
+    3
+  ],
+  "audio_records": [
+    2,
+    3,
+    3
+  ],
+  "text_tokens": 4,
+  "original_pixel": [
+    80,
+    20,
+    30
+  ],
+  "spectrum-ready": {
+    "range": [
+      2000,
+      6000
+    ],
+    "rate": 8000,
+    "channel": 2,
+    "peak_hz": 500.0
+  },
+  "mel-ready": {
+    "range": [
+      2000,
+      6000
+    ],
+    "rate": 8000,
+    "channel": 2,
+    "peak_hz": 476.6395576048055
+  },
+  "explicit_audio_profile": true,
+  "frames": 405,
+  "frame_p95_ms": 22.415494598681107,
+  "peak_prepared_cpu_bytes": 185242,
+  "peak_gpu_bytes": 31212,
+  "closed_gpu_and_array_bytes": 0,
+  "no_playback_or_training": true,
+  "stage_frame_p95_ms": {
+    "Text corpora": 11.447521400623373,
+    "Prepare text comparison": 10.626188349669974,
+    "text-ready": 14.32951760089054,
+    "Images": 13.225270200200612,
+    "Prepare image comparison": 10.80442014917935,
+    "image-ready": 14.495440148675698,
+    "Audio": 14.726741200865945,
+    "Prepare audio comparison": 11.021511650506,
+    "audio-ready": 12.835812397679547,
+    "text-inspect": 15.683300100135966,
+    "Inspect text tokens": 13.851545251418427,
+    "tokens-ready": 12.786990752829297,
+    "image-inspect": 12.475474201528414,
+    "Fit image": 12.89049000115483,
+    "1:1 pixels": 14.057172650063876,
+    "pixels-ready": 13.475310600006196,
+    "audio-inspect": 13.866073149620206,
+    "Time start (s)=0.25": 24.464255399652757,
+    "Time end (s)=0.75": 24.281096052072826,
+    "Sample channel (1-based)=2": 21.929186251327337,
+    "Spectrogram": 21.122063250732026,
+    "spectrum-ready": 17.690056000174078,
+    "Mel spectrogram": 15.23975980016985,
+    "mel-ready": 15.61404584972479,
+    "Profile selected range": 16.568065698447754,
+    "profile-ready": 16.437874250004825,
+    "save": 16.29973299914127,
+    "load/save": 16.77993500197772
+  },
+  "source_preserved": true
+}

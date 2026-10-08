@@ -15,6 +15,7 @@ from datelier.core.dataset import Dataset
 from datelier.gui.analysis.controls import AnalysisControls
 from datelier.gui.plots.controls import PlotControls
 from datelier.inspection.exploration import PlotSettings
+from datelier.io.types import MediaOptions
 from datelier.plotting.categories import CategoryRepresentation
 from datelier.workspace.types import Workspace, WorkspaceViews
 
@@ -280,6 +281,13 @@ def restore_view_settings(session: GuiSession, saved: WorkspaceViews) -> None:
     session.reference_view.thumbnails = saved.thumbnails
     session.table.presentation.settings = saved.presentation
     session.inspect.settings = saved.inspect
+    options = session.loader.active.imported.options
+    session.inspect.controls.bind(
+        dataset,
+        "text" if isinstance(options, MediaOptions) and options.text_lines else None,
+    )
+    # Whole-session installation may render before the next file-owned poll.
+    session.inspect.jobs.abandon()
     if saved.array_slice is not None:
         session.arrays.settings = saved.array_slice
     session.arrays.store.limit = saved.array_retention_bytes

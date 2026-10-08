@@ -862,7 +862,8 @@ and the full correctness suite. Phase 13 is complete; Phase 14 remains open.
 
 [Verified M14.1 implementation](docs/phase-14.md) covers header-first signal
 loading, original-unit statistics, native controls, saved configuration and
-codec/resource acceptance. M14.3–M14.4 remain open.
+codec/resource acceptance. M14.4 remains open; M14.3's human listening check is
+deferred by the user as recorded below.
 
 - [x] **Deliverables:** common local audio inputs including WAV/FLAC/OGG/MP3 and mapped waveform arrays; header-first sample rate/channel/duration metadata; amplitude/RMS, clipping and silence statistics; sample-rate configuration when arrays lack it.
 - [x] **Entry gate:** verify SoundFile/SoundDevice/SciPy and decoder/system requirements on Python 3.14/Linux; establish worker-side block decoding and preserved original signal metadata.
@@ -874,7 +875,7 @@ codec/resource acceptance. M14.3–M14.4 remain open.
 
 [Verified M14.2 implementation](docs/phase-14.md) covers original extrema,
 PSD/HTK mel references, native saved controls, bounded full-resolution access,
-long-recording navigation and measured resources. M14.3–M14.4 remain open.
+long-recording navigation and measured resources. M14.4 remains open.
 
 - [x] **Deliverables:** worker-prepared waveform envelopes, spectrograms and mel spectrograms; channel/time-range, FFT/window/hop, mel-band/frequency-limit and scale controls; bounded display preparation with full-resolution access.
 - [x] **Entry gate:** M14.1 passes; signal conversion/preparation has explicit provenance and never silently changes original sample rates.
@@ -884,16 +885,21 @@ long-recording navigation and measured resources. M14.3–M14.4 remain open.
 
 ### M14.3 — Listening and cross-file audio comparison
 
-- [ ] **Deliverables:** play/pause/stop, seeking, volume and selected-range playback in Inspect with supporting columns; cross-file audio-statistic profiles and saved view controls; no autoplay.
+Accepted to proceed on 2026-10-08 under the user's instruction to assume audio
+works and defer actual listening until returning to the computer. Device/control
+and resource checks pass. This assumption does not constitute a hearing
+observation; the personal listening follow-up remains unverified.
+
+- [x] **Deliverables:** play/pause/stop, seeking, volume and selected-range playback in Inspect with supporting columns; cross-file audio-statistic profiles and saved view controls; no autoplay.
 - [x] **Entry gate:** M14.2 passes; a bounded playback-buffer/device lifecycle is established independently of GUI rendering.
-- [ ] **Exit gate:** actual Linux playback follows the selected record/range and reports device failures; seeking/stop/tab closure release playback resources; loading/restoring never starts sound; audio comparisons retain source identity and compatible units.
-- [ ] **Verification evidence:** playback lifecycle/device-error and range-buffer tests, actual listening/seek/pause/volume observations on reference Linux hardware, native supporting-column/comparison workflows and workspace restore.
-- [ ] **Suggested step commits:** `feat: listen to selected audio records` → `feat: compare audio profiles across files`.
+- [x] **Exit gate:** actual Linux device output follows the selected record/range and reports device failures; seeking/stop/tab closure release playback resources; loading/restoring never starts sound; audio comparisons retain source identity and compatible units. Audible output is assumed at the user's direction pending their later check.
+- [x] **Verification evidence:** playback lifecycle/device-error and range-buffer tests, native seek/pause/gain/device observations, supporting-column/comparison workflows, workspace restore and measured resources in [Phase 14 evidence](docs/phase-14.md). Human listening is explicitly deferred by the user.
+- [x] **Suggested step commits:** `feat: listen to selected audio records` → `feat: compare audio profiles across files`.
 
 ### M14.4 — Integrated multimodal and local-install acceptance
 
 - [ ] **Deliverables:** representative mixed text/image/audio and NPZ-backed workflows, training/test comparisons, session recovery/relinking, closure/cache-eviction hardening and updated local installation/usage documentation.
-- [ ] **Entry gate:** M14.3 and every preceding Phase 9–14 milestone pass; all required dependency and fixture-specific resource budgets are recorded.
+- [x] **Entry gate:** M14.3 is accepted with the user-directed listening deferral above; every preceding Phase 9–14 milestone passes; dependency and fixture-specific resource budgets are recorded.
 - [ ] **Exit gate:** full suite, Pyrefly/Ruff, fresh-process mixed-session and legacy workspace workflows, native modality controls, source preservation and resource/cleanup gates pass; clean Linux install verifies both the base application and checkpoint extra with documented codec/playback requirements.
 - [ ] **Verification evidence:** commands/commits/versions, fixtures and manual GUI/listening observations, single-table regression and multimodal CPU/GPU/memory/disk reports, repeated-tab lifecycle runs, clean-wheel workflows and documented material limitations. Existing unfinished Titanic usability gates remain separate.
 - [ ] **Suggested step commits:** `fix: harden mixed-source inspection lifecycles` → `docs: document editor and multimodal workflows` → `test: verify multimodal session and local-install acceptance`.

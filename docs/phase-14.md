@@ -2,8 +2,9 @@
 
 Phase 14 remains open. Scope and exit gates are in
 [ROADMAP.md](../ROADMAP.md#phase-14--audio-inspection-and-integrated-acceptance).
-Phase 13 passes; the worktree was clean at entry (`97a86bd`). M14.1–M14.2 pass;
-M14.3–M14.4 remain open.
+Phase 13 passes; the worktree was clean at entry (`97a86bd`). M14.1–M14.2 pass.
+M14.3 is accepted to proceed with human listening deferred at the user's direction
+on 2026-10-08; audible output is assumed, not observed. M14.4 remains open.
 
 ## Delivery steps
 
@@ -811,3 +812,59 @@ suppression; Ruff lint/format (**597 files**) and diff whitespace pass. No
 production GUI behavior changes in this resource-probe step. Native mixed/source
 recovery/installed workflows and actual human listening remain open, along with
 M14.4 entry/completion.
+
+### User-directed listening deferral and mixed native workflow (2026-10-08)
+
+The user is away from the computer and explicitly instructed: “Assume that the
+audio is working and move on,” with actual listening to follow on returning.
+M14.3 is accepted on that assumption alongside the recorded real-device,
+seek/pause/gain/closure, source identity and resource evidence. Human hearing,
+including perceived volume and tone changes, remains unverified. This decision
+opens M14.4's entry; the earlier entries above describe their status at the time.
+
+`scripts/multimodal_smoke.py` runs genuine ImGui buttons, tabs, numeric inputs and
+scrolling through three-source text/image/audio comparisons, Unicode token
+Inspect, mapped original pixels, selected-channel time ranges, PSD/HTK mel views,
+an explicit selected-range profile, save and an independent-process restore.
+The documented HelloImGui hidden-window option retains actual OpenGL rendering
+and native input without taking desktop focus. Restore initially leaves named
+array payloads deferred, comparisons unprepared and playback/training idle;
+explicit native commands then prepare each mapped view and comparison.
+
+The workflow exposed a restored Inspect crash: a saved or virtual mapped member
+could be looked up as a physical image column before the next file poll. Saved
+fields now bind against the restored schema before rendering, old record cards
+are retired, and annotation routing handles an absent physical column. The
+headless regression verifies schema-safe first-frame settings without array
+extraction. Native input also uses ImGui's actual clipping rectangle rather than
+an estimated bottom margin that excluded a visible profile button. The acceptance
+driver remains one cohesive workflow; its length was reviewed without introducing
+a new application abstraction.
+
+The isolated original/restore runs pass **405/433 frames**, **22.42/16.41 ms frame
+p95**, **185,242 bytes** peak prepared CPU buffers and **31,212 bytes** peak GPU
+textures. All owned GPU/array bytes reach zero at closure, and original source
+hashes remain unchanged. Known mapped source row **1** retains pixel
+**(80, 20, 30)**, **8 kHz**, channel **2**, frames **2,000–6,000**, PSD peak **500 Hz**
+and HTK mel peak **476.64 Hz**. Unequal table/array comparisons retain **2/3/3**
+records and multilingual text yields four complete tokens. See
+[native evidence](evidence/phase14/native/multimodal-native.json),
+[restoration evidence](evidence/phase14/native/multimodal-restored.json) and
+[restored Inspect](evidence/phase14/native/multimodal-restored.png).
+
+An earlier concurrent run exceeded the frame target (**41.73 ms**); the separate
+idle listening-review GUI consumed roughly twelve CPU cores through Mesa.
+Temporarily pausing that process isolates the measured native run. Another driver
+retry targeted an existing temporary workspace without overwrite, leaving its
+save unacknowledged; explicit overwrite now applies only to this driver's own
+fixture workspace. Neither failed measurement is presented as a passing run.
+The earlier installed hidden base GUI smoke also passed **200 frames**, **23.62 ms
+p95**, two rendered table rows and idle playback:
+[base GUI evidence](evidence/phase14/installed/base-hidden-gui.json).
+
+Focused mixed/record/array and workspace/audio checks pass **40 tests**. The full
+suite passes **1,016 tests in 24.77 s**, with three existing upstream checkpoint
+warnings. Pyrefly reports zero errors and one existing suppression; Ruff lint,
+format (**598 files**) and diff whitespace pass. Installed
+native workflows must be rerun on a rebuilt wheel containing the restoration fix;
+native missing/changed recovery and final M14.4 acceptance remain open.
