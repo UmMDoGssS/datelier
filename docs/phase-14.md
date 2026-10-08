@@ -868,3 +868,34 @@ warnings. Pyrefly reports zero errors and one existing suppression; Ruff lint,
 format (**598 files**) and diff whitespace pass. Installed
 native workflows must be rerun on a rebuilt wheel containing the restoration fix;
 native missing/changed recovery and final M14.4 acceptance remain open.
+
+### Native recovery and legacy regression (2026-10-08)
+
+`scripts/multimodal_recovery_smoke.py` deliberately moves the temporary training
+CSV and appends one test record before opening the saved mixed session. Both
+failures remain local while the NPZ catalog and deferred named views stay usable
+without extraction. Genuine native path input and the relink button recover the
+two-row training source and its original row-0 selection. Retry alone keeps the
+changed test source unresolved; the native acceptance checkbox plus retry loads
+four records and clears its obsolete selection. The unaffected NPZ revision
+stays fixed. Save/reopen preserves the recovered sources and comparisons while
+leaving mapped payloads, whole-collection jobs, training and playback idle.
+
+A separate process opens the legacy single-source recipe, migrates it to
+`legacy-source`, and renders the original two-row table. The final recovery,
+reopen and legacy runs pass **125/37/37 frames**, **12.36/11.98/11.81 ms frame p95**
+and **0.167/0.173/0.147 s** restoration. Relink and accepted-change acknowledgement
+take **0.141/0.142 s**, including the driver's confirmation delay. All owned
+array/GPU bytes reach zero at closure. Every source hash matches its intentionally
+prepared fixture; the driver restores the moved/appended fixture bytes afterward.
+See [recovery](evidence/phase14/recovery/recover.json),
+[reopen](evidence/phase14/recovery/reopened.json),
+[legacy](evidence/phase14/recovery/legacy.json),
+[source integrity](evidence/phase14/recovery/source-integrity.json) and
+[legacy table](evidence/phase14/recovery/legacy.png).
+
+Focused mixed/session/recovery checks pass **31 tests in 1.25 s**. This step adds
+only an acceptance driver and real-input text capture, with no production change.
+The preceding full **1,016-test** suite remains applicable. Clean installed native
+workflows on the wheel containing the Inspect fix remain the final M14.4 gate;
+human listening remains deferred at the user's direction.

@@ -46,6 +46,7 @@ class NativeControls:
             imgui.selectable,
         )
         stock_combo, tab_item = imgui.combo, imgui.begin_tab_item
+        text = imgui.input_text
 
         def capture_button(label: str, size: imgui.ImVec2 | None = None) -> bool:
             value = button(label, size)
@@ -131,6 +132,11 @@ class NativeControls:
             self.capture(label)
             return updated
 
+        def capture_text(label: str, value: str, flags: int = 0) -> tuple[bool, str]:
+            updated = text(label, value, flags)
+            self.capture(label, True)
+            return updated
+
         with ExitStack() as stack:
             for name, callback in (
                 ("button", capture_button),
@@ -144,6 +150,7 @@ class NativeControls:
                 ("selectable", capture_selectable),
                 ("combo", capture_stock_combo),
                 ("begin_tab_item", capture_tab),
+                ("input_text", capture_text),
             ):
                 stack.enter_context(patch.object(imgui, name, callback))
             yield
