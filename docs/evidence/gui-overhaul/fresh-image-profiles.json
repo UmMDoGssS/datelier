@@ -1,0 +1,11 @@
+{
+  "frames": 129,
+  "p95_ms": 18.400990500413172,
+  "native_explicit_sampled_profile": true,
+  "native_dimensions_colors_outcomes": true,
+  "native_expand_restore": true,
+  "native_profile_record_open": true,
+  "original_pixel_values": true,
+  "source_preserved": true,
+  "implicit_collection_or_playback": false
+}

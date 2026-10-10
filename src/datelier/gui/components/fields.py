@@ -32,6 +32,9 @@ class ChoiceField[T](Component):
         imgui.set_next_item_width(-1)
         value = self.get()
         choices = self.choices() if callable(self.choices) else self.choices
+        if not choices:
+            imgui.text_disabled("No available choices")
+            return
         labels = self.labels or tuple(str(c) for c in choices)
         changed, index = imgui.combo(
             "##" + self.key,

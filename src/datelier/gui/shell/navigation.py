@@ -129,4 +129,7 @@ class CanvasTabs(Container):
                     imgui.end_tab_item()
                 imgui.end_disabled()
             imgui.end_tab_bar()
-        self._selected = self.selected()
+        # A child can navigate to another tab while this native row still shows
+        # the previous tab. Observe the entry state so that command is applied
+        # to the native tab bar next frame instead of being overwritten.
+        self._selected = selected

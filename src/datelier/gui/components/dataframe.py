@@ -6,15 +6,20 @@ import polars as pl
 from imgui_bundle import imgui
 
 from datelier.gui.components.base import Component, FrameContext
-from datelier.gui.components.native import number
+from datelier.gui.components.native import number, target
 
 
 class DataFrameTable(Component):
     def __init__(
-        self, key: str, table: Callable[[], pl.DataFrame | None], height: float = 240
+        self,
+        key: str,
+        table: Callable[[], pl.DataFrame | None],
+        height: float = 240,
+        open_row: Callable[[int], None] | None = None,
     ) -> None:
         super().__init__(key)
         self.table, self.height = table, height
+        self.open_row = open_row
 
     def render(self, frame: FrameContext) -> None:
         table = self.table()
@@ -28,7 +33,13 @@ class DataFrameTable(Component):
             | imgui.TableFlags_.resizable
             | imgui.TableFlags_.sizing_fixed_fit
         )
-        if imgui.begin_table(self.key, table.width, flags, (-1, self.height)):
+        if imgui.begin_table(
+            self.key, table.width + bool(self.open_row), flags, (-1, self.height)
+        ):
+            if self.open_row:
+                imgui.table_setup_column(
+                    "Inspect", imgui.TableColumnFlags_.width_fixed, 65
+                )
             for name in table.columns:
                 imgui.table_setup_column(name, imgui.TableColumnFlags_.width_fixed, 130)
             imgui.table_setup_scroll_freeze(0, 1)
@@ -38,6 +49,11 @@ class DataFrameTable(Component):
             while clipper.step():
                 for index in range(clipper.display_start, clipper.display_end):
                     imgui.table_next_row()
+                    if self.open_row:
+                        imgui.table_next_column()
+                        if imgui.small_button(f"Open##{index}"):
+                            self.open_row(index)
+                        target(frame, f"open-{index}")
                     for value in table.row(index):
                         imgui.table_next_column()
                         text = number(value)

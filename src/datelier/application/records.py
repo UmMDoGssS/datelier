@@ -9,10 +9,15 @@ import polars as pl
 from datelier.application.columns import ColumnChoice
 from datelier.application.sources.columns import record_mapping
 from datelier.core.column_roles import ColumnRole
-from datelier.core.dataset import Dataset
+from datelier.core.dataset import Dataset, DatasetRevision
 from datelier.inspection.arrays.mapping import ArrayLayout
 from datelier.inspection.records.jobs import RecordJobs
-from datelier.inspection.records.types import InspectSettings, RecordCard, RecordField
+from datelier.inspection.records.types import (
+    InspectSettings,
+    RecordCard,
+    RecordField,
+    RecordMode,
+)
 from datelier.inspection.table import Inspection
 from datelier.inspection.text.list_records import is_text_list
 from datelier.io.types import ArrayOptions
@@ -168,6 +173,35 @@ class RecordController:
             return
         self.settings = replace(self.settings, focus=slot, gallery=False)
         self.selection.choose(records.revision, (int(records.row_ids[slot]),))
+
+    def open_position(
+        self,
+        revision: DatasetRevision,
+        position: int,
+        row_id: int,
+        primary: str | None,
+        mapped: bool = False,
+    ) -> bool:
+        inspection = self._inspection
+        if (
+            inspection is None
+            or inspection.dataset.revision != revision
+            or not 0 <= position < inspection.row_count
+            or int(inspection.dataset.row_ids[position]) != row_id
+        ):
+            return False
+        self.settings = replace(
+            self.settings,
+            mode=RecordMode.RANGE,
+            start=position + 1,
+            count=1,
+            focus=0,
+            gallery=False,
+            primary=primary,
+            mapped_payload=mapped,
+        )
+        self.selection.choose(revision, (row_id,))
+        return True
 
     def close(self) -> None:
         self._inspection = None

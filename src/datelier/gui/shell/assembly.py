@@ -14,12 +14,14 @@ from datelier.gui.components.routing import RoutedContent
 from datelier.gui.components.viewport import ResizableViewport
 from datelier.gui.context.audio_profiles import AudioProfileSettings
 from datelier.gui.context.history import HistoryView
+from datelier.gui.context.image_profiles import ImageProfileSettings
 from datelier.gui.context.profiles import ProfileSettings
 from datelier.gui.context.relationships import CorrelationSettings, RelationshipSettings
 from datelier.gui.context.text_profiles import TextProfileSettings
 from datelier.gui.context.transforms import TransformSettings
 from datelier.gui.profiles.audio import AudioProfileContent
 from datelier.gui.profiles.content import ProfileRouter
+from datelier.gui.profiles.images import ImageProfileContent
 from datelier.gui.profiles.text import TextProfileContent
 from datelier.gui.relationships.correlations import CorrelationPlot
 from datelier.gui.relationships.scatter import ScatterPlot
@@ -110,11 +112,35 @@ def assemble_file(file: FileController, editor: EditorController) -> FileCompone
         )
 
     inspect = assemble_inspect(file, editor)
+
+    def open_image_record(index: int) -> None:
+        profile = file.images.profile_jobs.active
+        active = file.inspection
+        if (
+            profile is None
+            or active is None
+            or profile.revision != active.dataset.revision
+        ):
+            return
+        row = profile.records.row(index, named=True)
+        position, row_id = int(row["position"]), int(row["row_id"])
+        if not file.records.open_position(
+            profile.revision,
+            position,
+            row_id,
+            profile.settings.column if profile.mapping is None else "record_index",
+            profile.mapping is not None,
+        ):
+            return
+        file.table.go_to(position)
+        editor.choose_route("Inspect")
+
     profile_content = RoutedContent(
         {
             ProfileFamily.COLUMNS: ProfileRouter(file.profiles),
             ProfileFamily.TEXT: TextProfileContent(file.text, file.profiles),
             ProfileFamily.AUDIO: AudioProfileContent(file.audio),
+            ProfileFamily.IMAGES: ImageProfileContent(file.images, open_image_record),
         },
         lambda: file.profiles.family,
     )
@@ -129,6 +155,9 @@ def assemble_file(file: FileController, editor: EditorController) -> FileCompone
                     ),
                     ProfileFamily.AUDIO: AudioProfileSettings(
                         file.audio, lambda: file.profiles.selected[0]
+                    ),
+                    ProfileFamily.IMAGES: ImageProfileSettings(
+                        file.images, lambda: file.profiles.selected[0]
                     ),
                 },
                 lambda: file.profiles.family,

@@ -7,8 +7,8 @@ from time import monotonic, sleep
 import pytest
 from PIL import Image
 
-from datelier.gui.editor_session import EditorSession
-from datelier.gui.workspace.capture import capture_session
+from datelier.application.editor import EditorController
+from datelier.application.workspace import capture_session
 from datelier.inspection.images.settings import ImageSettings
 from datelier.inspection.images.types import ImageDisplay, ImageWindow
 from datelier.inspection.images.viewport import ImageViewport
@@ -53,15 +53,15 @@ def test_legacy_view_defaults_and_strict_image_recipe_roundtrip() -> None:
     assert isinstance(decoded, WorkspaceViews) and decoded.image == ImageSettings()
 
 
-def wait(editor: EditorSession) -> None:
+def wait(editor: EditorController) -> None:
     deadline = monotonic() + 5
     while monotonic() < deadline:
         editor.poll()
-        if not editor.workspace_jobs.busy and all(
-            (not file.controls.path or file.loader.active is not None)
+        if not editor.workspace.busy and all(
+            (not file.loader.status.path or file.loader.active is not None)
             and not file.images.jobs.busy
             and not file.references.busy
-            for file in editor.file_sessions
+            for file in editor.files
         ):
             return
         sleep(0.001)
@@ -80,9 +80,9 @@ def test_independent_image_windows_and_restoration_never_decode_whole_collection
         )
     originals = [path.read_bytes() for path in sorted(tmp_path.glob("image*.png"))]
     workspace = tmp_path / "session.datelier.json"
-    editor = EditorSession()
+    editor = EditorController()
     try:
-        files = [editor.new_tab(tmp_path / f"source{index}.csv") for index in range(2)]
+        files = [editor.new_file(tmp_path / f"source{index}.csv") for index in range(2)]
         wait(editor)
         for file in files:
             assert file.loader.active is not None
@@ -102,28 +102,28 @@ def test_independent_image_windows_and_restoration_never_decode_whole_collection
         files[0].images.settings = ImageSettings(
             ImageDisplay(1), ImageViewport(2, 40, 20)
         )
-        files[0].inspect.settings = replace(files[0].inspect.settings, gallery=False)
-        files[0].exploration.active_tab = "Inspect"
+        files[0].records.settings = replace(files[0].records.settings, gallery=False)
+        files[0].views = replace(files[0].views, tab="Inspect")
         save_snapshot(workspace, capture_session(editor), False)
         temporary = files[0].images.jobs.store.temporary_path
-        editor.close_tab(files[0].identity)
+        editor.close_file(files[0].identity)
     finally:
         editor.close()
     assert temporary is not None and not temporary.exists()
-    restored = EditorSession()
+    restored = EditorController()
     try:
         restored.open_workspace(workspace)
         wait(restored)
         first_file = next(
             file
-            for file in restored.file_sessions
-            if file.controls.path.endswith("source0.csv")
+            for file in restored.files
+            if file.loader.status.path and file.loader.status.path.name == "source0.csv"
         )
         assert first_file.images.settings == ImageSettings(
             ImageDisplay(1), ImageViewport(2, 40, 20)
         )
-        assert first_file.exploration.active_tab == "Inspect"
-        for file in restored.file_sessions:
+        assert first_file.views.tab == "Inspect"
+        for file in restored.files:
             assert file.images.jobs.metadata is None and file.images.jobs.active is None
             assert file.images.jobs.store.temporary_path is None
         assert originals == [

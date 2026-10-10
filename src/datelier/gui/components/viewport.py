@@ -73,6 +73,7 @@ class ResizableViewport(Container):
             if opened:
                 if imgui.button("Restore"):
                     self.expanded = False
+                target(frame, "restore")
                 self._render_content(frame, True)
             imgui.end()
         else:

@@ -56,7 +56,7 @@ components implement Component.render; container classes render direct children.
 | A | Replace GUI package; GUI-free file/record/editor runtime and component contracts | Complete; desktop deliberately not runnable |
 | B | Shared controls, shell, columns, table, tabular profiles and plots | Complete; basic inspection shell runnable |
 | C | Contextual analysis, transforms/history, export and workspace/preferences | Complete; advanced plot modes tracked separately |
-| D | Structured/array/checkpoint source and multimodal record/profile families | In progress; source browsers and focused Inspect restored |
+| D | Structured/array/checkpoint source and multimodal record/profile families | In progress; source/Inspect and text/image/audio profiles restored; annotations pending |
 | E | Comparison families, remaining features and integrated acceptance | Pending |
 
 Each stage runs scoped Pyrefly, behavioral tests, full Ruff checks and diff review
@@ -232,6 +232,29 @@ header collection and deterministic injected Play/Pause/Stop pass in 133 frames,
 passes 55 frames, 23.08 ms p95. Human listening remains deferred; this step does not
 claim actual hearing. Image/annotation profiles and controls, comparisons, advanced
 plots, full caller migration and integrated acceptance remain open.
+
+## Fresh Stage D5 — Image profiles and display controls
+
+Explicit image collection profiles compose shared Statistics/Dimensions/Colors/
+Record outcomes subtabs, prepared histograms and model-bound resizable viewports.
+Exact and seeded pixel scopes retain provenance and original-value statistics.
+Outcome rows open source-aligned focused Inspect through a reusable guarded record
+command. Mapped image payloads survive sorting and removal of display identity
+columns; supporting scalar fields remain ordinary values. Image context restores
+channel, fixed numeric heatmap coordinates, validated display-range drafts and
+CPU/GPU/temporary cache controls. Worker publication remains in central polling.
+
+Verification: production/scoped caller Pyrefly zero errors, 65 focused image/
+profile/record/restore tests, full Ruff lint/format and whitespace checks pass.
+Migrated workspace tests retain independent fields, heights, selection and no
+implicit collection decoding. Native sampled profiling, all image subtabs,
+Expand/Restore, outcome opening, display-range input and exact original pixels
+pass in 129 frames, 18.40 ms p95, preserving sources and zero implicit playback.
+The native workflow exposed and fixed child-command navigation being overwritten
+by the containing tab row. [Image report](evidence/gui-overhaul/fresh-image-profiles.json).
+Annotation adapters/associations/overlays, comparison families, advanced plots,
+remaining import/table controls and full caller/native/resource acceptance remain
+open. Historical baseline evidence does not certify those replacement features.
 
 ## Baseline evidence
 
