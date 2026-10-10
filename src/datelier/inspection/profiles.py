@@ -8,6 +8,7 @@ import polars as pl
 
 from datelier.core.column_roles import PLOTTABLE_ROLES, ColumnRole
 from datelier.core.dataset import Dataset, DatasetRevision
+from datelier.inspection.lists import ListStatistics, prepare_list
 from datelier.inspection.statistics import NumericStatistics, prepare_numeric_statistics
 
 MAX_PROFILE_COLUMNS = 128
@@ -25,6 +26,8 @@ class ProfileKind(StrEnum):
     IMAGE = "Image"
     AUDIO = "Audio"
     EXTERNAL_TEXT = "External text"
+    LIST = "List"
+    OBJECT = "Object"
 
 
 @dataclass(frozen=True)
@@ -54,6 +57,7 @@ class ColumnProfile:
     statistics: NumericStatistics | None = None
     nonnull_count: int = 0
     unique_count: int | None = None
+    list_statistics: ListStatistics | None = None
 
 
 @dataclass(frozen=True)
@@ -216,7 +220,9 @@ def prepare_range_profile(
     )
 
 
-def _counts_profile(series: pl.Series, top: int) -> ColumnProfile:
+def _counts_profile(
+    series: pl.Series, top: int, *, unit: str = "rows"
+) -> ColumnProfile:
     sample = series.head(COUNT_ROW_LIMIT).drop_nulls().rename("value")
     counts = sample.value_counts(sort=True)
     # Tie ordering is deterministic without relying on hash/group order.
@@ -237,7 +243,7 @@ def _counts_profile(series: pl.Series, top: int) -> ColumnProfile:
         distinct_count=counts.height,
         other_count=len(sample) - sum(sizes),
         note=(
-            f"Counts from first {COUNT_ROW_LIMIT:,} rows (sample). "
+            f"Counts from first {COUNT_ROW_LIMIT:,} {unit} (sample). "
             if sampled
             else "Exact counts. "
         )
@@ -275,7 +281,13 @@ def prepare_profiles(
         else (
             table.get_column(info.name)
             for info in (dataset.roles or ())
-            if info.role in (*PLOTTABLE_ROLES, ColumnRole.UNSUPPORTED)
+            if info.role
+            in (
+                *PLOTTABLE_ROLES,
+                ColumnRole.LIST,
+                ColumnRole.OBJECT,
+                ColumnRole.UNSUPPORTED,
+            )
         )
     )
     for index, series in enumerate(series_list):
@@ -283,10 +295,22 @@ def prepare_profiles(
             break
         info = dataset.role(series.name)
         kind = ProfileKind(info.role.value)
+        list_stats = None
+        physical = str(series.dtype)
+        if kind == ProfileKind.LIST:
+            series, list_stats = prepare_list(series)
+            kind = profile_kind(series.dtype)
+        distinct = (
+            series.n_unique() - int(series.null_count() > 0)
+            if list_stats is not None and kind != ProfileKind.UNSUPPORTED
+            else info.distinct
+        )
         if kind in (ProfileKind.NUMERIC, ProfileKind.TEMPORAL):
             profile = prepare_range_profile(series, kind, bins)
         elif kind == ProfileKind.CATEGORICAL:
-            profile = _counts_profile(series, top)
+            profile = _counts_profile(
+                series, top, unit="elements" if list_stats else "rows"
+            )
         else:
             profile = ColumnProfile(
                 series.name,
@@ -297,18 +321,32 @@ def prepare_profiles(
                 note=(
                     f"{kind} excluded from analysis. "
                     "Change its role in Schema to include it."
-                    if info.role not in PLOTTABLE_ROLES
-                    else "This type has no automatic plot."
+                    if info.role
+                    not in (*PLOTTABLE_ROLES, ColumnRole.LIST, ColumnRole.OBJECT)
+                    else "Object values have no scalar plot; choose the column "
+                    "as the primary field in Inspect to read its complete value."
+                    if kind == ProfileKind.OBJECT or isinstance(series.dtype, pl.Struct)
+                    else "No scalar element values to plot."
                 ),
             )
         profiles.append(
             replace(
                 profile,
-                statistics=prepare_numeric_statistics(series, uniques=info.distinct)
+                dtype=physical,
+                statistics=prepare_numeric_statistics(series, uniques=distinct)
                 if kind == ProfileKind.NUMERIC
                 else None,
-                nonnull_count=info.nonnull,
-                unique_count=info.distinct,
+                nonnull_count=len(series) - series.null_count()
+                if list_stats
+                else info.nonnull,
+                unique_count=distinct,
+                list_statistics=list_stats,
+                note=(
+                    "Flattened leaf elements across all rows; null/empty containers "
+                    "contribute no elements. " + profile.note
+                    if list_stats
+                    else profile.note
+                ),
             )
         )
     return Profiles(dataset.revision, table.height, table.width, tuple(profiles))

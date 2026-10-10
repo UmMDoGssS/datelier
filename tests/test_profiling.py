@@ -43,12 +43,19 @@ def test_numeric_temporal_counts_and_quality() -> None:
 
 def test_empty_constant_all_null_and_unsupported() -> None:
     table = pl.DataFrame(
-        {"constant": [5.0, 5.0], "null": [None, None], "nested": [[1], [2]]}
+        {
+            "constant": [5.0, 5.0],
+            "null": [None, None],
+            "nested": [[1], [2]],
+            "binary": [b"a", b"b"],
+        }
     )
     profiles = prepare_profiles(dataset(table))
     assert sum(profiles.columns[0].distribution.counts) == 2
     assert profiles.columns[1].null_count == 2
-    assert profiles.columns[2].kind == ProfileKind.UNSUPPORTED
+    assert profiles.columns[2].kind == ProfileKind.NUMERIC
+    assert profiles.columns[2].statistics and profiles.columns[2].statistics.mean == 1.5
+    assert profiles.columns[3].kind == ProfileKind.UNSUPPORTED
     empty = prepare_profiles(dataset(table.clear()))
     assert all(not p.distribution.counts for p in empty.columns)
     null = prepare_profiles(

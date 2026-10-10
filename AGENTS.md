@@ -159,10 +159,11 @@ deliverables, and acceptance gates. Inspect actual code and configuration
 before relying on either document's description of current implementation.
 Keep both documents aligned when an authorized decision changes direction.
 
-The text statistics tables and nested JSON column follow-up is authorized;
-[docs/nested-column-profiles.md](docs/nested-column-profiles.md) tracks typed
-object/list record columns, full nested Inspect values and flattened list-element
-profiles with separate length/shape statistics.
+The text statistics tables and nested JSON column follow-up passes;
+[docs/nested-column-profiles.md](docs/nested-column-profiles.md) records typed
+object/list record columns, full nested Inspect values, flattened list-element
+profiles with separate length/shape tables, rendering/restoration and measured
+resource evidence. Mouse-selector automation remains unverified on this display.
 
 ## Architecture and data integrity
 

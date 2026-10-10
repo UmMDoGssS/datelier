@@ -17,6 +17,8 @@ class ColumnRole(StrEnum):
     AUDIO = "Audio"
     EXTERNAL_TEXT = "External text"
     TEMPORAL = "Temporal"
+    LIST = "List"
+    OBJECT = "Object"
     UNSUPPORTED = "Unsupported"
 
 
@@ -36,6 +38,10 @@ class RoleInfo:
 
 
 def allowed_roles(dtype: pl.DataType) -> tuple[ColumnRole, ...]:
+    if isinstance(dtype, (pl.List, pl.Array)):
+        return (ColumnRole.LIST,)
+    if isinstance(dtype, pl.Struct):
+        return (ColumnRole.OBJECT,)
     if dtype.is_numeric():
         return (ColumnRole.NUMERIC, ColumnRole.CATEGORY, ColumnRole.IDENTIFIER)
     if dtype == pl.String:
@@ -66,7 +72,8 @@ def infer_roles(
         nonnull = len(series) - series.null_count()
         distinct = (
             series.n_unique() - int(series.null_count() > 0)
-            if allowed_roles(dtype) != (ColumnRole.UNSUPPORTED,)
+            if not dtype.is_nested()
+            and allowed_roles(dtype) != (ColumnRole.UNSUPPORTED,)
             else None
         )
         unique = bool(nonnull and distinct == nonnull)
@@ -121,6 +128,13 @@ REFERENCE_ROLES = (
     ColumnRole.EXTERNAL_TEXT,
 )
 PLOTTABLE_ROLES = (ColumnRole.NUMERIC, ColumnRole.CATEGORY, ColumnRole.TEMPORAL)
+
+
+def list_leaf_dtype(dtype: pl.DataType) -> pl.DataType:
+    while isinstance(dtype, (pl.List, pl.Array)):
+        inner = dtype.inner
+        dtype = inner if isinstance(inner, pl.DataType) else inner()
+    return dtype
 
 
 def _recognize_strings(series: pl.Series) -> tuple[ColumnRole, str] | None:

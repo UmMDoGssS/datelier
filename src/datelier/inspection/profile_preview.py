@@ -6,12 +6,14 @@ from dataclasses import dataclass
 from datelier.core.column_roles import PLOTTABLE_ROLES, ColumnRole
 from datelier.core.dataset import Dataset, DatasetRevision
 from datelier.core.jobs import JobExecutor
-from datelier.inspection.profiles import Profiles, prepare_profiles
+from datelier.inspection.lists import flatten_elements
+from datelier.inspection.profiles import ProfileKind, Profiles, prepare_profiles
 from datelier.plotting.data import Bars, prepare_bars
 from datelier.plotting.distributions import (
     Comparison,
     DistributionSettings,
     prepare_comparison,
+    prepare_series_comparison,
 )
 
 
@@ -34,17 +36,33 @@ def prepare_profile_group(dataset: Dataset, request: ProfileRequest) -> ProfileG
     names = request.distribution.columns
     request.distribution.validate()
     roles = tuple(dataset.role(name).role for name in names)
-    if any(r not in PLOTTABLE_ROLES for r in roles) or (
-        len(roles) > 1 and any(r != ColumnRole.NUMERIC for r in roles)
-    ):
-        raise ValueError("Choose one category/date or any number of numeric columns")
+    if any(
+        r not in (*PLOTTABLE_ROLES, ColumnRole.LIST, ColumnRole.OBJECT) for r in roles
+    ) or (len(roles) > 1 and any(r != ColumnRole.NUMERIC for r in roles)):
+        raise ValueError("Choose one category/date/list/object or numeric columns")
     profiles = prepare_profiles(
         dataset, columns=names, bins=request.bins, top=request.top
     )
     comparison, message = None, ""
-    if roles and all(r == ColumnRole.NUMERIC for r in roles):
+    if profiles.columns and all(
+        p.kind == ProfileKind.NUMERIC for p in profiles.columns
+    ):
         try:
-            comparison = prepare_comparison(dataset, request.distribution, request.bins)
+            comparison = (
+                prepare_series_comparison(
+                    (
+                        flatten_elements(
+                            dataset.table.get_column(names[0]).gather(
+                                dataset.row_ids.arg_sort()
+                            )
+                        ),
+                    ),
+                    request.distribution,
+                    request.bins,
+                )
+                if roles == (ColumnRole.LIST,)
+                else prepare_comparison(dataset, request.distribution, request.bins)
+            )
         except ValueError as error:
             # Keep exact statistics and the single-column histogram fallback
             # available even when shared Float64 coordinates cannot be drawn.

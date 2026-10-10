@@ -7,7 +7,13 @@ import polars as pl
 from datelier.core.column_roles import PLOTTABLE_ROLES, ColumnRole, RoleInfo
 from datelier.core.dataset import Dataset
 
-PROFILE_ROLES = (*PLOTTABLE_ROLES, ColumnRole.TEXT, ColumnRole.IMAGE)
+PROFILE_ROLES = (
+    *PLOTTABLE_ROLES,
+    ColumnRole.TEXT,
+    ColumnRole.IMAGE,
+    ColumnRole.LIST,
+    ColumnRole.OBJECT,
+)
 
 
 @dataclass
@@ -21,7 +27,7 @@ class ProfileSelection:
         self.choices = tuple(
             i
             for i in dataset.roles or ()
-            if i.role in PLOTTABLE_ROLES or schema[i.name] == pl.String
+            if i.role in PROFILE_ROLES or schema[i.name] == pl.String
         )
         allowed = {i.name: i.role for i in self.choices}
         if self.columns is None:

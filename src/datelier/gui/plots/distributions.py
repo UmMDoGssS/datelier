@@ -88,6 +88,7 @@ def show_comparison(
     height: float = 220,
     axes: AxisControls | None = None,
     colored: bool = False,
+    count_label: str = "Rows",
 ) -> bool:
     start_y = imgui.get_cursor_screen_pos().y
     settings = comparison.settings
@@ -137,7 +138,7 @@ def show_comparison(
         if mode == 2
         else "Density"
         if mode == 1 or settings.density
-        else "Rows"
+        else count_label
     )
     implot.setup_axes(
         "Column"

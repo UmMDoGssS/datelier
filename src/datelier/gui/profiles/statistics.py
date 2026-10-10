@@ -24,7 +24,11 @@ def show_statistics(profiles: tuple[ColumnProfile, ...]) -> None:
         if any(p.statistics and p.statistics.rounded_mode for p in profiles)
         else "Mode"
     )
-    imgui.separator_text("Statistics")
+    imgui.separator_text(
+        "Element statistics"
+        if any(p.list_statistics for p in profiles)
+        else "Statistics"
+    )
     headings = (
         (
             "Column",
@@ -56,9 +60,11 @@ def show_statistics(profiles: tuple[ColumnProfile, ...]) -> None:
         | imgui.TableFlags_.sizing_fixed_fit
     )
     table_height = statistics_height(len(profiles)) - 28
+    imgui.push_id("Numeric" if numeric else "Temporal" if temporal else "Categorical")
     if not imgui.begin_table(
         "Profile statistics", len(headings), flags, (-1, table_height)
     ):
+        imgui.pop_id()
         return
     for index, heading in enumerate(headings):
         imgui.table_setup_column(
@@ -143,3 +149,4 @@ def show_statistics(profiles: tuple[ColumnProfile, ...]) -> None:
             if not numeric and imgui.is_item_hovered():
                 imgui.set_tooltip(profile.note)
     imgui.end_table()
+    imgui.pop_id()

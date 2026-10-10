@@ -1,0 +1,13 @@
+{
+  "python": "3.14.7",
+  "polars": "1.44.2",
+  "rows": 100000,
+  "leaf_elements": 600000,
+  "shape": "2 \u00d7 3",
+  "profile_seconds": 0.14634689200011053,
+  "preview_ms": 5.4855140001564,
+  "source_table_mib": 6.866455078125,
+  "peak_rss_mib": 289.3828125,
+  "total_seconds": 1.251004574000035,
+  "source_values_and_ids_preserved": true
+}

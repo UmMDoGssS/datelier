@@ -7,12 +7,13 @@ import numpy as np
 import polars as pl
 from imgui_bundle import imgui, implot
 
-from datelier.core.column_roles import ColumnRole
+from datelier.core.column_roles import ColumnRole, list_leaf_dtype
 from datelier.core.dataset import Dataset
 from datelier.gui.plots.area import PlotArea
 from datelier.gui.plots.axes import AxisControls
 from datelier.gui.plots.distributions import MODES, show_comparison
 from datelier.gui.profiles.colors import profile_color
+from datelier.gui.profiles.lists import list_statistics_height, show_list_statistics
 from datelier.gui.profiles.selector import show_selector
 from datelier.gui.profiles.statistics import show_statistics, statistics_height
 from datelier.inspection.exploration import Dashboard, Explorer
@@ -26,6 +27,8 @@ if TYPE_CHECKING:
 
 
 def profile_summary(profile: ColumnProfile, rows: int) -> str:
+    if profile.list_statistics:
+        rows = profile.list_statistics.elements
     counted = (
         f"{profile.counted_rows:,} counted (first {COUNT_ROW_LIMIT:,} rows)"
         if profile.kind == ProfileKind.CATEGORICAL and rows > COUNT_ROW_LIMIT
@@ -90,8 +93,10 @@ class ProfileView:
             ):
                 self.text = False
             self._previous_columns = selected
-            numeric = (
-                bool(selected) and dataset.role(selected[0]).role == ColumnRole.NUMERIC
+            numeric = bool(selected) and (
+                dataset.role(selected[0]).role == ColumnRole.NUMERIC
+                or dataset.role(selected[0]).role == ColumnRole.LIST
+                and list_leaf_dtype(dataset.table.schema[selected[0]]).is_numeric()
             )
             imgui.set_next_item_width(-1)
             if numeric:
@@ -120,7 +125,18 @@ class ProfileView:
                         if self.selection.text_column() is not None
                         else "Counts"
                         if selected
-                        and dataset.role(selected[0]).role == ColumnRole.CATEGORY
+                        and (
+                            dataset.role(selected[0]).role == ColumnRole.CATEGORY
+                            or dataset.role(selected[0]).role == ColumnRole.LIST
+                            and list_leaf_dtype(dataset.table.schema[selected[0]])
+                            in (pl.String, pl.Boolean)
+                        )
+                        else "Object"
+                        if selected
+                        and dataset.role(selected[0]).role == ColumnRole.OBJECT
+                        else "List structure"
+                        if selected
+                        and dataset.role(selected[0]).role == ColumnRole.LIST
                         else "Histogram"
                     ],
                 )
@@ -162,13 +178,20 @@ class ProfileView:
             nonlocal statistics_shown
             statistics_shown = True
             show_statistics(profiles)
+            show_list_statistics(profiles)
 
         numeric = profiles[0].kind == ProfileKind.NUMERIC
         if (
             profiles[0].kind == ProfileKind.CATEGORICAL
-            and group.profiles.row_count > COUNT_ROW_LIMIT
+            and (
+                profiles[0].list_statistics.elements
+                if profiles[0].list_statistics
+                else group.profiles.row_count
+            )
+            > COUNT_ROW_LIMIT
         ):
-            imgui.text(f"Counts and mode: first {COUNT_ROW_LIMIT:,} rows.")
+            unit = "elements" if profiles[0].list_statistics else "rows"
+            imgui.text(f"Counts and mode: first {COUNT_ROW_LIMIT:,} {unit}.")
         key = (dataset.revision, request, self.mode if numeric else 0)
         shown = False
         if (
@@ -189,10 +212,12 @@ class ProfileView:
                     height=height,
                     axes=axes,
                     colored=True,
+                    count_label="Elements" if profiles[0].list_statistics else "Rows",
                 ),
                 numeric_axes=(False, True) if self.mode in (3, 4) else (True, True),
                 footer=footer,
-                footer_height=statistics_height(len(profiles)),
+                footer_height=statistics_height(len(profiles))
+                + list_statistics_height(profiles),
             )
         elif (
             len(profiles) == 1
@@ -212,7 +237,7 @@ class ProfileView:
                 if profile.kind == ProfileKind.TEMPORAL
                 else (True, True),
                 footer=footer,
-                footer_height=statistics_height(1),
+                footer_height=statistics_height(1) + list_statistics_height(profiles),
             )
         else:
             imgui.text_wrapped(group.message or "No finite values to plot.")
@@ -256,6 +281,7 @@ def draw_profile(
     if not len(bars.counts):
         return False
     categories = profile.kind == ProfileKind.CATEGORICAL
+    unit = "Elements" if profile.list_statistics else "Rows"
     if fit:
         implot.set_next_axes_to_fit()
     implot.push_style_var(implot.StyleVar_.fit_padding, imgui.ImVec2(0.1, 0.05))
@@ -264,7 +290,7 @@ def draw_profile(
         implot.pop_style_var()
         return False
     if categories:
-        implot.setup_axes("Rows", "", y_flags=implot.AxisFlags_.invert)
+        implot.setup_axes(unit, "", y_flags=implot.AxisFlags_.invert)
         implot.setup_axis_ticks(
             implot.ImAxis_.y1, bars.positions.tolist(), list(bars.labels)
         )
@@ -272,14 +298,14 @@ def draw_profile(
             axes.apply()
         style = implot.Spec()
         style.flags = implot.BarsFlags_.horizontal
-        implot.plot_bars("Rows", bars.counts, bars.positions, 0.8, style)
+        implot.plot_bars(unit, bars.counts, bars.positions, 0.8, style)
     else:
         xlabel = (
             f"{profile.name} / {profile.histogram_scale:.6g}"
             if profile.histogram_scale != 1
             else profile.name
         )
-        implot.setup_axes(xlabel, "Rows")
+        implot.setup_axes(xlabel, unit)
         if bars.tick_labels:
             stride = max(1, (len(bars.edges) - 1 + 3) // 4)
             indices = list(range(0, len(bars.edges) - 1, stride)) + [
@@ -293,7 +319,7 @@ def draw_profile(
         if axes is not None:
             axes.apply()
         draw_histogram(
-            "Rows",
+            unit,
             bars,
             profile_color(profile.name)
             if profile.kind == ProfileKind.NUMERIC

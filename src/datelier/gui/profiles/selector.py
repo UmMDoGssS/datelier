@@ -39,7 +39,13 @@ def show_selector(selection: ProfileSelection) -> None:
                 for i in selection.choices
                 if (
                     i.role
-                    if i.role in (*PLOTTABLE_ROLES, ColumnRole.IMAGE)
+                    if i.role
+                    in (
+                        *PLOTTABLE_ROLES,
+                        ColumnRole.IMAGE,
+                        ColumnRole.LIST,
+                        ColumnRole.OBJECT,
+                    )
                     else ColumnRole.TEXT
                 )
                 == role
@@ -55,6 +61,10 @@ def show_selector(selection: ProfileSelection) -> None:
                 if role == ColumnRole.TEMPORAL
                 else "Image references"
                 if role == ColumnRole.IMAGE
+                else "Lists / arrays"
+                if role == ColumnRole.LIST
+                else "Objects"
+                if role == ColumnRole.OBJECT
                 else "Text / string fields"
             )
             clipper = imgui.ListClipper()

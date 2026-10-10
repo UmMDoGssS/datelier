@@ -74,10 +74,33 @@ def prepare_comparison(
         raise ValueError("Histogram bins must be 1–100")
     if any(name not in numeric_columns(dataset) for name in settings.columns):
         raise ValueError("Comparison requires existing numeric columns")
+    return prepare_series_comparison(
+        tuple(dataset.table.get_column(name) for name in settings.columns),
+        settings,
+        bins,
+        row_ids=dataset.row_ids,
+    )
+
+
+def prepare_series_comparison(
+    series: tuple[pl.Series, ...],
+    settings: DistributionSettings,
+    bins: int = 20,
+    *,
+    row_ids: pl.Series | None = None,
+) -> Comparison:
+    """Prepare scalar distributions; flattened lists sample by element ordinal."""
+    settings.validate()
+    if not 1 <= bins <= 100:
+        raise ValueError("Histogram bins must be 1–100")
+    if tuple(s.name for s in series) != settings.columns or any(
+        not s.dtype.is_numeric() for s in series
+    ):
+        raise ValueError("Comparison requires matching numeric series")
     values: list[pl.Series] = []
     notes: list[str] = []
-    for name in settings.columns:
-        raw = dataset.table.get_column(name).rename("value").cast(pl.Float64)
+    for column in series:
+        raw = column.rename("value").cast(pl.Float64)
         finite = raw.filter(raw.is_finite())
         note = "Null and nonfinite values excluded."
         if settings.standardize and len(finite):
@@ -108,7 +131,12 @@ def prepare_comparison(
     for name, raw, finite, note in zip(
         settings.columns, values, finite_values, notes, strict=True
     ):
-        frame = pl.DataFrame({"value": raw, "id": dataset.row_ids}).filter(
+        ids = (
+            row_ids
+            if row_ids is not None
+            else pl.int_range(0, len(raw), dtype=pl.UInt64, eager=True)
+        )
+        frame = pl.DataFrame({"value": raw, "id": ids}).filter(
             pl.col("value").is_finite()
         )
         sample = seeded_sample(frame, 2_000, settings.seed)["value"].to_numpy()
