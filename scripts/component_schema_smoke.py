@@ -39,7 +39,7 @@ def main() -> None:
                 )
                 stage, entered = 1, evidence.frames
             elif stage == 1 and age > 10:
-                scope = ViewScope(file.identity, file.view_name, dataset.revision)
+                scope = ViewScope(file.identity, file.identity, dataset.revision)
                 point = probe.point(scope, "schema", "roles", "id")
                 if point is None:
                     return

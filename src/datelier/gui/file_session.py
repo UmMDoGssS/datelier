@@ -1,4 +1,4 @@
-"""File-owned inspection state and publication, independent of GUI rendering."""
+"""Presentation coordination for a file runtime and its migrating native views."""
 
 from concurrent.futures import Executor
 from dataclasses import dataclass, field, replace
@@ -7,6 +7,7 @@ from uuid import uuid4
 
 from datelier.analysis.jobs import AnalysisJobs
 from datelier.analysis.plots import AnalysisPlots
+from datelier.application.dataset import DatasetRuntime
 from datelier.application.schema import SchemaController
 from datelier.core.column_roles import REFERENCE_ROLES
 from datelier.gui.analysis.session import AnalysisSession
@@ -43,7 +44,7 @@ from datelier.inspection.preview import PreviewCache
 from datelier.inspection.references.jobs import ReferenceJobs
 from datelier.io.arrays.storage import ArrayStore
 from datelier.io.exporting import DatasetExporter
-from datelier.io.loading import DatasetLoader, LoadPhase, LoadStatus
+from datelier.io.loading import DatasetLoader
 from datelier.io.types import ArrayOptions, ImportFormat, MediaOptions
 from datelier.pipeline.editing import DatasetEditor
 from datelier.plotting.selection import LinkedSelection
@@ -92,8 +93,18 @@ class FileSession:
     audio: AudioView = field(default_factory=AudioView)
     schema_controller: SchemaController = field(init=False)
     schema_panel: SchemaPanel = field(init=False)
+    runtime: DatasetRuntime = field(init=False)
 
     def __post_init__(self) -> None:
+        self.runtime = DatasetRuntime(
+            self.loader,
+            self.pages,
+            self.editor,
+            self.exporter,
+            self.explorer,
+            self.selection,
+            self.workspace.jobs,
+        )
         self.schema_controller = SchemaController(self.editor.request)
         self.schema_panel = SchemaPanel(self.schema_controller)
 
@@ -174,32 +185,25 @@ class FileSession:
                 restored.inspection.dataset.revision,
             )
         self.focus_inspect = False
-        self.loader.abandon()
-        self.loader.active = restored.inspection
-        self.loader.status = LoadStatus(
-            LoadPhase.READY, restored.pipeline.source.source.path
-        )
+        self.runtime.install(restored)
         self.controls.path = str(restored.pipeline.source.source.path)
         self.controls.bind_settings(
             restored.workspace.format, restored.workspace.options
         )
-        self.editor.bind(restored.inspection)
-        self.editor.pipeline = restored.pipeline
-        self.pages.bind(restored.inspection)
         self.table.reset()
         adjusted = restore_views(self, restored.workspace)
         if adjusted:
             self.workspace.jobs.message += (
                 " Saved plot settings were adjusted to the current columns and charts."
             )
-        self.selection.bind(restored.inspection.dataset.revision)
         self.explorer.request(restored.inspection.dataset, self.plots.settings())
         return adjusted
 
     def poll(self) -> None:
         if self.closed:
             return
-        if self.loader.poll():
+        changes = self.runtime.poll()
+        if changes.loaded:
             self.record_views.clear()
             self.array_view.plotted.clear()
             self.array_view.raw_columns.clear()
@@ -212,8 +216,6 @@ class FileSession:
             imported = self.loader.active.imported
             self.controls.path = str(imported.dataset.source.path)
             self.controls.bind_settings(imported.format, imported.options)
-            self.editor.bind(self.loader.active)
-            self.pages.bind(self.loader.active)
             self.table.reset()
             self.analysis.controls.bind(self.loader.active.dataset)
             restore_plots(
@@ -235,22 +237,14 @@ class FileSession:
                 in (ImportFormat.OBJECT, ImportFormat.ARRAY, ImportFormat.CHECKPOINT)
                 and not self.view_name
             )
-            self.selection.bind(self.loader.active.dataset.revision)
             self.explorer.request(self.loader.active.dataset, self.plots.settings())
-        if self.loader.status.phase == LoadPhase.LOADING:
-            self.editor.abandon()
-            self.workspace.jobs.abandon()
-        restored = self.workspace.jobs.poll(self.loader.revision)
-        if restored is not None:
-            self.install_restored(restored)
-        edited = self.editor.poll(self.loader.revision)
+        if changes.restored is not None:
+            self.install_restored(changes.restored)
+        edited = changes.edited
         if edited is not None:
-            self.loader.active = edited
-            self.pages.bind(edited)
             self.table.reset()
             self.analysis.controls.bind(edited.dataset)
             self.plots.bind(edited.dataset)
-            self.selection.bind(edited.dataset.revision)
             self.explorer.request(edited.dataset, self.plots.settings())
         self.analysis.sync_dimensions(self.plots)
         completed = self.analysis.poll(
@@ -261,9 +255,7 @@ class FileSession:
             self.plots.relationship_chart = "Scatter"
         if self.analysis.sync_colors(self.plots) and self.loader.active is not None:
             self.explorer.request(self.loader.active.dataset, self.plots.settings())
-        self.explorer.poll(self.loader.revision)
-        self.exporter.poll()
-        self.pages.poll()
+        self.runtime.poll_prepared()
         self.reference_view.textures.begin_frame()
         active = self.loader.active
         options = active.imported.options if active else None
@@ -348,16 +340,9 @@ class FileSession:
         self.reference_view.textures.clear()
         self.references.close()
         self.inspect.close()
-        self.loader.close()
-        self.pages.close()
-        self.editor.close()
-        self.exporter.close()
-        self.explorer.close()
+        self.runtime.close()
         self.analysis.close(wait=False)
-        self.workspace.jobs.close()
-        self.loader.active = None
-        self.editor.pipeline = None
-        self.editor.inspection = None
+        self.schema_controller.refresh(None, busy=False)
         self.panel_scroll.clear()
         self.recovery = None
         self.deferred = None

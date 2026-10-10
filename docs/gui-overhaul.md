@@ -40,7 +40,7 @@ preferences v2, layout v2, with legacy single-source/v2 session readers.
 | Step | Delivery | Status |
 | --- | --- | --- |
 | 1 | Baseline, component contracts, stable probe and an existing panel pilot | Complete |
-| 2 | Application/file runtime controllers and explicit lifetimes | Pending |
+| 2 | Application/file runtime controllers and explicit lifetimes | In progress; 2a complete |
 | 3 | Reusable column selectors and content viewports | Pending |
 | 4 | Polymorphic tabular exploration and complete contextual analysis | Pending |
 | 5 | Structured and multimodal browsers/record components | Pending |
@@ -73,6 +73,8 @@ Representative prior captures remain in the existing modality evidence folders;
 fresh redesigned-shell visual/input acceptance has not yet run.
 
 ## Step 1 — Component and schema pilot
+
+Committed as `cf48004`.
 
 `Component`, `Container`, `Panel` and `FrameContext` define the first rendering
 contract. The schema panel delegates to summary/table components, and the table
@@ -118,4 +120,50 @@ uv run --offline ruff check .
 uv run --offline ruff format --check .
 uv run --offline scripts/component_schema_smoke.py
 uv run --offline scripts/inspection_smoke.py --output /tmp/datelier-component-preview.ppm
+```
+
+## Step 2a — Dataset runtime publication and ownership
+
+`DatasetRuntime` owns import/edit/workspace publication, preview/exploration/export
+polling and the lifetime of those services, independently of GUI imports. It
+returns typed source changes to the presentation coordinator, which retains
+view-specific configuration/reset work during migration. Existing file-session
+service fields temporarily borrow the same instances; no second data authority,
+extra worker pool or service-locator mechanism is introduced.
+
+The runtime publishes inspection, preview revision and linked-selection revision
+together. Restore installs the replayed pipeline before requesting exploration;
+closed runtimes cannot publish late import results. Close is idempotent and
+preserves sibling services using the shared pool. Probe scopes now use stable
+owning-file and record-view identities, rather than a mutable record-view name.
+
+Verification on 2026-10-10:
+
+- Pyrefly: zero errors; Ruff lint/format and diff whitespace checks pass.
+- Runtime/loading/edit/workspace/editor/shared-worker/multimodal focused tests:
+  **37 passed**. New headless tests cover reversible sorted row identity,
+  unchanged source bytes, restored pipelines, sibling isolation, idempotent close
+  and an executing import completing after close.
+- Full pytest suite: **1,060 passed** in 31.43 s, with three dependency warnings.
+- Native component override/undo regression passes after runtime extraction.
+- Multi-file resources: **460 frames**, **13.74 ms p95**, **499.94 MiB** peak RSS,
+  **203.77 ms** maximum cycle preview and **0.36 ms** maximum close across 30
+  cycles. Four workers, zero retained closed sessions/outstanding jobs/remaining
+  worker threads, unchanged source bytes and temporary-directory cleanup pass.
+- Native whole-session save (**15 frames**) and a separate-process restore
+  (**45 frames**) preserve tab order and run no implicit ML.
+
+[Runtime resource report](evidence/gui-overhaul/runtime-tabs.json) and
+[fresh-process workspace report](evidence/gui-overhaul/runtime-workspace.json)
+retain the evidence. Application-wide coordination and specialized controllers
+are still pending within Step 2. This slice does not claim completion of the
+redesigned shell or any other pending delivery step.
+
+Additional commands:
+
+```sh
+uv run --offline pytest tests/test_dataset_runtime.py tests/test_loading.py tests/test_editing.py tests/test_workspace_restore.py tests/test_editor_sessions.py tests/test_shared_jobs.py tests/test_multimodal_sessions.py
+uv run --offline pytest
+uv run --offline scripts/benchmark_editor_tabs.py
+uv run --offline scripts/session_workspace_smoke.py
 ```

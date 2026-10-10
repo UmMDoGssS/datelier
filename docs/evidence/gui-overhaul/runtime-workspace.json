@@ -1,0 +1,5 @@
+{
+  "command": "scripts/session_workspace_smoke.py",
+  "save": {"pid": 16494, "frames": 15, "whole_session_api": true, "native_tab_order": true, "implicit_ml_runs": 0},
+  "restore": {"pid": 16587, "frames": 45, "whole_session_api": true, "native_tab_order": true, "implicit_ml_runs": 0}
+}

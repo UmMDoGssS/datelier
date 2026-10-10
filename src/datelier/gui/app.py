@@ -151,7 +151,9 @@ def run_gui(
         evidence.schema_dock_id = imgui.get_window_dock_id()
         session.schema_panel.render(
             FrameContext(
-                ViewScope(session.identity, session.view_name, session.loader.revision),
+                ViewScope(
+                    editor.active.identity, session.identity, session.loader.revision
+                ),
                 probe,
             )
         )
