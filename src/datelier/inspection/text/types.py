@@ -139,6 +139,7 @@ class TextSettings:
     training: TrainingSettings = TrainingSettings()
     profile_bins: int = 24
     viewport: TextViewport = TextViewport()
+    element_index: int = 0
 
     def validate(self) -> None:
         self.tokens.validate()
@@ -147,8 +148,8 @@ class TextSettings:
         self.training.validate()
         if self.encoding not in ("utf8", "utf-8-sig", "utf16", "latin1"):
             raise ValueError("Choose a supported text encoding")
-        if self.position < 0:
-            raise ValueError("Text row position must be nonnegative")
+        if min(self.position, self.element_index) < 0:
+            raise ValueError("Text row and list element positions must be nonnegative")
         if not 1 <= self.profile_bins <= 200:
             raise ValueError("Text length histograms require 1–200 bins")
 
@@ -159,6 +160,7 @@ class TextOrigin:
     revision: DatasetRevision
     row_id: int
     column: str
+    element_path: tuple[int, ...] = ()
 
 
 @dataclass(frozen=True)

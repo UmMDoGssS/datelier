@@ -119,3 +119,28 @@ def test_list_overrides_are_typed_reversible_and_restore_source_values(
     assert (
         identifier.kind == ProfileKind.IDENTIFIER and not identifier.distribution.counts
     )
+
+
+@pytest.mark.parametrize(
+    ("legacy", "role", "label"),
+    [
+        ("list[numeric]", ColumnRole.LIST_NUMERIC, "List[Numeric]"),
+        ("list[category]", ColumnRole.LIST_CATEGORY, "List[Category]"),
+        ("list[text]", ColumnRole.LIST_TEXT, "List[Text]"),
+        ("list[id]", ColumnRole.LIST_IDENTIFIER, "List[Identifier]"),
+        ("list[temporal]", ColumnRole.LIST_TEMPORAL, "List[Temporal]"),
+        ("list[object]", ColumnRole.LIST_OBJECT, "List[Object]"),
+    ],
+)
+def test_list_role_labels_migrate_saved_recipes(
+    legacy: str, role: ColumnRole, label: str
+) -> None:
+    restored = decode_record(
+        SetColumnRole, {"kind": "SetColumnRole", "column": "items", "role": legacy}
+    )
+    assert restored == SetColumnRole("items", role)
+    assert encode(restored) == {
+        "kind": "SetColumnRole",
+        "column": "items",
+        "role": label,
+    }

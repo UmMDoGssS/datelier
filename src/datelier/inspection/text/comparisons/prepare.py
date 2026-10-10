@@ -170,7 +170,7 @@ def select_length_bin(
             if bin_index == len(result.centers) - 1
             else pl.col("tokens") < hi
         )
-    )["source_row_id"]
+    )["source_row_id"].unique(maintain_order=True)
     chosen = tuple(int(row) for row in rows.head(10_000))
     positions = (
         pl.DataFrame({"id": dataset.row_ids})

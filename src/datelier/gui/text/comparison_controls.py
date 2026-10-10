@@ -2,7 +2,6 @@
 
 from dataclasses import replace
 
-import polars as pl
 from imgui_bundle import imgui
 
 from datelier.gui.editor_session import EditorSession
@@ -12,6 +11,7 @@ from datelier.inspection.text.comparisons.settings import (
     TextComparisonSource,
     TextScale,
 )
+from datelier.inspection.text.list_records import is_text_field, is_text_list
 from datelier.inspection.text.types import TextSource
 
 
@@ -56,7 +56,11 @@ def controls(
         )
         changed, use = imgui.checkbox(label, current is not None)
         columns = (
-            [name for name, dtype in dataset.table.schema.items() if dtype == pl.String]
+            [
+                name
+                for name, dtype in dataset.table.schema.items()
+                if is_text_field(dtype)
+            ]
             if dataset
             else []
         )
@@ -80,10 +84,18 @@ def controls(
             names = ["Unavailable field", *columns]
             chosen = names.index(current.column) if current.column in names else 0
             _, chosen = imgui.combo("Mapped text field", chosen, names)
-            modes = list(TextSource)
+            chosen_column = names[chosen] if chosen else current.column
+            text_list = (
+                dataset is not None
+                and chosen_column in columns
+                and is_text_list(dataset.table.schema[chosen_column])
+            )
+            modes = (
+                [TextSource.AUTO, TextSource.INLINE] if text_list else list(TextSource)
+            )
             _, mode = imgui.combo(
                 "Mapped text source",
-                modes.index(current.source),
+                modes.index(current.source) if current.source in modes else 0,
                 [m.value for m in modes],
             )
             encodings = ["utf8", "utf-8-sig", "utf16", "latin1"]
@@ -92,7 +104,7 @@ def controls(
             )
             updated = replace(
                 current,
-                column=names[chosen] if chosen else current.column,
+                column=chosen_column,
                 source=modes[mode],
                 encoding=encodings[encoding],
                 scope=scope_controls(current.scope),

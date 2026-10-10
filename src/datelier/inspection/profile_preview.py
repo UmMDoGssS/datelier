@@ -3,6 +3,8 @@
 from concurrent.futures import Executor, Future
 from dataclasses import dataclass
 
+import polars as pl
+
 from datelier.core.column_roles import LIST_ROLES, PLOTTABLE_ROLES, ColumnRole
 from datelier.core.dataset import Dataset, DatasetRevision
 from datelier.core.jobs import JobExecutor
@@ -15,6 +17,13 @@ from datelier.plotting.distributions import (
     prepare_comparison,
     prepare_series_comparison,
 )
+
+
+def _numeric_list(dataset: Dataset, name: str) -> pl.Series:
+    values = flatten_elements(
+        dataset.table.get_column(name).gather(dataset.row_ids.arg_sort())
+    )
+    return values.cast(pl.Float64) if values.dtype == pl.Null else values
 
 
 @dataclass(frozen=True)
@@ -50,13 +59,7 @@ def prepare_profile_group(dataset: Dataset, request: ProfileRequest) -> ProfileG
         try:
             comparison = (
                 prepare_series_comparison(
-                    (
-                        flatten_elements(
-                            dataset.table.get_column(names[0]).gather(
-                                dataset.row_ids.arg_sort()
-                            )
-                        ),
-                    ),
+                    (_numeric_list(dataset, names[0]),),
                     request.distribution,
                     request.bins,
                 )

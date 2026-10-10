@@ -45,11 +45,23 @@ def _table(
 
 def statistics(profile: TextProfile) -> None:
     totals = (
-        ("Requested records", profile.requested_records),
-        ("Decoded documents", profile.documents),
-        ("Empty documents", profile.empty),
-        ("Null records", profile.nulls),
-        ("Failed records", profile.failures),
+        (
+            "Requested rows" if profile.is_list else "Requested records",
+            profile.requested_records,
+        ),
+        (
+            "Decoded text elements" if profile.is_list else "Decoded documents",
+            profile.documents,
+        ),
+        (
+            "Empty text elements" if profile.is_list else "Empty documents",
+            profile.empty,
+        ),
+        ("Null elements" if profile.is_list else "Null records", profile.nulls),
+        (
+            "Failed text elements" if profile.is_list else "Failed records",
+            profile.failures,
+        ),
         ("Counted tokens", profile.tokens),
         ("Vocabulary types", profile.vocabulary_size),
         ("Original code points", profile.original_code_points),
@@ -70,7 +82,7 @@ def statistics(profile: TextProfile) -> None:
     )
     headings = (
         "Length",
-        "Documents",
+        "Elements" if profile.is_list else "Documents",
         "Mean",
         "Std (population)",
         "Min",
@@ -107,9 +119,21 @@ def statistics(profile: TextProfile) -> None:
                 ),
             )
         )
-    _table("Document length statistics", headings, rows, 110)
+    _table(
+        "Element length statistics"
+        if profile.is_list
+        else "Document length statistics",
+        headings,
+        rows,
+        110,
+    )
     imgui.text_wrapped(
-        "Null/failed records are excluded from length statistics; empty documents "
-        "are included. Standard deviation uses the population; quantiles use "
-        "linear interpolation."
+        (
+            "Null/failed elements are excluded from length statistics; empty text "
+            "elements are included. "
+            if profile.is_list
+            else "Null/failed records are excluded from length statistics; empty "
+            "documents are included. "
+        )
+        + "Standard deviation uses the population; quantiles use linear interpolation."
     )

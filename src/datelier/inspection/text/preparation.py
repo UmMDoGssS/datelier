@@ -27,5 +27,6 @@ def prepare_document(
         encoding=settings.encoding,
         references=references,
         index=index,
+        element_index=settings.element_index,
     )
     return TextTokenizer(settings.tokens).encode(document)

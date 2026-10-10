@@ -22,6 +22,7 @@ from datelier.inspection.text.corpus import (
     corpus_documents,
     corpus_positions,
 )
+from datelier.inspection.text.list_records import is_text_list
 from datelier.inspection.text.tokenization import normalization
 from datelier.inspection.text.types import (
     TextSettings,
@@ -84,6 +85,9 @@ def train_tokenizer(
     if not len(positions):
         raise ValueError("Training scope contains no records")
     requested_ids: list[int] = []
+    element_paths: list[list[int]] = []
+    dtype = dataset.table.schema.get(settings.column or "")
+    text_list = dtype is not None and is_text_list(dtype)
     digest = hashlib.sha256()
     nulls = empty = tokenless = documents = 0
     configured_normalizer = normalization(settings.tokens)
@@ -95,10 +99,19 @@ def train_tokenizer(
             dataset, file_id, settings, positions, references, index, stop, progress
         ):
             requested_ids.append(doc.origin.row_id)
+            if text_list:
+                element_paths.append(list(doc.origin.element_path))
             content_digest = hashlib.sha256(doc.text.encode("utf8")).hexdigest()
             digest.update(
                 json.dumps(
-                    [doc.origin.row_id, doc.status.value, doc.path, content_digest],
+                    [
+                        (doc.origin.row_id, doc.origin.element_path)
+                        if text_list
+                        else doc.origin.row_id,
+                        doc.status.value,
+                        doc.path,
+                        content_digest,
+                    ],
                     ensure_ascii=False,
                 ).encode("utf8")
             )
@@ -154,7 +167,9 @@ def train_tokenizer(
     if first is None:
         raise ValueError("Training requires a decoded document with token pieces")
     tokenizer.train_from_iterator(
-        chain((first,), inputs), trainer=trainer, length=len(positions)
+        chain((first,), inputs),
+        trainer=trainer,
+        length=None if text_list else len(positions),
     )
     check_abandoned(stop)
     if fingerprint(dataset.source.path) != source:
@@ -162,7 +177,7 @@ def train_tokenizer(
     if not documents:
         raise ValueError("Training requires a nonempty decoded document")
     payload = tokenizer.to_str(pretty=True).encode("utf8")
-    provenance = {
+    provenance: dict[str, object] = {
         "version": 1,
         "tokenizers_version": tokenizers.__version__,
         "source": asdict(source),
@@ -184,6 +199,8 @@ def train_tokenizer(
         "input_sha256": digest.hexdigest(),
         "tokenizer_sha256": hashlib.sha256(payload).hexdigest(),
     }
+    if text_list:
+        provenance["source_element_paths"] = element_paths
     provenance_payload = (
         json.dumps(provenance, ensure_ascii=False, indent=2) + "\n"
     ).encode("utf8")

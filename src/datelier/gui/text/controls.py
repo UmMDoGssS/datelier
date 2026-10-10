@@ -3,12 +3,12 @@
 from dataclasses import dataclass, replace
 from pathlib import Path
 
-import polars as pl
 from imgui_bundle import imgui
 
 from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset
 from datelier.inspection.text.jobs import TextJobs
+from datelier.inspection.text.list_records import is_text_field, is_text_list
 from datelier.inspection.text.types import Normalization, TextSource, TokenMode
 
 
@@ -16,6 +16,7 @@ from datelier.inspection.text.types import Normalization, TextSource, TokenMode
 class TextControls:
     tokenizer_path: str = ""
     columns: tuple[str, ...] = ()
+    list_columns: tuple[str, ...] = ()
     import_pixel: tuple[float, float] = (0, 0)
     prepare_pixel: tuple[float, float] = (0, 0)
 
@@ -26,11 +27,25 @@ class TextControls:
             tuple(
                 name
                 for name, dtype in dataset.table.schema.items()
-                if dtype == pl.String
+                if is_text_field(dtype)
             )
             if dataset
             else ()
         )
+        self.list_columns = (
+            tuple(
+                name
+                for name, dtype in dataset.table.schema.items()
+                if is_text_list(dtype)
+            )
+            if dataset
+            else ()
+        )
+        if (
+            jobs.settings.column in self.list_columns
+            and jobs.settings.source == TextSource.EXTERNAL
+        ):
+            jobs.settings = replace(jobs.settings, source=TextSource.AUTO)
         if jobs.settings.column is None and self.columns and dataset is not None:
             preferred = (
                 default_column
@@ -40,7 +55,11 @@ class TextControls:
                         n
                         for n in self.columns
                         if dataset.role(n).role
-                        in (ColumnRole.TEXT, ColumnRole.EXTERNAL_TEXT)
+                        in (
+                            ColumnRole.TEXT,
+                            ColumnRole.EXTERNAL_TEXT,
+                            ColumnRole.LIST_TEXT,
+                        )
                     ),
                     self.columns[0],
                 )
@@ -50,9 +69,15 @@ class TextControls:
     def show(self, jobs: TextJobs) -> Path | None:
         import_path = None
         settings = jobs.settings
-        sources = list(TextSource)
+        text_list = settings.column in self.list_columns
+        sources = (
+            [TextSource.AUTO, TextSource.INLINE] if text_list else list(TextSource)
+        )
+        selected_source = (
+            settings.source if settings.source in sources else TextSource.AUTO
+        )
         _, source = imgui.combo(
-            "Text source", sources.index(settings.source), [s.value for s in sources]
+            "Text source", sources.index(selected_source), [s.value for s in sources]
         )
         encodings = ["utf8", "utf-8-sig", "utf16", "latin1"]
         _, encoding = imgui.combo(
@@ -78,11 +103,20 @@ class TextControls:
             _, add = imgui.checkbox("Add configured special tokens", add)
             _, count = imgui.checkbox("Count special tokens", count)
         _, position = imgui.input_int("Text table row", settings.position + 1)
+        element = settings.element_index
+        if text_list:
+            _, choice = imgui.input_int("Text list element (1-based)", element + 1)
+            element = max(0, choice - 1)
+            imgui.text_wrapped(
+                "Elements are flattened in source order within this row; "
+                "null/empty sublists contribute no elements."
+            )
         jobs.settings = replace(
             settings,
             source=sources[source],
             encoding=encodings[encoding],
             position=max(0, position - 1),
+            element_index=element,
             tokens=replace(
                 tokens,
                 mode=modes[mode],

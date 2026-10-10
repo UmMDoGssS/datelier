@@ -58,7 +58,13 @@ class TextView:
             else TextViewport()
         )
         self.jobs.settings = replace(
-            old, column=column, position=position, viewport=viewport
+            old,
+            column=column,
+            position=position,
+            viewport=viewport,
+            element_index=old.element_index
+            if (old.column, old.position) == (column, position)
+            else 0,
         )
         self.sync(owner)
         self.jobs.request_document()
@@ -79,10 +85,15 @@ class TextView:
     def show(self, owner: FileSession, column: str) -> None:
         if self.jobs.settings.column != column:
             self.jobs.settings = replace(
-                self.jobs.settings, column=column, viewport=TextViewport()
+                self.jobs.settings,
+                column=column,
+                element_index=0,
+                viewport=TextViewport(),
             )
         if not self.controls.columns:
-            imgui.text_wrapped("Choose a String column to inspect text.")
+            imgui.text_wrapped(
+                "Choose a String or List[String] column to inspect text."
+            )
             return
         import_path = None
         if imgui.collapsing_header("Text settings"):
@@ -134,7 +145,11 @@ class TextView:
                 )
             phase, done, total = self.jobs.progress.value
             if phase:
-                imgui.text_wrapped(f"{phase} · {done:,}/{total:,} records")
+                imgui.text_wrapped(
+                    f"{phase} · {done:,}/{total:,} records"
+                    if total
+                    else f"{phase} · {done:,} processed"
+                )
         imgui.text_wrapped(self.jobs.message)
         if artifact and artifact.provenance_path:
             imgui.text_wrapped(f"Training provenance: {artifact.provenance_path}")
@@ -145,8 +160,10 @@ class TextView:
             return
         self.shown += 1
         doc = active.document
+        element = "".join(f"[{index}]" for index in doc.origin.element_path)
         imgui.text_wrapped(
-            f"Source row {doc.origin.row_id} · {doc.origin.column} · {doc.status}"
+            f"Source row {doc.origin.row_id} · "
+            f"{doc.origin.column}{element} · {doc.status}"
         )
         if doc.diagnostic:
             imgui.text_wrapped(doc.diagnostic)

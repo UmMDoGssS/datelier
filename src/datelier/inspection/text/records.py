@@ -9,6 +9,7 @@ from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset
 from datelier.inspection.references.index import ReferenceIndex, resolve
 from datelier.inspection.references.types import ReferenceSettings
+from datelier.inspection.text.list_records import is_text_list, read_list_document
 from datelier.inspection.text.types import (
     TextDocument,
     TextOrigin,
@@ -27,12 +28,17 @@ def read_document(
     encoding: str = "utf8",
     references: ReferenceSettings | None = None,
     index: ReferenceIndex | None = None,
+    element_index: int = 0,
 ) -> TextDocument:
     table = dataset.table
     if column not in table.columns or not 0 <= position < table.height:
         raise ValueError("Text field or record is unavailable")
+    if is_text_list(table.schema[column]):
+        if source == TextSource.EXTERNAL:
+            raise ValueError("Text lists use inline string elements")
+        return read_list_document(dataset, file_id, column, position, element_index)
     if table.schema[column] != pl.String:
-        raise ValueError("Choose a physical String field for text inspection")
+        raise ValueError("Choose a String or List[String] field for text inspection")
     origin = TextOrigin(
         file_id, dataset.revision, int(dataset.row_ids[position]), column
     )

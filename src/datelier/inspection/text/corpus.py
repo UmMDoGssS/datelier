@@ -12,6 +12,11 @@ from datelier.inspection.records.prepare import prepare_records
 from datelier.inspection.records.types import InspectSettings, RecordMode
 from datelier.inspection.references.index import ReferenceIndex
 from datelier.inspection.references.types import ReferenceSettings
+from datelier.inspection.text.list_records import (
+    element_documents,
+    is_text_field,
+    is_text_list,
+)
 from datelier.inspection.text.records import read_value
 from datelier.inspection.text.types import (
     CorpusMode,
@@ -68,11 +73,28 @@ def corpus_documents(
     if settings.column is None:
         raise ValueError("Choose a text field")
     table = dataset.table
-    if (
-        settings.column not in table.columns
-        or table.schema[settings.column] != pl.String
+    if settings.column not in table.columns or not is_text_field(
+        table.schema[settings.column]
     ):
-        raise ValueError("Choose a physical String field for text inspection")
+        raise ValueError("Choose a String or List[String] field for text inspection")
+    if is_text_list(table.schema[settings.column]):
+        if settings.source == TextSource.EXTERNAL:
+            raise ValueError("Text lists use inline string elements")
+        elements = 0
+        values, row_ids = table.get_column(settings.column), dataset.row_ids
+        for done, position in enumerate(positions, 1):
+            check_abandoned(stop)
+            origin = TextOrigin(
+                file_id, dataset.revision, int(row_ids[int(position)]), settings.column
+            )
+            for document in element_documents(values[int(position)], origin, stop):
+                yield document
+                elements += 1
+                if elements % 256 == 0:
+                    stop.wait(0.001)
+            progress.update("Preparing corpus rows", done, len(positions))
+        check_abandoned(stop)
+        return
     values, row_ids = table.get_column(settings.column), dataset.row_ids
     external = settings.source == TextSource.EXTERNAL or (
         settings.source == TextSource.AUTO

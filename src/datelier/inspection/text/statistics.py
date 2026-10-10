@@ -20,6 +20,7 @@ from datelier.inspection.text.corpus import (
     corpus_documents,
     corpus_positions,
 )
+from datelier.inspection.text.list_records import is_text_list
 from datelier.inspection.text.tokenization import TextTokenizer
 from datelier.inspection.text.types import TextSettings, TextStatus
 
@@ -64,6 +65,10 @@ class TextProfile:
     records: pl.DataFrame
     frequencies: pl.DataFrame
     input_sha256: str
+
+    @property
+    def is_list(self) -> bool:
+        return "element_path" in self.records.columns
 
 
 def summarize_lengths(values: pl.Series) -> LengthStatistics:
@@ -113,6 +118,9 @@ def calculate_profile(
     term: Counter[tuple[str, int | None]] = Counter()
     document_frequency: Counter[tuple[str, int | None]] = Counter()
     records: list[tuple[int, str, int | None, int | None, int | None, str]] = []
+    element_paths: list[list[int]] = []
+    dtype = dataset.table.schema.get(settings.column or "")
+    text_list = dtype is not None and is_text_list(dtype)
     nulls = empty = failures = tokens = special = counted_special = original = (
         normalized
     ) = 0
@@ -121,10 +129,14 @@ def calculate_profile(
     for doc in corpus_documents(
         dataset, file_id, settings, positions, references, index, stop, progress
     ):
+        if text_list:
+            element_paths.append(list(doc.origin.element_path))
         digest.update(
             json.dumps(
                 [
-                    doc.origin.row_id,
+                    (doc.origin.row_id, doc.origin.element_path)
+                    if text_list
+                    else doc.origin.row_id,
                     doc.status.value,
                     doc.path,
                     hashlib.sha256(doc.text.encode("utf8")).hexdigest(),
@@ -159,7 +171,11 @@ def calculate_profile(
                 "",
             )
         )
-        progress.update("Profiling text", len(records), len(positions))
+        progress.update(
+            "Profiling text elements" if text_list else "Profiling text",
+            len(records),
+            0 if text_list else len(positions),
+        )
     check_abandoned(stop)
     rows = pl.DataFrame(
         records,
@@ -173,6 +189,10 @@ def calculate_profile(
         },
         orient="row",
     )
+    if text_list:
+        rows = rows.with_columns(
+            pl.Series("element_path", element_paths, dtype=pl.List(pl.UInt64))
+        )
     frequencies = pl.DataFrame(
         [
             (piece, token_id, count, document_frequency[(piece, token_id)])
@@ -202,7 +222,7 @@ def calculate_profile(
         settings,
         selection,
         len(positions),
-        len(positions) - nulls - failures,
+        len(records) - nulls - failures,
         nulls,
         empty,
         failures,

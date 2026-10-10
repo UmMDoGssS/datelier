@@ -21,6 +21,12 @@ class TextProfiles:
         imgui.text_wrapped(
             f"Exact corpus · {profile.settings.column} · {profile.settings.scope.mode}"
         )
+        if profile.is_list:
+            imgui.text_wrapped(
+                "Each string element is a document; null/empty containers "
+                "contribute no documents. Lengths and frequencies summarize "
+                "elements in the requested rows."
+            )
         if profile.settings.scope.mode.value in ("Row range", "Seeded random sample"):
             imgui.text_wrapped(
                 f"Start {profile.settings.scope.start} · "
@@ -34,10 +40,13 @@ class TextProfiles:
             if imgui.begin_tab_item("Length distribution")[0]:
                 if implot.begin_plot("Corpus token lengths", (-1, 260)):
                     implot.setup_axes(
-                        "Counted tokens per document", "Decoded documents"
+                        "Counted tokens per element"
+                        if profile.is_list
+                        else "Counted tokens per document",
+                        "Decoded elements" if profile.is_list else "Decoded documents",
                     )
                     implot.plot_bars(
-                        "Documents",
+                        "Elements" if profile.is_list else "Documents",
                         data.length_centers,
                         data.length_counts,
                         bar_size=data.length_width * 0.9,
@@ -70,7 +79,7 @@ class TextProfiles:
                         spec=implot.Spec(flags=implot.BarsFlags_.horizontal),
                     )
                     implot.plot_bars(
-                        "Document count",
+                        "Element count" if profile.is_list else "Document count",
                         data.frequency_documents,
                         data.frequency_positions,
                         bar_size=0.3,
@@ -93,7 +102,12 @@ class TextProfiles:
         )
         self.rendered_frequency_rows = 0
         if imgui.begin_table("Complete token frequencies", 4, flags, (-1, 200)):
-            for label in ("Piece", "ID", "Tokens", "Documents"):
+            for label in (
+                "Piece",
+                "ID",
+                "Tokens",
+                "Elements" if profile.is_list else "Documents",
+            ):
                 imgui.table_setup_column(label)
             imgui.table_headers_row()
             clipper = imgui.ListClipper()
@@ -120,8 +134,14 @@ class TextProfiles:
             | imgui.TableFlags_.borders
             | imgui.TableFlags_.row_bg
         )
-        if imgui.begin_table("Complete record outcomes", 4, flags, (-1, 280)):
-            for label in ("Source row", "Status", "Token length", "Diagnostic"):
+        if imgui.begin_table(
+            "Complete record outcomes", 5 if profile.is_list else 4, flags, (-1, 280)
+        ):
+            for label in (
+                ("Source row", "Element path", "Status", "Token length", "Diagnostic")
+                if profile.is_list
+                else ("Source row", "Status", "Token length", "Diagnostic")
+            ):
                 imgui.table_setup_column(label)
             imgui.table_headers_row()
             clipper = imgui.ListClipper()
@@ -130,11 +150,14 @@ class TextProfiles:
                 for row in range(clipper.display_start, clipper.display_end):
                     values = profile.records.row(row)
                     imgui.table_next_row()
-                    for column, value in enumerate(
-                        (values[0], values[1], values[2], values[5])
-                    ):
-                        imgui.table_next_column()
-                        imgui.text_unformatted(
-                            number(value) if column in (0, 2) else str(value)[:256]
+                    shown = (number(values[0]), values[1], number(values[2]), values[5])
+                    if profile.is_list:
+                        shown = (
+                            shown[0],
+                            "".join(f"[{i}]" for i in values[6]),
+                            *shown[1:],
                         )
+                    for value in shown:
+                        imgui.table_next_column()
+                        imgui.text_unformatted(str(value)[:256])
             imgui.end_table()

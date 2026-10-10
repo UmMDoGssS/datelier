@@ -69,6 +69,8 @@ class ProfileSelection:
         if not self.columns or len(self.columns) != 1:
             return None
         selected = next((i for i in self.choices if i.name == self.columns[0]), None)
+        if selected is not None and selected.role == ColumnRole.LIST_TEXT:
+            return selected.name
         if selected is not None and selected.dtype == str(pl.String):
             if selected.role == ColumnRole.IMAGE and not prefer_text:
                 return None

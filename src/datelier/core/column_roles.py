@@ -18,14 +18,30 @@ class ColumnRole(StrEnum):
     EXTERNAL_TEXT = "External text"
     TEMPORAL = "Temporal"
     LIST = "List"
-    LIST_NUMERIC = "list[numeric]"
-    LIST_CATEGORY = "list[category]"
-    LIST_TEXT = "list[text]"
-    LIST_IDENTIFIER = "list[id]"
-    LIST_TEMPORAL = "list[temporal]"
-    LIST_OBJECT = "list[object]"
+    LIST_NUMERIC = "List[Numeric]"
+    LIST_CATEGORY = "List[Category]"
+    LIST_TEXT = "List[Text]"
+    LIST_IDENTIFIER = "List[Identifier]"
+    LIST_TEMPORAL = "List[Temporal]"
+    LIST_OBJECT = "List[Object]"
     OBJECT = "Object"
     UNSUPPORTED = "Unsupported"
+
+    @classmethod
+    def _missing_(cls, value: object) -> ColumnRole | None:
+        # Preserve workspace recipes written before list labels used title case.
+        return (
+            {
+                "list[numeric]": cls.LIST_NUMERIC,
+                "list[category]": cls.LIST_CATEGORY,
+                "list[text]": cls.LIST_TEXT,
+                "list[id]": cls.LIST_IDENTIFIER,
+                "list[temporal]": cls.LIST_TEMPORAL,
+                "list[object]": cls.LIST_OBJECT,
+            }.get(value)
+            if isinstance(value, str)
+            else None
+        )
 
 
 @dataclass(frozen=True)
@@ -47,7 +63,9 @@ def allowed_roles(dtype: pl.DataType) -> tuple[ColumnRole, ...]:
     if isinstance(dtype, (pl.List, pl.Array)):
         leaf = list_leaf_dtype(dtype)
         return (
-            (
+            LIST_ROLES
+            if leaf == pl.Null
+            else (
                 ColumnRole.LIST_NUMERIC,
                 ColumnRole.LIST_CATEGORY,
                 ColumnRole.LIST_IDENTIFIER,
@@ -237,7 +255,7 @@ def _infer_list(series: pl.Series) -> tuple[ColumnRole, str]:
         )
     return ColumnRole.LIST_CATEGORY, (
         f"{len(texts)} sampled string elements have insufficient prose evidence; "
-        "use categories by default or override to list[text]. Sample limit: 256."
+        "use categories by default or override to List[Text]. Sample limit: 256."
     )
 
 

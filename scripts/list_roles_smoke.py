@@ -30,13 +30,13 @@ def run(root: Path, output: Path, *, restore: bool) -> dict[str, object]:
         result = original(label, index, labels)
         if label == "##role values":
             choices = labels
-            assert "list[numeric]" in labels and "list[category]" in labels
-            assert "list[text]" not in labels
+            assert "List[Numeric]" in labels and "List[Category]" in labels
+            assert "List[Text]" not in labels
             if change:
                 change = False
-                return True, labels.index("list[category]")
+                return True, labels.index("List[Category]")
         elif label == "##role text":
-            assert "list[text]" in labels and "list[category]" in labels
+            assert "List[Text]" in labels and "List[Category]" in labels
         return result
 
     def frame(
@@ -120,7 +120,7 @@ def run(root: Path, output: Path, *, restore: bool) -> dict[str, object]:
         "restore": restore,
         "schema_choices": choices,
         "combo_change_injected": not restore,
-        "role": "list[category]",
+        "role": "List[Category]",
         "no_implicit_text_or_ml": True,
     }
 

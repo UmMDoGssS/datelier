@@ -60,8 +60,10 @@ These gates do not change existing feature or usability acceptance.
 The [text tables and nested column follow-up](docs/nested-column-profiles.md)
 passes table-form text statistics, preserved JSON object/list record columns,
 complete nested Inspect values and flattened element profiles with list
-length/shape tables. The evidence records full-suite, rendering/restoration and
-resource checks, with mouse-selector automation unverified on this display.
+length/shape tables. Its interpretation follow-up passes title-case list roles,
+compatible reversible overrides and explicit List[Text] corpus/element tools
+with nested provenance. The evidence records full-suite, rendering/restoration
+and resource checks, with mouse-selector automation unverified on this display.
 
 A concrete post-v1 usability need is recorded in the
 [Titanic UX review and proposed repair plan](docs/ux-titanic-review.md): readable

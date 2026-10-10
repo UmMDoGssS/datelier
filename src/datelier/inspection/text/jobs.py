@@ -45,7 +45,7 @@ class TextJobs:
         self._dataset: Dataset | None = None
         self._index: ReferenceIndex | None = None
         self._document: Future[TokenizedDocument] | None = None
-        self._document_position: int | None = None
+        self._document_position: tuple[int, int] | None = None
         self._import: Future[TokenizerReference] | None = None
         self._training: Future[TrainedTokenizer] | None = None
         self._profile: Future[PreparedTextProfile] | None = None
@@ -77,7 +77,9 @@ class TextJobs:
             (
                 file_id,
                 dataset.revision,
-                replace(self.settings, position=0, viewport=TextViewport()),
+                replace(
+                    self.settings, position=0, element_index=0, viewport=TextViewport()
+                ),
                 references,
                 chosen,
             )
@@ -100,9 +102,9 @@ class TextJobs:
             self._dataset = dataset
             self._stamp = stamp
             self._index = index
-        elif (
-            self._document_position is not None
-            and self._document_position != self.settings.position
+        elif self._document_position is not None and self._document_position != (
+            self.settings.position,
+            self.settings.element_index,
         ):
             if self._document is not None:
                 self._document.cancel()
@@ -116,7 +118,7 @@ class TextJobs:
             raise ValueError("Open a text source before preparing records")
         self.abandon(clear_results=False)
         self.active = None
-        self._document_position = self.settings.position
+        self._document_position = (self.settings.position, self.settings.element_index)
         self._document = self._executor.submit(
             prepare_document,
             self._dataset,

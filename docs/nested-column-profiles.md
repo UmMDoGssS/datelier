@@ -108,16 +108,16 @@ heterogeneous field/element types still use explicit read-as-text recovery;
 struct schemas align missing keys as null. Additional platforms, accelerated
 rendering and the stalled mouse-selector automation are not claimed verified.
 
-## List interpretation follow-up — in progress
+## List interpretation follow-up — passed
 
 The user authorized element interpretations and manual list overrides. Deliver
 in two bounded steps:
 
-- [x] Typed list meanings: infer `list[numeric]`, `list[category]`, `list[text]`,
-  `list[temporal]` and `list[object]`; allow compatible manual overrides including
-  `list[id]`. Preserve physical values, undo/redo, and workspace recipes. Verify
-  Schema choices and category routing in the GUI.
-- [ ] Text-list tools: profile/tokenize flattened text elements with source-row
+- [x] Typed list meanings: infer `List[Numeric]`, `List[Category]`, `List[Text]`,
+  `List[Temporal]` and `List[Object]`; allow compatible manual overrides including
+  `List[Identifier]`. Preserve physical values, undo/redo, and workspace recipes.
+  Verify Schema choices and category routing in the GUI.
+- [x] Text-list tools: profile/tokenize flattened text elements with source-row
   and element provenance, scoped corpus commands, visible list structure and
   element navigation. Keep tokenizer/training commands explicit and restore
   overrides/settings without starting text work. Run full-suite acceptance.
@@ -132,5 +132,53 @@ Schema choices, injects a category combo result through the real Schema handler,
 verifies undo/redo and category counts, then restores the override in a separate
 process without implicit text/ML work. [Report](evidence/nested-columns/roles.json)
 and [screenshot](evidence/nested-columns/roles.png). Combo input is injected;
-mouse-driven selector acceptance is not claimed. Text-list tool integration
-remains the next gate.
+mouse-driven selector acceptance is not claimed. The final Schema recheck also
+confirms title-case labels and restoration.
+
+### Behavior and verification
+
+Schema offers `List[Numeric]`, `List[Category]`, `List[Text]`,
+`List[Identifier]`, `List[Temporal]` and `List[Object]` according to the physical
+leaf type. String lists default to Category unless at least 80% of a bounded
+256-element sample contain three or more words. Short strings can be explicitly
+overridden to Text; numeric lists can be overridden to Category or Identifier.
+Unknown empty/null leaf types also permit explicit meanings. Overrides preserve
+the source values and row identity and use existing undo/redo and saved recipes.
+Legacy generic `List` and earlier lowercase list labels remain readable.
+
+Selecting `List[Text]` in Profiles keeps the automatic list length/shape tables
+for all current rows and exposes the existing explicit text corpus commands.
+String leaves stream as separate documents; null/empty containers contribute no
+documents, while empty strings and null scalar leaves retain their outcomes.
+Token/character lengths and frequencies are weighted by elements. Corpus scope
+still selects parent rows. Outcomes retain source row IDs and zero-based nested
+paths, and linked comparison selections deduplicate parent rows. Text settings
+provide a one-based flattened element position for selected-record preparation;
+the displayed origin retains the exact nested path. Tokenizer training records
+the same element paths in its provenance. Restoring a session retains the
+interpretation, scope and element position without starting text commands.
+
+**55 focused tests passed** for list/text interpretation, empty leaf types,
+sorted/selected origins, token spans, worker invalidation, comparisons, explicit
+BPE training, workspace defaults and label migration. Final `uv run pytest`:
+**1,055 passed**, 3 existing PyTorch warnings, **29.85 s**. Pyrefly, Ruff lint,
+format and diff whitespace pass.
+
+`scripts/list_text_smoke.py` verifies real Linux Mesa rendering of list
+length/shape tables, corpus/element statistics tables, element controls and the
+prepared original text/token spans. A separate process restores `List[Text]`,
+the selected element and scope, verifies idle text/ML state, then explicitly
+prepares the corpus and record. [Report](evidence/nested-columns/list-text.json),
+[statistics screenshot](evidence/nested-columns/list-text.png) and
+[restored element screenshot](evidence/nested-columns/list-text-restored.png).
+View state, commands and scroll position are set explicitly; mouse-driven
+acceptance remains unverified.
+
+`scripts/benchmark_list_text.py` measures **25,000 parent rows**, **100,000
+nested elements** and **125,000 tokens**: exact corpus preparation **2.849 s**,
+retained profile **5.83 MiB**, whole-process peak RSS **406.1 MiB**. Preparing
+only the last element of a separate **100,000-item** row takes **0.147 ms**
+without decoding preceding strings. Source values/IDs remain unchanged.
+All predeclared budgets pass. [Resource report](evidence/nested-columns/list-text-resources.json).
+These are deterministic narrow fixtures, not a capacity guarantee. Existing
+platform/rendering limitations and unfinished usability gates retain their status.

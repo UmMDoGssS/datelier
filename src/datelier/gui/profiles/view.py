@@ -159,7 +159,22 @@ class ProfileView:
             return False
         column = self.selection.text_column(self.text)
         if column is not None:
-            explorer.profiles.clear()
+            if dataset.role(column).role == ColumnRole.LIST_TEXT:
+                if dashboard is not None:
+                    explorer.profiles.ensure(
+                        dataset,
+                        ProfileRequest(
+                            replace(dashboard.settings.comparison, columns=(column,)),
+                            dashboard.settings.bins,
+                            dashboard.settings.top_counts,
+                        ),
+                    )
+                    group = explorer.profiles.active
+                    if group is not None:
+                        imgui.text("List structure: all current rows")
+                        show_list_statistics(group.profiles.columns)
+            else:
+                explorer.profiles.clear()
             if owner is not None:
                 owner.text.show(owner, column)
             return False
