@@ -54,7 +54,7 @@ components implement Component.render; container classes render direct children.
 | Stage | Delivery | Status |
 | --- | --- | --- |
 | A | Replace GUI package; GUI-free file/record/editor runtime and component contracts | Complete; desktop deliberately not runnable |
-| B | Shared controls, shell, columns, table, tabular profiles and plots | In progress |
+| B | Shared controls, shell, columns, table, tabular profiles and plots | Complete; basic inspection shell runnable |
 | C | Contextual analysis, transforms/history, export and workspace/preferences | Pending |
 | D | Structured/array/checkpoint source and multimodal record/profile families | Pending |
 | E | Comparison families, remaining features and integrated acceptance | Pending |
@@ -73,6 +73,28 @@ analysis/text profile/playback, close isolation and repeated close pass. Full Ru
 lint/format and diff checks pass. Full Pyrefly reports 297 errors from obsolete
 GUI callers; this gate stays open. CLI desktop launch and old GUI tests are knowingly
 unavailable until Stage B and test migration. No native rendering is claimed.
+
+## Fresh Stage B — Runnable inspection shell
+
+The replacement shell composes four free-docking panels with a context drawer
+below 1100 px. Shared searchable/grouped/virtualized column pickers, typed fields,
+facts tables and Auto/Expand/Fit/resize viewports form the control foundation.
+Numeric Histogram/KDE/ECDF/Box/Violin implementations share an abstract family;
+profile routing dispatches by prepared kind. Column interpretations, virtualized
+source-ID table rows, bounded 2D scatter with linked input and correlation heatmap
+render from injected feature controllers. Assembly alone receives file/editor
+controllers. The CLI desktop entry point is restored.
+
+Verification: scoped Pyrefly zero errors, 20 focused controller/selection/schema/
+profile/distribution checks, full Ruff lint/format and diff checks pass. Native
+runs at 1280×800 and 1024×768 pass pointer resize and tab navigation, source hashes
+and zero implicit analysis/playback. The 1280 run takes 64 frames, 13.91 ms p95.
+[1280 report](evidence/gui-overhaul/fresh-shell-1280.json) and
+[compact report](evidence/gui-overhaul/fresh-shell-1024.json) retain raw evidence;
+captures are beside them. This is basic shell acceptance only. Contextual analysis,
+advanced plots, file browser, transformations, persistence, specialized content
+and comparison renderers are still pending. Full old GUI caller migration remains
+open. Historical incremental evidence below does not certify replacement features.
 
 ## Baseline evidence
 

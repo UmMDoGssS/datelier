@@ -14,8 +14,10 @@ from datelier.application.dataset import DatasetRuntime
 from datelier.application.images import ImageController
 from datelier.application.media_input import MediaInput
 from datelier.application.plot_settings import PlotState
+from datelier.application.profiles import ProfileController
 from datelier.application.records import RecordController
 from datelier.application.schema import SchemaController
+from datelier.application.table import TableController
 from datelier.application.text import TextController
 from datelier.core.column_roles import REFERENCE_ROLES, ColumnRole
 from datelier.inspection.arrays.jobs import ArrayJobs
@@ -56,6 +58,8 @@ class FileController:
         self.exporter = DatasetExporter(executor=executor)
         self.explorer = Explorer(executor=executor)
         self.selection = LinkedSelection()
+        self.table = TableController(self.pages, self.selection)
+        self.profiles = ProfileController(self.explorer)
         self.workspace = WorkspaceJobs(executor=executor)
         self.runtime = DatasetRuntime(
             self.loader,
@@ -181,6 +185,8 @@ class FileController:
             self.explorer.request(dataset, settings)
             self._plot_settings = settings
         self.runtime.poll_prepared()
+        self.table.refresh(active)
+        self.profiles.poll(active, self.choices)
         if active and any(
             c.role in REFERENCE_ROLES for c in active.dataset.roles or ()
         ):

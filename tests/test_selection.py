@@ -4,8 +4,8 @@ import numpy as np
 import polars as pl
 import pytest
 
+from datelier.application.plot_settings import PlotState
 from datelier.core.dataset import Dataset, SourceReference
-from datelier.gui.plots.controls import PlotControls
 from datelier.inspection.exploration import prepare_dashboard
 from datelier.pipeline.history import Pipeline
 from datelier.pipeline.operations import Comparison, Filter, SelectColumns, Sort
@@ -101,7 +101,7 @@ def test_settings_focus_any_column_and_rebind_after_removed_columns() -> None:
         pl.DataFrame({f"x{i}": [float(v) for v in range(5)] for i in range(140)}),
         SourceReference(Path("unused"), 0, 0),
     )
-    controls = PlotControls()
+    controls = PlotState()
     controls.bind(source)
     controls.profile_index = 140
     controls.custom_scatter = True
