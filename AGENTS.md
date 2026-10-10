@@ -159,6 +159,15 @@ deliverables, and acceptance gates. Inspect actual code and configuration
 before relying on either document's description of current implementation.
 Keep both documents aligned when an authorized decision changes direction.
 
+The production GUI architecture/workflow overhaul is authorized and underway;
+[docs/gui-overhaul.md](docs/gui-overhaul.md) tracks its bounded delivery and gates.
+Use class-based view/component families, immediate-child rendering and explicit
+injection of narrow prepared state/commands. Pure drawing/formatting helpers may
+remain functions. Separate application coordination from GUI presentation; retain
+all domain engines and modality capabilities. The planned four-panel shell,
+contextual analysis, shared selectors/viewports and recipe-preserving layout
+migration must pass their recorded gates before being marked complete.
+
 The text statistics tables and nested JSON column follow-up passes;
 [docs/nested-column-profiles.md](docs/nested-column-profiles.md) records typed
 object/list record columns, full nested Inspect values, flattened list-element

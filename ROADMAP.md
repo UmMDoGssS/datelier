@@ -569,6 +569,13 @@ LIBGL_ALWAYS_SOFTWARE=1 /tmp/datelier-refactor-install/bin/datelier --feasibilit
 
 ## Authorized editor and multimodal expansion
 
+The subsequent production GUI architecture/workflow overhaul is authorized in
+[docs/gui-overhaul.md](docs/gui-overhaul.md). Follow its eight bounded steps and
+verification gates while preserving the completed editor/multimodal capabilities.
+It separates application controllers from class-based component families and
+introduces a four-panel contextual workbench. Existing capability evidence and
+outstanding usability/listening assumptions retain their status.
+
 The user approved the following six delivery phases after choosing independent
 file tabs with cross-file comparisons, whole-session workspaces, checkpoint
 inspection, nearby-folder discovery, local tokenizer import/training, direct

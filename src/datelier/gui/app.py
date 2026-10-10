@@ -12,7 +12,8 @@ from imgui_bundle import hello_imgui, imgui, immapp
 from datelier.gui.arrays.browser import show_array_browser, show_deferred_records
 from datelier.gui.audio.comparison_view import AudioComparisonView
 from datelier.gui.comparisons.view import ComparisonView
-from datelier.gui.data.schema import show_schema
+from datelier.gui.components.base import FrameContext
+from datelier.gui.components.probe import GuiProbe, ViewScope
 from datelier.gui.editor_controls import EditorControls
 from datelier.gui.editor_session import EditorSession
 from datelier.gui.file_session import FileSession
@@ -63,6 +64,8 @@ def run_gui(
     | None = None,
     initial_workspace: Path | None = None,
     preferences_path: Path | None = None,
+    on_probe_frame: Callable[[EditorSession, GuiProbe, InspectionEvidence], None]
+    | None = None,
 ) -> InspectionEvidence:
     if smoke_frames < 0:
         raise ValueError("Smoke frame count must be nonnegative")
@@ -85,6 +88,7 @@ def run_gui(
     observed_comparison_tab: str | None = None
     objects = ObjectBrowser()
     evidence = InspectionEvidence()
+    probe = GuiProbe()
 
     def guard(callback: Callable[[], None]) -> Callable[[], None]:
         def protected() -> None:
@@ -145,7 +149,12 @@ def run_gui(
 
     def schema(session: FileSession) -> None:
         evidence.schema_dock_id = imgui.get_window_dock_id()
-        show_schema(session.loader, session.editor)
+        session.schema_panel.render(
+            FrameContext(
+                ViewScope(session.identity, session.view_name, session.loader.revision),
+                probe,
+            )
+        )
 
     def source_browser() -> None:
         owner = editor.active
@@ -279,7 +288,12 @@ def run_gui(
     params.imgui_window_params.show_menu_view_themes = False
     params.callbacks.setup_imgui_style = preferences.apply_theme
     params.callbacks.load_additional_fonts = load_fonts
-    params.callbacks.post_init = lambda: preferences.before_frame(params)
+
+    def initialize() -> None:
+        imgui.get_io().config_flags |= imgui.ConfigFlags_.nav_enable_keyboard
+        preferences.before_frame(params)
+
+    params.callbacks.post_init = initialize
     params.callbacks.pre_new_frame = lambda: preferences.before_frame(params)
     params.callbacks.show_menus = guard(lambda: controls.show_menu(editor, params))
 
@@ -340,6 +354,9 @@ def run_gui(
             on_frame(session, evidence)
         if on_editor_frame:
             on_editor_frame(editor, tabs, evidence)
+        if on_probe_frame:
+            on_probe_frame(editor, probe, evidence)
+        probe.begin_frame()
         if smoke_frames and evidence.frames >= smoke_frames:
             hello_imgui.get_runner_params().app_shall_exit = True
 

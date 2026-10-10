@@ -67,6 +67,10 @@ def main() -> None:
         def frame(session: GuiSession, evidence: InspectionEvidence) -> None:
             nonlocal scroll_started, wheel_started, wheel_row
             nonlocal reload_started, reload_revision, reload_published_frame
+            if session.loader.active is not None and not evidence.schema_dock_id:
+                hello_imgui.get_runner_params().docking_params.focus_dockable_window(
+                    "Schema and nulls"
+                )
             if args.scenario == "preview" and evidence.frames == 20:
                 reload_started = perf_counter()
                 reload_revision = session.loader.revision

@@ -7,6 +7,7 @@ from uuid import uuid4
 
 from datelier.analysis.jobs import AnalysisJobs
 from datelier.analysis.plots import AnalysisPlots
+from datelier.application.schema import SchemaController
 from datelier.core.column_roles import REFERENCE_ROLES
 from datelier.gui.analysis.session import AnalysisSession
 from datelier.gui.arrays.mapping_controls import MappingControls
@@ -17,6 +18,7 @@ from datelier.gui.checkpoints.view import CheckpointView
 from datelier.gui.data.export import ExportControls
 from datelier.gui.data.import_controls import ImportControls
 from datelier.gui.data.operations import OperationControls
+from datelier.gui.data.schema import SchemaPanel
 from datelier.gui.data.table import TableView
 from datelier.gui.exploration import ExplorationView
 from datelier.gui.images.view import ImageView
@@ -88,6 +90,12 @@ class FileSession:
     text: TextView = field(default_factory=TextView)
     images: ImageView = field(default_factory=ImageView)
     audio: AudioView = field(default_factory=AudioView)
+    schema_controller: SchemaController = field(init=False)
+    schema_panel: SchemaPanel = field(init=False)
+
+    def __post_init__(self) -> None:
+        self.schema_controller = SchemaController(self.editor.request)
+        self.schema_panel = SchemaPanel(self.schema_controller)
 
     @classmethod
     def create(
@@ -316,6 +324,7 @@ class FileSession:
         self.text.sync(self)
         self.images.sync(self)
         self.audio.sync(self)
+        self.schema_controller.refresh(self.loader.active, busy=self.editor.busy)
 
     def install_session_file(self, result: RestoredSessionFile) -> None:
         from datelier.gui.workspace.session_install import install_session_file

@@ -1,0 +1,9 @@
+{
+  "frames": 48,
+  "frame_p95_ms": 13.032119900015005,
+  "native_role_override": true,
+  "undo": true,
+  "source_and_rows_preserved": true,
+  "implicit_ml_runs": 0,
+  "input": "synthetic mouse opens the native combo; keyboard selects Numeric"
+}

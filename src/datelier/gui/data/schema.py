@@ -1,28 +1,90 @@
-"""Schema statistics and reversible analysis-role controls."""
+"""Column metadata components; preparation and editing belong to the controller."""
 
 from imgui_bundle import imgui
 
-from datelier.core.column_roles import allowed_roles
-from datelier.io.loading import DatasetLoader
-from datelier.pipeline.editing import DatasetEditor
-from datelier.pipeline.operations import SetColumnRole
+from datelier.application.schema import SchemaColumn, SchemaController, SchemaSnapshot
+from datelier.gui.components.base import Component, FrameContext, Panel
 
 
-def show_schema(loader: DatasetLoader, editor: DatasetEditor) -> None:
-    inspection = loader.active
-    if inspection is None:
-        imgui.text("Open a dataset to inspect its schema and missing values.")
-        return
-    dataset = inspection.dataset
-    schema = dataset.table.schema
-    imgui.text(f"Shape: ({inspection.row_count:,}, {len(inspection.schema):,})")
-    flags = (
-        imgui.TableFlags_.borders
-        | imgui.TableFlags_.scroll_y
-        | imgui.TableFlags_.resizable
-        | imgui.TableFlags_.sizing_stretch_prop
-    )
-    if imgui.begin_table("schema", 5, flags, imgui.ImVec2(-1, -1)):
+class SchemaSummary(Component):
+    def __init__(self, controller: SchemaController) -> None:
+        self.controller = controller
+
+    def render(self, frame: FrameContext) -> None:
+        snapshot = self.controller.snapshot
+        if snapshot is None:
+            imgui.text("Open a dataset to inspect its schema and missing values.")
+        else:
+            imgui.text(f"Shape: ({snapshot.rows:,}, {len(snapshot.columns):,})")
+        if self.controller.error:
+            imgui.text_wrapped(self.controller.error)
+
+
+class SchemaRow(Component):
+    def __init__(self, controller: SchemaController, column: SchemaColumn) -> None:
+        self.controller = controller
+        self.column = column
+
+    def render(self, frame: FrameContext) -> None:
+        column, info = self.column, self.column.role
+        imgui.table_next_row()
+        for index, text in enumerate(
+            (
+                column.name,
+                f"{info.nonnull:,}",
+                f"{info.distinct:,}" if info.distinct is not None else "—",
+                column.dtype,
+            )
+        ):
+            imgui.table_set_column_index(index)
+            imgui.text_unformatted(text)
+        imgui.table_set_column_index(4)
+        labels = [
+            f"Auto: {info.inferred}".replace("Categorical", "Category").replace(
+                "Identifier", "ID"
+            ),
+            *map(str, column.options[1:]),
+        ]
+        imgui.set_next_item_width(-1)
+        imgui.begin_disabled(self.controller.busy)
+        changed, choice = imgui.combo(
+            f"##role {column.name}", column.options.index(info.override), labels
+        )
+        imgui.end_disabled()
+        low, high = imgui.get_item_rect_min(), imgui.get_item_rect_max()
+        frame.record(column.name, ((low.x + high.x) / 2, (low.y + high.y) / 2))
+        if imgui.is_item_hovered():
+            imgui.set_tooltip(f"{info.role}. {info.reason}")
+        if changed and frame.scope.revision is not None:
+            self.controller.set_role(
+                frame.scope.revision, column.name, column.options[choice]
+            )
+
+
+class SchemaTable(Component):
+    def __init__(self, controller: SchemaController) -> None:
+        self.controller = controller
+        self._snapshot: SchemaSnapshot | None = None
+        self._rows: tuple[SchemaRow, ...] = ()
+
+    def render(self, frame: FrameContext) -> None:
+        snapshot = self.controller.snapshot
+        if snapshot is None:
+            self._snapshot, self._rows = None, ()
+            return
+        if snapshot is not self._snapshot:
+            self._snapshot = snapshot
+            self._rows = tuple(
+                SchemaRow(self.controller, column) for column in snapshot.columns
+            )
+        flags = (
+            imgui.TableFlags_.borders
+            | imgui.TableFlags_.scroll_y
+            | imgui.TableFlags_.resizable
+            | imgui.TableFlags_.sizing_stretch_prop
+        )
+        if not imgui.begin_table("schema", 5, flags, imgui.ImVec2(-1, -1)):
+            return
         for name, weight in (
             ("Column", 1.0),
             ("Non nulls", 1.15),
@@ -34,38 +96,13 @@ def show_schema(loader: DatasetLoader, editor: DatasetEditor) -> None:
         imgui.table_setup_scroll_freeze(0, 1)
         imgui.table_headers_row()
         clipper = imgui.ListClipper()
-        clipper.begin(len(inspection.schema))
+        clipper.begin(len(self._rows))
         while clipper.step():
             for index in range(clipper.display_start, clipper.display_end):
-                summary = inspection.schema[index]
-                info = dataset.role(summary.name)
-                imgui.table_next_row()
-                for column, text in enumerate(
-                    (
-                        summary.name,
-                        f"{info.nonnull:,}",
-                        f"{info.distinct:,}" if info.distinct is not None else "—",
-                        summary.dtype,
-                    )
-                ):
-                    imgui.table_set_column_index(column)
-                    imgui.text_unformatted(text)
-                imgui.table_set_column_index(4)
-                options = (None, *allowed_roles(schema[summary.name]))
-                labels = [
-                    f"Auto: {info.inferred}".replace("Categorical", "Category").replace(
-                        "Identifier", "ID"
-                    ),
-                    *[str(role) for role in options[1:]],
-                ]
-                imgui.set_next_item_width(-1)
-                imgui.begin_disabled(editor.busy)
-                changed, choice = imgui.combo(
-                    f"##role {summary.name}", options.index(info.override), labels
-                )
-                imgui.end_disabled()
-                if imgui.is_item_hovered():
-                    imgui.set_tooltip(f"{info.role}. {info.reason}")
-                if changed:
-                    editor.request(SetColumnRole(summary.name, options[choice]))
+                self._rows[index].render(frame.child("roles"))
         imgui.end_table()
+
+
+class SchemaPanel(Panel):
+    def __init__(self, controller: SchemaController) -> None:
+        super().__init__("schema", (SchemaSummary(controller), SchemaTable(controller)))
