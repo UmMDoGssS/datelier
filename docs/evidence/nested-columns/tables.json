@@ -1,0 +1,19 @@
+{
+  "open": {
+    "frames": 15,
+    "tables": [
+      "Corpus statistics",
+      "Document length statistics"
+    ],
+    "restore": false
+  },
+  "restore": {
+    "frames": 300,
+    "tables": [
+      "Corpus statistics",
+      "Document length statistics"
+    ],
+    "restore": true
+  },
+  "source_preserved": true
+}

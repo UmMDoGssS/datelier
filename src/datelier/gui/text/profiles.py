@@ -4,60 +4,9 @@ from dataclasses import dataclass
 
 from imgui_bundle import imgui, implot
 
+from datelier.gui.text.statistics import number, statistics
 from datelier.inspection.text.profiles import PreparedTextProfile
-from datelier.inspection.text.statistics import LengthStatistics, TextProfile
-
-
-def number(value: int | float | None) -> str:
-    return (
-        "undefined"
-        if value is None
-        else f"{value:,}"
-        if isinstance(value, int)
-        else f"{value:.6g}"
-    )
-
-
-def lengths(label: str, value: LengthStatistics) -> None:
-    imgui.text_wrapped(f"{label} · {value.count:,} decoded documents")
-    imgui.text_wrapped(
-        f"Mean {number(value.mean)} · population std {number(value.stddev)} · "
-        f"min/max {number(value.minimum)} / {number(value.maximum)} · "
-        f"median {number(value.median)}"
-    )
-    imgui.text_wrapped(
-        "Linear quantiles: "
-        + " · ".join(f"p{q * 100:g}={number(v)}" for q, v in value.quantiles)
-    )
-
-
-def statistics(profile: TextProfile) -> None:
-    imgui.text_wrapped(
-        f"{profile.requested_records:,} requested records · "
-        f"{profile.documents:,} decoded documents ({profile.empty:,} empty) · "
-        f"{profile.nulls:,} null · {profile.failures:,} failed"
-    )
-    imgui.text_wrapped(
-        f"{profile.tokens:,} counted tokens · "
-        f"{profile.vocabulary_size:,} vocabulary types · "
-        f"{profile.original_code_points:,} original / "
-        f"{profile.normalized_code_points:,} normalized code points"
-    )
-    imgui.text_wrapped(
-        f"Inserted specials {profile.special_tokens:,}, "
-        f"counted {profile.counted_special_tokens:,}. "
-        "Null/failed records are excluded from length statistics; "
-        "empty documents are included."
-    )
-    imgui.text_wrapped(
-        f"Hapax {profile.hapax:,} · "
-        f"vocabulary ratio {number(profile.hapax_vocabulary_ratio)} · "
-        f"token ratio {number(profile.hapax_token_ratio)} · "
-        f"type-token ratio {number(profile.type_token_ratio)} · "
-        f"Shannon entropy {number(profile.entropy_bits)} bits"
-    )
-    lengths("Token lengths", profile.token_lengths)
-    lengths("Original code-point lengths", profile.character_lengths)
+from datelier.inspection.text.statistics import TextProfile
 
 
 @dataclass
