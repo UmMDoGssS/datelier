@@ -9,6 +9,7 @@ from datelier.gui.comparisons.charts import draw_chart
 from datelier.gui.comparisons.controls import ComparisonControls
 from datelier.gui.comparisons.statistics import show_statistics
 from datelier.gui.editor_session import EditorSession
+from datelier.gui.plots.area import PlotArea
 from datelier.gui.widgets.fields import combo
 from datelier.inspection.comparison_settings import ComparisonSettings
 from datelier.inspection.comparisons.types import PreparedComparison
@@ -16,6 +17,7 @@ from datelier.inspection.comparisons.types import PreparedComparison
 
 @dataclass
 class ComparisonView:
+    area: PlotArea = field(default_factory=PlotArea)
     controls: ComparisonControls = field(default_factory=ComparisonControls)
     selected: int = 0
     selection_source: int = 0
@@ -89,7 +91,22 @@ class ComparisonView:
             self.selection_source,
             [f"{s.label} / {s.origin.column}" for s in result.series],
         )
-        shown, bin_index = draw_chart(result, self.selection_source, fit)
+        bin_index: int | None = None
+
+        def draw(height: float, fit_axes: bool, _axes: object) -> bool:
+            nonlocal bin_index
+            shown, bin_index = draw_chart(
+                result, self.selection_source, fit or fit_axes, height
+            )
+            return shown
+
+        shown = self.area.show(
+            "File profiles",
+            id(result),
+            draw,
+            numeric_axes=(True, result.kind == ColumnRole.NUMERIC),
+            footer_height=150,
+        )
         if shown:
             self.last_result = result
             self.plot_frames += 1

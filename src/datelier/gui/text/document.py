@@ -4,6 +4,7 @@ from dataclasses import replace
 
 from imgui_bundle import imgui
 
+from datelier.gui.components.viewport import ResizableViewport
 from datelier.inspection.text.page_jobs import TextPageJobs
 from datelier.inspection.text.pages import TextPage, TextViewport
 from datelier.inspection.text.types import TokenizedDocument
@@ -11,6 +12,8 @@ from datelier.inspection.text.types import TokenizedDocument
 
 class TextDocumentView:
     def __init__(self) -> None:
+        self.area = ResizableViewport(height=160)
+        self.token_area = ResizableViewport(height=200)
         self.rendered_tokens = 0
         self.highlighted_span: tuple[int, int] | None = None
         self.token_pixels: dict[int, tuple[float, float]] = {}
@@ -78,12 +81,26 @@ class TextDocumentView:
         pages.sync(document, viewport)
         page = pages.active
         if page is not None:
-            self._text(page)
+            self.area.show_content(
+                "Original text",
+                document.document.origin,
+                lambda height, fit: self._text(page, height),
+                minimum_height=100,
+            )
         else:
             imgui.text_wrapped(pages.message)
-        return self._tokens(document, viewport)
 
-    def _text(self, page: TextPage) -> None:
+        def tokens(height: float, fit: bool) -> bool:
+            nonlocal viewport
+            viewport = self._tokens(document, viewport, height)
+            return True
+
+        self.token_area.show_content(
+            "Tokens", document.document.origin, tokens, minimum_height=100
+        )
+        return viewport
+
+    def _text(self, page: TextPage, height: float) -> bool:
         imgui.text(
             f"Original [{page.start:,}, {page.end:,}); "
             "control characters use visible symbols."
@@ -104,7 +121,7 @@ class TextDocumentView:
                 imgui.text("This token has no original source span.")
         if imgui.begin_child(
             "Original full text",
-            (0, 160),
+            (0, height),
             imgui.ChildFlags_.borders,
             imgui.WindowFlags_.horizontal_scrollbar,
         ):
@@ -128,9 +145,10 @@ class TextDocumentView:
                         else:
                             imgui.text_unformatted(run.text)
         imgui.end_child()
+        return True
 
     def _tokens(
-        self, document: TokenizedDocument, viewport: TextViewport
+        self, document: TokenizedDocument, viewport: TextViewport, height: float
     ) -> TextViewport:
         self.rendered_tokens = 0
         self.token_pixels.clear()
@@ -139,7 +157,7 @@ class TextDocumentView:
             | imgui.TableFlags_.borders
             | imgui.TableFlags_.row_bg
         )
-        if imgui.begin_table("Complete tokens", 5, flags, (-1, 200)):
+        if imgui.begin_table("Complete tokens", 5, flags, (-1, height)):
             for name in (
                 "Index / piece",
                 "ID",

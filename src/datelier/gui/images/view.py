@@ -9,6 +9,7 @@ from imgui_bundle import imgui
 from datelier.gui.annotations.overlay import AnnotationOverlay
 from datelier.gui.annotations.overlay_controls import overlay_controls
 from datelier.gui.annotations.view import AnnotationView
+from datelier.gui.components.viewport import ResizableViewport
 from datelier.gui.images.cache_controls import cache_controls
 from datelier.gui.images.canvas import ImageCanvas
 from datelier.gui.images.heatmap_controls import RecordHeatmapControls
@@ -34,6 +35,7 @@ class ImageView:
         self.jobs = ImageJobs(executor)
         self.settings = ImageSettings()
         self.canvas = ImageCanvas()
+        self.area = ResizableViewport()
         self.buttons: dict[str, tuple[float, float]] = {}
         self.profile_jobs = ImageProfileJobs(executor)
         self.profiles = ImageProfiles()
@@ -237,27 +239,35 @@ class ImageView:
         imgui.same_line()
         imgui.text(f"{viewport.zoom * 100:.1f}%")
         self.settings = cache_controls(self.settings, metadata)
-        available = imgui.get_content_region_avail()
-        size = max(1.0, available.x), max(40.0, min(540.0, available.y - 35))
-        if fit:
-            viewport = ImageViewport(
-                min(32, size[0] / metadata.width, size[1] / metadata.height)
+
+        def draw(height: float, auto_fit: bool) -> bool:
+            nonlocal viewport
+            size = max(1.0, imgui.get_content_region_avail().x), height
+            if fit:
+                viewport = ImageViewport(
+                    min(32, size[0] / metadata.width, size[1] / metadata.height)
+                )
+            viewport = viewport.clamp(metadata.width, metadata.height, size)
+            self.jobs.request_window(
+                viewport.window(size), self.settings.display, owner.arrays.store
             )
-        viewport = viewport.clamp(metadata.width, metadata.height, size)
-        self.jobs.request_window(
-            viewport.window(size), self.settings.display, owner.arrays.store
-        )
-        original_viewport = viewport
-        viewport = self.canvas.show(
-            self.jobs.active, viewport, size, self.settings.gpu_bytes
-        )
-        self.overlay.show(
-            self.canvas, original_viewport, self.settings.annotation_view.overlay, owner
-        )
-        self.settings = replace(
-            self.settings,
-            viewport=viewport.clamp(metadata.width, metadata.height, size),
-        )
+            original_viewport = viewport
+            viewport = self.canvas.show(
+                self.jobs.active, viewport, size, self.settings.gpu_bytes
+            )
+            self.overlay.show(
+                self.canvas,
+                original_viewport,
+                self.settings.annotation_view.overlay,
+                owner,
+            )
+            self.settings = replace(
+                self.settings,
+                viewport=viewport.clamp(metadata.width, metadata.height, size),
+            )
+            return True
+
+        self.area.show_content("Image", locator, draw, minimum_height=100)
         if self.jobs.active is not None:
             if self.jobs.active.window.step > 1:
                 imgui.text(

@@ -11,12 +11,11 @@ from datelier.inspection.comparisons.types import PreparedComparison
 
 
 def draw_chart(
-    result: PreparedComparison, selected_source: int, fit: bool
+    result: PreparedComparison, selected_source: int, fit: bool, height: float = 260
 ) -> tuple[bool, int | None]:
     numeric = result.kind == ColumnRole.NUMERIC
     if fit:
         implot.set_next_axes_to_fit()
-    height = 260 if numeric else max(260, min(600, len(result.labels) * 30 + 65))
     implot.push_style_var(implot.StyleVar_.fit_padding, imgui.ImVec2(0.05, 0.1))
     if not implot.begin_plot("File profiles", (-1, height)):
         implot.pop_style_var()

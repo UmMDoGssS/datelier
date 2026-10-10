@@ -4,6 +4,7 @@ from dataclasses import replace
 
 from imgui_bundle import imgui
 
+from datelier.gui.components.help import show_help
 from datelier.inspection.annotations.association_types import PreparedAnnotations
 from datelier.inspection.annotations.overlay import OverlayClass, OverlaySettings
 
@@ -113,9 +114,6 @@ def overlay_controls(
                     imgui.pop_id()
             imgui.end_child()
             imgui.tree_pop()
-        imgui.text_wrapped(
-            "Click a box to select it; Ctrl-click cycles overlapping "
-            "boxes. Raise the visible limit when the view is truncated."
-        )
+        show_help("Click a box to select it; Ctrl-click cycles overlapping boxes.")
         imgui.tree_pop()
     return settings

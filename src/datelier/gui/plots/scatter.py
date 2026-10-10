@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 import numpy as np
 from imgui_bundle import imgui, implot
 
+from datelier.gui.components.help import show_help
 from datelier.gui.data.table import TableView
 from datelier.gui.plots.area import PlotArea
 from datelier.gui.plots.axes import AxisControls
@@ -119,18 +120,15 @@ class ScatterView:
         if shown:
             self.fit = False
             self.frames += 1
-        if imgui.collapsing_header("Details##scatter"):
-            if points.colors is not None:
-                imgui.text_wrapped(points.colors.note)
-            if three_d:
-                imgui.text_wrapped(
-                    "3D: right-drag rotates, left-drag pans, wheel zooms. "
-                    "Click selects; Ctrl-click toggles; "
-                    "Shift-drag brushes projected displayed points."
-                )
-            imgui.text_wrapped(
-                "2D wheel: zoom · middle-drag: pan · double-click: fit. "
-                "Click: select · Ctrl-click: toggle · "
-                "Shift-drag: brush displayed points."
-            )
+        if points.colors is not None and points.colors.note:
+            imgui.text_wrapped(points.colors.note)
+        show_help(
+            "3D: right-drag rotates, left-drag pans, wheel zooms. Click "
+            "selects; Ctrl-click toggles; Shift-drag brushes projected "
+            "displayed points."
+            if three_d
+            else "Wheel zooms; middle-drag pans; double-click fits. Click "
+            "selects; Ctrl-click toggles; Shift-drag brushes displayed "
+            "points."
+        )
         return shown

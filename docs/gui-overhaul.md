@@ -200,3 +200,26 @@ exclusive categories, every plot mode and fresh-process saved selection (324
 frames; source preserved, zero implicit ML). Native explicit PCA/k-means, linked
 selection and raw/embedding colors pass (271 frames). Shared viewports and remaining
 specialized selector migrations are pending within Step 3.
+
+## Step 3b — Shared content viewport and contextual help
+
+`ResizableViewport` owns content height, drag divider, Auto, Expand/Restore and
+stable native IDs. `PlotArea` supplies axes/camera controls over that component.
+Focused image inspection, original text/token tables and cross-file column charts
+now share the viewport; image zoom/pan and token offsets retain their own models.
+Gallery cards remain bounded. Gesture-only scatter Details is removed; contextual
+help replaces movement instructions in plots, image caches, table selection and
+annotation overlays. Statistical and source facts stay visible.
+
+Verification: Pyrefly zero errors, 59 focused axis/image/record/workspace checks,
+Ruff lint/format and whitespace checks pass. Native shared drag/expand/restore
+passes 40 frames. Image native pixel/fit/zoom/pan/channels passes 212 frames and
+fresh-process restoration 80 frames (p95 12.89/12.58 ms). Text passes 97 frames,
+fresh-process restore 31 frames, complete EOF, exact original accent span [2,4)
+and sorting/support-field alignment. Sources are preserved.
+
+The historical plot-area smoke had an ID-inferred synthetic x column and an
+offscreen divider in the cramped old dock layout. The fixture is corrected; its
+integrated sizing/input gate stays open until the redesigned shell is verified.
+The independent shared viewport input gate passes. New media viewport heights
+still need the scheduled persistence migration.

@@ -7,6 +7,7 @@ from imgui_bundle import imgui, implot
 from datelier.application.columns import ColumnChoice, MultiSelection
 from datelier.core.dataset import Dataset
 from datelier.gui.components.columns import ColumnPicker
+from datelier.gui.components.help import show_help
 from datelier.gui.data.table import TableView
 from datelier.gui.plots.area import PlotArea
 from datelier.gui.plots.axes import AxisControls
@@ -105,16 +106,16 @@ class RelationshipView:
             f"{len(data.names)} features · "
             f"{data.sampled_rows:,} / {data.total_rows:,} rows"
         )
-        if imgui.collapsing_header("Details##relationships"):
-            imgui.text_wrapped(
-                "Pearson correlation uses pairwise finite values. "
-                "Gray cells with a dash are undefined. "
-                "Click a heatmap cell to open its profile or scatter. "
-                "In the pair grid, click to select a row or double-click "
-                "to open its axes. Grid cells show at most 150 sampled points; "
-                "Histogram and box statistics use all finite values. "
-                "KDE/ECDF/violin curves use at most 2,000 finite values per feature."
-            )
+        imgui.text_wrapped(
+            "Pearson uses pairwise finite values; gray dashes are "
+            "undefined. Grid cells: up to 150 sampled points; "
+            "histogram/box: all finite values; KDE/ECDF/violin: up to "
+            "2,000 finite values per feature."
+        )
+        show_help(
+            "Click a heatmap cell to open its profile or scatter. In the "
+            "grid, click selects a row; double-click opens its axes."
+        )
         if self.mode == 1 and data.diagonal_mode != self.diagonal_mode:
             imgui.text("Preparing diagonal distributions…")
             return None

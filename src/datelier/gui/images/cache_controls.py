@@ -4,6 +4,7 @@ from dataclasses import replace
 
 from imgui_bundle import imgui
 
+from datelier.gui.components.help import show_help
 from datelier.inspection.images.prepare import default_range
 from datelier.inspection.images.settings import ImageSettings
 from datelier.inspection.images.types import ImageMetadata
@@ -13,7 +14,7 @@ def cache_controls(settings: ImageSettings, metadata: ImageMetadata) -> ImageSet
     if not imgui.tree_node("Image details and caches"):
         return settings
     imgui.text_wrapped(metadata.description)
-    imgui.text("Wheel to zoom; drag to pan. Hover for original pixel values.")
+    show_help("Wheel zooms; drag pans. Hover for original pixel values.")
     if metadata.orientation != 1:
         imgui.text(
             f"EXIF {metadata.orientation} · "

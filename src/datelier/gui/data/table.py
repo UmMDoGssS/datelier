@@ -6,6 +6,7 @@ from math import ceil
 from imgui_bundle import imgui
 
 from datelier.core.column_roles import REFERENCE_ROLES
+from datelier.gui.components.help import show_help
 from datelier.gui.data.presentation import PresentationControls, draw_style
 from datelier.gui.references.view import ReferenceView
 from datelier.inspection.preview import PreviewCache
@@ -64,9 +65,8 @@ class TableView:
         self.target_row = max(1, min(self.target_row, inspection.row_count))
         imgui.text("Source row IDs start at 0. Cells truncate after 256 characters.")
         if selection is not None:
-            imgui.text_wrapped(
-                "Click a source row to select; Ctrl-click toggles. " + selection.message
-            )
+            imgui.text_wrapped(selection.message)
+            show_help("Click a source row to select; Ctrl-click toggles.")
         if pages.error:
             imgui.text_wrapped(pages.error)
             if imgui.button("Retry preview"):

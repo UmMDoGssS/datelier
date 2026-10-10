@@ -82,7 +82,7 @@ def main() -> None:
             rng = np.random.default_rng(5)
             pl.DataFrame(
                 {
-                    "x": np.arange(60) + 1,
+                    "x": rng.normal(size=60),
                     "y": rng.normal(size=60),
                     "z": rng.normal(size=60),
                 }
