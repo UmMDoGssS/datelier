@@ -100,10 +100,12 @@ class CanvasTabs(Container):
         super().__init__("canvas", tabs)
         self.selected, self.choose = selected, choose
         self._selected = ""
+        self._scope: tuple[str, str] | None = None
 
     def render(self, frame: FrameContext) -> None:
         selected = self.selected()
-        changed = selected != self._selected
+        scope = frame.scope.file_id, frame.scope.view_id
+        changed = selected != self._selected or scope != self._scope
         if imgui.begin_tab_bar("canvas"):
             for tab in self.children:
                 flags = (
@@ -133,3 +135,4 @@ class CanvasTabs(Container):
         # the previous tab. Observe the entry state so that command is applied
         # to the native tab bar next frame instead of being overwritten.
         self._selected = selected
+        self._scope = scope

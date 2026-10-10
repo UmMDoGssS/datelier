@@ -4,6 +4,7 @@ from dataclasses import replace
 from pathlib import Path
 
 from datelier.application.browser import DirectoryController
+from datelier.application.comparisons.hub import ComparisonHub
 from datelier.application.file import FileController
 from datelier.application.navigation import WorkbenchNavigation
 from datelier.application.preferences import PreferenceController
@@ -12,6 +13,7 @@ from datelier.application.workspace import capture_session, install_file
 from datelier.core.jobs import SharedWorkers
 from datelier.inspection.audio.playback.controller import AudioPlayback, PlaybackPhase
 from datelier.inspection.audio.playback.device import DeviceFactory, SoundDeviceOutput
+from datelier.io.exporting import DatasetExporter
 from datelier.io.loading import LoadPhase
 from datelier.io.opening import OpeningJobs
 from datelier.workspace.recent import RecentKind, RecentSource
@@ -28,12 +30,14 @@ class EditorController:
         playback_factory: DeviceFactory = SoundDeviceOutput,
     ) -> None:
         self.workers = SharedWorkers(workers=4)
+        self.compare = ComparisonHub(self.workers, self.focus_source)
         self.playback = AudioPlayback(playback_factory, executor=self.workers)
         self.opening = OpeningJobs(self.workers)
         self.preferences = PreferenceController(preferences_path, self.workers)
         self.browser = DirectoryController(self.workers)
         self.workspace = SessionJobs(self.workers)
         self.pending_layout: tuple[str, tuple[str, ...], bool] | None = None
+        self._exports: set[DatasetExporter] = set()
         self.notice = ""
         self._defaults_applied: set[str] = set()
         self._recent: dict[str, RecentSource] = {}
@@ -128,6 +132,24 @@ class EditorController:
         if route != "Compare files":
             self.current.views = replace(self.current.views, tab=route)
 
+    def focus_source(self, identity: str) -> None:
+        for owner in self.files:
+            if owner.identity == identity or any(
+                view.identity == identity for view in owner.record_views.files
+            ):
+                request = self.playback.snapshot.request
+                if request and request.locator.origin.file_id != identity:
+                    self.playback.stop(request.locator.origin.file_id)
+                self.activate(owner.identity)
+                owner.record_views.active_id = (
+                    None if owner.identity == identity else identity
+                )
+                return
+        raise ValueError("The comparison source is unavailable")
+
+    def watch_export(self, exporter: DatasetExporter) -> None:
+        self._exports.add(exporter)
+
     def open_paths(self, paths: tuple[Path, ...]) -> None:
         self.opening.request(paths, self.active_id)
 
@@ -155,6 +177,7 @@ class EditorController:
             self.new_file()
         elif self.active_id == identity:
             self.activate(self.files[min(index, len(self.files) - 1)].identity)
+        self.compare.refresh(self.all_files)
 
     def reorder(self, identities: tuple[str, ...]) -> None:
         if len(identities) != len(self.files) or set(identities) != {
@@ -184,6 +207,7 @@ class EditorController:
                 self.files.append(file)
             self.active_id = restored.workspace.active_id
             self.saved_session = restored.workspace
+            self.compare.restore(restored.workspace)
             self.navigation.comparing = (
                 restored.workspace.canvas_mode == "Compare files"
             )
@@ -217,6 +241,11 @@ class EditorController:
                 self.activate(file.identity)
         for file in self.files:
             file.poll()
+        self.compare.poll(self.all_files)
+        for exporter in tuple(self._exports):
+            exporter.poll()
+            if not exporter.busy:
+                self._exports.remove(exporter)
         playback = self.playback.snapshot
         request = playback.request
         if (
@@ -268,6 +297,7 @@ class EditorController:
         if self.closed:
             return
         self.closed = True
+        self.compare.close()
         for file in self.files:
             file.close()
         self.workspace.close()
@@ -278,3 +308,4 @@ class EditorController:
         # Feature owners already cancel their obsolete work. Drain storage cleanup
         # queued by those owners before joining the shared workers.
         self.workers.shutdown(wait=True, cancel_futures=False)
+        self._exports.clear()

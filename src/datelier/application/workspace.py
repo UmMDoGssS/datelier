@@ -101,7 +101,8 @@ def capture_session(
 ) -> SessionSnapshot:
     sources: list[tuple[str, SourceReference]] = []
     files = tuple(capture_file(file, sources) for file in editor.files)
-    original = editor.saved_session
+    editor.compare.refresh(editor.all_files)
+    original = editor.compare.capture(editor.saved_session)
     workspace = replace(
         original,
         files=files,

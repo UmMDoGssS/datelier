@@ -7,8 +7,9 @@ from imgui_bundle import hello_imgui, imgui
 
 from datelier.application.editor import EditorController
 from datelier.application.workspace import capture_views
+from datelier.gui.comparisons.assembly import assemble_comparisons
 from datelier.gui.components.actions import JobSnapshot
-from datelier.gui.components.base import Container, FrameContext, Page
+from datelier.gui.components.base import FrameContext, Group, Page
 from datelier.gui.components.probe import GuiProbe, ViewScope
 from datelier.gui.shell.assembly import FileComponents, assemble_file
 from datelier.gui.shell.browser import FileBrowserDialog
@@ -18,6 +19,7 @@ from datelier.gui.shell.menu import Menu, MenuAction, MenuBar, RecentMenu
 from datelier.gui.shell.navigation import FileTab, FileTabs
 from datelier.gui.shell.status import WorkbenchNotice
 from datelier.gui.shell.workspace import WorkspaceDialog
+from datelier.io.exporting import ExportFormat
 from datelier.pipeline.editing import HistoryAction
 from datelier.workspace.preferences import Theme
 
@@ -26,7 +28,8 @@ class WorkbenchPage(Page):
     def __init__(self, editor: EditorController, probe: GuiProbe) -> None:
         self.editor, self.probe = editor, probe
         self.files: dict[str, FileComponents] = {}
-        empty = Container("empty", ())
+        self.compare = assemble_comparisons(editor.compare)
+        empty = Group("empty", ())
         self.host = DockHost(
             DockPanel("source", "Source browser", empty),
             DockPanel("canvas", "Explore", empty),
@@ -36,23 +39,33 @@ class WorkbenchPage(Page):
         self.open_dialog = FileBrowserDialog(editor.browser, editor.open_paths)
 
         def capture_export() -> ExportPort | None:
-            file = editor.active
+            file = editor.current
             active = file.inspection
             if active is None:
                 return None
-            return ExportPort(
-                file.title,
-                lambda path, format, overwrite: file.exporter.request(
+
+            def request(path: Path, format: ExportFormat, overwrite: bool) -> None:
+                file.exporter.request(
                     active.dataset,
                     path,
                     format,
                     overwrite=overwrite,
                     sources=tuple(
-                        f.inspection.dataset.source.path
-                        for f in editor.files
-                        if f.inspection is not None
+                        source
+                        for f in editor.all_files
+                        for source in (
+                            f.loader.status.path,
+                            f.inspection.dataset.source.path if f.inspection else None,
+                        )
+                        if source is not None
                     ),
-                ),
+                )
+                editor.watch_export(file.exporter)
+
+            return ExportPort(
+                active.dataset.source.path.name
+                + (f" · {file.view_name}" if file.view_name else ""),
+                request,
                 lambda: JobSnapshot(file.exporter.message, file.exporter.busy),
             )
 
@@ -204,10 +217,10 @@ class WorkbenchPage(Page):
     def _history(self, action: HistoryAction) -> None:
         if (
             not self.editor.navigation.comparing
-            and self.editor.active.editor.pipeline
-            and not self.editor.active.editor.busy
+            and self.editor.current.editor.pipeline
+            and not self.editor.current.editor.busy
         ):
-            self.editor.active.editor.request(action)
+            self.editor.current.editor.request(action)
 
     def prepare(self) -> FrameContext:
         preferences = self.editor.preferences
@@ -236,13 +249,15 @@ class WorkbenchPage(Page):
             self.files.pop(identity).close()
         for file in self.editor.all_files:
             if file.identity not in self.files:
-                self.files[file.identity] = assemble_file(file, self.editor)
+                self.files[file.identity] = assemble_file(
+                    file, self.editor, self.compare
+                )
         file = self.editor.current
         components = self.files[file.identity]
         for panel, content in (
             (
                 self.host.source,
-                Container(
+                Group(
                     "source-region",
                     (self.files[self.editor.active_id].source, components.columns),
                 ),
@@ -284,3 +299,5 @@ class WorkbenchPage(Page):
         for components in self.files.values():
             components.close()
         self.files.clear()
+        self.compare.close()
+        self.export_dialog.close()

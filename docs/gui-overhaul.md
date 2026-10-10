@@ -57,7 +57,7 @@ components implement Component.render; container classes render direct children.
 | B | Shared controls, shell, columns, table, tabular profiles and plots | Complete; basic inspection shell runnable |
 | C | Contextual analysis, transforms/history, export and workspace/preferences | Complete; advanced plot modes tracked separately |
 | D | Structured/array/checkpoint source and multimodal record/profile families | In progress; source/Inspect, text/image/audio profiles and annotation workflows restored; remaining forms and integration pending |
-| E | Comparison families, remaining features and integrated acceptance | Pending |
+| E | Comparison families, remaining features and integrated acceptance | In progress; column comparisons restored; text/image/audio comparisons and remaining integration pending |
 
 Each stage runs scoped Pyrefly, behavioral tests, full Ruff checks and diff review
 before commit. Full Pyrefly/old GUI tests remain open while their imports target
@@ -288,6 +288,42 @@ Image-profile regression passes 129 frames/18.00 ms p95. Comparison families,
 advanced plots, remaining import/table/mapping controls and full caller/native/
 resource acceptance remain open. These slice checks do not replace the final
 three-size/theme and retention-budget gates.
+
+## Fresh Stage E1 — Shared comparison sources and column comparisons
+
+One editor-owned comparison hub provides immutable file/named-view catalogs,
+independent recipe drafts and scoped row-selection ports. Related controllers
+share a recipe lifecycle contract. A page-owned comparison composition is shared
+across file tabs; file containers borrow its rendering without owning its lifetime.
+Columns restores explicit Apply, common numeric/category bins, counts/density,
+custom labels/colors, native legends, complete statistics, linked original rows
+and persisted comparison/source/bin/viewport choices. Worker completion preserves
+focus; clicking a source link navigates immediately and later publishes only rows.
+
+The common file/view and field selectors retain independent drafts. Closing
+contributors prunes current and dormant modality recipes before saving. Named-view
+Undo/Redo/export commands now target the current view; export labels use the
+captured dataset source. Source guards include pending imports. Explicit writes
+remain centrally polled after their originating view closes, and closed dialogs
+release their captured bindings. Concrete Group composition replaces direct
+abstract-container construction, tab routing follows native file/view scope and
+route teardown releases inactive children.
+
+Verification: production/scoped caller Pyrefly zero errors, 68 focused comparison/
+workspace/multimodal/export tests, full Ruff lint/format and whitespace checks pass.
+Tests exercise unapplied drafts, named-view provenance, closed contributors,
+restored source/bin/height, stable rows, export ownership and no completion focus
+steal. Native source-picker bulk, explicit numeric/category Apply, Expand/Restore,
+file activation/draft retention and histogram row links pass in 124 frames,
+21.05 ms p95 with source bytes and zero implicit ML/media/corpus work preserved.
+[Column report](evidence/gui-overhaul/fresh-column-comparisons.json).
+Fresh-process workspace save/restore passes 23/31 frames; text corpus/training
+and audio spectrum/listening regressions pass 94/133 frames. Human hearing remains
+deferred. Full-project Pyrefly still reports 378 obsolete GUI test/script caller
+errors; production and migrated callers are clean. Full caller migration and
+whole-milestone acceptance stay open. Text/image/audio comparison reconstruction,
+advanced plots, remaining import/table/mapping controls and final resource/native
+size/theme gates remain pending.
 
 ## Baseline evidence
 

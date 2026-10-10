@@ -86,5 +86,10 @@ class ExportDialog(Container):
             )
             super().render(frame)
             if imgui.button("Close"):
+                self.binding = None
                 imgui.close_current_popup()
             imgui.end_popup()
+
+    def close(self) -> None:
+        self.binding = None
+        super().close()

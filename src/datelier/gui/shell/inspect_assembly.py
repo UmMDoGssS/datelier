@@ -6,7 +6,7 @@ from datelier.application.annotations.navigation import open_rows
 from datelier.application.editor import EditorController
 from datelier.application.file import FileController
 from datelier.application.records import RecordKind
-from datelier.gui.components.base import Component, Container
+from datelier.gui.components.base import Component, Group
 from datelier.gui.components.routing import RoutedContent
 from datelier.gui.components.viewport import ResizableViewport
 from datelier.gui.context.mapping import MappingSettings
@@ -173,5 +173,5 @@ def assemble_inspect(
     )
 
     return InspectComponents(
-        inspect, inspect_settings, Container("source-tools", (browser, record_views))
+        inspect, inspect_settings, Group("source-tools", (browser, record_views))
     )

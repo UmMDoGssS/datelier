@@ -44,7 +44,11 @@ class ComparisonJobs:
         return any(state.busy for state in self.states) or self._selection is not None
 
     def sync(
-        self, settings: tuple[ComparisonSettings, ...], datasets: dict[str, Dataset]
+        self,
+        settings: tuple[ComparisonSettings, ...],
+        datasets: dict[str, Dataset],
+        labels: dict[str, str] | None = None,
+        views: dict[str, str] | None = None,
     ) -> None:
         if self.closed:
             return
@@ -92,7 +96,10 @@ class ComparisonJobs:
                     ComparisonInput(
                         s,
                         datasets[s.file_id],
-                        Path(datasets[s.file_id].source.path).name,
+                        (labels or {}).get(
+                            s.file_id, Path(datasets[s.file_id].source.path).name
+                        ),
+                        (views or {}).get(s.file_id, ""),
                     )
                     for s in recipe.sources
                 )

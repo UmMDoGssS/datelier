@@ -24,10 +24,16 @@ class ComparisonInput:
     mapping: ComparisonSource
     dataset: Dataset
     filename: str
+    view_name: str = ""
 
     @property
     def origin(self) -> Origin:
-        return Origin(self.mapping.file_id, self.dataset.revision, self.mapping.column)
+        return Origin(
+            self.mapping.file_id,
+            self.dataset.revision,
+            self.mapping.column,
+            self.view_name or "table",
+        )
 
 
 @dataclass(frozen=True)

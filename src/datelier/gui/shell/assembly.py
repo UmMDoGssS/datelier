@@ -2,14 +2,13 @@
 
 from dataclasses import dataclass, replace
 
-from imgui_bundle import imgui
-
 from datelier.analysis.types import Algorithm
 from datelier.application.editor import EditorController
 from datelier.application.file import FileController
 from datelier.application.profiles import ProfileFamily
 from datelier.gui.analysis.view import AnalysisSettingsView
-from datelier.gui.components.base import Component, Container, FrameContext
+from datelier.gui.comparisons.assembly import CompareComponents
+from datelier.gui.components.base import Component, Group, SharedView
 from datelier.gui.components.routing import RoutedContent
 from datelier.gui.components.viewport import ResizableViewport
 from datelier.gui.context.audio_profiles import AudioProfileSettings
@@ -35,15 +34,6 @@ from datelier.plotting.data import Scatter
 from datelier.plotting.relationships import Relationships
 
 
-class Message(Component):
-    def __init__(self, key: str, text: str) -> None:
-        super().__init__(key)
-        self.text = text
-
-    def render(self, frame: FrameContext) -> None:
-        imgui.text_wrapped(self.text)
-
-
 @dataclass
 class FileComponents:
     source: Component
@@ -63,7 +53,9 @@ class FileComponents:
             component.close()
 
 
-def assemble_file(file: FileController, editor: EditorController) -> FileComponents:
+def assemble_file(
+    file: FileController, editor: EditorController, compare: CompareComponents
+) -> FileComponents:
     def points() -> Scatter | None:
         dashboard = file.explorer.active
         if file.analysis.source is not None:
@@ -144,7 +136,7 @@ def assemble_file(file: FileController, editor: EditorController) -> FileCompone
         },
         lambda: file.profiles.family,
     )
-    profile_settings = Container(
+    profile_settings = Group(
         "profile-context",
         (
             ProfileSettings(file.profiles, file.plots),
@@ -177,9 +169,7 @@ def assemble_file(file: FileController, editor: EditorController) -> FileCompone
                 correlation_viewport(),
             ),
             NamedTab("Inspect", inspect.canvas),
-            NamedTab(
-                "Compare files", Message("comparisons", "Choose sources to compare.")
-            ),
+            NamedTab("Compare files", SharedView(compare.canvas)),
         ),
         route,
         editor.choose_route,
@@ -191,7 +181,7 @@ def assemble_file(file: FileController, editor: EditorController) -> FileCompone
                 RoutedContent(
                     {
                         "Profiles": profile_settings,
-                        "Relationships": Container(
+                        "Relationships": Group(
                             "relationship-tools",
                             (
                                 RelationshipSettings(file.plots),
@@ -200,6 +190,7 @@ def assemble_file(file: FileController, editor: EditorController) -> FileCompone
                         ),
                         "Correlations": CorrelationSettings(file.plots),
                         "Inspect": inspect.settings,
+                        "Compare files": SharedView(compare.settings),
                     },
                     route,
                 ),
@@ -231,7 +222,7 @@ def assemble_file(file: FileController, editor: EditorController) -> FileCompone
         ),
     )
     return FileComponents(
-        Container("source-content", (source_status, inspect.browser)),
+        Group("source-content", (source_status, inspect.browser)),
         canvas,
         context,
         TableView(file.table),

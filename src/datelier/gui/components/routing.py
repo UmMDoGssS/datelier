@@ -19,3 +19,8 @@ class RoutedContent(Container):
         child = self.routes.get(route)
         self.children = (child,) if child else ()
         super().render(frame)
+
+    def close(self) -> None:
+        for child in self.routes.values():
+            child.close()
+        self.children = ()

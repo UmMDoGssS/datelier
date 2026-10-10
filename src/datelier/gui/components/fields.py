@@ -16,7 +16,7 @@ class ChoiceField[T](Component):
         choices: tuple[T, ...] | Callable[[], tuple[T, ...]],
         get: Callable[[], T],
         set_value: Callable[[T], None],
-        labels: tuple[str, ...] | None = None,
+        labels: tuple[str, ...] | Callable[[], tuple[str, ...]] | None = None,
     ) -> None:
         super().__init__(key)
         self.label, self.choices, self.get, self.set_value = (
@@ -35,7 +35,9 @@ class ChoiceField[T](Component):
         if not choices:
             imgui.text_disabled("No available choices")
             return
-        labels = self.labels or tuple(str(c) for c in choices)
+        labels = (self.labels() if callable(self.labels) else self.labels) or tuple(
+            str(c) for c in choices
+        )
         changed, index = imgui.combo(
             "##" + self.key,
             choices.index(value) if value in choices else 0,

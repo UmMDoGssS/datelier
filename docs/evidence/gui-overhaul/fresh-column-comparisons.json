@@ -1,0 +1,12 @@
+{
+  "frames": 124,
+  "p95_ms": 21.054412300691183,
+  "native_shared_file_selector": true,
+  "native_explicit_apply": true,
+  "numeric_category_comparisons": true,
+  "native_expand_restore": true,
+  "drafts_survive_file_activation": true,
+  "native_linked_original_rows": true,
+  "source_preserved": true,
+  "implicit_ml_media_corpus": false
+}

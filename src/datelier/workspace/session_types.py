@@ -159,6 +159,10 @@ class SessionWorkspace:
     canvas_mode: str = "Inspection"
     context_tab: str = "View"
     custom_layout: bool = False
+    comparison_index: int = 0
+    comparison_height: float = 260
+    comparison_source: int = 0
+    comparison_bin: int = 0
 
     def validate(self) -> None:
         if (
@@ -169,6 +173,18 @@ class SessionWorkspace:
             raise ValueError("Unknown saved workbench navigation or layout version")
         if self.version != 3:
             raise ValueError(f"Unsupported session workspace version: {self.version}")
+        if not 0 <= self.comparison_index < max(1, len(self.comparisons)):
+            raise ValueError("Invalid active column comparison")
+        if min(self.comparison_source, self.comparison_bin) < 0:
+            raise ValueError("Column comparison source/bin must be nonnegative")
+        if (
+            not math.isfinite(self.comparison_height)
+            or self.comparison_height != 0
+            and self.comparison_height < 170
+        ):
+            raise ValueError(
+                "Column comparison height requires zero/auto or at least 170 px"
+            )
         all_files = tuple(f for file in self.files for f in (file, *file.record_views))
         identities = {file.identity for file in all_files}
         if (

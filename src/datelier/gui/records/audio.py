@@ -9,7 +9,7 @@ from datelier.gui.audio.charts import SignalContent
 from datelier.gui.audio.playback import PlaybackControls
 from datelier.gui.components.actions import CommandButton, JobFeedback, JobSnapshot
 from datelier.gui.components.array_table import ArrayTable
-from datelier.gui.components.base import Component, Container, FrameContext
+from datelier.gui.components.base import Component, FrameContext, Group
 from datelier.gui.components.facts import FactsTable
 from datelier.gui.components.groups import Collapsible
 from datelier.gui.records.base import RecordContent
@@ -84,7 +84,7 @@ class AudioContent(RecordContent):
         )
         self.children = (
             AudioMetadataView(model),
-            Container(
+            Group(
                 "commands",
                 (
                     CommandButton("retry", "Retry audio metadata", model.jobs.abandon),

@@ -53,6 +53,16 @@ class Group(Container):
     """Concrete composition of immediate children without a specialized view."""
 
 
+class SharedView(Group):
+    """Render a direct child whose native lifetime belongs to the page owner."""
+
+    def __init__(self, content: Component) -> None:
+        super().__init__("shared", (content,))
+
+    def close(self) -> None:
+        self.children = ()
+
+
 class Panel(Container, ABC):
     """A dockable or drawer-hosted region."""
 

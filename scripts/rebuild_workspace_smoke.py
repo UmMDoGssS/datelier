@@ -55,6 +55,7 @@ def run(root: Path, restore: bool) -> dict[str, object]:
             assert file.inspection is not None
             file.selection.choose(file.inspection.dataset.revision, (1,))
             file.profiles.height = 315
+            file.text.original_height = 220
             file.views = replace(file.views, image_height=345, text_height=220)
             editor.choose_route("Compare files")
             editor.navigation.context_tab = "History"
