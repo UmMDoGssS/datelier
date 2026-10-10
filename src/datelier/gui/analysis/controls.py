@@ -1,122 +1,50 @@
-"""Explicit analysis controls, completed-result switching, and provenance."""
+"""Analysis configuration and result components with an injected typed draft."""
 
-from dataclasses import asdict, dataclass, field, replace
+from dataclasses import asdict, dataclass
 
 from imgui_bundle import imgui
 
 from datelier.analysis.jobs import AnalysisJobs
-from datelier.analysis.parameters import (
-    EXTRA_DEFAULT_LIMITS,
-    EXTRA_DEFAULTS,
-    ExtraParameters,
-)
-from datelier.analysis.types import (
-    Algorithm,
-    AnalysisRequest,
-    ClusteringResult,
-    EmbeddingResult,
-    KMeansParameters,
-    PCAParameters,
-    Preprocessing,
-    TSNEParameters,
-    UMAPParameters,
-)
+from datelier.analysis.types import Algorithm, ClusteringResult, EmbeddingResult
+from datelier.application.analysis_settings import AnalysisSettings
 from datelier.core.dataset import Dataset
 from datelier.gui.analysis.form import show_inputs, show_parameters
-from datelier.plotting.data import feature_columns
+from datelier.gui.components.base import BoundView, FrameContext
+from datelier.gui.components.probe import GuiProbe, ViewScope
 
 
-@dataclass
-class AnalysisControls:
-    features: list[str] = field(default_factory=list)
-    numeric: tuple[str, ...] = ()
-    standardize: bool = True
-    impute: bool = False
-    dimensions: int = 2
-    seed: int = 42
-    pca_limit: int = 10_000
-    pca_solver: int = 0
-    pca_whiten: bool = False
-    error: str = ""
-    kmeans_limit: int = 10_000
-    clusters: int = 3
-    initializations: int = 10
-    kmeans_iterations: int = 300
-    center_index: int = 0
-    tsne_limit: int = 2_000
-    perplexity: float = 30
-    tsne_iterations: int = 1_000
-    tsne_auto_rate: bool = True
-    tsne_rate: float = 200
-    tsne_init: int = 0
-    umap_limit: int = 5_000
-    neighbors: int = 15
-    min_distance: float = 0.1
-    umap_metric: int = 0
+@dataclass(frozen=True)
+class AnalysisFormBinding:
+    settings: AnalysisSettings
+    jobs: AnalysisJobs
+    dataset: Dataset | None
+    selected: Algorithm | None = None
+    fixed_dimensions: int | None = None
 
-    extra_parameters: dict[Algorithm, ExtraParameters] = field(
-        default_factory=EXTRA_DEFAULTS.copy
-    )
-    extra_limits: dict[Algorithm, int] = field(
-        default_factory=EXTRA_DEFAULT_LIMITS.copy
-    )
 
-    def bind(self, dataset: Dataset) -> None:
-        self.numeric = feature_columns(dataset)
-        self.features = [n for n in self.features if n in self.numeric]
-
-    def request(self, algorithm: Algorithm) -> AnalysisRequest:
-        if algorithm == Algorithm.PCA:
-            params = PCAParameters(
-                ["randomized", "full"][self.pca_solver], self.pca_whiten
-            )
-            limit = self.pca_limit
-        elif algorithm == Algorithm.KMEANS:
-            params = KMeansParameters(
-                self.clusters, self.initializations, self.kmeans_iterations
-            )
-            limit = self.kmeans_limit
-        elif algorithm == Algorithm.TSNE:
-            params = TSNEParameters(
-                self.perplexity,
-                self.tsne_iterations,
-                "auto" if self.tsne_auto_rate else self.tsne_rate,
-                ["pca", "random"][self.tsne_init],
-            )
-            limit = self.tsne_limit
-        elif algorithm == Algorithm.UMAP:
-            params = UMAPParameters(
-                self.neighbors,
-                self.min_distance,
-                ["euclidean", "cosine"][self.umap_metric],
-            )
-            limit = self.umap_limit
-        else:
-            params = self.extra_parameters[algorithm]
-            limit = self.extra_limits[algorithm]
-        return AnalysisRequest(
-            tuple(self.features),
-            params,
-            Preprocessing(self.standardize, self.impute),
-            self.seed,
-            limit,
-            self.dimensions,
-        )
-
-    def matches_result(self, request: AnalysisRequest) -> bool:
-        current = self.request(request.algorithm)
-        if request.algorithm.is_clustering:
-            current = replace(current, dimensions=request.dimensions)
-        return current == request
-
+class AnalysisForm(BoundView[AnalysisFormBinding]):
     def show(
         self,
+        settings: AnalysisSettings,
         jobs: AnalysisJobs,
         dataset: Dataset | None,
         selected: Algorithm | None = None,
         *,
         fixed_dimensions: int | None = None,
     ) -> None:
+        self.bind_view(
+            AnalysisFormBinding(settings, jobs, dataset, selected, fixed_dimensions)
+        )
+        self.render(
+            FrameContext(
+                ViewScope("", revision=dataset.revision if dataset else None),
+                GuiProbe(),
+            )
+        )
+
+    def draw(self, binding: AnalysisFormBinding, frame: FrameContext) -> None:
+        settings, jobs, dataset = binding.settings, binding.jobs, binding.dataset
+        selected, fixed_dimensions = binding.selected, binding.fixed_dimensions
         if selected is not None:
             imgui.separator_text(str(selected))
         if (
@@ -135,7 +63,7 @@ class AnalysisControls:
             return
         imgui.begin_disabled(jobs.busy)
         show_inputs(
-            self,
+            settings,
             dimensions=selected is None or not selected.is_clustering,
             fixed_dimensions=fixed_dimensions
             if selected is None or not selected.is_clustering
@@ -144,16 +72,16 @@ class AnalysisControls:
         for algorithm in (selected,) if selected is not None else Algorithm:
             if imgui.tree_node(f"{algorithm} settings"):
                 imgui.push_id(str(algorithm))
-                show_parameters(self, algorithm)
+                show_parameters(settings, algorithm)
                 imgui.pop_id()
                 imgui.tree_pop()
-            imgui.begin_disabled(not self.features)
+            imgui.begin_disabled(not settings.features)
             if imgui.button(f"Run {algorithm}"):
-                self.start(jobs, dataset, algorithm)
+                settings.start(jobs, dataset, algorithm)
             imgui.end_disabled()
         imgui.end_disabled()
-        if self.error:
-            imgui.text_wrapped(self.error)
+        if settings.error:
+            imgui.text_wrapped(settings.error)
         for algorithm, result in jobs.results.items():
             if selected is not None and algorithm != selected:
                 continue
@@ -209,25 +137,21 @@ class AnalysisControls:
                         imgui.text_wrapped(f"{name}: {value}")
                 if isinstance(result, ClusteringResult) and result.fit is not None:
                     imgui.text(f"Inertia: {result.fit.inertia:.6g}")
-                    self.center_index = min(self.center_index, len(result.counts) - 1)
-                    _, self.center_index = imgui.combo(
+                    settings.center_index = min(
+                        settings.center_index, len(result.counts) - 1
+                    )
+                    _, settings.center_index = imgui.combo(
                         "Center",
-                        self.center_index,
+                        settings.center_index,
                         [f"Cluster {i}" for i in range(len(result.counts))],
                     )
                     imgui.text(
-                        f"Fitting rows in cluster: {result.counts[self.center_index]:,}"
+                        "Fitting rows in cluster: "
+                        f"{result.counts[settings.center_index]:,}"
                     )
                     imgui.text_wrapped(
                         "Center in fitted feature space: "
-                        + str(result.fit.centers[self.center_index].tolist())
+                        + str(result.fit.centers[settings.center_index].tolist())
                     )
-                if not self.matches_result(provenance.request):
+                if not settings.matches_result(provenance.request):
                     imgui.text_wrapped("Settings changed; run again to apply them.")
-
-    def start(self, jobs: AnalysisJobs, dataset: Dataset, algorithm: Algorithm) -> None:
-        try:
-            jobs.request(dataset, self.request(algorithm))
-            self.error = ""
-        except ValueError as error:
-            self.error = str(error)

@@ -9,7 +9,7 @@ from datelier.analysis.types import (
     Preprocessing,
     TSNEParameters,
 )
-from datelier.gui.analysis.controls import AnalysisControls
+from datelier.application.analysis_settings import AnalysisSettings
 from datelier.gui.plots.controls import PlotControls
 from datelier.gui.profiles.view import profile_summary
 from datelier.gui.workspace.state import restore_analysis, restore_plots
@@ -69,7 +69,7 @@ def test_analysis_controls_round_trip_without_launching_jobs(tmp_path: Path) -> 
     path = tmp_path / "data.csv"
     path.write_text("x,y\n1.0,2\n3.0,4\n")
     imported = load_file(path)
-    before = AnalysisControls(
+    before = AnalysisSettings(
         features=["y", "x"],
         standardize=False,
         impute=True,
@@ -92,7 +92,7 @@ def test_analysis_controls_round_trip_without_launching_jobs(tmp_path: Path) -> 
         imported.options,
         analysis=requests,
     )
-    after = AnalysisControls()
+    after = AnalysisSettings()
     restore_analysis(after, workspace, imported.dataset)
     assert tuple(after.request(a) for a in Algorithm) == requests
     workspace = replace(
@@ -209,7 +209,7 @@ def test_every_method_recipe_round_trips_through_strict_codec(tmp_path: Path) ->
     path = tmp_path / "data.csv"
     path.write_text("x,y,z\n1.0,2,3\n3.0,4,5\n6.0,8,9\n")
     imported = load_file(path)
-    before = AnalysisControls(features=["z", "x", "y"], dimensions=3, seed=19)
+    before = AnalysisSettings(features=["z", "x", "y"], dimensions=3, seed=19)
     before.extra_parameters[Algorithm.DBSCAN] = DBSCANParameters(epsilon=0.75)
     before.extra_parameters[Algorithm.LLE] = LLEParameters(
         method="hessian", neighbors=20
@@ -226,7 +226,7 @@ def test_every_method_recipe_round_trips_through_strict_codec(tmp_path: Path) ->
     decoded = decode_record(Workspace, encode(saved))
     decoded.validate()
     assert decoded == saved
-    after = AnalysisControls()
+    after = AnalysisSettings()
     restore_analysis(after, decoded, imported.dataset)
     assert tuple(after.request(a) for a in Algorithm) == requests
 
@@ -283,7 +283,7 @@ def test_column_color_survives_removal_of_the_selected_column(tmp_path: Path) ->
 
 
 def test_coordinate_dimension_changes_do_not_invalidate_clustering_settings() -> None:
-    controls = AnalysisControls(features=["x", "y", "z"])
+    controls = AnalysisSettings(features=["x", "y", "z"])
     clustering = controls.request(Algorithm.DBSCAN)
     embedding = controls.request(Algorithm.PCA)
     controls.dimensions = 3

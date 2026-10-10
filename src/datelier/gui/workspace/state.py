@@ -10,9 +10,9 @@ from datelier.analysis.types import (
     TSNEParameters,
     UMAPParameters,
 )
+from datelier.application.analysis_settings import AnalysisSettings
 from datelier.core.column_roles import PLOTTABLE_ROLES
 from datelier.core.dataset import Dataset
-from datelier.gui.analysis.controls import AnalysisControls
 from datelier.gui.plots.controls import PlotControls
 from datelier.inspection.exploration import PlotSettings
 from datelier.io.types import MediaOptions
@@ -112,7 +112,7 @@ def restore_plots(
 
 
 def restore_analysis(
-    controls: AnalysisControls, workspace: Workspace, dataset: Dataset
+    controls: AnalysisSettings, workspace: Workspace, dataset: Dataset
 ) -> None:
     if not workspace.analysis:
         controls.bind(dataset)

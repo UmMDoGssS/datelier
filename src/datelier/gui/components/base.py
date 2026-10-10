@@ -25,6 +25,21 @@ class Component(ABC):
         """Render prepared state and send commands through injected interfaces."""
 
 
+class BoundView[Binding](Component, ABC):
+    binding: Binding | None = None
+
+    def bind_view(self, binding: Binding) -> None:
+        self.binding = binding
+
+    def render(self, frame: FrameContext) -> None:
+        if self.binding is not None:
+            self.draw(self.binding, frame)
+
+    @abstractmethod
+    def draw(self, binding: Binding, frame: FrameContext) -> None:
+        """Render the view's injected state and command dependencies."""
+
+
 class Container(Component, ABC):
     @property
     @abstractmethod

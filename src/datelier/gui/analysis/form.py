@@ -9,11 +9,11 @@ from datelier.gui.analysis.method_parameters import show_extra_parameters
 from datelier.gui.widgets.fields import combo, field
 
 if TYPE_CHECKING:
-    from datelier.gui.analysis.controls import AnalysisControls
+    from datelier.application.analysis_settings import AnalysisSettings
 
 
 def show_inputs(
-    controls: AnalysisControls,
+    controls: AnalysisSettings,
     *,
     dimensions: bool = True,
     fixed_dimensions: int | None = None,
@@ -68,7 +68,7 @@ def show_inputs(
         imgui.end_table()
 
 
-def show_parameters(controls: AnalysisControls, algorithm: Algorithm) -> None:
+def show_parameters(controls: AnalysisSettings, algorithm: Algorithm) -> None:
     if algorithm == Algorithm.PCA:
         _, controls.pca_limit = imgui.input_int(
             field("Rows (max 100k)"), controls.pca_limit

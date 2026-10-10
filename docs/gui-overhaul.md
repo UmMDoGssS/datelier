@@ -167,3 +167,19 @@ uv run --offline pytest
 uv run --offline scripts/benchmark_editor_tabs.py
 uv run --offline scripts/session_workspace_smoke.py
 ```
+
+## Step 2b — Analysis and plot state separation
+
+Analysis drafts/request construction, plot drafts/schema binding and analysis
+worker/result coordination now live in GUI-free application modules. Native
+analysis configuration is an `AnalysisForm` component with a typed injected
+binding. State consumers/tests import application settings directly; workspace
+recipe identifiers and behavior remain unchanged. The GUI analysis session and
+plot controls retain presentation methods over those models during migration.
+
+Verification: zero Pyrefly errors, 32 focused role/workspace/analysis/scatter/file
+checks, Ruff lint/format and whitespace checks pass. Native analysis workbench
+passes 271 frames: explicit PCA, k-means colors in raw/embedding space, linked
+embedding selection and unchanged source bytes. Application-wide coordination
+and specialized media controllers remain pending; this is a verified subdivision
+of Step 2, not whole-overhaul acceptance.

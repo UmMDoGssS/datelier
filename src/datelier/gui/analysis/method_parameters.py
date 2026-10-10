@@ -11,10 +11,10 @@ from datelier.analysis.parameters import EXTRA_LIMITS, ExtraParameters
 from datelier.gui.widgets.fields import combo, field
 
 if TYPE_CHECKING:
-    from datelier.gui.analysis.controls import AnalysisControls
+    from datelier.application.analysis_settings import AnalysisSettings
 
 
-def show_extra_parameters(controls: AnalysisControls, algorithm: Algorithm) -> None:
+def show_extra_parameters(controls: AnalysisSettings, algorithm: Algorithm) -> None:
     _, controls.extra_limits[algorithm] = imgui.input_int(
         field(f"Rows (max {EXTRA_LIMITS[algorithm]:,})"),
         controls.extra_limits[algorithm],

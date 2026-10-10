@@ -1,14 +1,13 @@
-"""Completed-analysis plot switching and background preparation integration."""
+"""Analysis controls and scatter content composed over an injected controller."""
 
 from dataclasses import dataclass, field
 
 from imgui_bundle import hello_imgui, imgui
 
-from datelier.analysis.jobs import AnalysisJobs
-from datelier.analysis.plots import AnalysisPlots
-from datelier.analysis.types import Algorithm, ClusteringResult, EmbeddingResult
+from datelier.analysis.types import Algorithm, EmbeddingResult
+from datelier.application.analysis import AnalysisController
 from datelier.core.dataset import Dataset
-from datelier.gui.analysis.controls import AnalysisControls
+from datelier.gui.analysis.controls import AnalysisForm
 from datelier.gui.analysis.form import show_inputs, show_parameters
 from datelier.gui.plots.controls import PlotControls
 from datelier.gui.widgets.fields import combo
@@ -17,33 +16,16 @@ from datelier.plotting.data import Scatter
 
 
 @dataclass
-class AnalysisSession:
-    controls: AnalysisControls = field(default_factory=AnalysisControls)
-    jobs: AnalysisJobs = field(default_factory=AnalysisJobs)
-    plots: AnalysisPlots = field(default_factory=AnalysisPlots)
-    source: Algorithm | None = None
-    panel_source: Algorithm | None = None
+class AnalysisSession(AnalysisController):
+    form: AnalysisForm = field(default_factory=AnalysisForm)
     inputs_pixel: tuple[float, float] = (0, 0)
     coordinates_pixel: tuple[float, float] = (0, 0)
     run_pixel: tuple[float, float] = (0, 0)
 
-    def poll(self, dataset: Dataset | None) -> bool:
-        revision = dataset.revision if dataset is not None else None
-        completed = self.jobs.poll(revision)
-        if completed:
-            latest = self.jobs.latest
-            if isinstance(latest, EmbeddingResult):
-                self.source = latest.provenance.request.algorithm
-                self.panel_source = self.source
-        self.plots.poll(revision)
-        return completed and isinstance(self.jobs.latest, EmbeddingResult)
-
-    def sync_dimensions(self, plots: PlotControls) -> None:
-        self.controls.dimensions = plots.scatter_dimensions
-
     def show_panel(self, dataset: Dataset | None, plots: PlotControls) -> None:
         self.sync_dimensions(plots)
-        self.controls.show(
+        self.form.show(
+            self.controls,
             self.jobs,
             dataset,
             self.selected_algorithm(plots),
@@ -104,24 +86,6 @@ class AnalysisSession:
         )
         return self.plots.active
 
-    def selected_algorithm(self, plots: PlotControls) -> Algorithm:
-        return (
-            self.panel_source
-            or plots.cluster_algorithm
-            or self.source
-            or Algorithm.KMEANS
-        )
-
-    def sync_colors(self, plots: PlotControls) -> bool:
-        algorithm = plots.cluster_algorithm
-        result = self.jobs.results.get(algorithm) if algorithm is not None else None
-        cluster = result if isinstance(result, ClusteringResult) else None
-        if cluster is plots.cluster_result:
-            return False
-        plots.cluster_result = cluster
-        plots.scatter_dirty = True
-        return True
-
     def show_setup(
         self, dataset: Dataset, algorithm: Algorithm, *, dimensions: bool
     ) -> None:
@@ -174,7 +138,3 @@ class AnalysisSession:
                 f"Inputs changed; run {algorithm} to update this result."
             )
         imgui.pop_id()
-
-    def close(self, *, wait: bool = True) -> None:
-        self.jobs.close(wait=wait)
-        self.plots.close()
