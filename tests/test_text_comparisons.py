@@ -164,6 +164,7 @@ def test_explicit_jobs_invalidation_missing_sources_and_late_close(
         deadline = monotonic() + 5
         while jobs.busy and monotonic() < deadline:
             jobs.bind(settings, items)
+            jobs.poll()
             sleep(0.001)
         assert jobs.active and not jobs.busy
         result = jobs.active

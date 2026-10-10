@@ -60,6 +60,7 @@ from datelier.inspection.references.types import ReferenceMapping, ReferenceSett
 from datelier.inspection.text.comparisons.settings import (
     TextComparisonSettings,
     TextComparisonSource,
+    TextComparisonViewSettings,
 )
 from datelier.inspection.text.types import (
     TextScope,
@@ -122,6 +123,7 @@ RECORDS = (
     ImageViewport,
     TextComparisonSettings,
     TextComparisonSource,
+    TextComparisonViewSettings,
     TextViewport,
     TextScope,
     TrainingSettings,

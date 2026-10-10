@@ -24,6 +24,7 @@ class TextComparisonInput:
     references: ReferenceSettings = ReferenceSettings()
     index: ReferenceIndex | None = None
     selection: tuple[int, ...] = ()
+    view_name: str = ""
 
 
 @dataclass(frozen=True)
@@ -40,6 +41,7 @@ class PreparedTextComparison:
     frequency_series_positions: tuple[NDArray[np.float64], ...]
     token_frequencies: tuple[NDArray[np.float64], ...]
     document_frequencies: tuple[NDArray[np.float64], ...]
+    view_names: tuple[str, ...] = ()
 
     @property
     def retained_bytes(self) -> int:

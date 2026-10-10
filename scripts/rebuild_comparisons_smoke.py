@@ -66,7 +66,7 @@ def main() -> None:
                 )
                 stage, entered = 6, evidence.frames
             elif stage == 6 and age > 5:
-                suffix = ("column-comparison-tools", "apply", "run")
+                suffix = ("recipe-controls", "apply", "run")
             elif stage == 7 and model.active:
                 assert model.active.series[0].counts.tolist() == [2, 2]
                 assert model.active.series[1].counts.tolist() == [1, 1]
@@ -104,7 +104,7 @@ def main() -> None:
                 )
                 stage, entered = 13, evidence.frames
             elif stage == 13 and age > 5:
-                suffix = ("column-comparison-tools", "apply", "run")
+                suffix = ("recipe-controls", "apply", "run")
             elif stage == 14 and model.active and model.active.labels:
                 assert set(model.active.keys) == {"a", "b"}
                 assert originals == (first_path.read_bytes(), second_path.read_bytes())

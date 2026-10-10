@@ -9,11 +9,12 @@ from imgui_bundle import imgui
 from datelier.application.text import TextController
 from datelier.gui.components.actions import CommandButton, JobFeedback, JobSnapshot
 from datelier.gui.components.base import Container, FrameContext
-from datelier.gui.components.fields import ChoiceField, IntegerField, TextField
+from datelier.gui.components.fields import ChoiceField, TextField
 from datelier.gui.components.groups import Collapsible
 from datelier.gui.context.media import TokenSettings
+from datelier.gui.context.text_scope import TextScopeFields
 from datelier.gui.context.text_training import TrainingSettings
-from datelier.inspection.text.types import CorpusMode, TextSource
+from datelier.inspection.text.types import TextSource
 
 
 class TextProfileSettings(Container):
@@ -30,62 +31,13 @@ class TextProfileSettings(Container):
                     lambda: not model.corpus.busy,
                 ),
                 JobFeedback("corpus-job", self.feedback, model.corpus.abandon),
-                ChoiceField(
-                    "scope",
-                    "Corpus",
-                    tuple(CorpusMode),
-                    lambda: model.jobs.settings.scope.mode,
+                TextScopeFields(
+                    lambda: model.jobs.settings.scope,
                     lambda value: setattr(
                         model.jobs,
                         "settings",
-                        replace(
-                            model.jobs.settings,
-                            scope=replace(model.jobs.settings.scope, mode=value),
-                        ),
+                        replace(model.jobs.settings, scope=value),
                     ),
-                ),
-                IntegerField(
-                    "start",
-                    "Start row (1-based)",
-                    lambda: model.jobs.settings.scope.start,
-                    lambda value: setattr(
-                        model.jobs,
-                        "settings",
-                        replace(
-                            model.jobs.settings,
-                            scope=replace(model.jobs.settings.scope, start=value),
-                        ),
-                    ),
-                    1,
-                ),
-                IntegerField(
-                    "count",
-                    "Corpus rows",
-                    lambda: model.jobs.settings.scope.count,
-                    lambda value: setattr(
-                        model.jobs,
-                        "settings",
-                        replace(
-                            model.jobs.settings,
-                            scope=replace(model.jobs.settings.scope, count=value),
-                        ),
-                    ),
-                    1,
-                ),
-                IntegerField(
-                    "seed",
-                    "Seed",
-                    lambda: model.jobs.settings.scope.seed,
-                    lambda value: setattr(
-                        model.jobs,
-                        "settings",
-                        replace(
-                            model.jobs.settings,
-                            scope=replace(model.jobs.settings.scope, seed=value),
-                        ),
-                    ),
-                    0,
-                    2**32 - 1,
                 ),
                 Collapsible(
                     "tokenizer",

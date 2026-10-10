@@ -55,6 +55,7 @@ class TextComparisonJobs:
                 (
                     i.source.file_id,
                     i.dataset.revision,
+                    i.view_name,
                     i.references,
                     id(i.index),
                     i.selection if i.source.scope.mode == CorpusMode.SELECTION else (),
@@ -66,6 +67,8 @@ class TextComparisonJobs:
             self.clear()
             self._stamp, self._recipe, self._inputs = stamp, recipe, inputs
             self.message = "Text comparison inputs changed; prepare explicitly."
+
+    def poll(self) -> None:
         if self._future is not None and self._future.done():
             future, self._future = self._future, None
             try:

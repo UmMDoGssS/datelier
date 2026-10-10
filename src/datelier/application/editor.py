@@ -241,6 +241,7 @@ class EditorController:
                 self.activate(file.identity)
         for file in self.files:
             file.poll()
+        self.compare.catalog.current_id = self.current.identity
         self.compare.poll(self.all_files)
         for exporter in tuple(self._exports):
             exporter.poll()

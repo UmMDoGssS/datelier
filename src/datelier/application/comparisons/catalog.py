@@ -10,6 +10,8 @@ from datelier.inspection.comparisons.types import ComparisonSelection
 from datelier.inspection.references.index import ReferenceIndex
 from datelier.inspection.references.types import ReferenceSettings
 from datelier.inspection.table import Inspection
+from datelier.inspection.text.list_records import is_text_field
+from datelier.inspection.text.types import TextSettings
 from datelier.io.arrays.storage import ArrayStore
 
 if TYPE_CHECKING:
@@ -27,6 +29,7 @@ class ComparisonFile:
     index: ReferenceIndex | None
     selection: tuple[int, ...]
     arrays: ArrayStore
+    text: TextSettings
 
     @property
     def dataset(self) -> Dataset | None:
@@ -39,6 +42,8 @@ class SourceCatalog:
         self.by_id: dict[str, ComparisonFile] = {}
         self._owners: dict[str, FileController] = {}
         self._column_choices: dict[str, tuple[ColumnChoice, ...]] = {}
+        self._text_choices: dict[str, tuple[ColumnChoice, ...]] = {}
+        self.current_id = ""
 
     @property
     def datasets(self) -> dict[str, Dataset]:
@@ -59,6 +64,7 @@ class SourceCatalog:
                 f.references.index,
                 f.media_input().selected_rows,
                 f.arrays.store,
+                f.text.jobs.settings,
             )
             for f in self._owners.values()
         )
@@ -82,9 +88,32 @@ class SourceCatalog:
             else ()
             for f in self.files
         }
+        choices = {}
+        for source in self.files:
+            if (
+                source.identity in previous
+                and previous[source.identity].inspection is source.inspection
+            ):
+                choices[source.identity] = self._text_choices.get(source.identity, ())
+            else:
+                schema = source.dataset.table.schema if source.dataset else {}
+                choices[source.identity] = tuple(
+                    ColumnChoice(
+                        c.name,
+                        c.group,
+                        enabled=is_text_field(schema[c.name]),
+                        reason="Text comparison requires a String or List[Text] field.",
+                    )
+                    for c in source.columns
+                    if c.name in schema
+                )
+        self._text_choices = choices
 
     def column_choices(self, identity: str) -> tuple[ColumnChoice, ...]:
         return self._column_choices.get(identity, ())
+
+    def text_choices(self, identity: str) -> tuple[ColumnChoice, ...]:
+        return self._text_choices.get(identity, ())
 
     def apply_selection(self, selection: ComparisonSelection) -> None:
         file = self._owners.get(selection.origin.file_id)
@@ -107,3 +136,4 @@ class SourceCatalog:
         self.by_id.clear()
         self._owners.clear()
         self._column_choices.clear()
+        self._text_choices.clear()

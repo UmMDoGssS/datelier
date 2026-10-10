@@ -14,7 +14,10 @@ from datelier.inspection.images.comparisons.settings import (
     ImageComparisonViewSettings,
 )
 from datelier.inspection.objects.types import NodePath
-from datelier.inspection.text.comparisons.settings import TextComparisonSettings
+from datelier.inspection.text.comparisons.settings import (
+    TextComparisonSettings,
+    TextComparisonViewSettings,
+)
 from datelier.io.types import (
     ArrayOptions,
     CheckpointOptions,
@@ -163,6 +166,7 @@ class SessionWorkspace:
     comparison_height: float = 260
     comparison_source: int = 0
     comparison_bin: int = 0
+    text_comparison_view: TextComparisonViewSettings = TextComparisonViewSettings()
 
     def validate(self) -> None:
         if (
@@ -196,6 +200,7 @@ class SessionWorkspace:
         for file in self.files:
             file.validate()
         self.image_comparison_view.validate()
+        self.text_comparison_view.validate()
         if self.comparison_tab not in ("Columns", "Text corpora", "Images", "Audio"):
             raise ValueError("Unknown file comparison panel")
         self.audio_comparison_view.validate()

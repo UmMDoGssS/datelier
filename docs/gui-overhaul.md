@@ -57,7 +57,7 @@ components implement Component.render; container classes render direct children.
 | B | Shared controls, shell, columns, table, tabular profiles and plots | Complete; basic inspection shell runnable |
 | C | Contextual analysis, transforms/history, export and workspace/preferences | Complete; advanced plot modes tracked separately |
 | D | Structured/array/checkpoint source and multimodal record/profile families | In progress; source/Inspect, text/image/audio profiles and annotation workflows restored; remaining forms and integration pending |
-| E | Comparison families, remaining features and integrated acceptance | In progress; column comparisons restored; text/image/audio comparisons and remaining integration pending |
+| E | Comparison families, remaining features and integrated acceptance | In progress; column/text comparisons restored; image/audio comparisons and remaining integration pending |
 
 Each stage runs scoped Pyrefly, behavioral tests, full Ruff checks and diff review
 before commit. Full Pyrefly/old GUI tests remain open while their imports target
@@ -324,6 +324,32 @@ errors; production and migrated callers are clean. Full caller migration and
 whole-milestone acceptance stay open. Text/image/audio comparison reconstruction,
 advanced plots, remaining import/table/mapping controls and final resource/native
 size/theme gates remain pending.
+
+## Fresh Stage E2 — Shared-tokenizer text comparisons
+
+The text family now uses the comparison recipe/contributor hierarchy, reusable
+text-scope/tokenization fields and shared row-link commands. Preparation is explicit
+and central polling owns publication. Native charts provide common length bins,
+counts/density, full token/document frequency tables, exact corpus/length statistics,
+record outcomes, input digests, native legends and shared Auto/Expand/Restore/drag
+viewports. The active file/view tokenizer can be copied into the common recipe;
+training and artifact configuration remain explicit in Profiles. Named List[Text]
+views retain element statistics and original source-row links. Session recipes and
+source/bin/tab/frequency/height settings restore idle without saved fitted results.
+Draft edits preserve earlier prepared results; contributor revisions, scopes and
+closure invalidate them. Selection completion never changes focus.
+
+Verification: production and migrated caller Pyrefly has zero errors; 66 focused
+text/comparison/session/restore tests pass. Full Ruff lint/format (679 files) and
+whitespace checks pass. Native contributor bulk selection, copied tokenizer,
+explicit Prepare, all four subtabs, both chart Expand/Restore and sorted original
+row links pass in 184 frames/18.27 ms p95 with source bytes preserved and no implicit
+training or per-file corpus preparation.
+[Text comparison report](evidence/gui-overhaul/fresh-text-comparisons.json).
+Shared column controls regress at 124 frames/20.23 ms p95; corpus/training controls
+regress at 94 frames/11.18 ms p95. Image/audio comparisons, advanced plots,
+remaining import/table/mapping controls, full old caller migration and final
+integrated resource/size/theme gates remain open.
 
 ## Baseline evidence
 

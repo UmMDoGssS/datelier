@@ -1,5 +1,6 @@
 """Compatible complete corpus overlays; only plotted vocabulary is bounded."""
 
+from dataclasses import replace
 from threading import Event
 
 import numpy as np
@@ -147,7 +148,10 @@ def prepare_comparison(
             )
         )
     check_abandoned(stop)
-    result = compare_profiles(tuple(profiles), tuple(i.label for i in inputs), settings)
+    result = replace(
+        compare_profiles(tuple(profiles), tuple(i.label for i in inputs), settings),
+        view_names=tuple(i.view_name for i in inputs),
+    )
     progress.update("Text comparison complete", len(inputs), len(inputs))
     return result
 
@@ -178,7 +182,12 @@ def select_length_bin(
         .filter(pl.col("id").is_in(chosen))
     )
     return ComparisonSelection(
-        Origin(profile.file_id, profile.revision, profile.settings.column or ""),
+        Origin(
+            profile.file_id,
+            profile.revision,
+            profile.settings.column or "",
+            result.view_names[series] or "table" if result.view_names else "table",
+        ),
         chosen,
         len(rows),
         int(positions["position"][0]) if len(positions) else None,

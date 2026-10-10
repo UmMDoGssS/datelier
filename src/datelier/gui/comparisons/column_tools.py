@@ -8,25 +8,19 @@ from datelier.application.columns import SingleSelection
 from datelier.application.comparisons.base import ComparisonFamily
 from datelier.application.comparisons.columns import ColumnComparisonController
 from datelier.gui.comparisons.base import ComparisonTools
+from datelier.gui.comparisons.recipe_controls import (
+    RecipeControls,
+    RowLinkControls,
+    SourceCaption,
+)
 from datelier.gui.comparisons.source_controls import ContributorControls
-from datelier.gui.components.actions import CommandButton, JobFeedback, JobSnapshot
+from datelier.gui.components.actions import JobSnapshot
 from datelier.gui.components.base import Component, Container, FrameContext
 from datelier.gui.components.bindings import StateFields
 from datelier.gui.components.columns import ColumnPicker
-from datelier.gui.components.fields import ChoiceField, IntegerField
 from datelier.gui.components.native import target
 from datelier.gui.profiles.colors import profile_color
 from datelier.inspection.comparison_settings import ComparisonSource, Normalization
-
-
-class SourceCaption(Component):
-    def __init__(self, model: ColumnComparisonController, identity: str) -> None:
-        super().__init__("caption")
-        self.model, self.identity = model, identity
-
-    def render(self, frame: FrameContext) -> None:
-        source = self.model.catalog.by_id.get(self.identity)
-        imgui.separator_text(source.title if source else self.identity)
 
 
 class SourceColor(Component):
@@ -57,7 +51,7 @@ class ColumnSourceForm(Container):
         super().__init__(
             identity,
             (
-                SourceCaption(model, identity),
+                SourceCaption(model.catalog, identity),
                 ColumnPicker(
                     "column",
                     "Mapped column",
@@ -96,26 +90,10 @@ class ColumnComparisonTools(ComparisonTools):
         super().__init__(
             "column-comparison-tools",
             (
-                ChoiceField(
-                    "recipe",
-                    "Comparison",
-                    lambda: tuple(range(len(model.recipes))),
-                    lambda: model.index,
-                    model.choose,
-                    labels=lambda: tuple(
-                        f"Comparison {i + 1}" for i in range(len(model.recipes))
-                    ),
-                ),
-                CommandButton("new", "New comparison", model.new),
-                CommandButton(
-                    "remove",
-                    "Remove comparison",
-                    model.remove,
-                    lambda: bool(model.recipes),
-                ),
-                CommandButton("apply", "Apply comparison", model.apply),
-                JobFeedback(
-                    "job",
+                RecipeControls(
+                    model,
+                    "Apply comparison",
+                    model.apply,
                     lambda: JobSnapshot(
                         model.message, model.jobs.busy, model.jobs.selection_message
                     ),
@@ -149,31 +127,17 @@ class ColumnComparisonTools(ComparisonTools):
                     lambda s: s.normalization,
                     lambda s, v: replace(s, normalization=v),
                 ),
-                ChoiceField(
-                    "source",
-                    "Link rows in source",
+                RowLinkControls(
                     lambda: (
-                        tuple(range(len(model.active.series))) if model.active else ()
-                    ),
-                    lambda: model.selected_source,
-                    lambda value: setattr(model, "selected_source", value),
-                    labels=lambda: (
                         tuple(s.label for s in model.active.series)
                         if model.active
                         else ()
                     ),
-                ),
-                IntegerField(
-                    "bin",
-                    "Bin / category (0-based)",
+                    lambda: model.selected_source,
+                    lambda v: setattr(model, "selected_source", v),
                     lambda: model.selected_bin,
-                    lambda value: setattr(model, "selected_bin", value),
-                ),
-                CommandButton(
-                    "select",
-                    "Select matching rows",
+                    lambda v: setattr(model, "selected_bin", v),
                     lambda: model.select(model.selected_source, model.selected_bin),
-                    lambda: model.active is not None,
                 ),
             ),
         )
