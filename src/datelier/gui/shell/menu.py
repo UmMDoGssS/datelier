@@ -45,8 +45,10 @@ class MenuBar(Component):
         open_dialog: Callable[[], None],
         reset_layout: Callable[[], None],
         quit_app: Callable[[], None],
+        export_dialog: Callable[[], None],
     ) -> None:
         super().__init__("menus")
+        self.export_dialog = export_dialog
         self.open_dialog, self.reset_layout, self.quit_app = (
             open_dialog,
             reset_layout,
@@ -58,6 +60,8 @@ class MenuBar(Component):
             if imgui.menu_item("Open files or folder…", "Ctrl+O", False)[0]:
                 self.open_dialog()
             target(frame, "open")
+            if imgui.menu_item("Export active source…", "", False)[0]:
+                self.export_dialog()
             if imgui.menu_item("Quit", "", False)[0]:
                 self.quit_app()
             imgui.end_menu()

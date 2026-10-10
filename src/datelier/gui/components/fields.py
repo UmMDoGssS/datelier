@@ -103,3 +103,34 @@ class FloatField(Component):
         target(frame, "value")
         if changed:
             self.set_value(max(self.minimum, min(self.maximum, value)))
+
+
+class TextField(Component):
+    def __init__(
+        self,
+        key: str,
+        label: str,
+        get: Callable[[], str],
+        set_value: Callable[[str], None],
+        multiline: bool = False,
+    ) -> None:
+        super().__init__(key)
+        self.label, self.get, self.set_value, self.multiline = (
+            label,
+            get,
+            set_value,
+            multiline,
+        )
+
+    def render(self, frame: FrameContext) -> None:
+        imgui.text(self.label)
+        imgui.set_next_item_width(-1)
+        if self.multiline:
+            changed, value = imgui.input_text_multiline(
+                "##" + self.key, self.get(), (-1, 80)
+            )
+        else:
+            changed, value = imgui.input_text("##" + self.key, self.get())
+        target(frame, "value")
+        if changed:
+            self.set_value(value)

@@ -18,14 +18,20 @@ class AnalysisController:
     source: Algorithm | None = None
     panel_source: Algorithm | None = None
     pending_result: Algorithm | None = None
+    dataset: Dataset | None = None
 
     def poll(self, dataset: Dataset | None) -> bool:
+        self.dataset = dataset
         revision = dataset.revision if dataset is not None else None
         completed = self.jobs.poll(revision)
         if completed and self.jobs.latest is not None:
             self.pending_result = self.jobs.latest.provenance.request.algorithm
         self.plots.poll(revision)
         return completed and isinstance(self.jobs.latest, EmbeddingResult)
+
+    def start(self, algorithm: Algorithm) -> None:
+        if self.dataset is not None:
+            self.controls.start(self.jobs, self.dataset, algorithm)
 
     def sync_dimensions(self, plots: PlotState) -> None:
         self.controls.dimensions = plots.scatter_dimensions

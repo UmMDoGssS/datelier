@@ -55,7 +55,7 @@ components implement Component.render; container classes render direct children.
 | --- | --- | --- |
 | A | Replace GUI package; GUI-free file/record/editor runtime and component contracts | Complete; desktop deliberately not runnable |
 | B | Shared controls, shell, columns, table, tabular profiles and plots | Complete; basic inspection shell runnable |
-| C | Contextual analysis, transforms/history, export and workspace/preferences | Pending |
+| C | Contextual analysis, transforms/history, export and workspace/preferences | In progress; commands restored |
 | D | Structured/array/checkpoint source and multimodal record/profile families | Pending |
 | E | Comparison families, remaining features and integrated acceptance | Pending |
 
@@ -95,6 +95,25 @@ captures are beside them. This is basic shell acceptance only. Contextual analys
 advanced plots, file browser, transformations, persistence, specialized content
 and comparison renderers are still pending. Full old GUI caller migration remains
 open. Historical incremental evidence below does not certify replacement features.
+
+## Fresh Stage C1 — Analysis and reversible commands
+
+Relationships context now owns feature/preprocessing/seed inputs, every existing
+algorithm editor, explicit Run/Cancel/Open result, stale/draft indicators, full
+provenance and cluster counts/centers/inertia. Embedding plots are prepared by the
+application runtime. Completion preserves navigation; Open result chooses the
+coordinate/color source. Related operation forms share selectors and typed fields
+for Sort/Filter/Keep columns/Cast/Fill/Drop/Lookup/Derived column. History shows
+applied/undone recipes. Compare disables its Transform/History actions. Export is
+a source-labelled File dialog, captured independently of later tab activation;
+worker-side destination guards now also protect other open source files/aliases.
+
+Verification: scoped Pyrefly zero errors, 79 focused runtime/analysis/edit/export
+checks, full Ruff lint/format and diff checks pass. Native feature-picker bulk,
+explicit PCA, navigation during fitting, no completion focus theft and explicit
+Open result pass in 219 frames, 15.02 ms p95 with unchanged source bytes.
+[Analysis report](evidence/gui-overhaul/fresh-analysis.json). Persistence, structured
+and multimodal content, advanced plots and comparisons remain open.
 
 ## Baseline evidence
 

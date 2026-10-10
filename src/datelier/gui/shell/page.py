@@ -5,17 +5,23 @@ from dataclasses import dataclass
 
 from imgui_bundle import hello_imgui, imgui
 
+from datelier.analysis.types import Algorithm
 from datelier.application.editor import EditorController
 from datelier.application.file import FileController
+from datelier.gui.analysis.view import AnalysisSettingsView
+from datelier.gui.components.actions import JobSnapshot
 from datelier.gui.components.base import Component, Container, FrameContext, Page
 from datelier.gui.components.probe import GuiProbe, ViewScope
 from datelier.gui.components.viewport import ResizableViewport
+from datelier.gui.context.history import HistoryView
 from datelier.gui.context.profiles import ProfileSettings
 from datelier.gui.context.relationships import CorrelationSettings, RelationshipSettings
+from datelier.gui.context.transforms import TransformSettings
 from datelier.gui.profiles.content import ProfileRouter
 from datelier.gui.relationships.correlations import CorrelationPlot
 from datelier.gui.relationships.scatter import ScatterPlot
 from datelier.gui.shell.docking import DockHost, DockPanel
+from datelier.gui.shell.export import ExportDialog, ExportPort
 from datelier.gui.shell.menu import MenuBar, OpenDialog
 from datelier.gui.shell.navigation import CanvasTabs, FileTab, FileTabs, NamedTab
 from datelier.gui.sources.columns import ColumnCatalog
@@ -65,6 +71,8 @@ class FileComponents:
 def assemble_file(file: FileController, editor: EditorController) -> FileComponents:
     def points() -> Scatter | None:
         dashboard = file.explorer.active
+        if file.analysis.source is not None:
+            return file.analysis.plots.active
         return dashboard.scatters[0] if dashboard and dashboard.scatters else None
 
     def relationships() -> Relationships | None:
@@ -83,6 +91,10 @@ def assemble_file(file: FileController, editor: EditorController) -> FileCompone
 
     def route() -> str:
         return "Compare files" if editor.navigation.comparing else file.views.tab
+
+    def open_result(algorithm: Algorithm) -> None:
+        file.open_analysis_result(algorithm)
+        editor.choose_route("Relationships")
 
     canvas = CanvasTabs(
         (
@@ -112,14 +124,28 @@ def assemble_file(file: FileController, editor: EditorController) -> FileCompone
                 ContextRoutes(
                     {
                         "Profiles": ProfileSettings(file.profiles, file.plots),
-                        "Relationships": RelationshipSettings(file.plots),
+                        "Relationships": Container(
+                            "relationship-tools",
+                            (
+                                RelationshipSettings(file.plots),
+                                AnalysisSettingsView(file.analysis, open_result),
+                            ),
+                        ),
                         "Correlations": CorrelationSettings(file.plots),
                     },
                     route,
                 ),
             ),
-            NamedTab("Transform", Message("transform", "Choose a transformation.")),
-            NamedTab("History", Message("history", "Operation history appears here.")),
+            NamedTab(
+                "Transform",
+                TransformSettings(lambda: file.choices, file.editor),
+                lambda: not editor.navigation.comparing,
+            ),
+            NamedTab(
+                "History",
+                HistoryView(file.editor),
+                lambda: not editor.navigation.comparing,
+            ),
         ),
         lambda: editor.navigation.context_tab,
         lambda name: setattr(editor.navigation, "context_tab", name),
@@ -141,10 +167,34 @@ class WorkbenchPage(Page):
             DockPanel("table", "Table preview", empty),
         )
         self.open_dialog = OpenDialog(editor.open_paths)
+
+        def capture_export() -> ExportPort | None:
+            file = editor.active
+            active = file.inspection
+            if active is None:
+                return None
+            return ExportPort(
+                file.title,
+                lambda path, format, overwrite: file.exporter.request(
+                    active.dataset,
+                    path,
+                    format,
+                    overwrite=overwrite,
+                    sources=tuple(
+                        f.inspection.dataset.source.path
+                        for f in editor.files
+                        if f.inspection is not None
+                    ),
+                ),
+                lambda: JobSnapshot(file.exporter.message, file.exporter.busy),
+            )
+
+        self.export_dialog = ExportDialog(capture_export)
         self.menu = MenuBar(
             lambda: setattr(self.open_dialog, "requested", True),
             lambda: setattr(self.host, "reset", True),
             lambda: setattr(hello_imgui.get_runner_params(), "app_shall_exit", True),
+            lambda: setattr(self.export_dialog, "requested", True),
         )
         tabs = FileTabs(
             lambda: tuple(
@@ -159,10 +209,16 @@ class WorkbenchPage(Page):
             self.host.toggle_context,
             self.host.toggle_table,
         )
-        super().__init__("page", (tabs, self.host, self.open_dialog))
+        super().__init__(
+            "page", (tabs, self.host, self.open_dialog, self.export_dialog)
+        )
 
     def _history(self, action: HistoryAction) -> None:
-        if self.editor.active.editor.pipeline and not self.editor.active.editor.busy:
+        if (
+            not self.editor.navigation.comparing
+            and self.editor.active.editor.pipeline
+            and not self.editor.active.editor.busy
+        ):
             self.editor.active.editor.request(action)
 
     def prepare(self) -> FrameContext:

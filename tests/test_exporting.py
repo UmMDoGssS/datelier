@@ -123,3 +123,19 @@ def test_export_job_and_closed_exporter(tmp_path: Path) -> None:
         exporter.close()
     with pytest.raises(ValueError, match="idle"):
         exporter.request(recipe.current, tmp_path / "other.csv", ExportFormat.CSV)
+
+
+def test_export_preserves_another_open_source(tmp_path: Path) -> None:
+    source = tmp_path / "source.csv"
+    recipe = pipeline(source)
+    sibling = tmp_path / "sibling.csv"
+    sibling.write_bytes(b"x\n42\n")
+    alias = tmp_path / "sibling-alias.csv"
+    alias.hardlink_to(sibling)
+    original = sibling.read_bytes()
+    with pytest.raises(ExportFailure, match="source files are preserved"):
+        export_dataset(
+            recipe.current, alias, ExportFormat.CSV, overwrite=True, sources=(sibling,)
+        )
+    assert sibling.read_bytes() == original
+    assert not list(tmp_path.glob(".datelier-export-*"))

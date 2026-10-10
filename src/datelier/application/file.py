@@ -7,6 +7,7 @@ from uuid import uuid4
 
 from datelier.analysis.jobs import AnalysisJobs
 from datelier.analysis.plots import AnalysisPlots
+from datelier.analysis.types import Algorithm, EmbeddingResult
 from datelier.application.analysis import AnalysisController
 from datelier.application.audio import AudioController
 from datelier.application.columns import ColumnChoice
@@ -164,6 +165,17 @@ class FileController:
             )
         self._plot_settings = None
 
+    def open_analysis_result(self, algorithm: Algorithm) -> None:
+        result = self.analysis.jobs.results.get(algorithm)
+        if result is None or self.loader.revision != result.revision:
+            return
+        if algorithm.is_clustering:
+            self.plots.choose_color(algorithm.value)
+        else:
+            self.analysis.source = algorithm
+        self.analysis.pending_result = None
+        self.views = replace(self.views, tab="Relationships")
+
     def poll(self) -> None:
         if self.closed:
             return
@@ -180,6 +192,20 @@ class FileController:
         self.analysis.sync_dimensions(self.plots)
         self.analysis.poll(dataset)
         self.analysis.sync_colors(self.plots)
+        result = (
+            self.analysis.jobs.results.get(self.analysis.source)
+            if self.analysis.source is not None
+            else None
+        )
+        if dataset is not None and isinstance(result, EmbeddingResult):
+            if result.revision == dataset.revision:
+                self.analysis.plots.ensure(
+                    dataset,
+                    result,
+                    self.plots.point_limit,
+                    self.plots.color_column,
+                    self.plots.cluster_result if self.plots.cluster_color else None,
+                )
         settings = self.plots.settings()
         if dataset is not None and settings != self._plot_settings:
             self.explorer.request(dataset, settings)

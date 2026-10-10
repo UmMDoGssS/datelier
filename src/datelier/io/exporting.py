@@ -30,9 +30,11 @@ class ExportResult:
     format: ExportFormat
 
 
-def guard_destination(dataset: Dataset, path: Path, overwrite: bool) -> None:
+def guard_destination(
+    dataset: Dataset, path: Path, overwrite: bool, sources: tuple[Path, ...] = ()
+) -> None:
     source = dataset.source.path.resolve()
-    if destination_is_source(path, source):
+    if any(destination_is_source(path, original) for original in (source, *sources)):
         raise ExportFailure(
             "Choose a different destination; source files are preserved"
         )
@@ -43,12 +45,17 @@ def guard_destination(dataset: Dataset, path: Path, overwrite: bool) -> None:
 
 
 def export_dataset(
-    dataset: Dataset, path: Path, format: ExportFormat, *, overwrite: bool = False
+    dataset: Dataset,
+    path: Path,
+    format: ExportFormat,
+    *,
+    overwrite: bool = False,
+    sources: tuple[Path, ...] = (),
 ) -> ExportResult:
     path = path.expanduser().resolve()
     temporary: Path | None = None
     try:
-        guard_destination(dataset, path, overwrite)
+        guard_destination(dataset, path, overwrite, sources)
         table = dataset.table
         with NamedTemporaryFile(
             prefix=".datelier-export-", dir=path.parent, delete=False
@@ -60,7 +67,7 @@ def export_dataset(
             table.write_parquet(temporary)
         else:
             raise ExportFailure("Choose CSV or Parquet")
-        guard_destination(dataset, path, overwrite)
+        guard_destination(dataset, path, overwrite, sources)
         if overwrite:
             os.replace(temporary, path)
         else:
@@ -97,12 +104,13 @@ class DatasetExporter:
         format: ExportFormat,
         *,
         overwrite: bool = False,
+        sources: tuple[Path, ...] = (),
     ) -> None:
         if self._closed or self.busy:
             raise ValueError("Export requires an idle exporter")
         self.result = None
         self._future = self._executor.submit(
-            export_dataset, dataset, path, format, overwrite=overwrite
+            export_dataset, dataset, path, format, overwrite=overwrite, sources=sources
         )
         self.message = "Exporting the table selected when export started…"
 

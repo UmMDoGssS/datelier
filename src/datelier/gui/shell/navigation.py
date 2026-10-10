@@ -80,9 +80,12 @@ class FileTabs(Component):
 
 
 class NamedTab(Tab):
-    def __init__(self, label: str, content: Component) -> None:
+    def __init__(
+        self, label: str, content: Component, enabled: Callable[[], bool] = lambda: True
+    ) -> None:
         super().__init__(label, (content,))
         self.label = label
+        self.enabled = enabled
 
 
 class CanvasTabs(Container):
@@ -106,11 +109,19 @@ class CanvasTabs(Container):
                     if changed and tab.key == selected
                     else 0
                 )
+                enabled = tab.enabled() if isinstance(tab, NamedTab) else True
+                imgui.begin_disabled(not enabled)
                 opened, _ = imgui.begin_tab_item(tab.key, None, flags)
                 target(frame.child(tab.key), "tab")
                 if opened:
                     self.choose(tab.key)
-                    tab.render(frame.child(tab.key))
+                    if enabled:
+                        tab.render(frame.child(tab.key))
+                    else:
+                        imgui.text_wrapped(
+                            "Switch to a file inspection view to edit its data."
+                        )
                     imgui.end_tab_item()
+                imgui.end_disabled()
             imgui.end_tab_bar()
         self._selected = self.selected()
