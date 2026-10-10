@@ -183,6 +183,28 @@ Inspect regression passes 55 frames, 22.37 ms p95. Advanced mapping forms, media
 profiles/training/annotations/playback, comparisons, plots and full caller/native/
 resource acceptance remain open.
 
+## Fresh Stage D3 — Text profile and tokenizer workflow
+
+Related column/text profile implementations now inherit a profile-content family;
+prepared role routing chooses their immediate child. Text corpus and record jobs
+have independent ownership while sharing the saved tokenizer recipe. Exact corpus
+statistics, document/element lengths, complete virtual frequency/outcome tables,
+resizable distribution/frequency plots and persisted subtabs return to Profiles.
+Explicit scope, local artifact import, BPE/Unigram training forms, progress,
+cancellation, digests and provenance stay contextual. Completion preserves focus.
+Inspect supports text-list elements and independent original/token-piece paging.
+Clearing a profile selection persists across frames and restoration.
+
+Verification: whole production package Pyrefly zero errors (one existing suppression,
+35 warnings); scoped new callers also pass. Forty focused corpus/training/Unicode/
+list-text/record/restore checks pass. Full Ruff lint/format and diff checks pass.
+Native exact profiling, profile subtabs and selected-corpus training/provenance pass
+in 94 frames, 16.03 ms p95, with unchanged source and no implicit playback.
+[Text profile report](evidence/gui-overhaul/fresh-text-profiles.json). Focused media
+Inspect regression passes 55 frames, 20.12 ms p95. Full project Pyrefly/pytest still
+await obsolete caller migration. Media profiles/annotations/spectral/playback,
+comparisons, advanced plots and integrated native/resource acceptance remain open.
+
 ## Baseline evidence
 
 Before implementation, 38 targeted editor/session/schema-role/profile-selection/

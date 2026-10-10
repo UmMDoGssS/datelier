@@ -13,6 +13,7 @@ from datelier.inspection.arrays.mapping import ArrayLayout
 from datelier.inspection.records.jobs import RecordJobs
 from datelier.inspection.records.types import InspectSettings, RecordCard, RecordField
 from datelier.inspection.table import Inspection
+from datelier.inspection.text.list_records import is_text_list
 from datelier.io.types import ArrayOptions
 from datelier.plotting.selection import LinkedSelection
 
@@ -65,6 +66,7 @@ class RecordController:
         self.selection = selection
         self.choices: tuple[ColumnChoice, ...] = ()
         self._inspection: Inspection | None = None
+        self.text_list = False
 
     def bind(self, dataset: Dataset) -> None:
         columns = dataset.table.columns
@@ -92,12 +94,21 @@ class RecordController:
             self.jobs.abandon()
             return
         self.bind(inspection.dataset)
+        dtype = inspection.dataset.table.schema.get(self.settings.primary or "")
+        self.text_list = dtype is not None and is_text_list(dtype)
         self.jobs.sync(
             inspection.dataset, self.settings, tuple(sorted(self.selection.row_ids))
         )
         self.jobs.poll()
 
     def kind(self, card: RecordCard) -> RecordKind:
+        if (
+            self.settings.text_elements
+            and self._inspection
+            and card.primary
+            and is_text_list(self._inspection.dataset.table.schema[card.primary.name])
+        ):
+            return RecordKind.TEXT
         return (
             record_kind(self._inspection, card)
             if self._inspection
@@ -105,6 +116,8 @@ class RecordController:
         )
 
     def current_kind(self) -> RecordKind:
+        if self.text_list and self.settings.text_elements:
+            return RecordKind.TEXT
         inspection, name = self._inspection, self.settings.primary
         if (
             inspection is None

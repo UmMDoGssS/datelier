@@ -5,7 +5,7 @@ from dataclasses import replace
 from imgui_bundle import imgui
 
 from datelier.application.text import TextController
-from datelier.gui.components.base import FrameContext
+from datelier.gui.components.base import Component, FrameContext
 from datelier.gui.components.native import target
 from datelier.gui.components.viewport import ResizableViewport, ViewportContent
 from datelier.gui.records.base import RecordContent
@@ -24,7 +24,8 @@ class OriginalText(ViewportContent):
         imgui.text(f"Original [{page.start:,}, {page.end:,})")
         if page.selected_span:
             imgui.text_wrapped(
-                f"Selected source span {page.selected_span}: {page.selected_source!r}"
+                f"Selected source span {page.selected_span}, preview: "
+                f"{page.selected_source[:256]!r}"
             )
         if imgui.begin_child(
             "original",
@@ -46,10 +47,11 @@ class OriginalText(ViewportContent):
         imgui.end_child()
 
 
-class Tokens(ViewportContent):
+class TokenRows(Component):
     def __init__(self, model: TextController) -> None:
-        super().__init__("tokens")
+        super().__init__("token-rows")
         self.model = model
+        self.height = 200.0
 
     def render(self, frame: FrameContext) -> None:
         document = self.model.jobs.active
@@ -101,6 +103,46 @@ class Tokens(ViewportContent):
                         imgui.table_next_column()
                         imgui.text_unformatted(value)
             imgui.end_table()
+
+
+class TokenPiece(Component):
+    def __init__(self, model: TextController) -> None:
+        super().__init__("piece")
+        self.model = model
+
+    def render(self, frame: FrameContext) -> None:
+        page = self.model.pages.active
+        if page is None or not page.piece_length:
+            return
+        imgui.text(
+            f"Selected piece {page.piece_start:,}–"
+            f"{min(page.piece_length, page.piece_start + 256):,} / "
+            f"{page.piece_length:,} code points"
+        )
+        viewport = self.model.jobs.settings.viewport
+        if imgui.button("Previous piece segment"):
+            viewport = replace(viewport, piece_start=max(0, viewport.piece_start - 256))
+        imgui.same_line()
+        if imgui.button("Next piece segment"):
+            viewport = replace(
+                viewport,
+                piece_start=min(
+                    max(0, page.piece_length - 256), viewport.piece_start + 256
+                ),
+            )
+        self.model.jobs.settings = replace(self.model.jobs.settings, viewport=viewport)
+        imgui.text_wrapped(page.selected_piece)
+
+
+class Tokens(ViewportContent):
+    def __init__(self, model: TextController) -> None:
+        super().__init__("tokens")
+        self.rows = TokenRows(model)
+        self.children = (self.rows, TokenPiece(model))
+
+    def render(self, frame: FrameContext) -> None:
+        self.rows.height = max(100, self.height - 70)
+        super().render(frame)
 
 
 class TextContent(RecordContent):

@@ -7,9 +7,11 @@ from time import monotonic, sleep
 import polars as pl
 import pytest
 
+from datelier.application.editor import EditorController
+from datelier.application.profiles import ProfileFamily
+from datelier.application.records import RecordKind
 from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset, SourceReference
-from datelier.gui.text.controls import TextControls
 from datelier.inspection.profile_preview import ProfileRequest, prepare_profile_group
 from datelier.inspection.profile_selection import ProfileSelection
 from datelier.inspection.references.types import ReferenceSettings
@@ -111,13 +113,27 @@ def test_list_text_totals_are_element_weighted_without_phantom_documents(
     selected = ProfileSelection(("text",))
     selected.bind(dataset)
     assert selected.text_column() == "text"
-    jobs = TextJobs()
+    editor = EditorController()
     try:
-        controls = TextControls()
-        controls.bind(jobs, dataset)
-        assert controls.columns == controls.list_columns == ("text",)
+        file = editor.active
+        file.open(dataset.source.path)
+        deadline = monotonic() + 3
+        while file.inspection is None and monotonic() < deadline:
+            editor.poll()
+            sleep(0.001)
+        assert file.inspection
+        file.profiles.choose(("text",))
+        file.profiles.text = True
+        file.records.settings = replace(
+            file.records.settings, primary="text", text_elements=True
+        )
+        editor.poll()
+        assert file.profiles.family == ProfileFamily.TEXT
+        assert file.records.current_kind() == RecordKind.TEXT
+        assert file.text.jobs.settings.column == "text" and file.text.record_list
+        assert file.text.corpus.profile is None and not file.text.corpus.busy
     finally:
-        jobs.close()
+        editor.close()
 
 
 def test_sorted_scopes_and_selected_element_keep_exact_origin_and_token_spans(

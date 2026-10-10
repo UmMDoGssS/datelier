@@ -7,6 +7,7 @@ from imgui_bundle import imgui
 from datelier.analysis.types import Algorithm
 from datelier.application.editor import EditorController
 from datelier.application.file import FileController
+from datelier.application.profiles import ProfileFamily
 from datelier.gui.analysis.view import AnalysisSettingsView
 from datelier.gui.components.base import Component, Container, FrameContext
 from datelier.gui.components.routing import RoutedContent
@@ -14,8 +15,10 @@ from datelier.gui.components.viewport import ResizableViewport
 from datelier.gui.context.history import HistoryView
 from datelier.gui.context.profiles import ProfileSettings
 from datelier.gui.context.relationships import CorrelationSettings, RelationshipSettings
+from datelier.gui.context.text_profiles import TextProfileSettings
 from datelier.gui.context.transforms import TransformSettings
 from datelier.gui.profiles.content import ProfileRouter
+from datelier.gui.profiles.text import TextProfileContent
 from datelier.gui.relationships.correlations import CorrelationPlot
 from datelier.gui.relationships.scatter import ScatterPlot
 from datelier.gui.shell.inspect_assembly import assemble_inspect
@@ -105,10 +108,31 @@ def assemble_file(file: FileController, editor: EditorController) -> FileCompone
         )
 
     inspect = assemble_inspect(file, editor)
+    profile_content = RoutedContent(
+        {
+            ProfileFamily.COLUMNS: ProfileRouter(file.profiles),
+            ProfileFamily.TEXT: TextProfileContent(file.text, file.profiles),
+        },
+        lambda: file.profiles.family,
+    )
+    profile_settings = Container(
+        "profile-context",
+        (
+            ProfileSettings(file.profiles, file.plots),
+            RoutedContent(
+                {
+                    ProfileFamily.TEXT: TextProfileSettings(
+                        file.text, lambda: file.profiles.selected[0]
+                    )
+                },
+                lambda: file.profiles.family,
+            ),
+        ),
+    )
 
     canvas = CanvasTabs(
         (
-            NamedTab("Profiles", ProfileRouter(file.profiles)),
+            NamedTab("Profiles", profile_content),
             NamedTab(
                 "Relationships",
                 scatter_viewport(),
@@ -131,7 +155,7 @@ def assemble_file(file: FileController, editor: EditorController) -> FileCompone
                 "View",
                 RoutedContent(
                     {
-                        "Profiles": ProfileSettings(file.profiles, file.plots),
+                        "Profiles": profile_settings,
                         "Relationships": Container(
                             "relationship-tools",
                             (

@@ -24,6 +24,7 @@ class InspectSettings:
     supporting: tuple[str, ...] | None = None
     gallery: bool = True
     focus: int = 0
+    text_elements: bool = False
 
     def validate(self) -> None:
         if (

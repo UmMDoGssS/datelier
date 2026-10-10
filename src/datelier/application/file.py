@@ -148,6 +148,7 @@ class FileController:
         self.text.jobs.settings = self.views.text
         self.text.original_height = self.views.text_height
         self.text.token_height = self.views.token_height
+        self.text.profile_tab = self.views.text_profile_tab
         self.images.settings = self.views.image
         self.audio.settings = self.views.audio
         self.references.settings = self.views.references
@@ -185,7 +186,9 @@ class FileController:
         restore_analysis(
             self.analysis.controls, restored.workspace, restored.inspection.dataset
         )
-        self.profiles.selected = self.views.profile_selection or ()
+        self.profiles.restore_selection(
+            restored.inspection.dataset, self.views.profile_selection
+        )
         self.profiles.height = self.views.profile_height
         self.profiles.mode = self.views.profile_mode
         self.profiles.text = self.views.profile_text

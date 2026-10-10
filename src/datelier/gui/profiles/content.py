@@ -1,15 +1,15 @@
 """Profile content families selected by prepared presentation kind."""
 
-from abc import ABC
 from dataclasses import fields
 
 import numpy as np
 from imgui_bundle import imgui, implot
 
-from datelier.application.profiles import ProfileController
-from datelier.gui.components.base import Component, Container, FrameContext
+from datelier.application.profiles import ProfileController, ProfileFamily
+from datelier.gui.components.base import Component, FrameContext
 from datelier.gui.components.facts import FactsTable
 from datelier.gui.components.viewport import ResizableViewport, ViewportContent
+from datelier.gui.profiles.base import ProfileContent
 from datelier.gui.profiles.charts import CHARTS
 from datelier.inspection.profiles import ProfileKind
 
@@ -84,7 +84,11 @@ def statistic_rows(model: ProfileController) -> tuple[tuple[object, ...], ...]:
     return tuple(rows)
 
 
-class ProfileContent(Container, ABC):
+class ColumnProfileContent(ProfileContent):
+    @property
+    def family(self) -> ProfileFamily:
+        return ProfileFamily.COLUMNS
+
     def __init__(
         self, key: str, model: ProfileController, children: tuple[Component, ...] = ()
     ) -> None:
@@ -101,7 +105,7 @@ class ProfileContent(Container, ABC):
         super().__init__(key, (*children, *facts))
 
 
-class NumericContent(ProfileContent):
+class NumericContent(ColumnProfileContent):
     def __init__(self, model: ProfileController) -> None:
         self.charts = tuple(
             chart(
@@ -159,7 +163,7 @@ class ProfileBars(ViewportContent):
             self.fit = False
 
 
-class CountContent(ProfileContent):
+class CountContent(ColumnProfileContent):
     def __init__(self, model: ProfileController) -> None:
         super().__init__(
             "counts",
@@ -176,12 +180,16 @@ class CountContent(ProfileContent):
         )
 
 
-class StructureContent(ProfileContent):
+class StructureContent(ColumnProfileContent):
     def __init__(self, model: ProfileController) -> None:
         super().__init__("structure", model)
 
 
-class ProfileRouter(Container):
+class ProfileRouter(ProfileContent):
+    @property
+    def family(self) -> ProfileFamily:
+        return ProfileFamily.COLUMNS
+
     def __init__(self, model: ProfileController) -> None:
         self.model = model
         numeric, counts, structure = (
@@ -201,6 +209,9 @@ class ProfileRouter(Container):
 
     def render(self, frame: FrameContext) -> None:
         group = self.model.explorer.profiles.active
+        if not self.model.selected:
+            imgui.text("Choose a column to inspect.")
+            return
         if group is None or not group.profiles.columns:
             imgui.text_wrapped(
                 self.model.explorer.profiles.message or "Choose a column to inspect."

@@ -7,6 +7,7 @@ from datelier.application.records import RecordController
 from datelier.gui.components.base import Container
 from datelier.gui.components.columns import ColumnPicker
 from datelier.gui.components.fields import BooleanField, ChoiceField, IntegerField
+from datelier.gui.components.groups import Conditional
 from datelier.inspection.records.types import RecordMode
 
 
@@ -45,6 +46,22 @@ class RecordSettings(Container):
                         model, "settings", replace(model.settings, supporting=names)
                     ),
                     MultiSelection(),
+                ),
+                Conditional(
+                    "text-elements",
+                    lambda: model.text_list,
+                    (
+                        BooleanField(
+                            "text",
+                            "Inspect text list elements",
+                            lambda: model.settings.text_elements,
+                            lambda value: setattr(
+                                model,
+                                "settings",
+                                replace(model.settings, text_elements=value),
+                            ),
+                        ),
+                    ),
                 ),
                 IntegerField(
                     "start",

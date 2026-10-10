@@ -1,10 +1,11 @@
 """Profile settings compose shared selectors and typed fields."""
 
 from datelier.application.plot_settings import PlotState
-from datelier.application.profiles import ProfileController
+from datelier.application.profiles import ProfileController, ProfileFamily
 from datelier.gui.components.base import Container
 from datelier.gui.components.columns import ColumnPicker
 from datelier.gui.components.fields import BooleanField, ChoiceField, IntegerField
+from datelier.gui.components.groups import Conditional
 from datelier.gui.profiles.charts import CHARTS
 
 
@@ -21,33 +22,59 @@ class ProfileSettings(Container):
                     profiles.choose,
                     profiles.policy,
                 ),
-                ChoiceField(
-                    "representation",
-                    "Representation",
-                    tuple(range(5)),
-                    lambda: profiles.mode,
-                    lambda value: setattr(profiles, "mode", value),
-                    tuple(chart.label for chart in CHARTS),
+                Conditional(
+                    "text-tools",
+                    lambda: profiles.text_optional,
+                    (
+                        BooleanField(
+                            "text",
+                            "Text tools",
+                            lambda: profiles.text,
+                            lambda value: setattr(profiles, "text", value),
+                        ),
+                    ),
                 ),
-                IntegerField(
-                    "bins",
-                    "Histogram bins",
-                    lambda: plots.bins,
-                    lambda value: setattr(plots, "bins", value),
-                    1,
-                    100,
-                ),
-                BooleanField(
-                    "standardize",
-                    "Standardize",
-                    lambda: plots.standardize,
-                    lambda value: setattr(plots, "standardize", value),
-                ),
-                BooleanField(
-                    "density",
-                    "Histogram density",
-                    lambda: plots.density,
-                    lambda value: setattr(plots, "density", value),
+                Conditional(
+                    "numeric-controls",
+                    lambda: (
+                        profiles.family == ProfileFamily.COLUMNS
+                        and bool(profiles.selected)
+                        and all(
+                            choice.numeric
+                            for choice in profiles.choices
+                            if choice.name in profiles.selected
+                        )
+                    ),
+                    (
+                        ChoiceField(
+                            "representation",
+                            "Representation",
+                            tuple(range(5)),
+                            lambda: profiles.mode,
+                            lambda value: setattr(profiles, "mode", value),
+                            tuple(chart.label for chart in CHARTS),
+                        ),
+                        IntegerField(
+                            "bins",
+                            "Histogram bins",
+                            lambda: plots.bins,
+                            lambda value: setattr(plots, "bins", value),
+                            1,
+                            100,
+                        ),
+                        BooleanField(
+                            "standardize",
+                            "Standardize",
+                            lambda: plots.standardize,
+                            lambda value: setattr(plots, "standardize", value),
+                        ),
+                        BooleanField(
+                            "density",
+                            "Histogram density",
+                            lambda: plots.density,
+                            lambda value: setattr(plots, "density", value),
+                        ),
+                    ),
                 ),
             ),
         )

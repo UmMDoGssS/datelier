@@ -42,6 +42,7 @@ def capture_views(file: FileController) -> WorkspaceViews:
         array_member_mode=file.array_source.member_mode,
         checkpoint_member_mode=file.tensor_source.member_mode,
         text=file.text.jobs.settings,
+        text_profile_tab=file.text.profile_tab,
         text_height=file.text.original_height,
         token_height=file.text.token_height,
         image=file.images.settings,

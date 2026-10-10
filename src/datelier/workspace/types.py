@@ -65,6 +65,7 @@ class WorkspaceViews:
     checkpoint_retention_bytes: int = 256 * 1024 * 1024
     text: TextSettings = TextSettings()
     profile_text: bool = False
+    text_profile_tab: str = "Statistics"
     image: ImageSettings = ImageSettings()
     audio: AudioSettings = AudioSettings()
     image_height: float = 0
@@ -86,6 +87,13 @@ class WorkspaceViews:
             raise ValueError(
                 "Content heights must be finite and at least 100, or 0 for auto"
             )
+        if self.text_profile_tab not in (
+            "Statistics",
+            "Length distribution",
+            "Token frequencies",
+            "Record outcomes",
+        ):
+            raise ValueError("Unknown text profile view")
         self.audio.validate()
         self.image.validate()
         self.text.validate()
