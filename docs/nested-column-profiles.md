@@ -107,3 +107,30 @@ gates are complete with Linux Mesa rendering/restoration evidence. Arbitrary
 heterogeneous field/element types still use explicit read-as-text recovery;
 struct schemas align missing keys as null. Additional platforms, accelerated
 rendering and the stalled mouse-selector automation are not claimed verified.
+
+## List interpretation follow-up — in progress
+
+The user authorized element interpretations and manual list overrides. Deliver
+in two bounded steps:
+
+- [x] Typed list meanings: infer `list[numeric]`, `list[category]`, `list[text]`,
+  `list[temporal]` and `list[object]`; allow compatible manual overrides including
+  `list[id]`. Preserve physical values, undo/redo, and workspace recipes. Verify
+  Schema choices and category routing in the GUI.
+- [ ] Text-list tools: profile/tokenize flattened text elements with source-row
+  and element provenance, scoped corpus commands, visible list structure and
+  element navigation. Keep tokenizer/training commands explicit and restore
+  overrides/settings without starting text work. Run full-suite acceptance.
+
+The earlier generic-list evidence remains historical. Generic saved List
+operations retain their physical-element fallback for compatibility.
+
+
+Interpretation foundation evidence: **39 focused tests passed**, Pyrefly/Ruff
+and diff whitespace pass. `scripts/list_roles_smoke.py` renders compatible
+Schema choices, injects a category combo result through the real Schema handler,
+verifies undo/redo and category counts, then restores the override in a separate
+process without implicit text/ML work. [Report](evidence/nested-columns/roles.json)
+and [screenshot](evidence/nested-columns/roles.png). Combo input is injected;
+mouse-driven selector acceptance is not claimed. Text-list tool integration
+remains the next gate.

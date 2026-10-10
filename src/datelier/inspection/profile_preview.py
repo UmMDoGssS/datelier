@@ -3,7 +3,7 @@
 from concurrent.futures import Executor, Future
 from dataclasses import dataclass
 
-from datelier.core.column_roles import PLOTTABLE_ROLES, ColumnRole
+from datelier.core.column_roles import LIST_ROLES, PLOTTABLE_ROLES, ColumnRole
 from datelier.core.dataset import Dataset, DatasetRevision
 from datelier.core.jobs import JobExecutor
 from datelier.inspection.lists import flatten_elements
@@ -37,7 +37,7 @@ def prepare_profile_group(dataset: Dataset, request: ProfileRequest) -> ProfileG
     request.distribution.validate()
     roles = tuple(dataset.role(name).role for name in names)
     if any(
-        r not in (*PLOTTABLE_ROLES, ColumnRole.LIST, ColumnRole.OBJECT) for r in roles
+        r not in (*PLOTTABLE_ROLES, *LIST_ROLES, ColumnRole.OBJECT) for r in roles
     ) or (len(roles) > 1 and any(r != ColumnRole.NUMERIC for r in roles)):
         raise ValueError("Choose one category/date/list/object or numeric columns")
     profiles = prepare_profiles(
@@ -60,7 +60,7 @@ def prepare_profile_group(dataset: Dataset, request: ProfileRequest) -> ProfileG
                     request.distribution,
                     request.bins,
                 )
-                if roles == (ColumnRole.LIST,)
+                if len(roles) == 1 and roles[0] in LIST_ROLES
                 else prepare_comparison(dataset, request.distribution, request.bins)
             )
         except ValueError as error:

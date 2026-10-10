@@ -6,7 +6,12 @@ from enum import StrEnum
 
 import polars as pl
 
-from datelier.core.column_roles import PLOTTABLE_ROLES, ColumnRole
+from datelier.core.column_roles import (
+    LIST_ROLES,
+    PLOTTABLE_ROLES,
+    ColumnRole,
+    list_element_role,
+)
 from datelier.core.dataset import Dataset, DatasetRevision
 from datelier.inspection.lists import ListStatistics, prepare_list
 from datelier.inspection.statistics import NumericStatistics, prepare_numeric_statistics
@@ -284,7 +289,7 @@ def prepare_profiles(
             if info.role
             in (
                 *PLOTTABLE_ROLES,
-                ColumnRole.LIST,
+                *LIST_ROLES,
                 ColumnRole.OBJECT,
                 ColumnRole.UNSUPPORTED,
             )
@@ -294,15 +299,16 @@ def prepare_profiles(
         if columns is None and index >= column_limit:
             break
         info = dataset.role(series.name)
-        kind = ProfileKind(info.role.value)
+        kind = ProfileKind(list_element_role(info.role, series.dtype).value)
         list_stats = None
         physical = str(series.dtype)
-        if kind == ProfileKind.LIST:
+        if info.role in LIST_ROLES:
             series, list_stats = prepare_list(series)
-            kind = profile_kind(series.dtype)
         distinct = (
             series.n_unique() - int(series.null_count() > 0)
-            if list_stats is not None and kind != ProfileKind.UNSUPPORTED
+            if list_stats is not None
+            and kind
+            in (ProfileKind.NUMERIC, ProfileKind.CATEGORICAL, ProfileKind.TEMPORAL)
             else info.distinct
         )
         if kind in (ProfileKind.NUMERIC, ProfileKind.TEMPORAL):
@@ -322,7 +328,12 @@ def prepare_profiles(
                     f"{kind} excluded from analysis. "
                     "Change its role in Schema to include it."
                     if info.role
-                    not in (*PLOTTABLE_ROLES, ColumnRole.LIST, ColumnRole.OBJECT)
+                    not in (*PLOTTABLE_ROLES, *LIST_ROLES, ColumnRole.OBJECT)
+                    else "Text elements; calculate a corpus profile with text tools."
+                    if kind == ProfileKind.TEXT
+                    else "Identifier elements are excluded from scalar analysis; "
+                    "choose a compatible list interpretation in Schema to analyze them."
+                    if kind == ProfileKind.IDENTIFIER
                     else "Object values have no scalar plot; choose the column "
                     "as the primary field in Inspect to read its complete value."
                     if kind == ProfileKind.OBJECT or isinstance(series.dtype, pl.Struct)

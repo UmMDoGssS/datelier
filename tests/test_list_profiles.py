@@ -24,7 +24,7 @@ def test_list_numeric_statistics_use_all_leaves_and_keep_container_nulls_separat
 ):
     series = pl.Series("xs", [[1.0, None, math.nan], None, [], [3.0, math.inf, 5.0]])
     dataset = data(series)
-    assert dataset.role("xs").role == ColumnRole.LIST
+    assert dataset.role("xs").role == ColumnRole.LIST_NUMERIC
     profile = prepare_profiles(dataset).columns[0]
     assert profile.kind == ProfileKind.NUMERIC and profile.dtype == str(series.dtype)
     assert profile.statistics is not None

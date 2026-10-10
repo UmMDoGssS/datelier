@@ -2,7 +2,7 @@
 
 from imgui_bundle import imgui
 
-from datelier.core.column_roles import PLOTTABLE_ROLES, ColumnRole
+from datelier.core.column_roles import LIST_ROLES, PLOTTABLE_ROLES, ColumnRole
 from datelier.inspection.profile_selection import PROFILE_ROLES, ProfileSelection
 
 
@@ -33,12 +33,16 @@ def show_selector(selection: ProfileSelection) -> None:
     if imgui.button("Done"):
         imgui.close_current_popup()
     if imgui.begin_child("Choices", (-1, -1)):
-        for role in PROFILE_ROLES:
+        for role in (
+            r for r in PROFILE_ROLES if r not in LIST_ROLES or r == ColumnRole.LIST
+        ):
             choices = tuple(
                 i
                 for i in selection.choices
                 if (
-                    i.role
+                    ColumnRole.LIST
+                    if i.role in LIST_ROLES
+                    else i.role
                     if i.role
                     in (
                         *PLOTTABLE_ROLES,

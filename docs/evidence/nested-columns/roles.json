@@ -1,0 +1,31 @@
+{
+  "open": {
+    "frames": 37,
+    "restore": false,
+    "schema_choices": [
+      "Auto: list[numeric]",
+      "list[numeric]",
+      "list[category]",
+      "list[id]",
+      "List"
+    ],
+    "combo_change_injected": true,
+    "role": "list[category]",
+    "no_implicit_text_or_ml": true
+  },
+  "restore": {
+    "frames": 23,
+    "restore": true,
+    "schema_choices": [
+      "Auto: list[numeric]",
+      "list[numeric]",
+      "list[category]",
+      "list[id]",
+      "List"
+    ],
+    "combo_change_injected": false,
+    "role": "list[category]",
+    "no_implicit_text_or_ml": true
+  },
+  "source_preserved": true
+}

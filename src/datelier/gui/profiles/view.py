@@ -7,7 +7,7 @@ import numpy as np
 import polars as pl
 from imgui_bundle import imgui, implot
 
-from datelier.core.column_roles import ColumnRole, list_leaf_dtype
+from datelier.core.column_roles import LIST_ROLES, ColumnRole, list_element_role
 from datelier.core.dataset import Dataset
 from datelier.gui.plots.area import PlotArea
 from datelier.gui.plots.axes import AxisControls
@@ -95,8 +95,11 @@ class ProfileView:
             self._previous_columns = selected
             numeric = bool(selected) and (
                 dataset.role(selected[0]).role == ColumnRole.NUMERIC
-                or dataset.role(selected[0]).role == ColumnRole.LIST
-                and list_leaf_dtype(dataset.table.schema[selected[0]]).is_numeric()
+                or dataset.role(selected[0]).role in LIST_ROLES
+                and list_element_role(
+                    dataset.role(selected[0]).role, dataset.table.schema[selected[0]]
+                )
+                == ColumnRole.NUMERIC
             )
             imgui.set_next_item_width(-1)
             if numeric:
@@ -127,16 +130,18 @@ class ProfileView:
                         if selected
                         and (
                             dataset.role(selected[0]).role == ColumnRole.CATEGORY
-                            or dataset.role(selected[0]).role == ColumnRole.LIST
-                            and list_leaf_dtype(dataset.table.schema[selected[0]])
-                            in (pl.String, pl.Boolean)
+                            or dataset.role(selected[0]).role in LIST_ROLES
+                            and list_element_role(
+                                dataset.role(selected[0]).role,
+                                dataset.table.schema[selected[0]],
+                            )
+                            == ColumnRole.CATEGORY
                         )
                         else "Object"
                         if selected
                         and dataset.role(selected[0]).role == ColumnRole.OBJECT
                         else "List structure"
-                        if selected
-                        and dataset.role(selected[0]).role == ColumnRole.LIST
+                        if selected and dataset.role(selected[0]).role in LIST_ROLES
                         else "Histogram"
                     ],
                 )

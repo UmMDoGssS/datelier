@@ -18,6 +18,12 @@ class ColumnRole(StrEnum):
     EXTERNAL_TEXT = "External text"
     TEMPORAL = "Temporal"
     LIST = "List"
+    LIST_NUMERIC = "list[numeric]"
+    LIST_CATEGORY = "list[category]"
+    LIST_TEXT = "list[text]"
+    LIST_IDENTIFIER = "list[id]"
+    LIST_TEMPORAL = "list[temporal]"
+    LIST_OBJECT = "list[object]"
     OBJECT = "Object"
     UNSUPPORTED = "Unsupported"
 
@@ -39,7 +45,30 @@ class RoleInfo:
 
 def allowed_roles(dtype: pl.DataType) -> tuple[ColumnRole, ...]:
     if isinstance(dtype, (pl.List, pl.Array)):
-        return (ColumnRole.LIST,)
+        leaf = list_leaf_dtype(dtype)
+        return (
+            (
+                ColumnRole.LIST_NUMERIC,
+                ColumnRole.LIST_CATEGORY,
+                ColumnRole.LIST_IDENTIFIER,
+                ColumnRole.LIST,
+            )
+            if leaf.is_numeric()
+            else (
+                ColumnRole.LIST_CATEGORY,
+                ColumnRole.LIST_TEXT,
+                ColumnRole.LIST_IDENTIFIER,
+                ColumnRole.LIST,
+            )
+            if leaf == pl.String
+            else (ColumnRole.LIST_CATEGORY, ColumnRole.LIST_IDENTIFIER, ColumnRole.LIST)
+            if leaf in (pl.Boolean, pl.Categorical) or isinstance(leaf, pl.Enum)
+            else (ColumnRole.LIST_TEMPORAL, ColumnRole.LIST)
+            if leaf.is_temporal()
+            else (ColumnRole.LIST_OBJECT, ColumnRole.LIST)
+            if isinstance(leaf, pl.Struct)
+            else (ColumnRole.LIST,)
+        )
     if isinstance(dtype, pl.Struct):
         return (ColumnRole.OBJECT,)
     if dtype.is_numeric():
@@ -83,7 +112,15 @@ def infer_roles(
         recognizable = _recognize_strings(series) if dtype == pl.String else None
         old = prior.get(series.name)
         if old is not None and old.dtype == str(dtype):
-            inferred, reason = old.inferred, old.reason
+            # Generic inferred lists from older versions gain an element role;
+            # explicit saved List overrides retain their physical-type fallback.
+            inferred, reason = (
+                _infer_list(series)
+                if old.inferred == ColumnRole.LIST
+                else (old.inferred, old.reason)
+            )
+        elif isinstance(dtype, (pl.List, pl.Array)):
+            inferred, reason = _infer_list(series)
         elif recognizable is not None:
             inferred, reason = recognizable
         elif (
@@ -128,6 +165,43 @@ REFERENCE_ROLES = (
     ColumnRole.EXTERNAL_TEXT,
 )
 PLOTTABLE_ROLES = (ColumnRole.NUMERIC, ColumnRole.CATEGORY, ColumnRole.TEMPORAL)
+LIST_ROLES = (
+    ColumnRole.LIST,
+    ColumnRole.LIST_NUMERIC,
+    ColumnRole.LIST_CATEGORY,
+    ColumnRole.LIST_TEXT,
+    ColumnRole.LIST_IDENTIFIER,
+    ColumnRole.LIST_TEMPORAL,
+    ColumnRole.LIST_OBJECT,
+)
+_LIST_ELEMENTS = {
+    ColumnRole.LIST_NUMERIC: ColumnRole.NUMERIC,
+    ColumnRole.LIST_CATEGORY: ColumnRole.CATEGORY,
+    ColumnRole.LIST_TEXT: ColumnRole.TEXT,
+    ColumnRole.LIST_IDENTIFIER: ColumnRole.IDENTIFIER,
+    ColumnRole.LIST_TEMPORAL: ColumnRole.TEMPORAL,
+    ColumnRole.LIST_OBJECT: ColumnRole.OBJECT,
+}
+
+
+def list_element_role(role: ColumnRole, dtype: pl.DataType) -> ColumnRole:
+    """Resolve explicit list meaning and legacy generic-list physical defaults."""
+    if role in _LIST_ELEMENTS:
+        return _LIST_ELEMENTS[role]
+    if role != ColumnRole.LIST:
+        return role
+    leaf = list_leaf_dtype(dtype)
+    return (
+        ColumnRole.NUMERIC
+        if leaf.is_numeric()
+        else ColumnRole.TEMPORAL
+        if leaf.is_temporal()
+        else ColumnRole.CATEGORY
+        if leaf in (pl.String, pl.Boolean, pl.Categorical) or isinstance(leaf, pl.Enum)
+        else ColumnRole.OBJECT
+        if isinstance(leaf, pl.Struct)
+        else ColumnRole.UNSUPPORTED
+    )
 
 
 def list_leaf_dtype(dtype: pl.DataType) -> pl.DataType:
@@ -135,6 +209,36 @@ def list_leaf_dtype(dtype: pl.DataType) -> pl.DataType:
         inner = dtype.inner
         dtype = inner if isinstance(inner, pl.DataType) else inner()
     return dtype
+
+
+def _infer_list(series: pl.Series) -> tuple[ColumnRole, str]:
+    dtype = series.dtype
+    leaf = list_leaf_dtype(dtype)
+    default = allowed_roles(dtype)[0]
+    if leaf != pl.String:
+        return default, f"List leaf type is {leaf}; nested lengths remain separate."
+    # Bound each expansion and the final Python sample. Never flatten an entire
+    # text collection merely to infer its interpretation during import.
+    sample = series.head(256)
+    while isinstance(sample.dtype, (pl.List, pl.Array)):
+        if isinstance(sample.dtype, pl.Array):
+            sample = sample.arr.to_list()
+        sample = (
+            sample.list.head(256)
+            .explode(empty_as_null=False, keep_nulls=False)
+            .head(256)
+        )
+    texts = sample.drop_nulls().to_list()
+    prose = sum(len(str(value).split()) >= 3 for value in texts)
+    if texts and prose / len(texts) >= 0.8:
+        return ColumnRole.LIST_TEXT, (
+            f"{prose}/{len(texts)} sampled string elements contain prose "
+            "(at least 3 words); sample limit 256."
+        )
+    return ColumnRole.LIST_CATEGORY, (
+        f"{len(texts)} sampled string elements have insufficient prose evidence; "
+        "use categories by default or override to list[text]. Sample limit: 256."
+    )
 
 
 def _recognize_strings(series: pl.Series) -> tuple[ColumnRole, str] | None:
