@@ -7,6 +7,7 @@ from enum import StrEnum
 import polars as pl
 
 from datelier.application.columns import ColumnChoice
+from datelier.application.sources.columns import record_mapping
 from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset
 from datelier.inspection.arrays.mapping import ArrayLayout
@@ -33,12 +34,7 @@ def record_kind(inspection: Inspection, card: RecordCard) -> RecordKind:
         return RecordKind.VALUE
     if primary.lines is not None:
         return RecordKind.NESTED
-    options = inspection.imported.options
-    mapping = (
-        options.mapping_for(inspection.imported.array_catalog, primary.name)
-        if isinstance(options, ArrayOptions)
-        else None
-    )
+    mapping = record_mapping(inspection, primary.name)
     if mapping is not None:
         return {
             ArrayLayout.AUDIO: RecordKind.AUDIO,
@@ -67,6 +63,7 @@ class RecordController:
         self.choices: tuple[ColumnChoice, ...] = ()
         self._inspection: Inspection | None = None
         self.text_list = False
+        self.has_mapped_payload = False
 
     def bind(self, dataset: Dataset) -> None:
         columns = dataset.table.columns
@@ -94,6 +91,10 @@ class RecordController:
             self.jobs.abandon()
             return
         self.bind(inspection.dataset)
+        self.has_mapped_payload = (
+            isinstance(inspection.imported.options, ArrayOptions)
+            and inspection.imported.options.mapping is not None
+        )
         dtype = inspection.dataset.table.schema.get(self.settings.primary or "")
         self.text_list = dtype is not None and is_text_list(dtype)
         self.jobs.sync(
@@ -101,12 +102,31 @@ class RecordController:
         )
         self.jobs.poll()
 
+    def presentation(self, card: RecordCard) -> RecordCard:
+        inspection = self._inspection
+        options = inspection.imported.options if inspection else None
+        if (
+            self.settings.mapped_payload is not False
+            and isinstance(options, ArrayOptions)
+            and options.mapping
+        ):
+            return replace(
+                card,
+                primary=RecordField(
+                    options.mapping.member,
+                    "Mapped payload; source record identity is preserved.",
+                ),
+            )
+        return card
+
     def kind(self, card: RecordCard) -> RecordKind:
         if (
             self.settings.text_elements
             and self._inspection
             and card.primary
-            and is_text_list(self._inspection.dataset.table.schema[card.primary.name])
+            and (dtype := self._inspection.dataset.table.schema.get(card.primary.name))
+            is not None
+            and is_text_list(dtype)
         ):
             return RecordKind.TEXT
         return (
@@ -116,9 +136,16 @@ class RecordController:
         )
 
     def current_kind(self) -> RecordKind:
+        inspection, name = self._inspection, self.settings.primary
+        if (
+            self.has_mapped_payload
+            and self.settings.mapped_payload is not False
+            and inspection
+        ):
+            card = self.presentation(RecordCard(0, 0, None, ()))
+            return record_kind(inspection, card)
         if self.text_list and self.settings.text_elements:
             return RecordKind.TEXT
-        inspection, name = self._inspection, self.settings.primary
         if (
             inspection is None
             or name is None

@@ -48,6 +48,22 @@ class RecordSettings(Container):
                     MultiSelection(),
                 ),
                 Conditional(
+                    "mapped-payload",
+                    lambda: model.has_mapped_payload,
+                    (
+                        BooleanField(
+                            "payload",
+                            "Inspect mapped payload",
+                            lambda: model.settings.mapped_payload is not False,
+                            lambda value: setattr(
+                                model,
+                                "settings",
+                                replace(model.settings, mapped_payload=value),
+                            ),
+                        ),
+                    ),
+                ),
+                Conditional(
                     "text-elements",
                     lambda: model.text_list,
                     (
@@ -58,7 +74,13 @@ class RecordSettings(Container):
                             lambda value: setattr(
                                 model,
                                 "settings",
-                                replace(model.settings, text_elements=value),
+                                replace(
+                                    model.settings,
+                                    text_elements=value,
+                                    mapped_payload=False
+                                    if value
+                                    else model.settings.mapped_payload,
+                                ),
                             ),
                         ),
                     ),

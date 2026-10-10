@@ -112,7 +112,7 @@ def main() -> None:
                 assert (
                     file.audio.jobs.active is None and file.audio.signal.active is None
                 )
-                suffix, next_stage = ("audio", "waveform"), 5
+                suffix, next_stage = ("commands", "waveform", "run"), 5
             elif stage == 5 and isinstance(file.audio.signal.active, WaveformEnvelope):
                 assert file.audio.signal.active.metadata.frames == 16000
                 assert file.audio.player.snapshot.request is None

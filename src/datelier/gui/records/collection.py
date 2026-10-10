@@ -137,11 +137,15 @@ class RecordCardView(Container):
                 SupportingFields(card, gallery),
             ),
         )
+        self.model = model
         self.body, self.card, self.gallery = body, card, gallery
 
     def render(self, frame: FrameContext) -> None:
         imgui.push_id(self.key)
-        self.body.card, self.body.gallery = self.card, self.gallery
+        self.body.card, self.body.gallery = (
+            self.model.presentation(self.card),
+            self.gallery,
+        )
         super().render(frame)
         imgui.pop_id()
 

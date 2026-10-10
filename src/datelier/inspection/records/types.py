@@ -25,6 +25,7 @@ class InspectSettings:
     gallery: bool = True
     focus: int = 0
     text_elements: bool = False
+    mapped_payload: bool | None = None
 
     def validate(self) -> None:
         if (

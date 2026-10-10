@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 from math import isfinite
 
+from datelier.inspection.audio.collections.settings import AudioCollectionSettings
 from datelier.inspection.audio.playback.settings import PlaybackSettings
 from datelier.inspection.audio.profile_types import AudioThresholds
 from datelier.inspection.audio.types import AudioRange, validate_sample_rate
@@ -20,10 +21,15 @@ class AudioSettings:
     gpu_bytes: int = 8 * 1024 * 1024
     plot_height: float = 240
     playback: PlaybackSettings = PlaybackSettings()
+    collection: AudioCollectionSettings = AudioCollectionSettings()
+    profile_tab: str = "Records"
 
     def validate(self) -> None:
         self.view.validate()
         self.playback.validate()
+        self.collection.validate()
+        if self.profile_tab not in ("Records", "Channels"):
+            raise ValueError("Unknown audio collection profile view")
         if self.gpu_bytes < 1024 * 1024:
             raise ValueError("Audio textures require at least 1 MiB GPU retention")
         if (

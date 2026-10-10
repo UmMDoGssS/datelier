@@ -205,6 +205,34 @@ Inspect regression passes 55 frames, 20.12 ms p95. Full project Pyrefly/pytest s
 await obsolete caller migration. Media profiles/annotations/spectral/playback,
 comparisons, advanced plots and integrated native/resource acceptance remain open.
 
+## Fresh Stage D4 — Original audio and listening
+
+Audio record content composes metadata, explicit sample/signal/profile commands,
+related waveform/spectral chart classes, exact raw/channel tables, provenance and
+listening controls. Shared viewport sizing covers waveform, PSD and HTK mel views;
+worker-colored tiles upload and release on the GUI thread. Original frame/time,
+FFT/hop/window/frequency, display/range, thresholds and cache controls remain
+contextual. Playback supports explicit output discovery, Play/Pause/Resume/Stop,
+volume, selected channel/range and seek, with an injected output factory. Switching
+file or named view releases the matching stream. Audio collection headers/exact
+statistics have independent explicit job ownership and saved recipes.
+
+Media forms now share an abstract typed parent and live in a cohesive package;
+typed settings bindings reduce repeated getter/setter construction. Mapped payload
+Inspect retains original row identity after the visible record-index column is
+removed, while ordinary supporting fields can be inspected independently.
+Cancellation feedback describes abandonment instead of claiming execution stopped.
+
+Verification: whole production package Pyrefly zero errors (one existing suppression,
+36 warnings); scoped callers pass. Eighty-six focused audio/playback/source/text/
+record/restore checks, full Ruff lint/format and diff checks pass. Native PSD/mel,
+header collection and deterministic injected Play/Pause/Stop pass in 133 frames,
+16.80 ms p95; original-rate output samples, source bytes and device closure pass.
+[Audio report](evidence/gui-overhaul/fresh-audio.json). Shared media record regression
+passes 55 frames, 23.08 ms p95. Human listening remains deferred; this step does not
+claim actual hearing. Image/annotation profiles and controls, comparisons, advanced
+plots, full caller migration and integrated acceptance remain open.
+
 ## Baseline evidence
 
 Before implementation, 38 targeted editor/session/schema-role/profile-selection/

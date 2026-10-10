@@ -10,7 +10,8 @@ from datelier.application.preferences import PreferenceController
 from datelier.application.settings_restore import restore_plots
 from datelier.application.workspace import capture_session, install_file
 from datelier.core.jobs import SharedWorkers
-from datelier.inspection.audio.playback.controller import AudioPlayback
+from datelier.inspection.audio.playback.controller import AudioPlayback, PlaybackPhase
+from datelier.inspection.audio.playback.device import DeviceFactory, SoundDeviceOutput
 from datelier.io.loading import LoadPhase
 from datelier.io.opening import OpeningJobs
 from datelier.workspace.recent import RecentKind, RecentSource
@@ -20,9 +21,14 @@ from datelier.workspace.session_types import SessionFile, SessionWorkspace
 
 
 class EditorController:
-    def __init__(self, preferences_path: Path | None = None) -> None:
+    def __init__(
+        self,
+        preferences_path: Path | None = None,
+        *,
+        playback_factory: DeviceFactory = SoundDeviceOutput,
+    ) -> None:
         self.workers = SharedWorkers(workers=4)
-        self.playback = AudioPlayback(executor=self.workers)
+        self.playback = AudioPlayback(playback_factory, executor=self.workers)
         self.opening = OpeningJobs(self.workers)
         self.preferences = PreferenceController(preferences_path, self.workers)
         self.browser = DirectoryController(self.workers)
@@ -211,6 +217,15 @@ class EditorController:
                 self.activate(file.identity)
         for file in self.files:
             file.poll()
+        playback = self.playback.snapshot
+        request = playback.request
+        if (
+            request
+            and playback.phase
+            in (PlaybackPhase.STARTING, PlaybackPhase.PLAYING, PlaybackPhase.PAUSED)
+            and request.locator.origin.file_id != self.current.identity
+        ):
+            self.playback.stop(request.locator.origin.file_id)
         if self.preferences.ready:
             for file in self.all_files:
                 if file.identity not in self._defaults_applied:

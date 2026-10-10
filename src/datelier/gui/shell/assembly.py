@@ -12,11 +12,13 @@ from datelier.gui.analysis.view import AnalysisSettingsView
 from datelier.gui.components.base import Component, Container, FrameContext
 from datelier.gui.components.routing import RoutedContent
 from datelier.gui.components.viewport import ResizableViewport
+from datelier.gui.context.audio_profiles import AudioProfileSettings
 from datelier.gui.context.history import HistoryView
 from datelier.gui.context.profiles import ProfileSettings
 from datelier.gui.context.relationships import CorrelationSettings, RelationshipSettings
 from datelier.gui.context.text_profiles import TextProfileSettings
 from datelier.gui.context.transforms import TransformSettings
+from datelier.gui.profiles.audio import AudioProfileContent
 from datelier.gui.profiles.content import ProfileRouter
 from datelier.gui.profiles.text import TextProfileContent
 from datelier.gui.relationships.correlations import CorrelationPlot
@@ -112,6 +114,7 @@ def assemble_file(file: FileController, editor: EditorController) -> FileCompone
         {
             ProfileFamily.COLUMNS: ProfileRouter(file.profiles),
             ProfileFamily.TEXT: TextProfileContent(file.text, file.profiles),
+            ProfileFamily.AUDIO: AudioProfileContent(file.audio),
         },
         lambda: file.profiles.family,
     )
@@ -123,7 +126,10 @@ def assemble_file(file: FileController, editor: EditorController) -> FileCompone
                 {
                     ProfileFamily.TEXT: TextProfileSettings(
                         file.text, lambda: file.profiles.selected[0]
-                    )
+                    ),
+                    ProfileFamily.AUDIO: AudioProfileSettings(
+                        file.audio, lambda: file.profiles.selected[0]
+                    ),
                 },
                 lambda: file.profiles.family,
             ),

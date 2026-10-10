@@ -8,9 +8,9 @@ import numpy as np
 import pytest
 import soundfile as sf
 
+from datelier.application.editor import EditorController
+from datelier.application.workspace import capture_session
 from datelier.core.column_roles import ColumnRole
-from datelier.gui.editor_session import EditorSession
-from datelier.gui.workspace.capture import capture_session
 from datelier.inspection.audio.playback.settings import PlaybackSettings
 from datelier.inspection.audio.profile_types import AudioThresholds
 from datelier.inspection.audio.settings import AudioSettings
@@ -27,16 +27,16 @@ from datelier.workspace.session_jobs import save_snapshot
 from datelier.workspace.types import WorkspaceViews
 
 
-def wait(editor: EditorSession) -> None:
+def wait(editor: EditorController) -> None:
     deadline = monotonic() + 5
     while monotonic() < deadline:
         editor.poll()
-        if not editor.workspace_jobs.busy and all(
-            (not file.controls.path or file.loader.active is not None)
+        if not editor.workspace.busy and all(
+            (not file.loader.status.path or file.loader.active is not None)
             and not file.references.busy
             and not file.audio.jobs.busy
             and not file.audio.signal.busy
-            for file in editor.file_sessions
+            for file in editor.all_files
         ):
             return
         sleep(0.001)
@@ -102,13 +102,13 @@ def test_two_audio_recipes_restore_idle_with_independent_source_ids(
     tmp_path: Path,
 ) -> None:
     workspace = tmp_path / "session.datelier.json"
-    editor = EditorSession()
+    editor = EditorController()
     expected = []
     try:
         for i, name in enumerate(("a", "b")):
             path = tmp_path / (name + ".wav")
             sf.write(path, np.full((100, 2), 0.25 + i * 0.25), 8000, subtype="DOUBLE")
-            file = editor.new_tab(path)
+            file = editor.new_file(path)
             expected.append(
                 replace(
                     AudioSettings(),
@@ -126,16 +126,14 @@ def test_two_audio_recipes_restore_idle_with_independent_source_ids(
                 )
             )
         wait(editor)
-        files = [
-            file for file in editor.file_sessions if file.loader.active is not None
-        ]
+        files = [file for file in editor.all_files if file.loader.active is not None]
         assert len(files) == 2
         for file, settings in zip(files, expected, strict=True):
             assert file.loader.active is not None
             dataset = file.loader.active.dataset
             assert dataset.role("path").role == ColumnRole.AUDIO
             file.audio.settings = settings
-            file.audio.sync(file)
+            file.audio.sync(file.media_input())
             file.audio.jobs.request_record(dataset, "path", 0)
         wait(editor)
         for file in files:
@@ -166,13 +164,11 @@ def test_two_audio_recipes_restore_idle_with_independent_source_ids(
         assert "PlaybackSnapshot" not in text and "PlaybackRun" not in text
     finally:
         editor.close()
-    restored = EditorSession()
+    restored = EditorController()
     try:
         restored.open_workspace(workspace)
         wait(restored)
-        files = [
-            file for file in restored.file_sessions if file.loader.active is not None
-        ]
+        files = [file for file in restored.all_files if file.loader.active is not None]
         assert len(files) == 2
         assert [file.audio.settings for file in files] == expected
         for file in files:

@@ -8,32 +8,32 @@ import numpy as np
 import soundfile as sf
 from audio_playback_fixtures import Devices
 
-from datelier.gui.audio.listening import playback_request
-from datelier.gui.editor_session import EditorSession
-from datelier.gui.file_session import FileSession
+from datelier.application.editor import EditorController
+from datelier.application.file import FileController
 from datelier.inspection.arrays.mapping import ArrayLayout, ArrayRecordMapping
 from datelier.inspection.audio.playback.controller import PlaybackPhase
+from datelier.inspection.audio.playback.requests import playback_request
 from datelier.inspection.audio.types import AudioRange
 from datelier.io.types import ArrayOptions
 from datelier.pipeline.operations import Sort
 
 
-def loaded(editor: EditorSession) -> None:
+def loaded(editor: EditorController) -> None:
     deadline = monotonic() + 5
     while monotonic() < deadline:
         editor.poll()
         if all(
-            not file.controls.path or file.loader.active is not None
+            not file.loader.status.path or file.loader.active is not None
             for file in editor.files
         ):
             return
         sleep(0.001)
     raise AssertionError(
-        [(file.controls.path, file.loader.status) for file in editor.files]
+        [(file.loader.status.path, file.loader.status) for file in editor.files]
     )
 
 
-def metadata(editor: EditorSession, file: FileSession, column: str) -> None:
+def metadata(editor: EditorController, file: FileController, column: str) -> None:
     assert file.loader.active is not None
     options = file.loader.active.imported.options
     file.audio.jobs.request_record(
@@ -53,7 +53,7 @@ def metadata(editor: EditorSession, file: FileSession, column: str) -> None:
     raise AssertionError(file.audio.jobs.message)
 
 
-def phase(editor: EditorSession, expected: PlaybackPhase) -> None:
+def phase(editor: EditorController, expected: PlaybackPhase) -> None:
     deadline = monotonic() + 5
     while monotonic() < deadline:
         editor.poll()
@@ -63,11 +63,9 @@ def phase(editor: EditorSession, expected: PlaybackPhase) -> None:
     raise AssertionError(editor.playback.snapshot)
 
 
-def play(file: FileSession) -> None:
+def play(file: FileController) -> None:
     assert file.audio.jobs.metadata is not None
-    file.audio.listening.start(
-        file.audio.jobs.metadata, file.audio.settings, file.arrays.store
-    )
+    file.audio.play()
 
 
 def test_shared_player_tab_switch_unrelated_close_and_revision_invalidation(
@@ -81,10 +79,10 @@ def test_shared_player_tab_switch_unrelated_close_and_revision_invalidation(
             subtype="DOUBLE",
         )
     devices = Devices()
-    editor = EditorSession(playback_factory=devices.create)
+    editor = EditorController(playback_factory=devices.create)
     try:
-        first = editor.new_tab(tmp_path / "a.wav")
-        second = editor.new_tab(tmp_path / "b.wav")
+        first = editor.new_file(tmp_path / "a.wav")
+        second = editor.new_file(tmp_path / "b.wav")
         loaded(editor)
         assert first.audio.player is second.audio.player is editor.playback
         assert editor.playback.snapshot.request is None and not devices.devices
@@ -98,7 +96,7 @@ def test_shared_player_tab_switch_unrelated_close_and_revision_invalidation(
         assert devices.devices[0].closed
         play(second)
         phase(editor, PlaybackPhase.PLAYING)
-        editor.close_tab(first.identity)
+        editor.close_file(first.identity)
         assert editor.playback.snapshot.phase == PlaybackPhase.PLAYING
         assert not devices.devices[-1].closed
         second.editor.request(Sort(("path",)))
@@ -118,9 +116,9 @@ def test_range_channel_and_rate_changes_stop_only_the_matching_source(
         subtype="DOUBLE",
     )
     devices = Devices()
-    editor = EditorSession(playback_factory=devices.create)
+    editor = EditorController(playback_factory=devices.create)
     try:
-        file = editor.new_tab(tmp_path / "signal.wav")
+        file = editor.new_file(tmp_path / "signal.wav")
         loaded(editor)
         metadata(editor, file, "path")
         play(file)
@@ -148,7 +146,7 @@ def test_range_channel_and_rate_changes_stop_only_the_matching_source(
         assert file.audio.jobs.metadata is not None
         actual = playback_request(file.audio.jobs.metadata, file.audio.settings)
         assert actual.channel == 1 and actual.range == AudioRange(0, 10000)
-        editor.close_tab(file.identity)
+        editor.close_file(file.identity)
         phase(editor, PlaybackPhase.IDLE)
         assert devices.devices[-1].closed
     finally:
@@ -161,9 +159,9 @@ def test_array_record_view_borrows_output_and_closure_releases_it(
     source = tmp_path / "waves.npz"
     np.savez_compressed(source, waves=np.ones((2, 10000, 2), dtype=np.float32))
     devices = Devices()
-    editor = EditorSession(playback_factory=devices.create)
+    editor = EditorController(playback_factory=devices.create)
     try:
-        owner = editor.new_tab(source)
+        owner = editor.new_file(source)
         loaded(editor)
         mapping = ArrayRecordMapping(
             "waves", layout=ArrayLayout.AUDIO, display_axes=(1,), channel_axis=2
@@ -181,10 +179,10 @@ def test_array_record_view_borrows_output_and_closure_releases_it(
         phase(editor, PlaybackPhase.PLAYING)
         assert editor.playback.snapshot.request is not None
         assert editor.playback.snapshot.request.locator.origin.file_id == file.identity
-        file.inspect.settings = replace(file.inspect.settings, focus=1)
+        file.records.settings = replace(file.records.settings, focus=1)
         phase(editor, PlaybackPhase.IDLE)
         assert devices.devices[-1].closed
-        file.inspect.settings = replace(file.inspect.settings, focus=0)
+        file.records.settings = replace(file.records.settings, focus=0)
         play(file)
         phase(editor, PlaybackPhase.PLAYING)
         file.audio.settings = replace(file.audio.settings, array_sample_rate=16000)

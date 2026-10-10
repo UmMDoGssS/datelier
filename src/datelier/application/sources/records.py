@@ -4,6 +4,7 @@ from concurrent.futures import Executor
 from dataclasses import replace
 
 from datelier.application.media_input import MediaInput
+from datelier.application.sources.columns import record_mapping
 from datelier.inspection.arrays.jobs import ArrayJobs
 from datelier.inspection.arrays.mapping import ArrayRecordMapping
 from datelier.io.arrays.storage import ArrayStore
@@ -37,7 +38,7 @@ class ArrayRecordController:
         if active is None or not isinstance(active.imported.options, ArrayOptions):
             return
         catalog = active.imported.array_catalog
-        mapping = active.imported.options.mapping_for(catalog, column)
+        mapping = record_mapping(active, column)
         if catalog is None or mapping is None:
             return
         self.mapping = mapping

@@ -1,20 +1,20 @@
-"""Focused media controls share field families and keep commands explicit."""
+"""Contextual tokenization controls over narrow media state."""
 
 from dataclasses import replace
 
-from datelier.application.audio import AudioController
-from datelier.application.images import ImageController
-from datelier.application.records import RecordController, RecordKind
+from datelier.application.records import RecordKind
 from datelier.application.text import TextController
-from datelier.gui.components.base import Container, FrameContext
 from datelier.gui.components.fields import BooleanField, ChoiceField, IntegerField
 from datelier.gui.components.groups import Conditional
-from datelier.gui.context.records import RecordSettings
-from datelier.inspection.heatmaps import Colormap
+from datelier.gui.context.media.base import MediaSettings
 from datelier.inspection.text.types import Normalization, TokenMode
 
 
-class TokenSettings(Container):
+class TokenSettings(MediaSettings):
+    @property
+    def kind(self) -> RecordKind:
+        return RecordKind.TEXT
+
     def __init__(self, model: TextController, *, page: bool = True) -> None:
         super().__init__(
             "token-settings",
@@ -181,131 +181,3 @@ class TokenSettings(Container):
                 rules[1:],
             ),
         )
-
-
-class ImageSettings(Container):
-    def __init__(self, model: ImageController) -> None:
-        super().__init__("image-settings", ())
-        self.model = model
-        self.channel: ChoiceField[int | None] | None = None
-        self._count = -1
-        self.colormap = ChoiceField(
-            "colormap",
-            "Heatmap colors",
-            tuple(Colormap),
-            lambda: model.settings.display.colormap,
-            lambda value: setattr(
-                model,
-                "settings",
-                replace(
-                    model.settings,
-                    display=replace(model.settings.display, colormap=value),
-                ),
-            ),
-        )
-
-    def render(self, frame: FrameContext) -> None:
-        prepared = self.model.jobs.metadata
-        count = prepared[1].count if prepared else 0
-        if self._count != count:
-            self._count = count
-            self.channel = ChoiceField(
-                "channel",
-                "Channel",
-                (None, *range(count)),
-                lambda: self.model.settings.display.channel,
-                lambda value: setattr(
-                    self.model,
-                    "settings",
-                    replace(
-                        self.model.settings,
-                        display=replace(self.model.settings.display, channel=value),
-                    ),
-                ),
-                ("All channels", *(str(i) for i in range(count))),
-            )
-        self.children = (
-            (self.channel, self.colormap) if self.channel else (self.colormap,)
-        )
-        super().render(frame)
-
-
-class AudioSettings(Container):
-    def __init__(self, model: AudioController) -> None:
-        super().__init__(
-            "audio-settings",
-            (
-                IntegerField(
-                    "start",
-                    "First sample frame",
-                    lambda: model.settings.range.start,
-                    lambda value: setattr(
-                        model,
-                        "settings",
-                        replace(
-                            model.settings,
-                            range=replace(model.settings.range, start=value),
-                        ),
-                    ),
-                    0,
-                ),
-                IntegerField(
-                    "stop",
-                    "Last sample frame",
-                    lambda: model.settings.range.stop or 0,
-                    lambda value: setattr(
-                        model,
-                        "settings",
-                        replace(
-                            model.settings,
-                            range=replace(model.settings.range, stop=value or None),
-                        ),
-                    ),
-                    0,
-                ),
-                IntegerField(
-                    "channel",
-                    "Channel (0-based)",
-                    lambda: model.settings.channel,
-                    lambda value: setattr(
-                        model, "settings", replace(model.settings, channel=value)
-                    ),
-                    0,
-                ),
-                IntegerField(
-                    "array-rate",
-                    "Array sample rate (0 = unknown)",
-                    lambda: model.settings.array_sample_rate or 0,
-                    lambda value: setattr(
-                        model,
-                        "settings",
-                        replace(model.settings, array_sample_rate=value or None),
-                    ),
-                    0,
-                    768000,
-                ),
-            ),
-        )
-
-
-class InspectSettings(Container):
-    def __init__(
-        self,
-        records: RecordController,
-        text: TextController,
-        image: ImageController,
-        audio: AudioController,
-    ) -> None:
-        self.records = records
-        self.common = RecordSettings(records)
-        self.registry = {
-            RecordKind.TEXT: TokenSettings(text),
-            RecordKind.IMAGE: ImageSettings(image),
-            RecordKind.AUDIO: AudioSettings(audio),
-        }
-        super().__init__("inspect-settings", ())
-
-    def render(self, frame: FrameContext) -> None:
-        settings = self.registry.get(self.records.current_kind())
-        self.children = (self.common, settings) if settings else (self.common,)
-        super().render(frame)

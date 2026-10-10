@@ -12,6 +12,7 @@ from datelier.gui.components.base import FrameContext
 from datelier.gui.components.probe import GuiProbe, ViewScope
 from datelier.gui.fonts import load_fonts
 from datelier.gui.shell.page import WorkbenchPage
+from datelier.inspection.audio.playback.device import DeviceFactory, SoundDeviceOutput
 from datelier.workspace.preferences import preference_path
 
 
@@ -28,6 +29,7 @@ def run_gui(
     initial_workspace: Path | None = None,
     window_size: tuple[int, int] = (1280, 800),
     preferences_path: Path | None = None,
+    playback_factory: DeviceFactory = SoundDeviceOutput,
     on_probe_frame: Callable[[EditorController, GuiProbe, InspectionEvidence], None]
     | None = None,
 ) -> InspectionEvidence:
@@ -41,7 +43,7 @@ def run_gui(
         )
     )
     editor, probe, evidence = (
-        EditorController(preference_file),
+        EditorController(preference_file, playback_factory=playback_factory),
         GuiProbe(),
         InspectionEvidence(),
     )

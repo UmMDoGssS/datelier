@@ -31,6 +31,8 @@ class DockPanel(Panel):
         opened, visible = imgui.begin(self.label, True, flags)
         self.visible = bool(visible)
         if opened:
+            position, size = imgui.get_window_pos(), imgui.get_window_size()
+            frame.record("scroll", (position.x + size.x - 9, position.y + size.y / 2))
             imgui.push_id(frame.scope.file_id + "/" + frame.scope.view_id)
             super().render(frame)
             imgui.pop_id()

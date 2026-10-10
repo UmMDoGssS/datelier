@@ -4,8 +4,10 @@ from dataclasses import replace
 from enum import StrEnum
 
 from datelier.application.columns import ColumnChoice, ProfileSelectionPolicy
+from datelier.application.sources.columns import record_mapping
 from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset
+from datelier.inspection.arrays.mapping import ArrayLayout
 from datelier.inspection.exploration import Explorer
 from datelier.inspection.profile_preview import ProfileRequest
 from datelier.inspection.table import Inspection
@@ -79,6 +81,13 @@ class ProfileController:
             if self.text and self.can_text
             else ProfileFamily.COLUMNS,
         )
+        mapping = record_mapping(inspection, first)
+        if mapping is not None:
+            self.family = {
+                ArrayLayout.IMAGE: ProfileFamily.IMAGES,
+                ArrayLayout.HEATMAP: ProfileFamily.IMAGES,
+                ArrayLayout.AUDIO: ProfileFamily.AUDIO,
+            }.get(mapping.layout, ProfileFamily.COLUMNS)
         if self.family != ProfileFamily.COLUMNS:
             return
         dashboard = self.explorer.active
