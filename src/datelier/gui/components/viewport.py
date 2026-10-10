@@ -1,5 +1,7 @@
 """Shared native viewport sizing and direct-child content composition."""
 
+from collections.abc import Callable
+
 from imgui_bundle import imgui
 
 from datelier.gui.components.base import Container, FrameContext
@@ -20,13 +22,26 @@ class ResizableViewport(Container):
         content: ViewportContent,
         height: float = 0,
         minimum: float = 170,
+        read_height: Callable[[], float] | None = None,
+        write_height: Callable[[float], None] | None = None,
     ) -> None:
         super().__init__(key, (content,))
         self.content = content
-        self.height, self.minimum = height, minimum
+        self.read_height, self.write_height = read_height, write_height
+        self._height, self.minimum = height, minimum
         self.expanded = False
         self._native_id = 0
         self._start = 0.0
+
+    @property
+    def height(self) -> float:
+        return self.read_height() if self.read_height else self._height
+
+    @height.setter
+    def height(self, value: float) -> None:
+        self._height = value
+        if self.write_height:
+            self.write_height(value)
 
     def render(self, frame: FrameContext) -> None:
         imgui.push_id(self.key)

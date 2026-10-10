@@ -55,7 +55,7 @@ components implement Component.render; container classes render direct children.
 | --- | --- | --- |
 | A | Replace GUI package; GUI-free file/record/editor runtime and component contracts | Complete; desktop deliberately not runnable |
 | B | Shared controls, shell, columns, table, tabular profiles and plots | Complete; basic inspection shell runnable |
-| C | Contextual analysis, transforms/history, export and workspace/preferences | In progress; commands restored |
+| C | Contextual analysis, transforms/history, export and workspace/preferences | Complete; advanced plot modes tracked separately |
 | D | Structured/array/checkpoint source and multimodal record/profile families | Pending |
 | E | Comparison families, remaining features and integrated acceptance | Pending |
 
@@ -114,6 +114,29 @@ explicit PCA, navigation during fitting, no completion focus theft and explicit
 Open result pass in 219 frames, 15.02 ms p95 with unchanged source bytes.
 [Analysis report](evidence/gui-overhaul/fresh-analysis.json). Persistence, structured
 and multimodal content, advanced plots and comparisons remain open.
+
+## Fresh Stage C2 — Controller-owned sessions, browsing and preferences
+
+Whole-session snapshot/installation, recovery, recent sources and background
+preference I/O are GUI-free. Named record views are independent application
+controllers sharing their owning source metadata and bounded services. Capture
+preserves replayable operations, selections, independent settings, named views,
+failed import drafts and all comparison recipes. Worker-only fingerprinting and
+partial source recovery retain usable files. Viewport heights are model-bound.
+The File menu now owns browser/workspace/export dialogs and recent opening; themes
+use a shared action family. Rebuild layouts are identified separately from obsolete
+native trees; old recipes/settings survive a brief, dismissible layout notice.
+Assembly and shell lifetime have separate modules.
+
+Verification: scoped Pyrefly zero errors, 80 focused controller/session/restore/
+preference checks, full Ruff lint/format and diff checks pass. Fresh native save
+(23 frames, 13.30 ms p95) and separate-process restore (31 frames, 10.53 ms p95)
+preserve Compare/History, viewport sizes, selection, sorted IDs and docking; source
+bytes and zero implicit fitting/playback pass. The native tab container now keeps
+first-frame defaults from overwriting restored routes. Shared resize/navigation
+regression passes 64 frames, 14.13 ms p95. [Workspace report](evidence/gui-overhaul/fresh-workspace.json).
+Native file-browser selection, remaining advanced plots and all specialized
+content/comparison acceptance remain open, as does full old caller migration.
 
 ## Baseline evidence
 

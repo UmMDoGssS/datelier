@@ -113,7 +113,13 @@ class NumericContent(ProfileContent):
             )
             for chart in CHARTS
         )
-        self.viewport = ResizableViewport("numeric-plot", self.charts[0], height=260)
+        self.viewport = ResizableViewport(
+            "numeric-plot",
+            self.charts[0],
+            height=260,
+            read_height=lambda: model.height,
+            write_height=lambda value: setattr(model, "height", value),
+        )
         super().__init__("numeric", model, (self.viewport,))
 
     def render(self, frame: FrameContext) -> None:
@@ -158,7 +164,15 @@ class CountContent(ProfileContent):
         super().__init__(
             "counts",
             model,
-            (ResizableViewport("count-plot", ProfileBars(model), height=240),),
+            (
+                ResizableViewport(
+                    "count-plot",
+                    ProfileBars(model),
+                    height=240,
+                    read_height=lambda: model.height,
+                    write_height=lambda value: setattr(model, "height", value),
+                ),
+            ),
         )
 
 

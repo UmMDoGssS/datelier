@@ -14,6 +14,7 @@ class ProfileController:
         self.choices: tuple[ColumnChoice, ...] = ()
         self.selected: tuple[str, ...] = ()
         self.policy = ProfileSelectionPolicy()
+        self.height = 260.0
         self.mode = 0
         self.text = False
 

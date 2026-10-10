@@ -13,15 +13,19 @@ from datelier.application.audio import AudioController
 from datelier.application.columns import ColumnChoice
 from datelier.application.dataset import DatasetRuntime
 from datelier.application.images import ImageController
+from datelier.application.import_settings import import_draft
 from datelier.application.media_input import MediaInput
 from datelier.application.plot_settings import PlotState
 from datelier.application.profiles import ProfileController
+from datelier.application.record_views import RecordViews
 from datelier.application.records import RecordController
 from datelier.application.schema import SchemaController
+from datelier.application.settings_restore import restore_analysis, restore_plots
 from datelier.application.table import TableController
 from datelier.application.text import TextController
 from datelier.core.column_roles import REFERENCE_ROLES, ColumnRole
 from datelier.inspection.arrays.jobs import ArrayJobs
+from datelier.inspection.arrays.slices import SliceSettings
 from datelier.inspection.audio.playback.controller import AudioPlayback
 from datelier.inspection.checkpoints.jobs import CheckpointJobs
 from datelier.inspection.exploration import Explorer, PlotSettings
@@ -32,11 +36,13 @@ from datelier.inspection.text.list_records import is_text_field
 from datelier.io.arrays.storage import ArrayStore
 from datelier.io.exporting import DatasetExporter
 from datelier.io.loading import DatasetLoader
-from datelier.io.types import ImportFormat
+from datelier.io.types import ImportFormat, ImportOptions
 from datelier.pipeline.editing import DatasetEditor
 from datelier.plotting.selection import LinkedSelection
 from datelier.workspace.jobs import WorkspaceJobs
 from datelier.workspace.restore import RestoredWorkspace
+from datelier.workspace.session_restore import RestoredSessionFile
+from datelier.workspace.session_types import SourceDraft
 from datelier.workspace.types import WorkspaceViews
 
 
@@ -84,6 +90,9 @@ class FileController:
         self.text = TextController(executor)
         self.images = ImageController(executor)
         self.audio = AudioController(executor, playback)
+        self.record_views = RecordViews(executor, self.audio.player)
+        self.recovery: RestoredSessionFile | None = None
+        self.draft: SourceDraft | None = None
         self.choices: tuple[ColumnChoice, ...] = ()
         self._plot_settings: PlotSettings | None = None
 
@@ -96,8 +105,15 @@ class FileController:
         source = self.loader.status.path
         return self.view_name or (source.name if source else "Untitled")
 
-    def open(self, path: Path) -> None:
-        self.loader.request(path)
+    def open(
+        self,
+        path: Path,
+        options: ImportOptions | None = None,
+        *,
+        format: ImportFormat | None = None,
+    ) -> None:
+        self.draft = import_draft(path, options, format)
+        self.loader.request(path, options, format=format)
 
     def media_input(self) -> MediaInput:
         return MediaInput(
@@ -114,19 +130,53 @@ class FileController:
 
     def install(self, restored: RestoredWorkspace) -> None:
         self.runtime.install(restored)
-        self.views = restored.workspace.views
+        self.views = replace(
+            restored.workspace.views,
+            tab="Relationships"
+            if restored.workspace.views.tab == "Scatter"
+            else restored.workspace.views.tab,
+        )
         self.records.settings = self.views.inspect
         self.text.jobs.settings = self.views.text
         self.images.settings = self.views.image
         self.audio.settings = self.views.audio
         self.references.settings = self.views.references
+        imported = restored.inspection.imported
+        if imported.array_catalog is not None:
+            self.arrays.bind(
+                imported.array_catalog, restored.inspection.dataset.revision
+            )
+        self.arrays.settings = self.views.array_slice or SliceSettings()
+        self.arrays.store.limit = self.views.array_retention_bytes
+        if imported.checkpoint_catalog is not None:
+            self.checkpoints.bind(
+                imported.checkpoint_catalog, restored.inspection.dataset.revision
+            )
+        self.checkpoints.settings = self.views.checkpoint_slice or SliceSettings()
         self._bind()
+        restore_plots(self.plots, restored.inspection.dataset, restored.workspace.plots)
+        restore_analysis(
+            self.analysis.controls, restored.workspace, restored.inspection.dataset
+        )
+        self.profiles.selected = self.views.profile_selection or ()
+        self.profiles.height = self.views.profile_height
+        self.profiles.mode = self.views.profile_mode
+        self.profiles.text = self.views.profile_text
+        self.analysis.source = self.views.coordinate_source
+        self.plots.choose_color(self.views.color_source or self.plots.color_source)
+        self.table.refresh(self.inspection)
+        self.table.column_start = self.views.column_start
+        self.table.target_row = self.views.target_row
+        self.table.jump = True
 
     def _bind(self) -> None:
         active = self.inspection
         if active is None:
             return
         dataset = active.dataset
+        self.draft = SourceDraft(
+            str(dataset.source.path), active.imported.format, active.imported.options
+        )
         self.plots.bind(dataset)
         self.analysis.controls.bind(dataset)
         self.choices = tuple(
@@ -182,6 +232,9 @@ class FileController:
         changes = self.runtime.poll()
         if changes.restored:
             self.install(changes.restored)
+        if changes.loaded:
+            self.record_views.clear()
+            self.recovery = None
         if changes.loaded or changes.edited:
             self._bind()
             if changes.loaded and self.inspection:
@@ -206,10 +259,14 @@ class FileController:
                     self.plots.color_column,
                     self.plots.cluster_result if self.plots.cluster_color else None,
                 )
-        settings = self.plots.settings()
-        if dataset is not None and settings != self._plot_settings:
-            self.explorer.request(dataset, settings)
-            self._plot_settings = settings
+        try:
+            settings = self.plots.settings()
+            if dataset is not None and settings != self._plot_settings:
+                self.explorer.request(dataset, settings)
+                self._plot_settings = settings
+            self.plots.error = ""
+        except ValueError as error:
+            self.plots.error = str(error)
         self.runtime.poll_prepared()
         self.table.refresh(active)
         self.profiles.poll(active, self.choices)
@@ -227,7 +284,7 @@ class FileController:
         self.records.poll(active)
         if active and active.imported.array_catalog:
             self.arrays.bind(active.imported.array_catalog, active.dataset.revision)
-        elif self.arrays.catalog:
+        elif self.arrays.catalog and self.recovery is None:
             self.arrays.unbind()
         self.arrays.poll()
         if active and active.imported.checkpoint_catalog:
@@ -241,11 +298,13 @@ class FileController:
         for controller in (self.text, self.images, self.audio):
             controller.sync(media)
         self.schema.refresh(active, busy=self.editor.busy)
+        self.record_views.poll(self)
 
     def close(self) -> None:
         if self.closed:
             return
         self.closed = True
+        self.record_views.close()
         self.audio.close(self.identity)
         for controller in (
             self.records,

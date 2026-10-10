@@ -12,6 +12,7 @@ from datelier.gui.components.base import FrameContext
 from datelier.gui.components.probe import GuiProbe, ViewScope
 from datelier.gui.fonts import load_fonts
 from datelier.gui.shell.page import WorkbenchPage
+from datelier.workspace.preferences import preference_path
 
 
 @dataclass
@@ -26,14 +27,24 @@ def run_gui(
     smoke_frames: int = 0,
     initial_workspace: Path | None = None,
     window_size: tuple[int, int] = (1280, 800),
+    preferences_path: Path | None = None,
     on_probe_frame: Callable[[EditorController, GuiProbe, InspectionEvidence], None]
     | None = None,
 ) -> InspectionEvidence:
     if smoke_frames < 0:
         raise ValueError("Smoke frame count must be nonnegative")
-    if initial_workspace is not None:
-        raise ValueError("Workspace restoration is not available in this rebuild stage")
-    editor, probe, evidence = EditorController(), GuiProbe(), InspectionEvidence()
+    preference_file = (
+        preferences_path
+        if preferences_path
+        else (
+            preference_path() if not smoke_frames and on_probe_frame is None else None
+        )
+    )
+    editor, probe, evidence = (
+        EditorController(preference_file),
+        GuiProbe(),
+        InspectionEvidence(),
+    )
     page = WorkbenchPage(editor, probe)
     params = hello_imgui.RunnerParams()
     params.app_window_params.window_title = "Datelier — data inspection"
@@ -49,7 +60,9 @@ def run_gui(
     params.callbacks.load_additional_fonts = load_fonts
     frame = FrameContext(ViewScope(""), probe)
     previous = perf_counter()
-    if initial_path:
+    if initial_workspace:
+        editor.open_workspace(initial_workspace)
+    elif initial_path:
         editor.active.open(initial_path)
 
     def initialize() -> None:
@@ -80,12 +93,18 @@ def run_gui(
     params.callbacks.pre_new_frame = prepare
     params.callbacks.show_menus = lambda: page.menu.render(frame.child("menus"))
     params.callbacks.show_gui = draw
-    params.callbacks.before_exit = page.close
+
+    def before_exit() -> None:
+        page.save_preferences()
+        page.close()
+
+    params.callbacks.before_exit = before_exit
     try:
         addons = immapp.AddOnsParams()
         addons.with_implot = True
         addons.with_implot3d = True
         immapp.run(params, addons)
     finally:
+        page.close()
         editor.close()
     return evidence

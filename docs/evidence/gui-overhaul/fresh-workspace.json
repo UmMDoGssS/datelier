@@ -1,0 +1,16 @@
+{
+  "save": {
+    "mode": "save",
+    "frames": 23,
+    "p95_ms": 13.303981799981557,
+    "source_preserved": true,
+    "implicit_operations": 0
+  },
+  "restore": {
+    "mode": "restore",
+    "frames": 31,
+    "p95_ms": 10.528528000577353,
+    "source_preserved": true,
+    "implicit_operations": 0
+  }
+}

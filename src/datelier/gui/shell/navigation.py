@@ -66,10 +66,12 @@ class FileTabs(Component):
                     imgui.TabItemFlags_.set_selected if changed and file.active else 0
                 )
                 opened, visible = imgui.begin_tab_item(
-                    file.title + "##" + file.identity, True, flags
+                    file.title + "###" + file.identity, True, flags
                 )
                 target(frame.child(file.identity), "tab")
-                if imgui.is_item_clicked() or (opened and active != file.identity):
+                if imgui.is_item_clicked() or (
+                    not changed and opened and active != file.identity
+                ):
                     self.activate(file.identity)
                 if opened:
                     imgui.end_tab_item()
@@ -114,7 +116,10 @@ class CanvasTabs(Container):
                 opened, _ = imgui.begin_tab_item(tab.key, None, flags)
                 target(frame.child(tab.key), "tab")
                 if opened:
-                    self.choose(tab.key)
+                    if enabled and (
+                        imgui.is_item_clicked() or not changed and tab.key != selected
+                    ):
+                        self.choose(tab.key)
                     if enabled:
                         tab.render(frame.child(tab.key))
                     else:
