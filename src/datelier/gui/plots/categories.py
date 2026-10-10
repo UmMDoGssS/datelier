@@ -6,6 +6,7 @@ import numpy as np
 from imgui_bundle import imgui, implot
 
 from datelier.core.dataset import Dataset
+from datelier.gui.components.columns import SingleColumnPicker
 from datelier.gui.data.table import TableView
 from datelier.gui.plots.area import PlotArea
 from datelier.gui.plots.axes import AxisControls
@@ -24,6 +25,15 @@ class CategoryView:
     bar_pixel: tuple[float, float] = (0, 0)
     selected_rows: int = 0
     plot_frames: int = 0
+    category_picker: SingleColumnPicker = field(
+        default_factory=lambda: SingleColumnPicker("Category")
+    )
+    group_picker: SingleColumnPicker = field(
+        default_factory=lambda: SingleColumnPicker("Group by")
+    )
+    value_picker: SingleColumnPicker = field(
+        default_factory=lambda: SingleColumnPicker("Value")
+    )
 
     def controls(
         self, plots: PlotControls, explorer: Explorer, dataset: Dataset
@@ -51,35 +61,25 @@ class CategoryView:
             ):
                 imgui.table_next_row()
                 imgui.table_set_column_index(0)
-                picked, index = combo(
-                    "Category",
-                    plots.categories.index(
-                        plots.category_column or plots.categories[0]
-                    ),
-                    list(plots.categories),
+                picked, plots.category_column = self.category_picker.choose(
+                    plots.categories, plots.category_column or plots.categories[0]
                 )
                 changed |= picked
-                plots.category_column = plots.categories[index]
                 imgui.table_set_column_index(1)
                 if plots.relationship_chart == CategoryRepresentation.GROUPED:
                     groups = [n for n in plots.categories if n != plots.category_column]
-                    picked, index = combo(
-                        "Group by",
-                        groups.index(plots.category_group)
+                    picked, plots.category_group = self.group_picker.choose(
+                        tuple(groups),
+                        plots.category_group
                         if plots.category_group in groups
-                        else 0,
-                        groups,
+                        else groups[0],
                     )
                     changed |= picked
-                    plots.category_group = groups[index]
                 else:
-                    picked, index = combo(
-                        "Value",
-                        plots.numeric.index(plots.category_value or plots.numeric[0]),
-                        list(plots.numeric),
+                    picked, plots.category_value = self.value_picker.choose(
+                        plots.numeric, plots.category_value or plots.numeric[0]
                     )
                     changed |= picked
-                    plots.category_value = plots.numeric[index]
                 imgui.end_table()
         if changed:
             try:

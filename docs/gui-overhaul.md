@@ -183,3 +183,20 @@ passes 271 frames: explicit PCA, k-means colors in raw/embedding space, linked
 embedding selection and unchanged source bytes. Application-wide coordination
 and specialized media controllers remain pending; this is a verified subdivision
 of Step 2, not whole-overhaul acceptance.
+
+## Step 3a — Shared column selection and algorithm editors
+
+The shared searchable, grouped, virtualized column picker now serves Profiles,
+analysis inputs, correlations, raw axes/colors, categorical relationships, Inspect
+primary/supporting fields and transformation columns. Injected selection policies
+preserve bounded feature sets, insertion/catalog order, exclusive nonnumeric
+profiles and single-field selection. Transformation column selection no longer
+requires hand-written JSON. Concrete algorithm parameter editors share an abstract
+parent and registry rather than a central algorithm `if/elif` renderer.
+
+Verification: Pyrefly zero errors, 45 focused behavior checks, Ruff lint/format
+and whitespace checks pass. Native profile selection exercises numeric comparison,
+exclusive categories, every plot mode and fresh-process saved selection (324
+frames; source preserved, zero implicit ML). Native explicit PCA/k-means, linked
+selection and raw/embedding colors pass (271 frames). Shared viewports and remaining
+specialized selector migrations are pending within Step 3.

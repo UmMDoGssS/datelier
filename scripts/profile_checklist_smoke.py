@@ -46,7 +46,7 @@ def main() -> None:
         | None = None,
     ) -> bool:
         result = original_button(label, size)
-        if label.endswith("##Profile columns"):
+        if label.endswith("###Profile columns"):
             for key in tuple(pixels):
                 if key not in ("selector", "Clear", "Done"):
                     pixels.pop(key)
@@ -57,8 +57,8 @@ def main() -> None:
 
     def checkbox(label: str, checked: bool) -> tuple[bool, bool]:
         result = original_checkbox(label, checked)
-        if label.endswith("##Profile choice"):
-            record(label.removesuffix("##Profile choice"))
+        if label in ("age", "fare", "sex"):
+            record(label)
         return result
 
     def frame(session: GuiSession, evidence: InspectionEvidence) -> None:

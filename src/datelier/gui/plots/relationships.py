@@ -4,7 +4,9 @@ from dataclasses import dataclass, field
 
 from imgui_bundle import imgui, implot
 
+from datelier.application.columns import ColumnChoice, MultiSelection
 from datelier.core.dataset import Dataset
+from datelier.gui.components.columns import ColumnPicker
 from datelier.gui.data.table import TableView
 from datelier.gui.plots.area import PlotArea
 from datelier.gui.plots.axes import AxisControls
@@ -33,6 +35,11 @@ class RelationshipView:
         default_factory=dict
     )
     diagonal_mode: int = 0
+    features_picker: ColumnPicker = field(
+        default_factory=lambda: ColumnPicker(
+            "Correlation features", MultiSelection(limit=16)
+        )
+    )
 
     def controls(
         self,
@@ -73,29 +80,16 @@ class RelationshipView:
     def show_features(
         self, plots: PlotControls, explorer: Explorer, dataset: Dataset
     ) -> None:
-        features = list(plots.relationship_features or ())
-        if imgui.button(f"Features ({len(features)})##relationships"):
-            imgui.open_popup("Relationship features")
-        if imgui.begin_popup("Relationship features"):
-            if imgui.begin_child("Relationship feature list", (260, 140)):
-                for name in plots.numeric:
-                    chosen = name in features
-                    imgui.begin_disabled(not chosen and len(features) >= 16)
-                    changed, checked = imgui.checkbox(name, chosen)
-                    imgui.end_disabled()
-                    if changed:
-                        if checked:
-                            features.append(name)
-                        else:
-                            features.remove(name)
-                plots.relationship_features = features
-            imgui.end_child()
-            imgui.begin_disabled(len(features) < 2)
-            if imgui.button("Apply features"):
+        before = tuple(plots.relationship_features or ())
+        features = self.features_picker.show(
+            tuple(ColumnChoice(n, "Numeric", numeric=True) for n in plots.numeric),
+            before,
+            caption=f"Features ({len(before)})",
+        )
+        if features != before:
+            plots.relationship_features = list(features)
+            if len(features) >= 2:
                 explorer.request(dataset, plots.settings())
-                imgui.close_current_popup()
-            imgui.end_disabled()
-            imgui.end_popup()
 
     def show(
         self,

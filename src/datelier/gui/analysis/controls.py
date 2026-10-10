@@ -8,7 +8,7 @@ from datelier.analysis.jobs import AnalysisJobs
 from datelier.analysis.types import Algorithm, ClusteringResult, EmbeddingResult
 from datelier.application.analysis_settings import AnalysisSettings
 from datelier.core.dataset import Dataset
-from datelier.gui.analysis.form import show_inputs, show_parameters
+from datelier.gui.analysis.form import AlgorithmParameters, AnalysisInputs
 from datelier.gui.components.base import BoundView, FrameContext
 from datelier.gui.components.probe import GuiProbe, ViewScope
 
@@ -23,6 +23,10 @@ class AnalysisFormBinding:
 
 
 class AnalysisForm(BoundView[AnalysisFormBinding]):
+    def __init__(self) -> None:
+        self.inputs = AnalysisInputs()
+        self.parameters = AlgorithmParameters()
+
     def show(
         self,
         settings: AnalysisSettings,
@@ -62,7 +66,7 @@ class AnalysisForm(BoundView[AnalysisFormBinding]):
         if dataset is None:
             return
         imgui.begin_disabled(jobs.busy)
-        show_inputs(
+        self.inputs.show(
             settings,
             dimensions=selected is None or not selected.is_clustering,
             fixed_dimensions=fixed_dimensions
@@ -72,7 +76,7 @@ class AnalysisForm(BoundView[AnalysisFormBinding]):
         for algorithm in (selected,) if selected is not None else Algorithm:
             if imgui.tree_node(f"{algorithm} settings"):
                 imgui.push_id(str(algorithm))
-                show_parameters(settings, algorithm)
+                self.parameters.show(settings, algorithm)
                 imgui.pop_id()
                 imgui.tree_pop()
             imgui.begin_disabled(not settings.features)

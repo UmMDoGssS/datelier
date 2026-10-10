@@ -1,11 +1,13 @@
 """Per-view record and arbitrary supporting-field choices."""
 
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 
 from imgui_bundle import imgui
 
+from datelier.application.columns import ColumnChoice, MultiSelection
 from datelier.core.column_roles import REFERENCE_ROLES, ColumnRole
 from datelier.core.dataset import Dataset
+from datelier.gui.components.columns import ColumnPicker, SingleColumnPicker
 from datelier.inspection.records.types import InspectSettings, RecordMode
 
 
@@ -13,7 +15,14 @@ from datelier.inspection.records.types import InspectSettings, RecordMode
 class InspectControls:
     settings: InspectSettings = InspectSettings()
     columns: tuple[str, ...] = ()
-    search: str = ""
+    primary_picker: SingleColumnPicker = field(
+        default_factory=lambda: SingleColumnPicker("Primary field")
+    )
+    supporting_picker: ColumnPicker = field(
+        default_factory=lambda: ColumnPicker(
+            "Supporting fields", MultiSelection(catalog_order=True)
+        )
+    )
 
     def bind(self, dataset: Dataset, default_primary: str | None = None) -> None:
         columns = tuple(dataset.table.columns)
@@ -67,12 +76,8 @@ class InspectControls:
             _, seed = imgui.input_int("Sample seed", settings.seed)
             primary = settings.primary
             if self.columns:
-                _, choice = imgui.combo(
-                    "Primary field",
-                    self.columns.index(settings.primary or self.columns[0]),
-                    list(self.columns),
-                )
-                primary = self.columns[choice]
+                _, primary = self.primary_picker.choose(self.columns, primary)
+
             self.settings = replace(
                 self.settings,
                 mode=modes[mode],
@@ -85,34 +90,10 @@ class InspectControls:
                 "Ranges use current row positions. Seeded samples use stable "
                 "source IDs; linked selection stays in this file."
             )
-        if imgui.button(f"Supporting fields ({len(self.settings.supporting or ())})"):
-            imgui.open_popup("Supporting columns")
-        if imgui.begin_popup("Supporting columns"):
-            selected = set(self.settings.supporting or ())
-            if imgui.button("All fields"):
-                selected = set(self.columns)
-            imgui.same_line()
-            if imgui.button("Clear fields"):
-                selected.clear()
-            _, self.search = imgui.input_text("Find field", self.search)
-            names = tuple(n for n in self.columns if self.search.lower() in n.lower())
-            if imgui.begin_child("Field checklist", (340, 240)):
-                clipper = imgui.ListClipper()
-                clipper.begin(len(names))
-                while clipper.step():
-                    for index in range(clipper.display_start, clipper.display_end):
-                        name = names[index]
-                        changed, checked = imgui.checkbox(name, name in selected)
-                        if changed:
-                            if checked:
-                                selected.add(name)
-                            else:
-                                selected.discard(name)
-            imgui.end_child()
-            self.settings = replace(
-                self.settings,
-                supporting=tuple(n for n in self.columns if n in selected),
-            )
-            if imgui.button("Done"):
-                imgui.close_current_popup()
-            imgui.end_popup()
+        supporting = self.supporting_picker.show(
+            tuple(ColumnChoice(n) for n in self.columns),
+            self.settings.supporting or (),
+            caption=f"Supporting fields ({len(self.settings.supporting or ())})",
+            bulk_label="All fields",
+        )
+        self.settings = replace(self.settings, supporting=supporting)

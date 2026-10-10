@@ -14,7 +14,7 @@ from datelier.gui.plots.axes import AxisControls
 from datelier.gui.plots.distributions import MODES, show_comparison
 from datelier.gui.profiles.colors import profile_color
 from datelier.gui.profiles.lists import list_statistics_height, show_list_statistics
-from datelier.gui.profiles.selector import show_selector
+from datelier.gui.profiles.selector import ProfileColumnSelector
 from datelier.gui.profiles.statistics import show_statistics, statistics_height
 from datelier.inspection.exploration import Dashboard, Explorer
 from datelier.inspection.profile_preview import ProfileRequest
@@ -47,6 +47,7 @@ class ProfileView:
     mode: int = 0
     area: PlotArea = field(default_factory=PlotArea)
     selection: ProfileSelection = field(default_factory=ProfileSelection)
+    selector: ProfileColumnSelector = field(default_factory=ProfileColumnSelector)
     text: bool = False
     _previous_columns: tuple[str, ...] | None = None
 
@@ -81,7 +82,7 @@ class ProfileView:
             imgui.table_next_row()
             imgui.table_set_column_index(0)
             imgui.text("Columns")
-            show_selector(self.selection)
+            self.selector.show(self.selection)
             imgui.table_set_column_index(1)
             imgui.text("Chart type")
             selected = self.selection.columns or ()

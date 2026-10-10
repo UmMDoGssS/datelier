@@ -12,7 +12,7 @@ from imgui_bundle import hello_imgui, imgui
 from numpy.typing import NDArray
 
 from datelier.analysis.types import Algorithm, ClusteringResult
-from datelier.gui.analysis.form import show_parameters
+from datelier.gui.analysis.form import AlgorithmParameters
 from datelier.gui.app import GuiSession, InspectionEvidence, run_gui
 
 
@@ -34,6 +34,8 @@ def main() -> None:
             pl.lit("group").alias("category")
         ).write_parquet(path)
         original = path.read_bytes()
+
+        parameters = AlgorithmParameters()
 
         def frame(session: GuiSession, evidence: InspectionEvidence) -> None:
             nonlocal stage, entered
@@ -62,7 +64,7 @@ def main() -> None:
             elif stage == 2:
                 # Render every parameter widget before fitting.
                 imgui.begin("Parameter smoke")
-                show_parameters(analysis.controls, algorithm)
+                parameters.show(analysis.controls, algorithm)
                 imgui.end()
                 if age > 10:
                     assert not analysis.jobs.busy and not analysis.jobs.results

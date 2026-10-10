@@ -1,15 +1,26 @@
 """Native controls for the injected semantic plot state."""
 
+from dataclasses import dataclass, field
+
 from imgui_bundle import imgui
 
 from datelier.analysis.types import Algorithm
 from datelier.application.plot_settings import PlotState
 from datelier.core.dataset import Dataset
+from datelier.gui.components.columns import SingleColumnPicker
 from datelier.gui.widgets.fields import combo
 from datelier.inspection.exploration import Explorer
 
 
+@dataclass
 class PlotControls(PlotState):
+    axis_pickers: tuple[SingleColumnPicker, ...] = field(
+        default_factory=lambda: tuple(SingleColumnPicker(n) for n in "XYZ")
+    )
+    color_picker: SingleColumnPicker = field(
+        default_factory=lambda: SingleColumnPicker("Color column")
+    )
+
     def show(self, explorer: Explorer, dataset: Dataset | None) -> None:
         if dataset is None or not imgui.collapsing_header("Plot settings"):
             return
@@ -57,7 +68,10 @@ class PlotControls(PlotState):
         changed = self.scatter_dirty
         axes = ["x_index", "y_index"] + (["z_index"] if self.three_d else [])
         for col, attr in enumerate(axes):
-            picked, index = combo("XYZ"[col], getattr(self, attr), list(self.numeric))
+            picked, name = self.axis_pickers[col].choose(
+                self.numeric, self.numeric[getattr(self, attr)]
+            )
+            index = self.numeric.index(name) if name is not None else 0
             if picked:
                 self.choose_axis(attr, index)
                 changed = True
@@ -90,11 +104,10 @@ class PlotControls(PlotState):
             self.choose_color(choices[index])
         if self.color_source == "Column":
             if self.color_columns:
-                picked, index = combo(
-                    "Color column",
-                    max(0, self.color_index - 1),
-                    list(self.color_columns),
+                picked, name = self.color_picker.choose(
+                    self.color_columns, self.color_columns[max(0, self.color_index - 1)]
                 )
+                index = self.color_columns.index(name) if name is not None else 0
                 self.color_index = index + 1
                 self.scatter_dirty |= picked
                 changed |= picked

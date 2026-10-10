@@ -1,10 +1,11 @@
 """Explicit table edits and history controls; all computation runs in workers."""
 
-import json
 from dataclasses import dataclass, field
 
 from imgui_bundle import imgui
 
+from datelier.application.columns import ColumnChoice, MultiSelection
+from datelier.gui.components.columns import ColumnPicker, SingleColumnPicker
 from datelier.gui.data.transforms import TransformControls
 from datelier.gui.widgets.values import scalar_input
 from datelier.pipeline.editing import DatasetEditor, HistoryAction
@@ -26,7 +27,13 @@ class OperationControls:
     descending: bool = False
     comparison: int = 0
     value: str = ""
-    selected: str = ""
+    keep_columns: tuple[str, ...] = ()
+    column_picker: SingleColumnPicker = field(
+        default_factory=lambda: SingleColumnPicker("Transform column")
+    )
+    keep_picker: ColumnPicker = field(
+        default_factory=lambda: ColumnPicker("Columns to keep", MultiSelection())
+    )
     derived_expanded: bool = False
     derived_name: str = ""
     expression: str = ""
@@ -52,7 +59,9 @@ class OperationControls:
             if imgui.button("Redo"):
                 editor.request(HistoryAction.REDO)
             imgui.end_disabled()
-            _, self.column = imgui.input_text("Column", self.column)
+            columns = tuple(pipeline.current.table.columns) if pipeline else ()
+            _, chosen = self.column_picker.choose(columns, self.column or None)
+            self.column = chosen or ""
             _, self.descending = imgui.checkbox("Descending", self.descending)
             if imgui.button("Sort column"):
                 editor.request(Sort((self.column,), self.descending))
@@ -71,17 +80,15 @@ class OperationControls:
                         scalar_input(self.value),
                     )
                 )
-            _, self.selected = imgui.input_text("Columns to keep", self.selected)
-            imgui.text_wrapped(
-                'Column selection is a JSON list, e.g. ["name", "value"].'
+            self.keep_columns = self.keep_picker.show(
+                tuple(ColumnChoice(n) for n in columns),
+                self.keep_columns,
+                caption=f"Columns to keep ({len(self.keep_columns)})",
             )
+            imgui.begin_disabled(not self.keep_columns)
             if imgui.button("Keep columns"):
-                names = json.loads(self.selected)
-                if not isinstance(names, list) or not all(
-                    isinstance(n, str) for n in names
-                ):
-                    raise ValueError("Enter a JSON list of column names")
-                editor.request(SelectColumns(tuple(names)))
+                editor.request(SelectColumns(self.keep_columns))
+            imgui.end_disabled()
             self.transforms.show(editor, self.column)
             imgui.set_next_item_open(self.derived_expanded, imgui.Cond_.once)
             self.derived_expanded = imgui.collapsing_header("Derived columns")

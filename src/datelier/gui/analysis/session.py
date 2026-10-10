@@ -8,7 +8,6 @@ from datelier.analysis.types import Algorithm, EmbeddingResult
 from datelier.application.analysis import AnalysisController
 from datelier.core.dataset import Dataset
 from datelier.gui.analysis.controls import AnalysisForm
-from datelier.gui.analysis.form import show_inputs, show_parameters
 from datelier.gui.plots.controls import PlotControls
 from datelier.gui.widgets.fields import combo
 from datelier.inspection.exploration import Explorer
@@ -99,13 +98,13 @@ class AnalysisSession(AnalysisController):
             else 0,
         ):
             imgui.begin_disabled(self.jobs.busy)
-            show_inputs(
+            self.form.inputs.show(
                 self.controls,
                 dimensions=False,
                 fixed_dimensions=self.controls.dimensions if dimensions else None,
             )
             if imgui.tree_node("Parameters"):
-                show_parameters(self.controls, algorithm)
+                self.form.parameters.show(self.controls, algorithm)
                 imgui.tree_pop()
             imgui.end_disabled()
             open_inputs = imgui.button("Open Analysis panel")
