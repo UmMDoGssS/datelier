@@ -55,6 +55,12 @@ class WorkspaceViews:
     inspect: InspectSettings = InspectSettings()
     array_slice: SliceSettings | None = None
     array_retention_bytes: int = 256 * 1024 * 1024
+    array_height: float = 260
+    array_record_height: float = 260
+    array_record_slice: SliceSettings | None = None
+    checkpoint_height: float = 260
+    array_member_mode: bool | None = None
+    checkpoint_member_mode: bool | None = None
     checkpoint_slice: SliceSettings | None = None
     checkpoint_retention_bytes: int = 256 * 1024 * 1024
     text: TextSettings = TextSettings()
@@ -68,7 +74,14 @@ class WorkspaceViews:
     def validate(self) -> None:
         if any(
             not math.isfinite(h) or h != 0 and h < 100
-            for h in (self.image_height, self.text_height, self.token_height)
+            for h in (
+                self.image_height,
+                self.text_height,
+                self.token_height,
+                self.array_height,
+                self.array_record_height,
+                self.checkpoint_height,
+            )
         ):
             raise ValueError(
                 "Content heights must be finite and at least 100, or 0 for auto"
@@ -82,6 +95,8 @@ class WorkspaceViews:
             raise ValueError("Checkpoint retention bytes must be nonnegative")
         if self.array_slice is not None:
             self.array_slice.validate()
+        if self.array_record_slice is not None:
+            self.array_record_slice.validate()
         if self.array_retention_bytes < 0:
             raise ValueError("Array cache retention bytes must be nonnegative")
         self.references.validate()

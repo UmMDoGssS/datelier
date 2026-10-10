@@ -14,7 +14,7 @@ class CommandButton(Component):
         self,
         key: str,
         label: str,
-        command: Callable[[], None],
+        command: Callable[[], object],
         enabled: Callable[[], bool] = lambda: True,
     ) -> None:
         super().__init__(key)

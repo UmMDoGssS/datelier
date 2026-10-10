@@ -240,7 +240,13 @@ class WorkbenchPage(Page):
         file = self.editor.current
         components = self.files[file.identity]
         for panel, content in (
-            (self.host.source, self.files[self.editor.active_id].source),
+            (
+                self.host.source,
+                Container(
+                    "source-region",
+                    (self.files[self.editor.active_id].source, components.columns),
+                ),
+            ),
             (self.host.canvas, components.canvas),
             (self.host.context, components.context),
             (self.host.table, components.table),

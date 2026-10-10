@@ -87,7 +87,7 @@ class RecordBody(Container):
         self.viewports = {
             kind: viewport(kind, child)
             for kind, child in self.content.items()
-            if kind != RecordKind.TEXT
+            if kind not in (RecordKind.TEXT, RecordKind.ARRAY)
         }
         self.preview = GalleryContent(references)
         self.card: RecordCard | None = None
@@ -105,7 +105,9 @@ class RecordBody(Container):
             content = self.content[kind]
             content.bind_record(self.card)
             self.children = (
-                content if kind == RecordKind.TEXT else self.viewports[kind],
+                content
+                if kind in (RecordKind.TEXT, RecordKind.ARRAY)
+                else self.viewports[kind],
             )
         super().render(frame)
 

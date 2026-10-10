@@ -7,10 +7,10 @@ from uuid import uuid4
 import numpy as np
 import pytest
 
+from datelier.application.editor import EditorController
+from datelier.application.workspace import capture_session
 from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import DatasetRevision
-from datelier.gui.editor_session import EditorSession
-from datelier.gui.workspace.capture import capture_session
 from datelier.inspection.arrays.jobs import ArrayJobs
 from datelier.inspection.arrays.slices import PreparedSlice, SliceSettings
 from datelier.inspection.arrays.types import ArrayCatalog
@@ -21,11 +21,11 @@ from datelier.io.types import ArrayOptions, ImportFormat
 from datelier.workspace.session_jobs import save_snapshot
 
 
-def wait(editor: EditorSession) -> None:
+def wait(editor: EditorController) -> None:
     deadline = monotonic() + 5
     while monotonic() < deadline:
         editor.poll()
-        if not editor.workspace_jobs.busy and all(
+        if not editor.workspace.busy and all(
             f.loader.status.phase != LoadPhase.LOADING and not f.arrays.busy
             for f in editor.files
         ):
@@ -48,7 +48,7 @@ def test_metadata_open_and_workspace_restore_never_prepare_payloads(
         raise AssertionError("Opening/restoration must remain metadata only")
 
     monkeypatch.setattr(np, "memmap", forbidden)
-    editor = EditorSession(initial_path=source)
+    editor = EditorController()
     try:
         editor.active.loader.request(source, ArrayOptions(record_table=False))
         wait(editor)
@@ -64,7 +64,7 @@ def test_metadata_open_and_workspace_restore_never_prepare_payloads(
         save_snapshot(workspace, capture_session(editor), False)
     finally:
         editor.close()
-    restored = EditorSession()
+    restored = EditorController()
     try:
         restored.open_workspace(workspace)
         wait(restored)
@@ -94,9 +94,9 @@ def test_explicit_prepare_preserves_values_and_cleans_shared_worker_storage(
     path = tmp_path / "data.npz"
     values = np.arange(24).reshape(2, 3, 4)
     np.savez_compressed(path, values=values)
-    editor = EditorSession()
+    editor = EditorController()
     try:
-        file = editor.new_tab(path)
+        file = editor.new_file(path)
         file.loader.request(path, ArrayOptions(record_table=False))
         wait(editor)
         file.arrays.request(SliceSettings("values", (1, 2), (1, 0, 0)))
@@ -105,7 +105,7 @@ def test_explicit_prepare_preserves_values_and_cleans_shared_worker_storage(
         np.testing.assert_array_equal(file.arrays.active.raw, values[1])
         temporary = file.arrays.store.temporary_path
         assert temporary and temporary.exists()
-        editor.close_tab(file.identity)
+        editor.close_file(file.identity)
     finally:
         editor.close()
     assert not temporary.exists()
@@ -161,9 +161,9 @@ def test_member_paths_identify_arrays_without_nearby_reference_decoding(
 ) -> None:
     path = tmp_path / "data.npz"
     np.savez(path, **{"sub/photo.png": np.arange(4)})
-    editor = EditorSession()
+    editor = EditorController()
     try:
-        file = editor.new_tab(path)
+        file = editor.new_file(path)
         file.loader.request(path, ArrayOptions(record_table=False))
         wait(editor)
         assert file.loader.active

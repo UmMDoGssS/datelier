@@ -182,9 +182,9 @@ def test_missing_optional_extra_is_actionable_and_app_import_stays_lazy(
         [
             sys.executable,
             "-c",
-            "import sys; from datelier.gui.file_session import FileSession; "
-            "assert 'torch' not in sys.modules; "
-            "session = FileSession.create; print('lazy')",
+            "import sys; from datelier.application.editor import EditorController; "
+            "editor = EditorController(); assert 'torch' not in sys.modules; "
+            "editor.close(); print('lazy')",
         ],
         check=True,
         capture_output=True,

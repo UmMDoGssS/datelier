@@ -73,7 +73,7 @@ class RecordController:
             primary=self.settings.primary
             if self.settings.primary in columns
             else next(iter(columns), None),
-            supporting=None
+            supporting=tuple(columns)
             if self.settings.supporting is None
             else tuple(name for name in self.settings.supporting if name in columns),
         )

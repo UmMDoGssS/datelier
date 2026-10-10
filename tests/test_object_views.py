@@ -5,8 +5,8 @@ from time import monotonic, sleep
 import polars as pl
 import pytest
 
-from datelier.gui.editor_session import EditorSession
-from datelier.gui.workspace.capture import capture_session
+from datelier.application.editor import EditorController
+from datelier.application.workspace import capture_session
 from datelier.inspection.objects.types import ObjectNode
 from datelier.io.loading import LoadPhase
 from datelier.io.types import ImportFormat
@@ -15,14 +15,14 @@ from datelier.pipeline.operations import Sort
 from datelier.workspace.session_jobs import save_snapshot
 
 
-def wait(editor: EditorSession) -> None:
+def wait(editor: EditorController) -> None:
     deadline = monotonic() + 5
     while monotonic() < deadline:
         editor.poll()
         files = tuple(
             f for owner in editor.files for f in (owner, *owner.record_views.files)
         )
-        if not editor.workspace_jobs.busy and all(
+        if not editor.workspace.busy and all(
             f.loader.status.phase != LoadPhase.LOADING
             and not f.editor.busy
             and not f.record_views.pending
@@ -47,7 +47,7 @@ def test_named_views_preserve_other_nodes_histories_and_identity(
 ) -> None:
     source = fixture_source(tmp_path)
     before = source.read_bytes()
-    editor = EditorSession(initial_path=source)
+    editor = EditorController()
     root = editor.active
     try:
         root.loader.request(source)
@@ -89,7 +89,7 @@ def test_named_views_preserve_other_nodes_histories_and_identity(
 def test_named_views_and_node_navigation_reopen_with_session(tmp_path: Path) -> None:
     source = fixture_source(tmp_path)
     workspace = tmp_path / "session.datelier"
-    editor = EditorSession(initial_path=source)
+    editor = EditorController()
     try:
         root = editor.active
         root.loader.request(source)
@@ -107,7 +107,7 @@ def test_named_views_and_node_navigation_reopen_with_session(tmp_path: Path) -> 
         save_snapshot(workspace, capture_session(editor), False)
     finally:
         editor.close()
-    restored = EditorSession()
+    restored = EditorController()
     try:
         restored.open_workspace(workspace)
         wait(restored)
@@ -139,7 +139,7 @@ def test_closing_source_abandons_extraction_without_sibling_publication(
     import datelier.io.objects as objects
 
     source = fixture_source(tmp_path)
-    editor = EditorSession()
+    editor = EditorController()
     started, release = Event(), Event()
     original = objects.extract_records
 
@@ -149,13 +149,13 @@ def test_closing_source_abandons_extraction_without_sibling_publication(
         return original(node, as_text=as_text)
 
     try:
-        root = editor.new_tab(source)
-        sibling = editor.new_tab(source)
+        root = editor.new_file(source)
+        sibling = editor.new_file(source)
         wait(editor)
         monkeypatch.setattr(objects, "extract_records", slow)
         view = root.record_views.open(root, ("train",))
         assert started.wait(2)
-        editor.close_tab(root.identity)
+        editor.close_file(root.identity)
         release.set()
         wait(editor)
         assert view.closed and view.loader.active is None
@@ -170,12 +170,12 @@ def test_missing_source_relinks_owner_and_its_named_views(tmp_path: Path) -> Non
     source = fixture_source(tmp_path)
     replacement = tmp_path / "replacement.json"
     workspace = tmp_path / "session.datelier"
-    editor = EditorSession()
+    editor = EditorController()
     try:
-        root = editor.new_tab(source)
+        root = editor.new_file(source)
         other_path = tmp_path / "other.csv"
         other_path.write_text("x\n1\n")
-        editor.new_tab(other_path)
+        editor.new_file(other_path)
         wait(editor)
         root.record_views.open(root, ("train",))
         wait(editor)
@@ -184,13 +184,13 @@ def test_missing_source_relinks_owner_and_its_named_views(tmp_path: Path) -> Non
     finally:
         editor.close()
     source.rename(replacement)
-    restored = EditorSession()
+    restored = EditorController()
     try:
         restored.open_workspace(workspace)
         wait(restored)
         root = next(f for f in restored.files if f.identity == owner_id)
         assert root.recovery and restored.active.loader.active
-        restored.recover_source(owner_id, relink=replacement)
+        restored.recover(owner_id, replacement, False)
         wait(restored)
         assert root.recovery is None and root.loader.active
         view = root.record_views.files[0]

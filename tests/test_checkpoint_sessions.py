@@ -8,10 +8,10 @@ from uuid import uuid4
 import numpy as np
 import pytest
 
+from datelier.application.editor import EditorController
+from datelier.application.workspace import capture_session
 from datelier.core.dataset import DatasetRevision
 from datelier.core.jobs import SharedWorkers
-from datelier.gui.editor_session import EditorSession
-from datelier.gui.workspace.capture import capture_session
 from datelier.inspection.arrays.settings import SliceSettings
 from datelier.inspection.checkpoints.jobs import CheckpointJobs
 from datelier.inspection.checkpoints.slices import PreparedTensorSlice
@@ -27,13 +27,13 @@ def torch() -> ModuleType:
     return pytest.importorskip("torch")
 
 
-def wait(editor: EditorSession) -> None:
+def wait(editor: EditorController) -> None:
     deadline = monotonic() + 6
     while monotonic() < deadline:
         editor.poll()
-        if not editor.workspace_jobs.busy and all(
+        if not editor.workspace.busy and all(
             f.loader.status.phase != LoadPhase.LOADING and not f.checkpoints.busy
-            for f in editor.file_sessions
+            for f in editor.all_files
         ):
             return
         sleep(0.001)
@@ -49,9 +49,9 @@ def test_checkpoint_workspace_reopens_locators_and_settings_without_values(
     )
     before = source.read_bytes()
     workspace = tmp_path / "checkpoint.datelier"
-    editor = EditorSession()
+    editor = EditorController()
     try:
-        file = editor.new_tab(source)
+        file = editor.new_file(source)
         wait(editor)
         assert file.checkpoints.catalog and file.checkpoints.active is None
         assert file.checkpoints.store.loads == 0
@@ -80,7 +80,7 @@ def test_checkpoint_workspace_reopens_locators_and_settings_without_values(
         raise AssertionError("Workspace reopening must not open tensor storage")
 
     monkeypatch.setattr(CheckpointStore, "open_tensor", forbidden)
-    reopened = EditorSession()
+    reopened = EditorController()
     try:
         reopened.open_workspace(workspace)
         wait(reopened)
@@ -156,9 +156,9 @@ def test_checkpoint_tabs_namespace_same_tensor_and_restore_missing_source_locall
     torch.save({"weight": torch.tensor([1.0, 2.0])}, first)
     torch.save({"weight": torch.tensor([8.0, 9.0])}, second)
     workspace = tmp_path / "two.datelier"
-    editor = EditorSession()
+    editor = EditorController()
     try:
-        one, two = editor.new_tab(first), editor.new_tab(second)
+        one, two = editor.new_file(first), editor.new_file(second)
         wait(editor)
         one.checkpoints.request(SliceSettings("$['weight']"))
         two.checkpoints.request(SliceSettings("$['weight']"))
@@ -173,13 +173,13 @@ def test_checkpoint_tabs_namespace_same_tensor_and_restore_missing_source_locall
         editor.close()
     replacement = tmp_path / "replacement.pt"
     first.rename(replacement)
-    reopened = EditorSession()
+    reopened = EditorController()
     try:
         reopened.open_workspace(workspace)
         wait(reopened)
         one = next(f for f in reopened.files if f.identity == one_id)
         assert one.recovery and reopened.active.loader.active
-        reopened.recover_source(one_id, relink=replacement)
+        reopened.recover(one_id, replacement, False)
         wait(reopened)
         assert one.recovery is None and one.checkpoints.catalog
         assert one.checkpoints.catalog.source.path == replacement
@@ -215,9 +215,9 @@ def test_changed_checkpoint_requires_acceptance_and_recovers_metadata_only(
     source = tmp_path / "changed.pt"
     torch.save({"weight": torch.arange(6).reshape(2, 3)}, source)
     workspace = tmp_path / "changed.datelier"
-    editor = EditorSession()
+    editor = EditorController()
     try:
-        file = editor.new_tab(source)
+        file = editor.new_file(source)
         wait(editor)
         file.checkpoints.settings = SliceSettings(
             "$['weight']", (0, 1), (0, 0), (0, 0), (128, 128)
@@ -227,13 +227,13 @@ def test_changed_checkpoint_requires_acceptance_and_recovers_metadata_only(
     finally:
         editor.close()
     torch.save({"weight": torch.tensor([8, 9, 10])}, source)
-    reopened = EditorSession()
+    reopened = EditorController()
     try:
         reopened.open_workspace(workspace)
         wait(reopened)
         file = next(f for f in reopened.files if f.identity == identity)
         assert file.recovery and file.recovery.changed
-        reopened.recover_source(identity, accept_changed=True)
+        reopened.recover(identity, None, True)
         wait(reopened)
         assert file.recovery is None and file.checkpoints.catalog
         assert file.checkpoints.catalog.tensor("$['weight']").shape == (3,)

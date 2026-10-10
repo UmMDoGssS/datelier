@@ -21,6 +21,9 @@ from datelier.application.record_views import RecordViews
 from datelier.application.records import RecordController
 from datelier.application.schema import SchemaController
 from datelier.application.settings_restore import restore_analysis, restore_plots
+from datelier.application.sources.numeric import NumericSourceController
+from datelier.application.sources.objects import ObjectController
+from datelier.application.sources.records import ArrayRecordController
 from datelier.application.table import TableController
 from datelier.application.text import TextController
 from datelier.core.column_roles import REFERENCE_ROLES, ColumnRole
@@ -36,7 +39,7 @@ from datelier.inspection.text.list_records import is_text_field
 from datelier.io.arrays.storage import ArrayStore
 from datelier.io.exporting import DatasetExporter
 from datelier.io.loading import DatasetLoader
-from datelier.io.types import ImportFormat, ImportOptions, MediaOptions
+from datelier.io.types import ArrayOptions, ImportFormat, ImportOptions, MediaOptions
 from datelier.pipeline.editing import DatasetEditor
 from datelier.plotting.selection import LinkedSelection
 from datelier.workspace.jobs import WorkspaceJobs
@@ -91,6 +94,11 @@ class FileController:
         self.images = ImageController(executor)
         self.audio = AudioController(executor, playback)
         self.record_views = RecordViews(executor, self.audio.player)
+        self.objects = ObjectController(self.record_views)
+        self.array_source = NumericSourceController(self.arrays)
+        self.tensor_source = NumericSourceController(self.checkpoints)
+        self.array_records = ArrayRecordController(executor, self.arrays.store)
+        self.array_record_source = NumericSourceController(self.array_records.jobs)
         self.recovery: RestoredSessionFile | None = None
         self.draft: SourceDraft | None = None
         self.choices: tuple[ColumnChoice, ...] = ()
@@ -155,6 +163,23 @@ class FileController:
                 imported.checkpoint_catalog, restored.inspection.dataset.revision
             )
         self.checkpoints.settings = self.views.checkpoint_slice or SliceSettings()
+        self.checkpoints.store.limit = self.views.checkpoint_retention_bytes
+        self.array_source.sync(self.arrays.catalog)
+        self.tensor_source.sync(self.checkpoints.catalog)
+        self.array_source.height = self.views.array_height
+        self.array_record_source.height = self.views.array_record_height
+        self.array_records.jobs.settings = (
+            self.views.array_record_slice or SliceSettings()
+        )
+        self.tensor_source.height = self.views.checkpoint_height
+        self.array_source.retention_mib = self.array_record_source.retention_mib = (
+            self.arrays.store.limit // (1024 * 1024)
+        )
+        self.tensor_source.retention_mib = self.checkpoints.store.limit // (1024 * 1024)
+        if self.views.array_member_mode is not None:
+            self.array_source.member_mode = self.views.array_member_mode
+        if self.views.checkpoint_member_mode is not None:
+            self.tensor_source.member_mode = self.views.checkpoint_member_mode
         self._bind()
         restore_plots(self.plots, restored.inspection.dataset, restored.workspace.plots)
         restore_analysis(
@@ -311,8 +336,21 @@ class FileController:
         elif self.checkpoints.catalog:
             self.checkpoints.unbind()
         self.checkpoints.poll()
+        self.objects.sync(active.imported.object_root if active else None)
+        self.array_source.sync(self.arrays.catalog)
+        self.array_record_source.sync(self.arrays.catalog)
+        if (
+            changes.loaded
+            and active
+            and isinstance(active.imported.options, ArrayOptions)
+            and active.imported.options.mapping is not None
+        ):
+            self.array_source.member_mode = False
+            self.views = replace(self.views, tab="Inspect")
+            self.records.settings = replace(self.records.settings, gallery=False)
+        self.tensor_source.sync(self.checkpoints.catalog)
         media = self.media_input()
-        for controller in (self.text, self.images, self.audio):
+        for controller in (self.text, self.images, self.audio, self.array_records):
             controller.sync(media)
         self.schema.refresh(active, busy=self.editor.busy)
         self.record_views.poll(self)
@@ -325,6 +363,7 @@ class FileController:
         self.audio.close(self.identity)
         for controller in (
             self.records,
+            self.array_records,
             self.text,
             self.images,
             self.references,
@@ -335,3 +374,7 @@ class FileController:
         self.analysis.close(wait=False)
         self.runtime.close()
         self.schema.refresh(None, busy=False)
+        self.objects.sync(None)
+        self.array_source.sync(None)
+        self.tensor_source.sync(None)
+        self.array_record_source.sync(None)

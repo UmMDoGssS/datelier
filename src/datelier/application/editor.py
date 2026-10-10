@@ -260,4 +260,6 @@ class EditorController:
         self.preferences.close()
         self.opening.close()
         self.playback.close(wait=True)
-        self.workers.shutdown(wait=True, cancel_futures=True)
+        # Feature owners already cancel their obsolete work. Drain storage cleanup
+        # queued by those owners before joining the shared workers.
+        self.workers.shutdown(wait=True, cancel_futures=False)

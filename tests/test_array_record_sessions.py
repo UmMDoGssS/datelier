@@ -4,8 +4,8 @@ from time import monotonic, sleep
 import numpy as np
 import pytest
 
-from datelier.gui.editor_session import EditorSession
-from datelier.gui.workspace.capture import capture_session
+from datelier.application.editor import EditorController
+from datelier.application.workspace import capture_session
 from datelier.inspection.arrays.mapping import (
     ArrayLayout,
     ArrayRecordMapping,
@@ -19,16 +19,16 @@ from datelier.pipeline.operations import Comparison, Filter, Sort
 from datelier.workspace.session_jobs import save_snapshot
 
 
-def wait(editor: EditorSession) -> None:
+def wait(editor: EditorController) -> None:
     deadline = monotonic() + 5
     while monotonic() < deadline:
         editor.poll()
-        if not editor.workspace_jobs.busy and all(
+        if not editor.workspace.busy and all(
             f.loader.status.phase != LoadPhase.LOADING
             and not f.editor.busy
             and not f.arrays.busy
             and not f.record_views.pending
-            for f in editor.file_sessions
+            for f in editor.all_files
         ):
             return
         sleep(0.001)
@@ -58,9 +58,9 @@ def test_confirmed_views_share_payload_cache_without_sharing_jobs_or_rows(
 ) -> None:
     source, mapping = fixture(tmp_path)
     original = source.read_bytes()
-    editor = EditorSession()
+    editor = EditorController()
     try:
-        root = editor.new_tab(source)
+        root = editor.new_file(source)
         wait(editor)
         assert not root.record_views.files and root.arrays.store.temporary_path is None
         view = root.record_views.open_array(root, mapping)
@@ -103,9 +103,9 @@ def test_deferred_named_views_resave_and_prepare_without_eager_values(
 ) -> None:
     source, mapping = fixture(tmp_path)
     workspace = tmp_path / "records.datelier"
-    editor = EditorSession()
+    editor = EditorController()
     try:
-        root = editor.new_tab(source)
+        root = editor.new_file(source)
         wait(editor)
         view = root.record_views.open_array(root, mapping)
         wait(editor)
@@ -123,22 +123,22 @@ def test_deferred_named_views_resave_and_prepare_without_eager_values(
         raise AssertionError("Restoration must read metadata only")
 
     monkeypatch.setattr(ArrayStore, "open_member", forbidden)
-    reopened = EditorSession()
+    reopened = EditorController()
     try:
         reopened.open_workspace(workspace)
         wait(reopened)
         root = reopened.active
         view = root.record_views.active(root)
-        assert view.identity == view_id and view.deferred and not view.recovery
+        assert view.identity == view_id and view.recovery and view.recovery.deferred
         assert view.loader.active is None and view.arrays.active is None
         assert view.arrays.store is root.arrays.store
         assert root.arrays.store.temporary_path is None
-        assert view.deferred.file.selection == (3,)
+        assert view.recovery.file.selection == (3,)
         save_snapshot(tmp_path / "resaved.datelier", capture_session(reopened), False)
         monkeypatch.setattr(ArrayStore, "open_member", original_open)
-        reopened.prepare_records(view_id)
+        reopened.recover(view_id, None, False, True)
         wait(reopened)
-        assert view.loader.active and view.deferred is None
+        assert view.loader.active and view.recovery is None
         assert view.loader.active.dataset.row_ids.to_list() == [1, 3, 0, 2]
         assert view.selection.row_ids == {3}
         assert view.arrays.active is None
@@ -148,9 +148,9 @@ def test_deferred_named_views_resave_and_prepare_without_eager_values(
 
 def test_invalid_confirmation_keeps_current_records_and_cache(tmp_path: Path) -> None:
     source, mapping = fixture(tmp_path)
-    editor = EditorSession()
+    editor = EditorController()
     try:
-        root = editor.new_tab(source)
+        root = editor.new_file(source)
         wait(editor)
         view = root.record_views.open_array(root, mapping)
         wait(editor)
@@ -174,31 +174,31 @@ def test_sampled_inspect_focus_links_source_pixels_and_supporting_fields(
     tmp_path: Path,
 ) -> None:
     source, mapping = fixture(tmp_path)
-    editor = EditorSession()
+    editor = EditorController()
     try:
-        root = editor.new_tab(source)
+        root = editor.new_file(source)
         wait(editor)
         view = root.record_views.open_array(root, mapping)
         wait(editor)
         view.editor.request(Sort(("label",)))
         wait(editor)
-        view.inspect.settings = InspectSettings(
+        view.records.settings = InspectSettings(
             mode=RecordMode.RANDOM, count=2, seed=19
         )
         deadline = monotonic() + 3
         while monotonic() < deadline:
             editor.poll()
-            if view.inspect.jobs.active and len(view.inspect.jobs.active.row_ids) == 2:
-                view.array_records.fields.get(0)
+            if view.records.jobs.active and len(view.records.jobs.active.row_ids) == 2:
+                view.records.jobs.get(0)
                 editor.poll()
-                if view.array_records.fields.get(0) is not None:
+                if view.records.jobs.get(0) is not None:
                     break
             sleep(0.001)
-        records = view.inspect.jobs.active
+        records = view.records.jobs.active
         assert records and len(records.row_ids) == 2
         index = int(records.row_ids[0])
-        assert view.array_records.source_index == index
-        page = view.array_records.fields.get(0)
+        assert view.records.settings.focus == 0
+        page = view.records.jobs.get(0)
         assert page and page.cards[0].row_id == index
         assert next(f.text for f in page.cards[0].fields if f.name == "label") == str(
             [8, 3, 9, 5][index]

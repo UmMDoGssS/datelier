@@ -56,7 +56,7 @@ components implement Component.render; container classes render direct children.
 | A | Replace GUI package; GUI-free file/record/editor runtime and component contracts | Complete; desktop deliberately not runnable |
 | B | Shared controls, shell, columns, table, tabular profiles and plots | Complete; basic inspection shell runnable |
 | C | Contextual analysis, transforms/history, export and workspace/preferences | Complete; advanced plot modes tracked separately |
-| D | Structured/array/checkpoint source and multimodal record/profile families | In progress; focused Inspect restored |
+| D | Structured/array/checkpoint source and multimodal record/profile families | In progress; source browsers and focused Inspect restored |
 | E | Comparison families, remaining features and integrated acceptance | Pending |
 
 Each stage runs scoped Pyrefly, behavioral tests, full Ruff checks and diff review
@@ -157,6 +157,31 @@ input pass with unchanged source bytes and zero implicit collection work/playbac
 [Record report](evidence/gui-overhaul/fresh-records.json) retains timing evidence.
 Structured sources, array content, media profiles/training/annotations/playback,
 comparison families and advanced plots remain open.
+
+## Fresh Stage D2 — Structured and numeric source families
+
+Object and numeric source browsers share an abstract prepared-state contract.
+Virtual object listings navigate every node, page complete scalar text and open
+independent typed record views. Array/tensor listings reuse one bounded slice
+editor and scalar/vector/matrix display family, with exact raw cells, display-only
+colors/ranges, complex/structured fields and original tensor storage bits.
+Confirmed array mappings share the column picker for aligned supporting members;
+generic record payloads use a separate scoped slice job and stable source row IDs.
+The source browser remains with its owner while column metadata follows the active
+record view. Semantic slice drafts, member/record mode, cache limits and viewport
+sizes restore without decoding. Duplicate pending record openings are coalesced.
+Assembly now separates source/Inspect composition from tabular composition.
+
+Verification: scoped Pyrefly zero errors, 93 focused object/array/checkpoint/record/
+restore checks pass (three existing PyTorch warnings), full Ruff lint/format and
+diff checks pass. Migrated old behavioral tests exposed and fixed shutdown
+cancellation of queued storage cleanup. Native member selection, explicit NumPy
+and CPU checkpoint slices, object record extraction, original values/row IDs,
+unchanged sources and zero implicit collection work/playback pass in 167 frames,
+17.81 ms p95. [Source report](evidence/gui-overhaul/fresh-sources.json). Focused media
+Inspect regression passes 55 frames, 22.37 ms p95. Advanced mapping forms, media
+profiles/training/annotations/playback, comparisons, plots and full caller/native/
+resource acceptance remain open.
 
 ## Baseline evidence
 

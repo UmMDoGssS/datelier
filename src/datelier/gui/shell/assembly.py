@@ -1,6 +1,5 @@
 """Explicit assembly is the only GUI layer that knows application controllers."""
 
-from collections.abc import Callable
 from dataclasses import dataclass, replace
 
 from imgui_bundle import imgui
@@ -8,23 +7,18 @@ from imgui_bundle import imgui
 from datelier.analysis.types import Algorithm
 from datelier.application.editor import EditorController
 from datelier.application.file import FileController
-from datelier.application.records import RecordKind
 from datelier.gui.analysis.view import AnalysisSettingsView
 from datelier.gui.components.base import Component, Container, FrameContext
+from datelier.gui.components.routing import RoutedContent
 from datelier.gui.components.viewport import ResizableViewport
 from datelier.gui.context.history import HistoryView
-from datelier.gui.context.media import InspectSettings
 from datelier.gui.context.profiles import ProfileSettings
 from datelier.gui.context.relationships import CorrelationSettings, RelationshipSettings
 from datelier.gui.context.transforms import TransformSettings
 from datelier.gui.profiles.content import ProfileRouter
-from datelier.gui.records.audio import AudioContent
-from datelier.gui.records.base import RecordContent
-from datelier.gui.records.collection import RecordBody, RecordCollection
-from datelier.gui.records.images import ImageContent
-from datelier.gui.records.text import TextContent
 from datelier.gui.relationships.correlations import CorrelationPlot
 from datelier.gui.relationships.scatter import ScatterPlot
+from datelier.gui.shell.inspect_assembly import assemble_inspect
 from datelier.gui.shell.navigation import CanvasTabs, NamedTab
 from datelier.gui.shell.status import SourceState, SourceStatus
 from datelier.gui.sources.columns import ColumnCatalog
@@ -43,31 +37,22 @@ class Message(Component):
         imgui.text_wrapped(self.text)
 
 
-class ContextRoutes(Container):
-    def __init__(
-        self, routes: dict[str, Component], selected: Callable[[], str]
-    ) -> None:
-        super().__init__("view", ())
-        self.routes = routes
-        self.selected = selected
-
-    def render(self, frame: FrameContext) -> None:
-        # Assembly supplies the navigation provider explicitly.
-        route = self.selected()
-        child = self.routes.get(route)
-        self.children = (child,) if child else ()
-        super().render(frame)
-
-
 @dataclass
 class FileComponents:
     source: Component
     canvas: Component
     context: Component
     table: Component
+    columns: Component
 
     def close(self) -> None:
-        for component in (self.source, self.canvas, self.context, self.table):
+        for component in (
+            self.source,
+            self.canvas,
+            self.context,
+            self.table,
+            self.columns,
+        ):
             component.close()
 
 
@@ -119,41 +104,7 @@ def assemble_file(file: FileController, editor: EditorController) -> FileCompone
             ),
         )
 
-    def record_viewport(kind: RecordKind, content: RecordContent) -> ResizableViewport:
-        if kind == RecordKind.IMAGE:
-            return ResizableViewport(
-                "image-viewport",
-                content,
-                minimum=100,
-                read_height=lambda: file.views.image_height,
-                write_height=lambda value: setattr(
-                    file, "views", replace(file.views, image_height=value)
-                ),
-            )
-        if kind == RecordKind.AUDIO:
-            return ResizableViewport(
-                "audio-viewport",
-                content,
-                read_height=lambda: file.audio.settings.plot_height,
-                write_height=lambda value: setattr(
-                    file.audio,
-                    "settings",
-                    replace(file.audio.settings, plot_height=value),
-                ),
-            )
-        return ResizableViewport(kind.value, content, height=220, minimum=100)
-
-    body = RecordBody(
-        file.records,
-        file.references,
-        {
-            RecordKind.IMAGE: ImageContent(file.images),
-            RecordKind.TEXT: TextContent(file.text),
-            RecordKind.AUDIO: AudioContent(file.audio),
-        },
-        record_viewport,
-    )
-    records = RecordCollection(file.records, body, file.table.go_to)
+    inspect = assemble_inspect(file, editor)
 
     canvas = CanvasTabs(
         (
@@ -166,7 +117,7 @@ def assemble_file(file: FileController, editor: EditorController) -> FileCompone
                 "Correlations",
                 correlation_viewport(),
             ),
-            NamedTab("Inspect", records),
+            NamedTab("Inspect", inspect.canvas),
             NamedTab(
                 "Compare files", Message("comparisons", "Choose sources to compare.")
             ),
@@ -178,7 +129,7 @@ def assemble_file(file: FileController, editor: EditorController) -> FileCompone
         (
             NamedTab(
                 "View",
-                ContextRoutes(
+                RoutedContent(
                     {
                         "Profiles": ProfileSettings(file.profiles, file.plots),
                         "Relationships": Container(
@@ -189,9 +140,7 @@ def assemble_file(file: FileController, editor: EditorController) -> FileCompone
                             ),
                         ),
                         "Correlations": CorrelationSettings(file.plots),
-                        "Inspect": InspectSettings(
-                            file.records, file.text, file.images, file.audio
-                        ),
+                        "Inspect": inspect.settings,
                     },
                     route,
                 ),
@@ -223,8 +172,9 @@ def assemble_file(file: FileController, editor: EditorController) -> FileCompone
         ),
     )
     return FileComponents(
-        Container("source-content", (source_status, ColumnCatalog(file.schema))),
+        Container("source-content", (source_status, inspect.browser)),
         canvas,
         context,
         TableView(file.table),
+        ColumnCatalog(file.schema),
     )

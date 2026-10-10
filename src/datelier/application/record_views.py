@@ -33,13 +33,14 @@ class RecordViews:
         self.expanded: set[NodePath] = {()}
         self.message = ""
         self._origins: dict[str, int] = {}
+        self._options: dict[str, ImportOptions] = {}
 
     def active(self, owner: FileController) -> FileController:
         return next((f for f in self.files if f.identity == self.active_id), owner)
 
     def open(
         self, owner: FileController, path: NodePath, *, as_text: bool = False
-    ) -> None:
+    ) -> FileController:
         from datelier.application.file import FileController
 
         active = owner.inspection
@@ -49,9 +50,14 @@ class RecordViews:
         assert isinstance(original, ObjectOptions)
         options = ObjectOptions(original.syntax, path, as_text)
         for file in (*self.files, *self.pending):
-            if file.inspection and file.inspection.imported.options == options:
-                self.active_id = file.identity
-                return
+            if (
+                self._options.get(file.identity) == options
+                or file.inspection
+                and file.inspection.imported.options == options
+            ):
+                if file in self.files:
+                    self.active_id = file.identity
+                return file
         if len(self.files) + len(self.pending) >= 32:
             raise ValueError("Close a record view before opening more than 32 views")
 
@@ -71,8 +77,12 @@ class RecordViews:
         )
         self.pending.append(file)
         self._origins[file.identity] = owner.loader.generation
+        self._options[file.identity] = options
+        return file
 
-    def open_array(self, owner: FileController, mapping: ArrayRecordMapping) -> None:
+    def open_array(
+        self, owner: FileController, mapping: ArrayRecordMapping
+    ) -> FileController:
         from datelier.application.file import FileController
 
         active = owner.inspection
@@ -83,10 +93,18 @@ class RecordViews:
         assert catalog is not None and isinstance(imported.options, ArrayOptions)
         options = replace(imported.options, mapping=mapping)
         mapping.record_count(catalog)
-        for file in self.files:
-            if file.inspection and file.inspection.imported.options == options:
-                self.active_id = file.identity
-                return
+        for file in (*self.files, *self.pending):
+            if (
+                self._options.get(file.identity) == options
+                or file.inspection
+                and file.inspection.imported.options == options
+            ):
+                if file in self.files:
+                    self.active_id = file.identity
+                return file
+
+        if len(self.files) + len(self.pending) >= 32:
+            raise ValueError("Close a record view before opening more than 32 views")
 
         def extract(_path: object, _options: ImportOptions | None) -> ImportResult:
             dataset, diagnostics = prepare_array_records(
@@ -111,6 +129,8 @@ class RecordViews:
         )
         self.pending.append(file)
         self._origins[file.identity] = owner.loader.generation
+        self._options[file.identity] = options
+        return file
 
     def poll(self, owner: FileController) -> None:
         for file in self.files:
@@ -120,6 +140,7 @@ class RecordViews:
                 file.close()
                 self.pending.remove(file)
                 self._origins.pop(file.identity)
+                self._options.pop(file.identity, None)
                 continue
             file.poll()
             if file.inspection:
@@ -132,11 +153,13 @@ class RecordViews:
                 self.pending.remove(file)
                 self._origins.pop(file.identity)
                 file.close()
+                self._options.pop(file.identity, None)
 
     def close_view(self, identity: str) -> None:
         file = next((f for f in self.files if f.identity == identity), None)
         if file:
             self.files.remove(file)
+            self._options.pop(file.identity, None)
             file.close()
         if self.active_id == identity:
             self.active_id = None
@@ -147,6 +170,8 @@ class RecordViews:
         self.files.clear()
         self.pending.clear()
         self._origins.clear()
+        self._options.clear()
+        self.path = self.focus_path = ()
         self.active_id = None
         self.expanded = {()}
 

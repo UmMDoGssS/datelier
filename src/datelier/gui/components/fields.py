@@ -13,7 +13,7 @@ class ChoiceField[T](Component):
         self,
         key: str,
         label: str,
-        choices: tuple[T, ...],
+        choices: tuple[T, ...] | Callable[[], tuple[T, ...]],
         get: Callable[[], T],
         set_value: Callable[[T], None],
         labels: tuple[str, ...] | None = None,
@@ -25,20 +25,22 @@ class ChoiceField[T](Component):
             get,
             set_value,
         )
-        self.labels = labels or tuple(str(c) for c in choices)
+        self.labels = labels
 
     def render(self, frame: FrameContext) -> None:
         imgui.text(self.label)
         imgui.set_next_item_width(-1)
         value = self.get()
+        choices = self.choices() if callable(self.choices) else self.choices
+        labels = self.labels or tuple(str(c) for c in choices)
         changed, index = imgui.combo(
             "##" + self.key,
-            self.choices.index(value) if value in self.choices else 0,
-            list(self.labels),
+            choices.index(value) if value in choices else 0,
+            list(labels),
         )
         target(frame, "value")
         if changed:
-            self.set_value(self.choices[index])
+            self.set_value(choices[index])
 
 
 class BooleanField(Component):
