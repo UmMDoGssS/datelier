@@ -4,7 +4,7 @@ from dataclasses import replace
 
 import pytest
 
-from datelier.gui.annotations.recipes import class_names, confirm_mapping
+from datelier.application.annotations.recipes import class_names, confirm_mapping
 from datelier.inspection.annotations.settings import (
     AnnotationSource,
     ImageAssociationMapping,

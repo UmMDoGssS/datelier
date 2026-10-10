@@ -26,14 +26,18 @@ class ColumnRow(Component):
         )
 
     def render(self, frame: FrameContext) -> None:
+        imgui.push_id(self.choice.name)
         imgui.begin_disabled(not self.enabled)
-        clicked, _ = imgui.checkbox(self.choice.name, self.selected)
+        clicked, _ = imgui.checkbox(
+            self.choice.label or self.choice.name, self.selected
+        )
         target(frame, "select")
         if clicked:
             self.toggle(self.choice.name)
         imgui.end_disabled()
         if self.choice.reason and imgui.is_item_hovered():
             imgui.set_tooltip(self.choice.reason)
+        imgui.pop_id()
 
 
 class ColumnList(Container):
@@ -74,7 +78,7 @@ class ColumnList(Container):
         shown = tuple(
             c
             for c in self.choices()
-            if self.search.casefold() in c.name.casefold()
+            if self.search.casefold() in (c.label or c.name).casefold()
             and (self.group == "All roles" or c.group == self.group)
         )
         if imgui.button("Select shown"):
@@ -113,12 +117,15 @@ class ColumnPicker(Container):
     ) -> None:
         super().__init__(key, (ColumnList(choices, selected, changed, policy),))
         self.label, self.selected = label, selected
+        self.choices = choices
 
     def render(self, frame: FrameContext) -> None:
         imgui.push_id(self.key)
         imgui.text(self.label)
         names = self.selected()
-        caption = ", ".join(names[:2]) + (
+        choices = self.choices()
+        labels = {c.name: c.label or c.name for c in choices}
+        caption = ", ".join(labels.get(name, name) for name in names[:2]) + (
             f" +{len(names) - 2}" if len(names) > 2 else ""
         )
         if imgui.button((caption or "Choose columns") + "##open", (-1, 0)):

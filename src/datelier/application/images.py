@@ -3,10 +3,9 @@
 from concurrent.futures import Executor
 from dataclasses import replace
 
+from datelier.application.annotations.controller import AnnotationController
 from datelier.application.media_input import MediaController, MediaInput
 from datelier.application.sources.columns import record_mapping
-from datelier.inspection.annotations.jobs import AnnotationJobs
-from datelier.inspection.annotations.profile_jobs import AnnotationProfileJobs
 from datelier.inspection.images.jobs import ImageJobs
 from datelier.inspection.images.profile_jobs import ImageProfileJobs
 from datelier.inspection.images.profile_types import ChannelSummary, ImageProfile
@@ -20,8 +19,19 @@ class ImageController(MediaController):
         self.jobs = ImageJobs(executor)
         self.settings = ImageSettings()
         self.profile_jobs = ImageProfileJobs(executor)
-        self.annotations = AnnotationJobs(executor)
-        self.annotation_profiles = AnnotationProfileJobs(executor)
+        self.annotation_tools = AnnotationController(
+            lambda: self.settings.annotations,
+            lambda value: setattr(
+                self, "settings", replace(self.settings, annotations=value)
+            ),
+            lambda: self.settings.annotation_view,
+            lambda value: setattr(
+                self, "settings", replace(self.settings, annotation_view=value)
+            ),
+            executor,
+        )
+        self.annotations = self.annotation_tools.jobs
+        self.annotation_profiles = self.annotation_tools.profiles
         self.statistics: tuple[tuple[object, ...], ...] = ()
         self.channel_groups: tuple[tuple[str, str], ...] = ()
         self._profile: ImageProfile | None = None
@@ -42,24 +52,7 @@ class ImageController(MediaController):
         self._bind_profile(source)
         self.profile_jobs.poll()
         self._prepare_profile()
-        self.annotations.settings = self.settings.annotations
-        self.annotations.bind(
-            active.dataset if active else None,
-            source.file_id,
-            source.view_name,
-            source.references,
-            source.index,
-            active.imported.array_catalog if active else None,
-            record_mapping(active, source.inspect.primary),
-        )
-        self.annotations.poll()
-        if self.annotations.active is not None:
-            self.settings = replace(
-                self.settings, annotations=self.annotations.settings
-            )
-        self.annotation_profiles.bins = self.settings.annotation_view.bins
-        self.annotation_profiles.bind(self.annotations.active)
-        self.annotation_profiles.poll()
+        self.annotation_tools.sync(source)
 
     def request_record(self, column: str, position: int) -> None:
         source = self._source
@@ -74,6 +67,14 @@ class ImageController(MediaController):
     def request_window(self, window: ImageWindow) -> None:
         if self._source:
             self.jobs.request_window(window, self.settings.display, self._source.arrays)
+
+    @property
+    def annotation_column(self) -> str:
+        return (
+            self.settings.annotations.column
+            or (self._source.inspect.primary if self._source else None)
+            or ""
+        )
 
     def request_collection(self, column: str) -> None:
         source = self._source
@@ -172,8 +173,7 @@ class ImageController(MediaController):
         self._source = None
         self.jobs.close()
         self.profile_jobs.close()
-        self.annotations.close()
-        self.annotation_profiles.close()
+        self.annotation_tools.close()
         self._profile = None
         self.statistics = self.channel_groups = ()
 

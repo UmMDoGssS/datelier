@@ -4,6 +4,7 @@ from dataclasses import replace
 
 from datelier.application.images import ImageController
 from datelier.application.records import RecordKind
+from datelier.gui.annotations.settings import AnnotationSettings
 from datelier.gui.components.base import Container, FrameContext
 from datelier.gui.components.bindings import StateFields
 from datelier.gui.components.fields import IntegerField
@@ -130,5 +131,14 @@ class ImageSettings(MediaSettings):
                     ),
                 ),
                 Collapsible("caches", "Image caches", caches),
+                Collapsible(
+                    "annotations",
+                    "Annotations",
+                    (
+                        AnnotationSettings(
+                            model.annotation_tools, lambda: model.annotation_column
+                        ),
+                    ),
+                ),
             ),
         )

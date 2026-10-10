@@ -203,6 +203,10 @@ class RecordController:
         self.selection.choose(revision, (row_id,))
         return True
 
+    @property
+    def revision(self) -> DatasetRevision | None:
+        return self._inspection.dataset.revision if self._inspection else None
+
     def close(self) -> None:
         self._inspection = None
         self.jobs.close()

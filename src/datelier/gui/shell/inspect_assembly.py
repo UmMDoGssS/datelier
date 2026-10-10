@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass, replace
 
+from datelier.application.annotations.navigation import open_rows
 from datelier.application.editor import EditorController
 from datelier.application.file import FileController
 from datelier.application.records import RecordKind
@@ -21,6 +22,7 @@ from datelier.gui.sources.browser import NumericBrowser, ObjectBrowser, SourceRo
 from datelier.gui.sources.numeric import NumericContent
 from datelier.gui.sources.routing import SourceInspection
 from datelier.gui.sources.views import RecordViewSelector
+from datelier.inspection.annotations.association_types import AssociatedBox
 
 
 @dataclass
@@ -61,11 +63,26 @@ def assemble_inspect(
             else ResizableViewport(kind.value, content, height=220, minimum=100)
         )
 
+    def annotation_rows(rows: tuple[int, ...]) -> None:
+        prepared = file.images.annotations.active
+        if prepared and open_rows(
+            file.records, prepared, file.identity, file.view_name, rows
+        ):
+            editor.choose_route("Inspect")
+
+    def annotation_box(box: AssociatedBox) -> None:
+        prepared = file.images.annotations.active
+        if prepared and box in prepared.by_image.get(box.origin, ()):
+            annotation_rows((box.origin.row_id,))
+            file.images.annotation_tools.selected = box
+
     body = RecordBody(
         file.records,
         file.references,
         {
-            RecordKind.IMAGE: ImageContent(file.images),
+            RecordKind.IMAGE: ImageContent(
+                file.images, annotation_rows, annotation_box
+            ),
             RecordKind.TEXT: TextContent(file.text),
             RecordKind.AUDIO: AudioContent(file.audio),
             RecordKind.ARRAY: ArrayContent(

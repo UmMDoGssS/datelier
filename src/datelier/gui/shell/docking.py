@@ -33,6 +33,10 @@ class DockPanel(Panel):
         if opened:
             position, size = imgui.get_window_pos(), imgui.get_window_size()
             frame.record("scroll", (position.x + size.x - 9, position.y + size.y / 2))
+            frame.record("clip-start", (position.x + 8, position.y + 36))
+            frame.record(
+                "clip-end", (position.x + size.x - 8, position.y + size.y - 12)
+            )
             imgui.push_id(frame.scope.file_id + "/" + frame.scope.view_id)
             super().render(frame)
             imgui.pop_id()

@@ -49,6 +49,10 @@ class Page(Container, ABC):
     """Application-level composition."""
 
 
+class Group(Container):
+    """Concrete composition of immediate children without a specialized view."""
+
+
 class Panel(Container, ABC):
     """A dockable or drawer-hosted region."""
 

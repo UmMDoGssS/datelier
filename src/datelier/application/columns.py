@@ -11,6 +11,7 @@ class ColumnChoice:
     numeric: bool = False
     enabled: bool = True
     reason: str = ""
+    label: str | None = None
 
 
 class SelectionPolicy(ABC):

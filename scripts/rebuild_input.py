@@ -42,12 +42,24 @@ class NativeInput:
         point = self.find(probe, suffix)
         if point is None:
             return False
-        low, high = (40, 760) if suffix[-1] == "restore" else (70, 540)
+        entry = next(
+            key
+            for key, value in probe.targets.items()
+            if value == point and key.path[-len(suffix) :] == suffix
+        )
+        panel = entry.path[1]
+        start, end = (
+            self.find(probe, (panel, "clip-start")),
+            self.find(probe, (panel, "clip-end")),
+        )
+        low, high = (start[1], end[1]) if start and end else (70, 540)
+        if suffix[-1] == "restore":
+            low, high = 40, 760
         if not low < point[1] < high:
             self.scroll(
                 probe,
-                "context" if point[0] > 1000 else "canvas",
-                -1 if point[1] >= 540 else 1,
+                panel,
+                -1 if point[1] >= high else 1,
                 frame,
             )
             return False
@@ -62,3 +74,6 @@ class NativeInput:
             io.want_set_mouse_pos = True
             if frame % 5 == 0:
                 io.add_mouse_wheel_event(0, direction)
+
+    def click_point(self, point: tuple[float, float], frame: int) -> None:
+        self.point, self.entered, self.phase = point, frame, 0

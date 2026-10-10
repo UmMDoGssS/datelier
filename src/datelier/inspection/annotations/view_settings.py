@@ -1,6 +1,7 @@
 """Saved display/profile choices independent of association input recipes."""
 
 from dataclasses import dataclass
+from math import isfinite
 
 from datelier.inspection.annotations.overlay import OverlaySettings
 
@@ -13,6 +14,7 @@ class AnnotationViewSettings:
     source_id: str | None = None
     bins: int = 32
     distribution: str = "Width"
+    height: float = 0
 
     def validate(self) -> None:
         self.overlay.validate()
@@ -24,3 +26,7 @@ class AnnotationViewSettings:
             raise ValueError("Unknown annotation profile view")
         if self.distribution not in ("Width", "Height", "Area", "Aspect ratio"):
             raise ValueError("Unknown annotation size distribution")
+        if not isfinite(self.height) or self.height != 0 and self.height < 170:
+            raise ValueError(
+                "Annotation plot height requires zero/auto or at least 170 px"
+            )

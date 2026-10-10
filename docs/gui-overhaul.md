@@ -56,7 +56,7 @@ components implement Component.render; container classes render direct children.
 | A | Replace GUI package; GUI-free file/record/editor runtime and component contracts | Complete; desktop deliberately not runnable |
 | B | Shared controls, shell, columns, table, tabular profiles and plots | Complete; basic inspection shell runnable |
 | C | Contextual analysis, transforms/history, export and workspace/preferences | Complete; advanced plot modes tracked separately |
-| D | Structured/array/checkpoint source and multimodal record/profile families | In progress; source/Inspect and text/image/audio profiles restored; annotations pending |
+| D | Structured/array/checkpoint source and multimodal record/profile families | In progress; source/Inspect, text/image/audio profiles and annotation workflows restored; remaining forms and integration pending |
 | E | Comparison families, remaining features and integrated acceptance | Pending |
 
 Each stage runs scoped Pyrefly, behavioral tests, full Ruff checks and diff review
@@ -255,6 +255,39 @@ by the containing tab row. [Image report](evidence/gui-overhaul/fresh-image-prof
 Annotation adapters/associations/overlays, comparison families, advanced plots,
 remaining import/table controls and full caller/native/resource acceptance remain
 open. Historical baseline evidence does not certify those replacement features.
+
+## Fresh Stage D6 — Annotation sources, profiles and overlays
+
+Annotation controllers own explicit VOC/YOLO/COCO/local-manifest association and
+profile commands, independent source drafts, row pins, scoped links and lifecycle.
+Context reuses typed fields and searchable selectors for target/key fields,
+multiple sources/classes, score filters and visible-box limits. Inspect composes
+Sources/Associations/Profiles with complete virtual outcome/issue/box tables and
+Classes/Sizes/Quality/Boxes subtabs. Size plots use the same persisted viewport.
+Polars and immutable sequence tables now share an abstract virtual-table family;
+selector labels retain stable identities when different sources have equal names.
+
+Overlay filtering, geometry and conservative label occupancy run on shared
+workers. Latest-only scenes retain bounded pickable boxes and reuse idle results.
+Identical strokes are combined without removing original boxes, linked picking,
+counts or provenance; the selected stroke draws last. Selected-box facts remain
+visible during preparation, preventing annotation tabs moving while scrolling.
+Closing releases prepared table bindings and scene ownership.
+
+Verification: production/scoped caller Pyrefly zero errors, 96 focused annotation/
+image/selection/restore tests, full Ruff lint/format and whitespace checks pass.
+All four adapters, confirmed mapping restoration with zero implicit label/pixel
+reads, file/view isolation, stale/closed links and bounded row selections pass.
+Native explicit association/profiles, picking, cached idle scenes, label avoidance,
+subtabs and Expand/Restore pass for 6,000 visible/2,000 retained pickable boxes:
+191 frames/21.91 ms p95 for coincident boxes and 186 frames/32.08 ms p95 for distinct
+boxes. Both preserve source bytes and zero implicit collection/playback commands.
+[Coincident report](evidence/gui-overhaul/fresh-annotations.json) and
+[distinct report](evidence/gui-overhaul/fresh-annotations-distinct.json).
+Image-profile regression passes 129 frames/18.00 ms p95. Comparison families,
+advanced plots, remaining import/table/mapping controls and full caller/native/
+resource acceptance remain open. These slice checks do not replace the final
+three-size/theme and retention-budget gates.
 
 ## Baseline evidence
 
