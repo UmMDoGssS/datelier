@@ -75,7 +75,7 @@ def fixture(tmp_path: Path) -> SessionWorkspace:
         "train",
         (comparison,),
         "[Window][Table preview]\n[Docking][Data]\nDockSpace ID=1\n",
-        ("Analysis",),
+        ("Context",),
     )
 
 
@@ -111,7 +111,7 @@ def test_round_trip_independent_history_views_mapping_identity_and_selection(
     )
 
 
-def test_legacy_workspace_migrates_to_one_file_and_resaves_as_version_two(
+def test_legacy_workspace_migrates_to_one_file_and_resaves_as_version_three(
     tmp_path: Path,
 ) -> None:
     session = fixture(tmp_path)
@@ -120,11 +120,11 @@ def test_legacy_workspace_migrates_to_one_file_and_resaves_as_version_two(
     legacy = tmp_path / "legacy.datelier"
     save_workspace(legacy, recipe)
     migrated = read_session_workspace(legacy)
-    assert migrated.version == 2 and migrated.active_id == "legacy-source"
+    assert migrated.version == 3 and migrated.active_id == "legacy-source"
     assert migrated.files == (SessionFile("legacy-source", recipe),)
     saved = tmp_path / "new.datelier"
     save_session_workspace(saved, migrated)
-    assert json.loads(saved.read_text())["version"] == 2
+    assert json.loads(saved.read_text())["version"] == 3
     assert restore_session_workspace(saved).files[0].restored is not None
 
 
@@ -187,7 +187,7 @@ def test_missing_changed_and_bad_sources_are_independently_recoverable(
     [
         {"active_id": "closed"},
         {"version": True},
-        {"version": 3},
+        {"version": 4},
         {"unknown": []},
         {"files": []},
         {
@@ -298,3 +298,62 @@ def test_oversized_session_and_duplicate_recoveries_leave_previous_recipe_usable
     with pytest.raises(ValueError, match="distinct saved"):
         restore_session_workspace(path, recoveries=(SourceRecovery("closed"),))
     assert restore_session_workspace(path).files[0].restored is not None
+
+
+def test_version_two_migration_preserves_recipes_and_resets_only_old_layout(
+    tmp_path: Path,
+) -> None:
+    from datelier.workspace.session_storage import read_session_with_notice
+
+    session = fixture(tmp_path)
+    path = tmp_path / "old.datelier"
+    save_session_workspace(path, session)
+    raw = json.loads(path.read_text())
+    raw["version"] = 2
+    raw["layout"] = (
+        "[Window][Analysis]\n[Window][Table preview]\n[Docking][Data]\nDockSpace ID=1\n"
+    )
+    raw["hidden_windows"] = ["Analysis", "Explore"]
+    for key in ("layout_version", "canvas_mode", "context_tab", "custom_layout"):
+        raw.pop(key)
+    path.write_text(json.dumps(raw))
+    migrated, notice = read_session_with_notice(path)
+    assert migrated == replace(session, layout="", hidden_windows=())
+    assert "layout updated" in notice
+    reopened = restore_session_workspace(path)
+    assert reopened.notice == notice
+    assert reopened.files[2].restored is not None
+    assert reopened.files[2].restored.pipeline.current.row_ids.to_list() == [1, 2, 0]
+
+
+def test_new_canvas_context_and_content_sizes_round_trip(tmp_path: Path) -> None:
+    session = fixture(tmp_path)
+    first = session.files[0]
+    assert first.recipe is not None
+    first = replace(
+        first,
+        recipe=replace(
+            first.recipe,
+            views=replace(
+                first.recipe.views, image_height=350, text_height=220, token_height=300
+            ),
+        ),
+    )
+    session = replace(
+        session,
+        files=(first, *session.files[1:]),
+        canvas_mode="Compare files",
+        context_tab="History",
+        custom_layout=True,
+    )
+    path = tmp_path / "new.datelier"
+    save_session_workspace(path, session)
+    assert read_session_workspace(path) == session
+    raw = json.loads(path.read_text())
+    assert raw["version"] == 3 and raw["layout_version"] == 2
+
+
+@pytest.mark.parametrize("height", [float("nan"), float("inf"), -1, 99])
+def test_invalid_content_size_is_rejected(height: float) -> None:
+    with pytest.raises(ValueError, match="Content heights"):
+        WorkspaceViews(image_height=height).validate()

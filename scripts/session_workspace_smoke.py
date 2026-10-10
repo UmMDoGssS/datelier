@@ -86,7 +86,7 @@ def run_stage(root: Path, mode: str) -> None:
                 )
                 params.docking_params.focus_dockable_window("Table preview")
                 params.docking_params.dockable_window_of_name(
-                    "Analysis"
+                    "Context"
                 ).is_visible = False
                 stage, entered = 3, evidence.frames
             elif stage == 3 and evidence.frames > entered + 8:
@@ -97,7 +97,7 @@ def run_stage(root: Path, mode: str) -> None:
                 editor.save_workspace(
                     workspace,
                     layout=imgui.save_ini_settings_to_memory(),
-                    hidden=("Analysis",),
+                    hidden=("Context",),
                 )
                 stage = 4
             elif stage == 4 and editor.workspace_jobs.saved is not None:
@@ -116,7 +116,7 @@ def run_stage(root: Path, mode: str) -> None:
                 recovered_revision = good.loader.revision
                 if (
                     hello_imgui.get_runner_params()
-                    .docking_params.dockable_window_of_name("Analysis")
+                    .docking_params.dockable_window_of_name("Context")
                     .is_visible
                 ):
                     return

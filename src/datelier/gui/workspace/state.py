@@ -191,6 +191,9 @@ def capture_views(session: GuiSession) -> WorkspaceViews:
         view.profile.text,
         session.images.settings,
         session.audio.settings,
+        session.images.area.height,
+        session.text.document.area.height,
+        session.text.document.token_area.height,
     )
 
 
@@ -297,3 +300,6 @@ def restore_view_settings(session: GuiSession, saved: WorkspaceViews) -> None:
     session.text.jobs.settings = saved.text
     session.images.settings = saved.image
     session.audio.settings = saved.audio
+    session.images.area.height = saved.image_height
+    session.text.document.area.height = saved.text_height
+    session.text.document.token_area.height = saved.token_height

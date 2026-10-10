@@ -61,8 +61,18 @@ class WorkspaceViews:
     profile_text: bool = False
     image: ImageSettings = ImageSettings()
     audio: AudioSettings = AudioSettings()
+    image_height: float = 0
+    text_height: float = 160
+    token_height: float = 200
 
     def validate(self) -> None:
+        if any(
+            not math.isfinite(h) or h != 0 and h < 100
+            for h in (self.image_height, self.text_height, self.token_height)
+        ):
+            raise ValueError(
+                "Content heights must be finite and at least 100, or 0 for auto"
+            )
         self.audio.validate()
         self.image.validate()
         self.text.validate()

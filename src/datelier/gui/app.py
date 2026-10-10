@@ -158,7 +158,9 @@ def run_gui(
         evidence.frames += 1
         editor.poll()
         if editor.pending_layout is not None:
-            preferences.queue_layout(*editor.pending_layout)
+            preferences.queue_layout(
+                *editor.pending_layout, customized=editor.preferences.layout_customized
+            )
             editor.pending_layout = None
         if welcome.workspace_requested:
             controls.open_dialog("Workspace actions", editor.active)

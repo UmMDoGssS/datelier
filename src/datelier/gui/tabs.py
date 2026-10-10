@@ -6,6 +6,7 @@ from imgui_bundle import imgui
 
 from datelier.gui.editor_session import EditorSession
 from datelier.gui.file_session import FileSession
+from datelier.gui.layout import set_panel_visible
 from datelier.io.loading import LoadPhase
 from datelier.pipeline.editing import HistoryAction
 
@@ -61,7 +62,11 @@ class EditorTabs:
                     window
                 ) in hello_imgui.get_runner_params().docking_params.dockable_windows:
                     if window.label == "Context":
-                        window.is_visible = not window.is_visible
+                        set_panel_visible(
+                            hello_imgui.get_runner_params(),
+                            window.label,
+                            not window.is_visible,
+                        )
         imgui.same_line()
         if imgui.button("Table"):
             from imgui_bundle import hello_imgui
@@ -70,7 +75,11 @@ class EditorTabs:
                 window
             ) in hello_imgui.get_runner_params().docking_params.dockable_windows:
                 if window.label == "Table preview":
-                    window.is_visible = not window.is_visible
+                    set_panel_visible(
+                        hello_imgui.get_runner_params(),
+                        window.label,
+                        not window.is_visible,
+                    )
         imgui.same_line()
         identities = {file.identity for file in editor.files}
         self.pixels = {

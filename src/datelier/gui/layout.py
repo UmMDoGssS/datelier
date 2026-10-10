@@ -46,3 +46,12 @@ def configure_layout(
         window.gui_function = callbacks[label]
         windows.append(window)
     params.docking_params.dockable_windows = windows
+
+
+def set_panel_visible(
+    params: hello_imgui.RunnerParams, label: str, visible: bool
+) -> None:
+    """Mutate the live dock entry; the vector property returns copied entries."""
+    window = params.docking_params.dockable_window_of_name(label)
+    if window is not None:
+        window.is_visible = visible

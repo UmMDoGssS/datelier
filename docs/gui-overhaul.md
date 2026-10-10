@@ -270,3 +270,27 @@ no completion focus theft, explicit Open result, file exits Compare, drafts and
 source bytes preserved. Image fit/zoom/pan/channel/pixels and fresh-process restore
 pass 212/80 frames, 14.00/13.28 ms p95. The initial shell capture was visually
 reviewed; final all-theme/all-modality sizing acceptance stays open.
+
+## Step 7b — Versioned navigation and viewport migration
+
+Whole-session workspaces now write v3 with layout v2, canvas/context navigation
+and customization state. Preferences write v2/layout v2. Readers accept legacy
+single-source recipes, v2 sessions and v1 preferences, preserving source recipes,
+operations, analysis settings, selections and media settings while clearing old
+docking/hidden panels with a visible notice. Image and original text/token viewport
+heights are saved per file/view. Current custom docking/visibility is retained.
+
+Native verification found the dock-window vector property returns copies; live
+visibility changes now use `dockable_window_of_name`. This also fixes toolbar
+Context/Table toggles and restored hidden panels. Custom docking is observed after
+initial builder settlement rather than being overwritten by compact defaults.
+
+Verification: Pyrefly zero errors, 60 focused persistence/GUI-state/media checks,
+Ruff lint/format and whitespace checks pass. New tests cover v2 recipe/identity
+migration, v1 preference theme/settings preservation, current navigation/content
+height round trips and invalid heights. Native separate-process session save (15
+frames) and restore/relink (45 frames) retain custom docking, hidden Context, tab
+order/history/selections and zero implicit ML. A second separate-process check
+retains Compare/History and image/text/token heights, with zero implicit analysis,
+playback or tokenizer commands and unchanged source bytes. Whole-milestone
+specialized component and all-modality acceptance remains open.

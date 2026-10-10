@@ -12,7 +12,7 @@ from datelier.io.types import ArrayOptions, ImportResult, MediaOptions, ObjectOp
 from datelier.pipeline.history import Pipeline
 from datelier.workspace.array_restore import defer_array_view
 from datelier.workspace.restore import RestoredWorkspace, SourceIssue, restore_recipe
-from datelier.workspace.session_storage import read_session_workspace
+from datelier.workspace.session_storage import read_session_with_notice
 from datelier.workspace.session_types import SessionFile, SessionWorkspace
 from datelier.workspace.storage import reference_source
 from datelier.workspace.types import Workspace
@@ -42,6 +42,7 @@ class RestoredSession:
     workspace: SessionWorkspace
     files: tuple[RestoredSessionFile, ...]
     path: Path
+    notice: str = ""
 
 
 def restore_session_file(
@@ -192,7 +193,7 @@ def restore_session_workspace(
     path: Path, *, recoveries: tuple[SourceRecovery, ...] = ()
 ) -> RestoredSession:
     path = path.expanduser().resolve()
-    session = read_session_workspace(path)
+    session, notice = read_session_with_notice(path)
     identities = {file.identity for file in session.files}
     mapped = {recovery.file_id: recovery for recovery in recoveries}
     if len(mapped) != len(recoveries) or not set(mapped) <= identities:
@@ -201,5 +202,8 @@ def restore_session_workspace(
         restore_session_file(file, mapped.get(file.identity)) for file in session.files
     )
     return RestoredSession(
-        replace(session, files=tuple(result.file for result in files)), files, path
+        replace(session, files=tuple(result.file for result in files)),
+        files,
+        path,
+        notice,
     )

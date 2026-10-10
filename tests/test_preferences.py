@@ -36,7 +36,7 @@ def test_preferences_round_trip_and_default_location(
             comparison=DistributionSettings(("y", "x"), True, False, 2, 12),
         ),
         WorkspaceViews("Scatter", 2, 1, 0, 1, 16, 100),
-        ("Analysis",),
+        ("Context",),
     )
     save_preferences(path, preferences)
     loaded, message = read_preferences(path)
@@ -45,7 +45,7 @@ def test_preferences_round_trip_and_default_location(
 
 
 @pytest.mark.parametrize(
-    "content", ["{", "[]", '{"version":2}', '{"version":true}', '"wrong"']
+    "content", ["{", "[]", '{"version":3}', '{"version":true}', '"wrong"']
 )
 def test_bad_or_unsupported_file_uses_defaults(tmp_path: Path, content: str) -> None:
     path = tmp_path / "preferences.json"
@@ -64,7 +64,7 @@ def test_missing_optional_preferences_use_defaults(tmp_path: Path) -> None:
 @pytest.mark.parametrize(
     "edit,note",
     [
-        ({"layout_version": 2}, "layout"),
+        ({"layout_version": 3}, "layout"),
         ({"layout": "unusable"}, "layout"),
         ({"theme": "missing"}, "theme"),
         ({"plots": {"kind": "PlotSettings", "bins": 0}}, "plot"),
@@ -120,3 +120,25 @@ def test_invalid_layout_unicode_recovers_without_losing_theme(tmp_path: Path) ->
     preferences, message = read_preferences(path)
     assert preferences.theme == Theme.LIGHT and preferences.layout == ""
     assert "layout reset" in message
+
+
+def test_version_one_preferences_keep_theme_recipes_and_clear_legacy_docking(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "preferences.json"
+    settings = Preferences(
+        Theme.LIGHT,
+        LAYOUT,
+        PlotSettings(bins=17),
+        WorkspaceViews(profile_selection=("x", "y"), target_row=42),
+        ("Analysis",),
+    )
+    save_preferences(path, settings)
+    raw = json.loads(path.read_text())
+    raw.update(version=1, layout_version=1)
+    path.write_text(json.dumps(raw))
+    loaded, notice = read_preferences(path)
+    assert loaded.theme == Theme.LIGHT and loaded.plots.bins == 17
+    assert loaded.views == settings.views
+    assert loaded.layout == "" and loaded.hidden_windows == ()
+    assert "Workbench layout updated" in notice

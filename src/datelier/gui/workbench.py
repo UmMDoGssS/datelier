@@ -148,6 +148,11 @@ class CanvasPanel(SessionPanel):
                 entry.path: pixel for entry, pixel in self.welcome.recent_pixels.items()
             }
             return
+        notice = self.editor.layout_notice
+        if notice:
+            imgui.text_wrapped(notice)
+            if imgui.small_button("Dismiss layout notice"):
+                self.editor.layout_notice = ""
         view = session.exploration
         if view.tab:
             self.editor.navigation.comparing = False
@@ -289,6 +294,7 @@ class ContextPanel(SessionPanel):
 
         super().__init__(current, probe, lambda: editor.active.identity)
         self.editor = editor
+        self.observed_context = ""
         self.tabs: tuple[ContextTab, ...] = (
             ViewContext(current, editor),
             TransformContext(current, editor),
@@ -296,9 +302,19 @@ class ContextPanel(SessionPanel):
         )
 
     def show(self, session: FileSession, frame: FrameContext) -> None:
+        requested = (
+            self.editor.navigation.context_tab
+            if self.observed_context != self.editor.navigation.context_tab
+            else ""
+        )
         if imgui.begin_tab_bar("Context tabs"):
             for tab in self.tabs:
-                if imgui.begin_tab_item(tab.label)[0]:
+                if imgui.begin_tab_item(
+                    tab.label,
+                    flags=imgui.TabItemFlags_.set_selected
+                    if requested == tab.label
+                    else 0,
+                )[0]:
                     self.editor.navigation.context_tab = tab.label
                     if self.editor.navigation.comparing and tab.label != "View":
                         imgui.text_wrapped(
@@ -309,6 +325,7 @@ class ContextPanel(SessionPanel):
                         tab.render(frame.child(tab.label))
                     imgui.end_tab_item()
             imgui.end_tab_bar()
+        self.observed_context = self.editor.navigation.context_tab
 
 
 class TablePanel(SessionPanel):
@@ -360,7 +377,7 @@ class WorkbenchPage(Container):
     welcome: Welcome
     compact: bool = False
     _dock_signature: tuple[int, ...] = ()
-    _settling_frames: int = 10
+    _settling_frames: int = 3
 
     def __post_init__(self) -> None:
         self.panels: dict[str, SessionPanel] = {
@@ -404,7 +421,7 @@ class WorkbenchPage(Container):
         if compact == self.compact:
             return
         self.compact = compact
-        self._settling_frames = 10
+        self._settling_frames = 3
         configure_layout(
             params,
             {name: guard(callback) for name, callback in self.callbacks.items()},

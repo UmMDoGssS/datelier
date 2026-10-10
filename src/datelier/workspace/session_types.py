@@ -1,4 +1,4 @@
-"""Version-two whole-session recipes, including recoverable source drafts."""
+"""Version-three whole-session recipes, including recoverable source drafts."""
 
 import math
 import string
@@ -144,7 +144,7 @@ class SessionWorkspace:
     comparisons: tuple[ComparisonSettings, ...] = ()
     layout: str = ""
     hidden_windows: tuple[str, ...] = ()
-    version: int = 2
+    version: int = 3
     text_comparisons: tuple[TextComparisonSettings, ...] = ()
     text_comparison_index: int = 0
     image_comparisons: tuple[ImageComparisonSettings, ...] = ()
@@ -155,8 +155,19 @@ class SessionWorkspace:
     audio_comparison_index: int = 0
     audio_comparison_view: AudioComparisonViewSettings = AudioComparisonViewSettings()
 
+    layout_version: int = 2
+    canvas_mode: str = "Inspection"
+    context_tab: str = "View"
+    custom_layout: bool = False
+
     def validate(self) -> None:
-        if self.version != 2:
+        if (
+            self.layout_version != 2
+            or self.canvas_mode not in ("Inspection", "Compare files")
+            or self.context_tab not in ("View", "Transform", "History")
+        ):
+            raise ValueError("Unknown saved workbench navigation or layout version")
+        if self.version != 3:
             raise ValueError(f"Unsupported session workspace version: {self.version}")
         all_files = tuple(f for file in self.files for f in (file, *file.record_views))
         identities = {file.identity for file in all_files}

@@ -33,6 +33,7 @@ class Preferences:
     views: WorkspaceViews = WorkspaceViews()
     hidden_windows: tuple[str, ...] = ()
     recent: tuple[RecentSource, ...] = ()
+    custom_layout: bool = False
 
 
 def preference_path() -> Path:
@@ -52,7 +53,10 @@ def read_preferences(path: Path) -> tuple[Preferences, str]:
         if not isinstance(value, dict):
             raise ValueError("Preferences must be an object")
         raw = cast(dict[str, object], value)
-        if type(raw.get("version", 1)) is not int or raw.get("version", 1) != 1:
+        if type(raw.get("version", 1)) is not int or raw.get("version", 1) not in (
+            1,
+            2,
+        ):
             raise ValueError("Unsupported preferences version")
     except (OSError, ValueError, UnicodeError, RecursionError) as error:
         return Preferences(), f"Preferences reset: {error}"
@@ -64,8 +68,8 @@ def read_preferences(path: Path) -> tuple[Preferences, str]:
         notes.append("Unknown theme reset.")
     layout = raw.get("layout", "")
     if (
-        type(raw.get("layout_version", 1)) is not int
-        or raw.get("layout_version", 1) != 1
+        type(raw.get("layout_version", 2)) is not int
+        or raw.get("layout_version", 2) != 2
         or not isinstance(layout, str)
         or not valid_layout(layout)
         or "[Window][Open dataset]" in layout
@@ -102,6 +106,15 @@ def read_preferences(path: Path) -> tuple[Preferences, str]:
         if isinstance(hidden, list)
         else ()
     )
+    if raw.get("version", 1) == 1:
+        layout, hidden_windows = "", ()
+        notes.append(
+            "Workbench layout updated; saved recipes and view settings preserved."
+        )
+    custom_layout = raw.get("custom_layout", False)
+    if type(custom_layout) is not bool:
+        custom_layout = False
+        notes.append("Invalid layout customization reset.")
     recent: tuple[RecentSource, ...] = ()
     entries = raw.get("recent", [])
     if isinstance(entries, list):
@@ -112,9 +125,9 @@ def read_preferences(path: Path) -> tuple[Preferences, str]:
                 notes.append("Invalid recent entry skipped.")
     else:
         notes.append("Invalid recent sources reset.")
-    return Preferences(theme, layout, plots, views, hidden_windows, recent), " ".join(
-        notes
-    ) or "Preferences restored."
+    return Preferences(
+        theme, layout, plots, views, hidden_windows, recent, custom_layout
+    ), " ".join(notes) or "Preferences restored."
 
 
 def save_preferences(
@@ -132,10 +145,11 @@ def save_preferences(
         raise ValueError("Too many recent sources")
     content = json.dumps(
         {
-            "version": 1,
+            "version": 2,
             "theme": preferences.theme.value,
-            "layout_version": 1,
+            "layout_version": 2,
             "layout": preferences.layout,
+            "custom_layout": preferences.custom_layout,
             "plots": encode(preferences.plots),
             "views": encode(preferences.views),
             "hidden_windows": preferences.hidden_windows,

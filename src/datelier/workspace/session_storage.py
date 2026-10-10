@@ -68,21 +68,48 @@ def save_session_workspace(
 
 
 def read_session_workspace(path: Path) -> SessionWorkspace:
+    return read_session_with_notice(path)[0]
+
+
+def read_session_with_notice(path: Path) -> tuple[SessionWorkspace, str]:
     path = path.expanduser().resolve()
     raw = read_recipe(path)
+    notice = ""
     if isinstance(raw, dict) and raw.get("kind") == "Workspace":
+        notice = (
+            "Workspace updated to the current workbench; "
+            "recipes and view settings preserved."
+        )
         legacy = decode_record(Workspace, raw)
         legacy.validate()
         session = SessionWorkspace(
             (SessionFile("legacy-source", legacy),), "legacy-source"
         )
     else:
+        if (
+            isinstance(raw, dict)
+            and type(raw.get("version", 2)) is int
+            and raw.get("version", 2) == 2
+        ):
+            raw = dict(raw)
+            raw.update(
+                version=3,
+                layout_version=2,
+                layout="",
+                hidden_windows=[],
+                custom_layout=False,
+            )
+            notice = (
+                "Workbench layout updated; recipes, settings and selections preserved."
+            )
         session = decode_record(SessionWorkspace, raw)
     session.validate()
-    return replace(
+    resolved = replace(
         session,
         files=tuple(
             map_paths(file, lambda value: str((path.parent / value).resolve()))
             for file in session.files
         ),
     )
+
+    return resolved, notice

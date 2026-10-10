@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 from imgui_bundle import hello_imgui, imgui
 
 from datelier.core.jobs import JobExecutor
+from datelier.gui.layout import set_panel_visible
 from datelier.gui.workspace.state import capture_views, restore_plots
 from datelier.workspace.preferences import (
     Preferences,
@@ -46,7 +47,7 @@ class PreferenceControls:
             )
         self._executor = JobExecutor(executor, max_workers=1, name="preferences")
         self._future: Future[None] | None = None
-        self.layout_customized = bool(self.value.layout)
+        self.layout_customized = self.value.custom_layout
         self._saved_layout = self.value.layout
         self._saved_hidden = self.value.hidden_windows
         self._submitted: Preferences | None = None
@@ -75,7 +76,9 @@ class PreferenceControls:
                     hello_imgui.DockingLayoutCondition.never
                 )
             for window in params.docking_params.dockable_windows:
-                window.is_visible = window.label not in self.value.hidden_windows
+                set_panel_visible(
+                    params, window.label, window.label not in self.value.hidden_windows
+                )
         if self._pending_layout is not None:
             imgui.load_ini_settings_from_memory(self._pending_layout)
             params.docking_params.layout_condition = (
@@ -93,16 +96,20 @@ class PreferenceControls:
             )
             params.docking_params.layout_reset = True
             for window in params.docking_params.dockable_windows:
-                window.is_visible = True
+                set_panel_visible(params, window.label, True)
             self.value = replace(self.value, layout="", hidden_windows=())
             self.reset_requested = False
             self.message = "Default layout restored."
         if self._pending_visibility is not None:
             for window in params.docking_params.dockable_windows:
-                window.is_visible = window.label not in self._pending_visibility
+                set_panel_visible(
+                    params, window.label, window.label not in self._pending_visibility
+                )
             self._pending_visibility = None
 
-    def queue_layout(self, layout: str, hidden: tuple[str, ...]) -> None:
+    def queue_layout(
+        self, layout: str, hidden: tuple[str, ...], *, customized: bool | None = None
+    ) -> None:
         if any(
             f"[Window][{name}]" in layout
             for name in (
@@ -119,7 +126,8 @@ class PreferenceControls:
             )
             return
         if layout:
-            self.layout_customized = True
+            if customized is not None:
+                self.layout_customized = customized
             self._pending_layout = layout
         if layout or hidden:
             self._pending_visibility = hidden
@@ -157,6 +165,7 @@ class PreferenceControls:
             plots=plots,
             views=views,
             hidden_windows=hidden,
+            custom_layout=self.layout_customized,
         )
         sources = sources or (
             (session.loader.active.dataset.source.path,)

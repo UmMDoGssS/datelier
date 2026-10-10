@@ -101,6 +101,11 @@ def capture_session(
             ),
             image_comparison_view=editor.image_comparison_view,
             comparison_tab=editor.comparison_tab,
+            canvas_mode="Compare files"
+            if editor.navigation.comparing
+            else "Inspection",
+            context_tab=editor.navigation.context_tab,
+            custom_layout=editor.preferences.layout_customized,
             audio_comparisons=editor.audio_comparisons,
             audio_comparison_index=min(
                 editor.audio_comparison_index, max(0, len(editor.audio_comparisons) - 1)

@@ -72,9 +72,12 @@ class EditorSession:
         playback_factory: DeviceFactory = SoundDeviceOutput,
     ) -> None:
         self.navigation = WorkbenchNavigation()
+        self.layout_notice = ""
         self.workers = SharedWorkers()
         self.playback = AudioPlayback(playback_factory, executor=self.workers)
         self.preferences = PreferenceControls(preferences_path, executor=self.workers)
+        if "Workbench layout updated" in self.preferences.message:
+            self.layout_notice = "Workbench layout updated; saved settings preserved."
         self.browser = FileBrowser(self.workers, Path.cwd())
         self.opening = OpeningJobs(self.workers)
         self.workspace_jobs = SessionJobs(self.workers)
@@ -354,6 +357,12 @@ class EditorSession:
             restored.workspace.hidden_windows,
         )
         self.activate(restored.workspace.active_id)
+        self.navigation.comparing = restored.workspace.canvas_mode == "Compare files"
+        self.navigation.context_tab = restored.workspace.context_tab
+        self.preferences.layout_customized = restored.workspace.custom_layout
+        self.layout_notice = restored.notice
+        if self.navigation.comparing:
+            self.active.record_views.active(self.active).exploration.tab = ""
         self.order_reset = True
         self.workspace_path = str(restored.path)
 
