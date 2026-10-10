@@ -1,1 +1,1 @@
-"""Profile selection, rendering, colors, and statistics."""
+"""Native presentation components."""

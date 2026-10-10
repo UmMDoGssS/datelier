@@ -1,1 +1,1 @@
-"""Desktop application assembly and rendering from prepared state."""
+"""Datelier GUI, assembled from injected component families."""

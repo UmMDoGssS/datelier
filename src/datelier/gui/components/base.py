@@ -1,4 +1,4 @@
-"""Explicit rendering dependencies and immediate-child composition."""
+"""One rendering contract; containers own and render their direct children."""
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
@@ -20,45 +20,38 @@ class FrameContext:
 
 
 class Component(ABC):
-    @abstractmethod
-    def render(self, frame: FrameContext) -> None:
-        """Render prepared state and send commands through injected interfaces."""
-
-
-class BoundView[Binding](Component, ABC):
-    binding: Binding | None = None
-
-    def bind_view(self, binding: Binding) -> None:
-        self.binding = binding
-
-    def render(self, frame: FrameContext) -> None:
-        if self.binding is not None:
-            self.draw(self.binding, frame)
+    def __init__(self, key: str) -> None:
+        self.key = key
 
     @abstractmethod
-    def draw(self, binding: Binding, frame: FrameContext) -> None:
-        """Render the view's injected state and command dependencies."""
+    def render(self, frame: FrameContext) -> None: ...
+
+    def close(self) -> None:
+        """Release native resources before the renderer shuts down."""
+        return
 
 
 class Container(Component, ABC):
-    @property
-    @abstractmethod
-    def children(self) -> tuple[Component, ...]:
-        """The immediate children owned by this view."""
+    def __init__(self, key: str, children: tuple[Component, ...]) -> None:
+        super().__init__(key)
+        self.children = children
 
     def render(self, frame: FrameContext) -> None:
         for child in self.children:
-            child.render(frame)
+            child.render(frame.child(child.key))
+
+    def close(self) -> None:
+        for child in self.children:
+            child.close()
 
 
-class Panel(Container):
-    def __init__(self, key: str, children: tuple[Component, ...]) -> None:
-        self.key = key
-        self._children = children
+class Page(Container, ABC):
+    """Application-level composition."""
 
-    @property
-    def children(self) -> tuple[Component, ...]:
-        return self._children
 
-    def render(self, frame: FrameContext) -> None:
-        super().render(frame.child(self.key))
+class Panel(Container, ABC):
+    """A dockable or drawer-hosted region."""
+
+
+class Tab(Container, ABC):
+    """A named route containing its own immediate content."""

@@ -35,24 +35,44 @@ sampling, exclusions and truncation. Recipes/settings survive migration; old
 docking/hidden-panel state resets with a notice. Planned formats: session v3,
 preferences v2, layout v2, with legacy single-source/v2 session readers.
 
-## Bounded delivery and gates
+## Fresh rebuild, superseding incremental migration
 
-| Step | Delivery | Status |
+On 2026-10-10 the user explicitly requested replacing the production GUI folder
+and rebuilding features from the ground up, accepting non-runnable early commits
+and obsolete GUI tests. The incremental migration below is historical evidence,
+not acceptance of the replacement. Its committed state is preserved on
+`codex/gui-overhaul-saved-c22e0be`; unfinished media extraction is preserved in the
+stash named `gui overhaul before fresh rebuild 2026-10-10`. A temporary reference
+copy is available at `/tmp/datelier-rebuild-reference` during development.
+
+Retain domain engines, pure application models, font assets and selected stateless
+native helpers. Rebuild composition, controllers, bindings and feature renderers.
+Do not retain the former FileSession/EditorSession or production compatibility
+wrappers. Every leaf receives feature-specific state and commands. All rendering
+components implement Component.render; container classes render direct children.
+
+| Stage | Delivery | Status |
 | --- | --- | --- |
-| 1 | Baseline, component contracts, stable probe and an existing panel pilot | Complete |
-| 2 | Application/file runtime controllers and explicit lifetimes | In progress; 2a complete |
-| 3 | Reusable column selectors and content viewports | Pending |
-| 4 | Polymorphic tabular exploration and complete contextual analysis | Pending |
-| 5 | Structured and multimodal browsers/record components | Pending |
-| 6 | Shared comparison hierarchy with specialized content | Pending |
-| 7 | Redesigned shell, focus behavior and persistence migration | Pending |
-| 8 | Remove transitional wiring and complete integrated acceptance | Pending |
+| A | Replace GUI package; GUI-free file/record/editor runtime and component contracts | Complete; desktop deliberately not runnable |
+| B | Shared controls, shell, columns, table, tabular profiles and plots | In progress |
+| C | Contextual analysis, transforms/history, export and workspace/preferences | Pending |
+| D | Structured/array/checkpoint source and multimodal record/profile families | Pending |
+| E | Comparison families, remaining features and integrated acceptance | Pending |
 
-Each step requires Pyrefly, focused behavioral tests, Ruff lint/format checks,
-applicable native GUI smoke checks, diff review and its own commit before the
-next begins. The final milestone also requires the full suite, fresh-process
-restoration, screenshots/input checks at 1024×768, 1280×800 and 1600×1000 across
-all themes, and established modality resource gates. Unperformed gates stay open.
+Each stage runs scoped Pyrefly, behavioral tests, full Ruff checks and diff review
+before commit. Full Pyrefly/old GUI tests remain open while their imports target
+removed modules. Native gates begin when the replacement shell is runnable.
+This is the user's explicit exception to the usual runnable-step workflow; do
+not mark unperformed gates passed. Final acceptance still requires all capabilities,
+full suite migration, native input at three sizes/themes, resource budgets,
+source/row identity and restoration/lifecycle verification.
+
+Stage A verification: scoped Pyrefly has zero errors; 17 runtime/loading/editing/
+worker tests pass. Source bytes, sorted row identity, independent files, no implicit
+analysis/text profile/playback, close isolation and repeated close pass. Full Ruff
+lint/format and diff checks pass. Full Pyrefly reports 297 errors from obsolete
+GUI callers; this gate stays open. CLI desktop launch and old GUI tests are knowingly
+unavailable until Stage B and test migration. No native rendering is claimed.
 
 ## Baseline evidence
 

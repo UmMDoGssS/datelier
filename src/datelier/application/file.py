@@ -1,0 +1,229 @@
+"""File-owned domain services; no native widgets or rendering imports."""
+
+from concurrent.futures import Executor
+from dataclasses import replace
+from pathlib import Path
+from uuid import uuid4
+
+from datelier.analysis.jobs import AnalysisJobs
+from datelier.analysis.plots import AnalysisPlots
+from datelier.application.analysis import AnalysisController
+from datelier.application.audio import AudioController
+from datelier.application.columns import ColumnChoice
+from datelier.application.dataset import DatasetRuntime
+from datelier.application.images import ImageController
+from datelier.application.media_input import MediaInput
+from datelier.application.plot_settings import PlotState
+from datelier.application.records import RecordController
+from datelier.application.schema import SchemaController
+from datelier.application.text import TextController
+from datelier.core.column_roles import REFERENCE_ROLES, ColumnRole
+from datelier.inspection.arrays.jobs import ArrayJobs
+from datelier.inspection.audio.playback.controller import AudioPlayback
+from datelier.inspection.checkpoints.jobs import CheckpointJobs
+from datelier.inspection.exploration import Explorer, PlotSettings
+from datelier.inspection.preview import PreviewCache
+from datelier.inspection.references.jobs import ReferenceJobs
+from datelier.inspection.table import Inspection
+from datelier.inspection.text.list_records import is_text_field
+from datelier.io.arrays.storage import ArrayStore
+from datelier.io.exporting import DatasetExporter
+from datelier.io.loading import DatasetLoader
+from datelier.io.types import ImportFormat
+from datelier.pipeline.editing import DatasetEditor
+from datelier.plotting.selection import LinkedSelection
+from datelier.workspace.jobs import WorkspaceJobs
+from datelier.workspace.restore import RestoredWorkspace
+from datelier.workspace.types import WorkspaceViews
+
+
+class FileController:
+    def __init__(
+        self,
+        executor: Executor,
+        *,
+        identity: str | None = None,
+        loader: DatasetLoader | None = None,
+        array_store: ArrayStore | None = None,
+        playback: AudioPlayback | None = None,
+    ) -> None:
+        self.identity = identity or uuid4().hex
+        self.view_name = ""
+        self.closed = False
+        self.loader = loader or DatasetLoader(executor=executor)
+        self.pages = PreviewCache(executor=executor)
+        self.editor = DatasetEditor(executor=executor)
+        self.exporter = DatasetExporter(executor=executor)
+        self.explorer = Explorer(executor=executor)
+        self.selection = LinkedSelection()
+        self.workspace = WorkspaceJobs(executor=executor)
+        self.runtime = DatasetRuntime(
+            self.loader,
+            self.pages,
+            self.editor,
+            self.exporter,
+            self.explorer,
+            self.selection,
+            self.workspace,
+        )
+        self.schema = SchemaController(self.editor.request)
+        self.plots = PlotState()
+        self.views = WorkspaceViews()
+        self.analysis = AnalysisController(
+            jobs=AnalysisJobs(executor=executor), plots=AnalysisPlots(executor=executor)
+        )
+        self.records = RecordController(self.selection, executor)
+        self.references = ReferenceJobs(executor)
+        self.arrays = ArrayJobs(executor, store=array_store)
+        self.checkpoints = CheckpointJobs(executor)
+        self.text = TextController(executor)
+        self.images = ImageController(executor)
+        self.audio = AudioController(executor, playback)
+        self.choices: tuple[ColumnChoice, ...] = ()
+        self._plot_settings: PlotSettings | None = None
+
+    @property
+    def inspection(self) -> Inspection | None:
+        return self.loader.active
+
+    @property
+    def title(self) -> str:
+        source = self.loader.status.path
+        return self.view_name or (source.name if source else "Untitled")
+
+    def open(self, path: Path) -> None:
+        self.loader.request(path)
+
+    def media_input(self) -> MediaInput:
+        return MediaInput(
+            self.identity,
+            self.view_name,
+            self.inspection,
+            self.references.settings,
+            self.references.index,
+            tuple(sorted(self.selection.row_ids)),
+            self.arrays.store,
+            self.records.settings,
+            self.records.jobs.active,
+        )
+
+    def install(self, restored: RestoredWorkspace) -> None:
+        self.runtime.install(restored)
+        self.views = restored.workspace.views
+        self.records.settings = self.views.inspect
+        self.text.jobs.settings = self.views.text
+        self.images.settings = self.views.image
+        self.audio.settings = self.views.audio
+        self.references.settings = self.views.references
+        self._bind()
+
+    def _bind(self) -> None:
+        active = self.inspection
+        if active is None:
+            return
+        dataset = active.dataset
+        self.plots.bind(dataset)
+        self.analysis.controls.bind(dataset)
+        self.choices = tuple(
+            ColumnChoice(info.name, info.role.value, info.role == ColumnRole.NUMERIC)
+            for info in dataset.roles or ()
+        )
+        primary = self.records.settings.primary
+        if primary not in dataset.table.columns:
+            primary = next(
+                (
+                    c.name
+                    for c in self.choices
+                    if dataset.role(c.name).role
+                    in (
+                        ColumnRole.IMAGE,
+                        ColumnRole.AUDIO,
+                        ColumnRole.EXTERNAL_TEXT,
+                        ColumnRole.TEXT,
+                        ColumnRole.LIST_TEXT,
+                    )
+                ),
+                next(iter(dataset.table.columns), None),
+            )
+        self.records.settings = replace(self.records.settings, primary=primary)
+        if self.text.jobs.settings.column not in dataset.table.columns:
+            self.text.jobs.settings = replace(
+                self.text.jobs.settings,
+                column=next(
+                    (
+                        n
+                        for n, dtype in dataset.table.schema.items()
+                        if is_text_field(dtype)
+                    ),
+                    None,
+                ),
+            )
+        self._plot_settings = None
+
+    def poll(self) -> None:
+        if self.closed:
+            return
+        changes = self.runtime.poll()
+        if changes.restored:
+            self.install(changes.restored)
+        if changes.loaded or changes.edited:
+            self._bind()
+            if changes.loaded and self.inspection:
+                if self.inspection.imported.format == ImportFormat.MEDIA:
+                    self.views = replace(self.views, tab="Inspect")
+        active = self.inspection
+        dataset = active.dataset if active else None
+        self.analysis.sync_dimensions(self.plots)
+        self.analysis.poll(dataset)
+        self.analysis.sync_colors(self.plots)
+        settings = self.plots.settings()
+        if dataset is not None and settings != self._plot_settings:
+            self.explorer.request(dataset, settings)
+            self._plot_settings = settings
+        self.runtime.poll_prepared()
+        if active and any(
+            c.role in REFERENCE_ROLES for c in active.dataset.roles or ()
+        ):
+            self.references.bind(
+                active.dataset.source.path,
+                active.dataset.revision,
+                discover_nearby=active.imported.format != ImportFormat.MEDIA,
+            )
+        elif self.references.source is not None:
+            self.references.unbind()
+        self.references.poll()
+        self.records.poll(active)
+        if active and active.imported.array_catalog:
+            self.arrays.bind(active.imported.array_catalog, active.dataset.revision)
+        elif self.arrays.catalog:
+            self.arrays.unbind()
+        self.arrays.poll()
+        if active and active.imported.checkpoint_catalog:
+            self.checkpoints.bind(
+                active.imported.checkpoint_catalog, active.dataset.revision
+            )
+        elif self.checkpoints.catalog:
+            self.checkpoints.unbind()
+        self.checkpoints.poll()
+        media = self.media_input()
+        for controller in (self.text, self.images, self.audio):
+            controller.sync(media)
+        self.schema.refresh(active, busy=self.editor.busy)
+
+    def close(self) -> None:
+        if self.closed:
+            return
+        self.closed = True
+        self.audio.close(self.identity)
+        for controller in (
+            self.records,
+            self.text,
+            self.images,
+            self.references,
+            self.arrays,
+            self.checkpoints,
+        ):
+            controller.close()
+        self.analysis.close(wait=False)
+        self.runtime.close()
+        self.schema.refresh(None, busy=False)

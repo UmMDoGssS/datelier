@@ -176,6 +176,13 @@ reversible overrides, streamed List[Text] corpus/element tools, and
 rendering/restoration and measured resource evidence. Mouse-selector automation
 remains unverified on this display.
 
+The GUI overhaul now follows a fresh replacement authorized on 2026-10-10.
+[docs/gui-overhaul.md](docs/gui-overhaul.md) records stages and retained acceptance
+requirements. The user explicitly permits non-runnable early commits and obsolete
+GUI tests during the rebuild. Check the new runtime/components with scoped Pyrefly
+and behavioral tests, record the unavailable full/native gates, and restore those
+gates as features return. This exception does not waive final capability acceptance.
+
 ## Architecture and data integrity
 
 - Separate import adapters, dataset and operation state, profiling, plotting
