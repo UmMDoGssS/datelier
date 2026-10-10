@@ -62,7 +62,12 @@ def main() -> None:
             hello_imgui.get_runner_params().app_shall_exit = True
         assert frame < 150, (stage, area)
 
-    immapp.run(show, window_size=(900, 700), fps_idle=0)
+    params = hello_imgui.RunnerParams()
+    params.ini_disable = True
+    params.app_window_params.window_geometry.size = (900, 700)
+    params.callbacks.show_gui = show
+    params.fps_idling.enable_idling = False
+    immapp.run(params)
     assert stage == 8 and expanded
     print(json.dumps(dict(native_resize=True, expand_restore=True, frames=frame)))
 

@@ -74,7 +74,9 @@ class ProfilesTab(ExploreTab):
             if owner is not None
             else None
         )
-        if self.state.profile.show(explorer, dashboard, dataset, media):
+        if self.state.profile.show(
+            explorer, dashboard, dataset, media, controls=not self.state.contextual
+        ):
             self.state.plot_frames += 1
 
 
@@ -111,7 +113,11 @@ class RelationshipsTab(ExploreTab):
         if (
             plots is not None
             and dataset is not None
-            and self.state.categories.controls(plots, explorer, dataset)
+            and (
+                plots.relationship_chart != "Scatter"
+                if self.state.contextual
+                else self.state.categories.controls(plots, explorer, dataset)
+            )
         ):
             chart = dashboard.category_chart
             if chart is not None and chart.settings == plots.category_settings():
@@ -146,7 +152,13 @@ class RelationshipsTab(ExploreTab):
                 plots.y_index = plots.numeric.index(first.y_name)
         points = None
         if analysis is not None and dataset is not None and (plots is not None):
-            points = analysis.scatter_controls(dataset, plots, explorer)
+            points = analysis.scatter_controls(
+                dataset,
+                plots,
+                explorer,
+                controls=not self.state.contextual,
+                setup=not self.state.contextual,
+            )
             if analysis.source is not None and points is None:
                 return
         if plots is not None and dataset is not None and (analysis is None):
@@ -226,10 +238,16 @@ class CorrelationsTab(ExploreTab):
     ) -> None:
         if dashboard.relationships is None:
             return
-        if plots is not None and dataset is not None:
+        if plots is not None and dataset is not None and not self.state.contextual:
             self.state.relationships.show_features(plots, explorer, dataset)
         action = self.state.relationships.show(
-            dashboard.relationships, selection, table, plots, explorer, dataset
+            dashboard.relationships,
+            selection,
+            table,
+            plots,
+            explorer,
+            dataset,
+            controls=not self.state.contextual,
         )
         if action is not None and plots is not None and (dataset is not None):
             x, y = action
@@ -266,4 +284,5 @@ class InspectTab(ExploreTab):
                 binding.selection,
                 binding.table,
                 owner,
+                controls=not self.state.contextual,
             )

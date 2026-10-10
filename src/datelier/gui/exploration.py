@@ -1,5 +1,6 @@
 """Docked exploration dashboard; renders bounded, prepared values."""
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
@@ -7,7 +8,7 @@ from imgui_bundle import imgui
 
 from datelier.core.dataset import Dataset
 from datelier.gui.analysis.session import AnalysisSession
-from datelier.gui.components.base import BoundView, FrameContext
+from datelier.gui.components.base import BoundView, Component, FrameContext
 from datelier.gui.components.probe import GuiProbe, ViewScope
 from datelier.gui.data.table import TableView
 from datelier.gui.explore_tabs import (
@@ -48,6 +49,10 @@ class ExplorationView(BoundView[ExplorationBinding]):
     active_tab: str = "Profiles"
     saved_scatter_index: int | None = None
     _dashboard: Dashboard | None = None
+    contextual: bool = False
+    comparison: Component | None = None
+    comparing: bool = False
+    choose_canvas: Callable[[bool], None] | None = None
     categories: CategoryView = field(default_factory=CategoryView)
 
     tabs: tuple[ExploreTab, ...] = field(init=False)
@@ -130,6 +135,8 @@ class ExplorationView(BoundView[ExplorationBinding]):
                 f"{profiles.row_count:,} rows · {profiles.total_columns} columns"
             )
         requested_tab, self.tab = self.tab, ""
+        if self.comparing:
+            requested_tab = "Compare files"
         if requested_tab == "Scatter":
             requested_tab = "Relationships"
         if imgui.begin_tab_bar("Exploration views"):
@@ -140,8 +147,21 @@ class ExplorationView(BoundView[ExplorationBinding]):
                     else 0
                 )
                 if imgui.begin_tab_item(tab.label, flags=flags)[0]:
+                    if self.choose_canvas is not None:
+                        self.choose_canvas(False)
                     self.active_tab = tab.label
                     tab.bind_view(binding)
                     tab.render(frame.child(tab.label))
+                    imgui.end_tab_item()
+            if self.comparison is not None:
+                flags = (
+                    imgui.TabItemFlags_.set_selected
+                    if requested_tab == "Compare files"
+                    else 0
+                )
+                if imgui.begin_tab_item("Compare files", flags=flags)[0]:
+                    if self.choose_canvas is not None:
+                        self.choose_canvas(True)
+                    self.comparison.render(frame.child("compare"))
                     imgui.end_tab_item()
             imgui.end_tab_bar()

@@ -239,3 +239,34 @@ whitespace checks pass. Native explicit PCA/k-means/colors/selection passes 270
 frames; native DBSCAN parameters, explicit Run, no implicit fit and linked 3D
 pass 173 frames. Contextual analysis relocation and multimodal leaf bindings are
 still pending within the tab hierarchy work.
+
+## Steps 4b / 7a — Contextual analysis and four-panel shell
+
+The page now composes Source/Columns, Canvas, Context and Table panels. Canvas
+contains the four inspection tabs and Compare files with Columns/Text/Images/Audio
+subtabs. Context has View/Transform/History; profile and record selectors and
+relationship/correlation settings live there. Analysis settings/results/provenance,
+cluster counts/centers/inertia remain accessible in Relationships context. The
+standalone Analysis, transform/history, comparison, schema and export windows are
+removed. Export is a source-bound File dialog; Undo/Redo, Context and Table toggles
+are available beside file tabs. A compact column catalog replaces the cramped
+schema table in the left panel.
+
+Worker publication announces a pending result without selecting coordinates or
+changing the inspection tab. Open result performs explicit navigation. File
+activation exits Compare while keeping drafts and each file's inspection state.
+Default widths below 1100 use a context drawer; saved/customized docking is
+preserved. Real legacy dock layouts reset with a notice while recipes/settings
+remain intact. The broader versioned migration and specialized bindings remain
+pending, so this is not the completed overhaul milestone.
+
+Verification: Pyrefly zero errors, Ruff lint/format and whitespace checks pass;
+34 focused navigation/workspace/file tests pass (37 earlier including analysis).
+Full suite: **1,066 passed**, three dependency warnings, 29.24 s. Native scatter
+resize/expand/axes/camera preservation passes at 1280×800 and 1024×768 (128 frames
+each). Native schema role/undo passes 48 frames, 14.12 ms p95. Explicit
+PCA/k-means and linked colors pass 282 frames. Navigation input passes 162 frames:
+no completion focus theft, explicit Open result, file exits Compare, drafts and
+source bytes preserved. Image fit/zoom/pan/channel/pixels and fresh-process restore
+pass 212/80 frames, 14.00/13.28 ms p95. The initial shell capture was visually
+reviewed; final all-theme/all-modality sizing acceptance stays open.

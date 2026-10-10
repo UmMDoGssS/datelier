@@ -5,25 +5,18 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 from time import perf_counter
-from weakref import ReferenceType, ref
 
 from imgui_bundle import hello_imgui, imgui, immapp
 
-from datelier.gui.arrays.browser import show_array_browser, show_deferred_records
-from datelier.gui.audio.comparison_view import AudioComparisonView
-from datelier.gui.comparisons.view import ComparisonView
-from datelier.gui.components.base import FrameContext
-from datelier.gui.components.probe import GuiProbe, ViewScope
+from datelier.gui.components.probe import GuiProbe
 from datelier.gui.editor_controls import EditorControls
 from datelier.gui.editor_session import EditorSession
 from datelier.gui.file_session import FileSession
 from datelier.gui.fonts import load_fonts
-from datelier.gui.images.comparison_view import ImageComparisonView
 from datelier.gui.layout import configure_layout
-from datelier.gui.objects.browser import ObjectBrowser, show_view_selector
 from datelier.gui.tabs import EditorTabs
-from datelier.gui.text.comparison_view import TextComparisonView
 from datelier.gui.welcome import Welcome
+from datelier.gui.workbench import WorkbenchPage
 from datelier.io.loading import DatasetLoader, LoadPhase
 from datelier.workspace.preferences import preference_path
 
@@ -81,12 +74,6 @@ def run_gui(
     tabs = EditorTabs()
     controls = EditorControls()
     welcome = Welcome()
-    comparisons = ComparisonView()
-    text_comparisons = TextComparisonView()
-    image_comparisons = ImageComparisonView()
-    audio_comparisons = AudioComparisonView()
-    observed_comparison_tab: str | None = None
-    objects = ObjectBrowser()
     evidence = InspectionEvidence()
     probe = GuiProbe()
 
@@ -114,166 +101,9 @@ def run_gui(
         hello_imgui.DefaultImGuiWindowType.provide_full_screen_dock_space
     )
 
-    def show_table(session: FileSession) -> None:
-        show_view_selector(editor.active)
-        if session.closed:
-            return
-        evidence.table_dock_id = imgui.get_window_dock_id()
-        if show_deferred_records(editor, session.identity):
-            return
-        if session.loader.active is None:
-            welcome.show(editor, session)
-            evidence.welcome_frames += 1
-            evidence.welcome_open_files_pixel = welcome.open_files_pixel
-            evidence.welcome_open_folder_pixel = welcome.open_folder_pixel
-            evidence.welcome_retry_pixel = welcome.retry_pixel
-            evidence.welcome_recovery_pixel = welcome.recovery_pixel
-            evidence.welcome_recent_pixels = {
-                entry.path: pixel for entry, pixel in welcome.recent_pixels.items()
-            }
-            return
-        if session.loader.status.message:
-            imgui.text_wrapped(session.loader.status.message)
-        session.table.show(
-            session.loader.active,
-            session.pages,
-            session.selection,
-            session.references,
-            session.reference_view,
-        )
-        evidence.max_rendered_rows = max(
-            evidence.max_rendered_rows, session.table.rendered_rows
-        )
-        if session.table.prepared_visible_rows and evidence.first_preview_ms is None:
-            evidence.first_preview_ms = (perf_counter() - load_started) * 1000
-
-    def schema(session: FileSession) -> None:
-        evidence.schema_dock_id = imgui.get_window_dock_id()
-        session.schema_panel.render(
-            FrameContext(
-                ViewScope(
-                    editor.active.identity, session.identity, session.loader.revision
-                ),
-                probe,
-            )
-        )
-
-    def source_browser() -> None:
-        owner = editor.active
-        imported = owner.loader.active.imported if owner.loader.active else None
-        if imported is not None and imported.array_catalog is not None:
-            show_array_browser(editor)
-        elif imported is not None and imported.checkpoint_catalog is not None:
-            owner.checkpoint_view.show(owner)
-            if not imported.checkpoint_catalog.tensors or imgui.collapsing_header(
-                "Checkpoint hierarchy"
-            ):
-                objects.show(owner)
-        else:
-            objects.show(owner)
-
-    def compare_files() -> None:
-        nonlocal observed_comparison_tab
-        requested = (
-            editor.comparison_tab
-            if observed_comparison_tab != editor.comparison_tab
-            else ""
-        )
-        if imgui.begin_tab_bar("File comparison types"):
-            for label, view in (
-                ("Columns", comparisons),
-                ("Text corpora", text_comparisons),
-                ("Images", image_comparisons),
-                ("Audio", audio_comparisons),
-            ):
-                flags = imgui.TabItemFlags_.set_selected if requested == label else 0
-                if imgui.begin_tab_item(label, flags=flags)[0]:
-                    editor.comparison_tab = label
-                    view.show(editor)
-                    imgui.end_tab_item()
-            imgui.end_tab_bar()
-        observed_comparison_tab = editor.comparison_tab
-        evidence.comparison_frames = comparisons.plot_frames
-        evidence.comparison_apply_pixel = comparisons.controls.apply_pixel
-        evidence.comparison_select_pixel = comparisons.select_pixel
-        evidence.comparison_settings_pixel = comparisons.settings_pixel
-
-    def explore(session: FileSession) -> None:
-        session.plots.show(
-            session.explorer,
-            session.loader.active.dataset if session.loader.active else None,
-        )
-        session.exploration.show(
-            session.explorer,
-            session.selection,
-            session.table,
-            session.plots,
-            session.loader.active.dataset if session.loader.active else None,
-            session.analysis,
-            session,
-        )
-
-    def bind(callback: Callable[[FileSession], None]) -> Callable[[], None]:
-        previous: ReferenceType[FileSession] | None = None
-
-        def show() -> None:
-            nonlocal previous
-            session = editor.active.record_views.active(editor.active)
-            panel = imgui.internal.get_current_window().name
-            switching = previous is None or previous() is not session
-            if switching:
-                x, y = session.panel_scroll.get(panel, (0, 0))
-                imgui.set_scroll_x(x)
-                imgui.set_scroll_y(y)
-                previous = ref(session)
-            imgui.push_id(session.identity)
-            try:
-                callback(session)
-            finally:
-                imgui.pop_id()
-            if not switching:
-                session.panel_scroll[panel] = (
-                    imgui.get_scroll_x(),
-                    imgui.get_scroll_y(),
-                )
-
-        return guard(show)
-
+    page = WorkbenchPage(editor, probe, evidence, perf_counter(), welcome)
     configure_layout(
-        params,
-        {
-            "Source browser": guard(source_browser),
-            "Explore": bind(explore),
-            "Compare files": guard(compare_files),
-            "Table preview": bind(show_table),
-            "Schema and nulls": bind(schema),
-            "Analysis": bind(
-                lambda session: session.analysis.show_panel(
-                    session.loader.active.dataset if session.loader.active else None,
-                    session.plots,
-                )
-            ),
-            "Transform and history": bind(
-                lambda session: session.operations.show(
-                    session.editor,
-                    loading=session.loader.status.phase == LoadPhase.LOADING
-                    or session.exporter.busy
-                    or session.workspace.jobs.busy
-                    or editor.workspace_jobs.session_busy
-                    or editor.workspace_jobs.recovering(session.identity),
-                )
-            ),
-            "Export table": bind(
-                lambda session: session.exports.show(
-                    session.editor,
-                    session.exporter,
-                    loading=session.loader.status.phase == LoadPhase.LOADING
-                    or session.workspace.jobs.busy
-                    or editor.workspace_jobs.session_busy
-                    or editor.workspace_jobs.recovering(session.identity),
-                )
-            ),
-        },
+        params, {name: guard(callback) for name, callback in page.callbacks.items()}
     )
     params.callbacks.add_edge_toolbar(
         hello_imgui.EdgeToolbarType.top,
@@ -296,7 +126,12 @@ def run_gui(
         preferences.before_frame(params)
 
     params.callbacks.post_init = initialize
-    params.callbacks.pre_new_frame = lambda: preferences.before_frame(params)
+
+    def prepare_frame() -> None:
+        preferences.before_frame(params)
+        page.prepare_layout(params, guard)
+
+    params.callbacks.pre_new_frame = prepare_frame
     params.callbacks.show_menus = guard(lambda: controls.show_menu(editor, params))
 
     def before_exit() -> None:
@@ -329,6 +164,7 @@ def run_gui(
             controls.open_dialog("Workspace actions", editor.active)
             welcome.workspace_requested = False
         controls.show_dialog(editor)
+        page.show_drawer()
         evidence.menu_pixels = controls.menu_pixels.copy()
         evidence.dialog_pixels = controls.action_pixels.copy()
         paths = editor.browser.show()

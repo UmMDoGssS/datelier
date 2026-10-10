@@ -17,15 +17,13 @@ class AnalysisController:
     plots: AnalysisPlots = field(default_factory=AnalysisPlots)
     source: Algorithm | None = None
     panel_source: Algorithm | None = None
+    pending_result: Algorithm | None = None
 
     def poll(self, dataset: Dataset | None) -> bool:
         revision = dataset.revision if dataset is not None else None
         completed = self.jobs.poll(revision)
-        if completed:
-            latest = self.jobs.latest
-            if isinstance(latest, EmbeddingResult):
-                self.source = latest.provenance.request.algorithm
-                self.panel_source = self.source
+        if completed and self.jobs.latest is not None:
+            self.pending_result = self.jobs.latest.provenance.request.algorithm
         self.plots.poll(revision)
         return completed and isinstance(self.jobs.latest, EmbeddingResult)
 

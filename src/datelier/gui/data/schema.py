@@ -39,6 +39,25 @@ class SchemaRow(Component):
             imgui.table_set_column_index(index)
             imgui.text_unformatted(text)
         imgui.table_set_column_index(4)
+        self.role_control(frame)
+
+    def compact(self, frame: FrameContext) -> None:
+        column, info = self.column, self.column.role
+        imgui.text_unformatted(column.name)
+        snapshot = self.controller.snapshot
+        missing = snapshot.rows - info.nonnull if snapshot else 0
+        imgui.text_disabled(f"{column.dtype} · {missing:,} missing")
+        if imgui.is_item_hovered():
+            imgui.set_tooltip(
+                f"{info.nonnull:,} nonnull · {info.distinct:,} distinct"
+                if info.distinct is not None
+                else f"{info.nonnull:,} nonnull"
+            )
+        self.role_control(frame)
+        imgui.separator()
+
+    def role_control(self, frame: FrameContext) -> None:
+        column, info = self.column, self.column.role
         labels = [
             f"Auto: {info.inferred}".replace("Categorical", "Category").replace(
                 "Identifier", "ID"
@@ -77,6 +96,20 @@ class SchemaTable(Component):
             self._rows = tuple(
                 SchemaRow(self.controller, column) for column in snapshot.columns
             )
+        if imgui.get_content_region_avail().x < 450:
+            if imgui.begin_child("Column catalog", (-1, -1)):
+                row_height = (
+                    imgui.get_text_line_height_with_spacing() * 2
+                    + imgui.get_frame_height_with_spacing()
+                    + 5
+                )
+                clipper = imgui.ListClipper()
+                clipper.begin(len(self._rows), row_height)
+                while clipper.step():
+                    for index in range(clipper.display_start, clipper.display_end):
+                        self._rows[index].compact(frame.child("roles"))
+            imgui.end_child()
+            return
         flags = (
             imgui.TableFlags_.borders
             | imgui.TableFlags_.scroll_y

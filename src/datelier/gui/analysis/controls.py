@@ -26,6 +26,7 @@ class AnalysisForm(BoundView[AnalysisFormBinding]):
     def __init__(self) -> None:
         self.inputs = AnalysisInputs()
         self.parameters = AlgorithmParameters()
+        self.run_pixel = (0.0, 0.0)
 
     def show(
         self,
@@ -82,6 +83,8 @@ class AnalysisForm(BoundView[AnalysisFormBinding]):
             imgui.begin_disabled(not settings.features)
             if imgui.button(f"Run {algorithm}"):
                 settings.start(jobs, dataset, algorithm)
+            low, high = imgui.get_item_rect_min(), imgui.get_item_rect_max()
+            self.run_pixel = ((low.x + high.x) / 2, (low.y + high.y) / 2)
             imgui.end_disabled()
         imgui.end_disabled()
         if settings.error:

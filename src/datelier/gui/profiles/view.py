@@ -48,29 +48,8 @@ class ProfileView:
     text: bool = False
     _previous_columns: tuple[str, ...] | None = None
 
-    def show(
-        self,
-        explorer: Explorer,
-        dashboard: Dashboard | None,
-        dataset: Dataset | None,
-        owner: ProfileMedia | None = None,
-    ) -> bool:
-        if dataset is None:
-            return False
-        automatic = dashboard.profiles.columns if dashboard else ()
-        if dashboard is not None:
-            self.index = min(self.index, max(0, len(automatic) - 1))
-        default = (
-            automatic[self.index].name
-            if automatic
-            else owner.default_text_column
-            if owner is not None
-            else None
-        )
-        self.selection.bind(dataset, default)
-        if owner is not None and owner.mapped_images():
-            explorer.profiles.clear()
-            return False
+    def show_controls(self, dataset: Dataset) -> None:
+        self.selection.bind(dataset)
         if imgui.begin_table(
             "Profile controls", 2, imgui.TableFlags_.sizing_stretch_prop
         ):
@@ -145,6 +124,34 @@ class ProfileView:
                 )
                 imgui.end_disabled()
             imgui.end_table()
+
+    def show(
+        self,
+        explorer: Explorer,
+        dashboard: Dashboard | None,
+        dataset: Dataset | None,
+        owner: ProfileMedia | None = None,
+        *,
+        controls: bool = True,
+    ) -> bool:
+        if dataset is None:
+            return False
+        automatic = dashboard.profiles.columns if dashboard else ()
+        if dashboard is not None:
+            self.index = min(self.index, max(0, len(automatic) - 1))
+        default = (
+            automatic[self.index].name
+            if automatic
+            else owner.default_text_column
+            if owner is not None
+            else None
+        )
+        self.selection.bind(dataset, default)
+        if owner is not None and owner.mapped_images():
+            explorer.profiles.clear()
+            return False
+        if controls:
+            self.show_controls(dataset)
         selected = self.selection.columns or ()
         if not selected:
             explorer.profiles.clear()

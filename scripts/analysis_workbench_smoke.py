@@ -43,6 +43,7 @@ def main() -> None:
                 analysis.controls.features = ["x", "y", "z"]
                 analysis.controls.dimensions = args.dimensions
                 session.exploration.tab = "Scatter"
+                analysis.source = algorithm
                 analysis.controls.start(analysis.jobs, active.dataset, algorithm)
                 stage, entered = 1, evidence.frames
             elif stage == 1 and analysis.plots.active is not None:

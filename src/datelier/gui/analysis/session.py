@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass, field
 
-from imgui_bundle import hello_imgui, imgui
+from imgui_bundle import imgui
 
 from datelier.analysis.types import Algorithm, EmbeddingResult
 from datelier.application.analysis import AnalysisController
@@ -30,39 +30,50 @@ class AnalysisSession(AnalysisController):
             self.selected_algorithm(plots),
             fixed_dimensions=plots.scatter_dimensions,
         )
+        self.run_pixel = self.form.run_pixel
 
     def scatter_controls(
-        self, dataset: Dataset, plots: PlotControls, explorer: Explorer
+        self,
+        dataset: Dataset,
+        plots: PlotControls,
+        explorer: Explorer,
+        *,
+        controls: bool = True,
+        setup: bool = True,
     ) -> Scatter | None:
         self.sync_dimensions(plots)
-        algorithms = [a for a in Algorithm if not a.is_clustering]
-        index = algorithms.index(self.source) + 1 if self.source in algorithms else 0
-        if imgui.begin_table(
-            "Scatter source", 2, imgui.TableFlags_.sizing_stretch_same
-        ):
-            imgui.table_next_row()
-            imgui.table_set_column_index(0)
-            changed, index = combo(
-                "Coordinates", index, ["Columns", *map(str, algorithms)]
+        if controls:
+            algorithms = [a for a in Algorithm if not a.is_clustering]
+            index = (
+                algorithms.index(self.source) + 1 if self.source in algorithms else 0
             )
-            pos, size = imgui.get_item_rect_min(), imgui.get_item_rect_size()
-            self.coordinates_pixel = (pos.x + size.x / 2, pos.y + size.y / 2)
-            if changed:
-                self.source = algorithms[index - 1] if index else None
-                self.panel_source = self.source or plots.cluster_algorithm
-            if self.source is None:
-                plots.show_axes(explorer, dataset)
-            imgui.table_set_column_index(1)
-            if plots.show_color():
-                self.panel_source = plots.cluster_algorithm or self.source
-            imgui.end_table()
+            if imgui.begin_table(
+                "Scatter source", 2, imgui.TableFlags_.sizing_stretch_same
+            ):
+                imgui.table_next_row()
+                imgui.table_set_column_index(0)
+                changed, index = combo(
+                    "Coordinates", index, ["Columns", *map(str, algorithms)]
+                )
+                pos, size = imgui.get_item_rect_min(), imgui.get_item_rect_size()
+                self.coordinates_pixel = (pos.x + size.x / 2, pos.y + size.y / 2)
+                if changed:
+                    self.source = algorithms[index - 1] if index else None
+                    self.panel_source = self.source or plots.cluster_algorithm
+                if self.source is None:
+                    plots.show_axes(explorer, dataset)
+                imgui.table_set_column_index(1)
+                if plots.show_color():
+                    self.panel_source = plots.cluster_algorithm or self.source
+                imgui.end_table()
         cluster_algorithm = plots.cluster_algorithm
-        if cluster_algorithm is not None:
+        if cluster_algorithm is not None and setup:
             self.show_setup(dataset, cluster_algorithm, dimensions=False)
         if self.source is None:
             return None
         result = self.jobs.results.get(self.source)
-        self.show_setup(dataset, self.source, dimensions=True)
+        if setup:
+            self.show_setup(dataset, self.source, dimensions=True)
         if not isinstance(result, EmbeddingResult):
             return None
         if result.values.shape[1] != plots.scatter_dimensions:
@@ -107,14 +118,6 @@ class AnalysisSession(AnalysisController):
                 self.form.parameters.show(self.controls, algorithm)
                 imgui.tree_pop()
             imgui.end_disabled()
-            open_inputs = imgui.button("Open Analysis panel")
-            pos, size = imgui.get_item_rect_min(), imgui.get_item_rect_size()
-            self.inputs_pixel = (pos.x + size.x / 2, pos.y + size.y / 2)
-            if open_inputs:
-                self.panel_source = algorithm
-                hello_imgui.get_runner_params().docking_params.focus_dockable_window(
-                    "Analysis"
-                )
         imgui.begin_disabled(self.jobs.busy or not self.controls.features)
         if imgui.button(f"Run {algorithm}"):
             self.controls.start(self.jobs, dataset, algorithm)

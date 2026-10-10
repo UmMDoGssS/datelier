@@ -65,9 +65,12 @@ class InspectView:
         selection: LinkedSelection,
         table: TableView,
         owner: FileSession | None = None,
+        *,
+        controls: bool = True,
     ) -> None:
         self.dock_id = imgui.get_window_dock_id()
-        self.controls.show()
+        if controls:
+            self.controls.show()
         imgui.same_line()
         if imgui.button("Retry Inspect"):
             self.jobs.abandon()

@@ -27,10 +27,10 @@ class EditorControls:
     workspace: SessionControls = field(default_factory=SessionControls)
 
     def open_dialog(self, name: str, file: FileSession) -> None:
-        if name not in ("Import settings", "Workspace actions"):
+        if name not in ("Import settings", "Workspace actions", "Export table"):
             raise ValueError("Unknown editor dialog")
         self.dialog = name
-        self.owner = file.identity if name == "Import settings" else None
+        self.owner = file.identity if name != "Workspace actions" else None
         self._open_requested = True
 
     def _menu_item(self, label: str, *, enabled: bool = True) -> bool:
@@ -52,6 +52,10 @@ class EditorControls:
                 editor.browser.open(editor.active_id, folder=True)
             if self._menu_item("Import settings…"):
                 self.open_dialog("Import settings", editor.active)
+            if self._menu_item(
+                "Export table…", enabled=editor.active.loader.active is not None
+            ):
+                self.open_dialog("Export table", editor.active)
             if self._menu_item("Close Tab"):
                 editor.close_tab(editor.active_id)
             imgui.separator()
@@ -167,6 +171,14 @@ class EditorControls:
             if title == "Import settings":
                 imgui.text_wrapped(f"Tab: {Path(file.controls.path).name or 'Welcome'}")
                 self._show_import(editor, file)
+            elif title == "Export table":
+                file.exports.show(
+                    file.editor,
+                    file.exporter,
+                    loading=file.loader.status.phase == LoadPhase.LOADING
+                    or file.workspace.jobs.busy
+                    or editor.workspace_jobs.session_busy,
+                )
             else:
                 self.workspace.show(editor)
                 self.action_pixels.update(self.workspace.action_pixels)

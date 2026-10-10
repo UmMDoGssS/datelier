@@ -35,7 +35,7 @@ def main() -> None:
             io = imgui.get_io()
             if stage == 0 and file.explorer.active is not None:
                 hello_imgui.get_runner_params().docking_params.focus_dockable_window(
-                    "Schema and nulls"
+                    "Source browser"
                 )
                 stage, entered = 1, evidence.frames
             elif stage == 1 and age > 10:

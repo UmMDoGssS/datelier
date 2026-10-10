@@ -40,7 +40,9 @@ class OperationControls:
     replace_existing: bool = False
     error: str = ""
 
-    def show(self, editor: DatasetEditor, *, loading: bool) -> None:
+    def show(
+        self, editor: DatasetEditor, *, loading: bool, history: bool = True
+    ) -> None:
         imgui.push_item_width(135)
         pipeline = editor.pipeline
         imgui.text_wrapped(editor.message)
@@ -111,6 +113,12 @@ class OperationControls:
             self.error = str(error)
         finally:
             imgui.end_disabled()
+        if history:
+            self.show_history(editor)
+        imgui.pop_item_width()
+
+    def show_history(self, editor: DatasetEditor) -> None:
+        pipeline = editor.pipeline
         if pipeline:
             imgui.separator()
             imgui.text(f"History: {pipeline.cursor} of {len(pipeline.history)} applied")
@@ -119,4 +127,3 @@ class OperationControls:
                 imgui.text_wrapped(
                     f"{index + 1}. {describe_operation(operation)}{suffix}"
                 )
-        imgui.pop_item_width()

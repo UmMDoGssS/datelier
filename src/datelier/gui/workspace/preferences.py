@@ -29,8 +29,24 @@ class PreferenceControls:
             if path is not None
             else (Preferences(), "Preferences are disabled for this smoke session.")
         )
+        legacy = any(
+            f"[Window][{name}]" in self.value.layout
+            for name in (
+                "Analysis",
+                "Transform and history",
+                "Export table",
+                "Schema and nulls",
+                "Compare files",
+            )
+        )
+        if legacy:
+            self.value = replace(self.value, layout="", hidden_windows=())
+            self.message = (
+                "Workbench layout updated; saved recipes and view settings restored."
+            )
         self._executor = JobExecutor(executor, max_workers=1, name="preferences")
         self._future: Future[None] | None = None
+        self.layout_customized = bool(self.value.layout)
         self._saved_layout = self.value.layout
         self._saved_hidden = self.value.hidden_windows
         self._submitted: Preferences | None = None
@@ -70,6 +86,7 @@ class PreferenceControls:
             params.docking_params.layout_reset = False
             self._pending_layout = None
         if self.reset_requested:
+            self.layout_customized = False
             imgui.internal.clear_ini_settings()
             params.docking_params.layout_condition = (
                 hello_imgui.DockingLayoutCondition.first_use_ever
@@ -86,7 +103,23 @@ class PreferenceControls:
             self._pending_visibility = None
 
     def queue_layout(self, layout: str, hidden: tuple[str, ...]) -> None:
+        if any(
+            f"[Window][{name}]" in layout
+            for name in (
+                "Analysis",
+                "Transform and history",
+                "Export table",
+                "Schema and nulls",
+                "Compare files",
+            )
+        ):
+            self.reset_requested = True
+            self.message = (
+                "Workbench layout updated; saved recipes and view settings restored."
+            )
+            return
         if layout:
+            self.layout_customized = True
             self._pending_layout = layout
         if layout or hidden:
             self._pending_visibility = hidden

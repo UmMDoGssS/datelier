@@ -3,6 +3,7 @@
 from dataclasses import replace
 from pathlib import Path
 
+from datelier.application.navigation import WorkbenchNavigation
 from datelier.core.dataset import Dataset
 from datelier.core.jobs import SharedWorkers
 from datelier.gui.audio.comparison_session import (
@@ -70,6 +71,7 @@ class EditorSession:
         loader_override: DatasetLoader | None = None,
         playback_factory: DeviceFactory = SoundDeviceOutput,
     ) -> None:
+        self.navigation = WorkbenchNavigation()
         self.workers = SharedWorkers()
         self.playback = AudioPlayback(playback_factory, executor=self.workers)
         self.preferences = PreferenceControls(preferences_path, executor=self.workers)
@@ -383,6 +385,8 @@ class EditorSession:
     def activate(self, identity: str, *, focus: bool = True) -> None:
         if not any(file.identity == identity for file in self.files):
             raise ValueError("That file tab is closed")
+        if identity != self.active_id:
+            self.navigation.activate_file()
         self.active_id = identity
         chosen = self.active.record_views.active(self.active).identity
         state = self.playback.snapshot

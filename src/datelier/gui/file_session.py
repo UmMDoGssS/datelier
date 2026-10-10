@@ -247,12 +247,7 @@ class FileSession:
             self.plots.bind(edited.dataset)
             self.explorer.request(edited.dataset, self.plots.settings())
         self.analysis.sync_dimensions(self.plots)
-        completed = self.analysis.poll(
-            self.loader.active.dataset if self.loader.active else None
-        )
-        if completed:
-            self.exploration.tab = "Relationships"
-            self.plots.relationship_chart = "Scatter"
+        self.analysis.poll(self.loader.active.dataset if self.loader.active else None)
         if self.analysis.sync_colors(self.plots) and self.loader.active is not None:
             self.explorer.request(self.loader.active.dataset, self.plots.settings())
         self.runtime.poll_prepared()

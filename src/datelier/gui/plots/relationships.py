@@ -100,8 +100,11 @@ class RelationshipView:
         plots: PlotControls | None = None,
         explorer: Explorer | None = None,
         dataset: Dataset | None = None,
+        *,
+        controls: bool = True,
     ) -> tuple[str, str | None] | None:
-        self.controls(len(data.names), plots, explorer, dataset)
+        if controls:
+            self.controls(len(data.names), plots, explorer, dataset)
         imgui.text_wrapped(
             f"{len(data.names)} features · "
             f"{data.sampled_rows:,} / {data.total_rows:,} rows"
