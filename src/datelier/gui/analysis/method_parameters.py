@@ -8,7 +8,8 @@ from imgui_bundle import imgui
 
 from datelier.analysis.algorithm import Algorithm
 from datelier.analysis.parameters import EXTRA_LIMITS, ExtraParameters
-from datelier.gui.widgets.fields import combo, field
+from datelier.gui.analysis.parameter_fields import FIELDS
+from datelier.gui.widgets.fields import field
 
 if TYPE_CHECKING:
     from datelier.application.analysis_settings import AnalysisSettings
@@ -32,18 +33,10 @@ def show_extra_parameters(controls: AnalysisSettings, algorithm: Algorithm) -> N
                 continue
         value: object = getattr(parameters, item.name)
         label = str(item.metadata["label"])
-        if isinstance(value, bool):
-            changed, new = imgui.checkbox(label, value)
-        elif isinstance(value, int):
-            changed, new = imgui.input_int(field(label), value)
-        elif isinstance(value, float):
-            changed, new = imgui.input_double(field(label), value, format="%.6g")
-        elif isinstance(value, str):
-            choices = list(cast(tuple[str, ...], item.metadata["choices"]))
-            changed, index = combo(label, choices.index(value), choices)
-            new = choices[index]
-        else:
+        editor = FIELDS.get(type(value))
+        if editor is None:
             raise TypeError("Unsupported analysis parameter field")
+        changed, new = editor.edit(label, value, item.metadata)
         if changed:
             updates[item.name] = new
     if updates:

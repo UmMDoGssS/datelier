@@ -223,3 +223,19 @@ offscreen divider in the cramped old dock layout. The fixture is corrected; its
 integrated sizing/input gate stays open until the redesigned shell is verified.
 The independent shared viewport input gate passes. New media viewport heights
 still need the scheduled persistence migration.
+
+## Step 4a — Exploration tab and parameter field families
+
+Explore renders registered `ExploreTab` subclasses for Profiles, Relationships,
+Correlations and Inspect. The former page-level tab switch is removed; each tab
+owns its content rendering. Profile content receives only its default text field
+and media presentation commands rather than the complete file session. Trusted
+parameter fields dispatch through Boolean/Integer/Float/Choice editor subclasses.
+Pending correlation preparation preserves saved pair-grid mode and numeric defaults.
+
+Verification: Pyrefly zero errors; 33 focused workspace/scatter/analysis/profile
+checks (27 rerun after fixing pending correlation behavior), Ruff lint/format and
+whitespace checks pass. Native explicit PCA/k-means/colors/selection passes 270
+frames; native DBSCAN parameters, explicit Run, no implicit fit and linked 3D
+pass 173 frames. Contextual analysis relocation and multimodal leaf bindings are
+still pending within the tab hierarchy work.

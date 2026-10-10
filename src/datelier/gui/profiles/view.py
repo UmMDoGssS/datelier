@@ -1,7 +1,6 @@
 """Render prepared profiles in value space or with explicit category names."""
 
 from dataclasses import dataclass, field, replace
-from typing import TYPE_CHECKING
 
 import numpy as np
 import polars as pl
@@ -12,6 +11,7 @@ from datelier.core.dataset import Dataset
 from datelier.gui.plots.area import PlotArea
 from datelier.gui.plots.axes import AxisControls
 from datelier.gui.plots.distributions import MODES, show_comparison
+from datelier.gui.profiles.binding import ProfileMedia
 from datelier.gui.profiles.colors import profile_color
 from datelier.gui.profiles.lists import list_statistics_height, show_list_statistics
 from datelier.gui.profiles.selector import ProfileColumnSelector
@@ -21,9 +21,6 @@ from datelier.inspection.profile_preview import ProfileRequest
 from datelier.inspection.profile_selection import ProfileSelection
 from datelier.inspection.profiles import COUNT_ROW_LIMIT, ColumnProfile, ProfileKind
 from datelier.plotting.data import Bars
-
-if TYPE_CHECKING:
-    from datelier.gui.file_session import FileSession
 
 
 def profile_summary(profile: ColumnProfile, rows: int) -> str:
@@ -56,7 +53,7 @@ class ProfileView:
         explorer: Explorer,
         dashboard: Dashboard | None,
         dataset: Dataset | None,
-        owner: FileSession | None = None,
+        owner: ProfileMedia | None = None,
     ) -> bool:
         if dataset is None:
             return False
@@ -66,12 +63,12 @@ class ProfileView:
         default = (
             automatic[self.index].name
             if automatic
-            else owner.text.jobs.settings.column
+            else owner.default_text_column
             if owner is not None
             else None
         )
         self.selection.bind(dataset, default)
-        if owner is not None and owner.images.show_mapped_profile(owner):
+        if owner is not None and owner.mapped_images():
             explorer.profiles.clear()
             return False
         if imgui.begin_table(
@@ -156,7 +153,7 @@ class ProfileView:
         if dataset.role(selected[0]).role == ColumnRole.IMAGE and not self.text:
             explorer.profiles.clear()
             if owner is not None:
-                owner.images.show_profile(owner, selected[0])
+                owner.image_profile(selected[0])
             return False
         column = self.selection.text_column(self.text)
         if column is not None:
@@ -177,7 +174,7 @@ class ProfileView:
             else:
                 explorer.profiles.clear()
             if owner is not None:
-                owner.text.show(owner, column)
+                owner.text_profile(column)
             return False
         if dashboard is None:
             imgui.text_wrapped(explorer.message)
