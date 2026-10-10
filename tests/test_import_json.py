@@ -42,8 +42,8 @@ def test_json_values_types_late_fields_and_preview(tmp_path: Path, suffix: str) 
 @pytest.mark.parametrize(
     "record, message",
     [
-        ('{"x":{"nested":1}}', "field.*x.*nested JSON"),
-        ('{"x":[1,2]}', "flatten"),
+        ('{"x":{"nested":1e999}}', "nested.*finite range"),
+        ('{"x":[1,1e999]}', "finite range"),
         ("1", "expected an object"),
         ('{"x":1,"x":2}', "Duplicate JSON field"),
         ('{"x":NaN}', "Nonstandard"),
@@ -78,20 +78,22 @@ def test_jsonl_blank_lines_line_numbers_and_mixed_types(tmp_path: Path) -> None:
     imported = load_file(path, JsonOptions(read_as_text=True))
     assert imported.dataset.table.rows() == [("1", "true"), ("word", None)]
     assert imported.dataset.table.dtypes == [pl.String, pl.String]
-    path.write_text('{"x":1}\n\n{"x":[]}\n')
+    path.write_text('{"x":1}\n\n{"x":NaN}\n')
     with pytest.raises(ImportFailure, match="Line 3"):
         load_file(path)
 
 
-def test_jsonl_checks_every_record_for_nesting_and_new_fields(tmp_path: Path) -> None:
+def test_jsonl_checks_every_record_and_preserves_late_nested_fields(
+    tmp_path: Path,
+) -> None:
     path = tmp_path / "late.jsonl"
     path.write_text('{"x":1}\n' * 150 + '{"late":2}\n')
     table = load_file(path).dataset.table
     assert table.columns == ["x", "late"]
     assert table["late"].to_list() == [None] * 150 + [2]
     path.write_text('{"x":1}\n' * 150 + '{"late":{"hidden":2}}\n')
-    with pytest.raises(ImportFailure, match="Line 151.*late"):
-        load_file(path)
+    table = load_file(path).dataset.table
+    assert table["late"].to_list() == [None] * 150 + [{"hidden": 2}]
 
 
 @pytest.mark.parametrize("suffix", ["json", "jsonl"])

@@ -12,6 +12,7 @@ from datelier.core.column_roles import AUDIO_EXTENSIONS, ColumnRole
 from datelier.core.dataset import Dataset
 from datelier.gui.data.table import TableView
 from datelier.gui.inspect.controls import InspectControls
+from datelier.gui.inspect.nested import show_nested
 from datelier.gui.references.view import ReferenceView
 from datelier.inspection.arrays.mapping import ArrayLayout
 from datelier.inspection.records.jobs import RecordJobs
@@ -164,6 +165,21 @@ class InspectView:
         if gallery and imgui.small_button("Focus record"):
             self.settings = replace(self.settings, gallery=False, focus=slot)
         primary = card.primary
+        if primary is not None and primary.lines is not None:
+            if imgui.begin_table(
+                "Nested value and supporting fields",
+                2,
+                imgui.TableFlags_.sizing_stretch_prop | imgui.TableFlags_.resizable,
+            ):
+                imgui.table_setup_column("Value", init_width_or_weight=3)
+                imgui.table_setup_column("Supporting", init_width_or_weight=1)
+                imgui.table_next_row()
+                imgui.table_next_column()
+                show_nested(primary, gallery=gallery)
+                imgui.table_next_column()
+                self._fields(card, 72 if gallery else 0)
+                imgui.end_table()
+            return
         if not gallery and owner is not None and owner.loader.active is not None:
             dataset = owner.loader.active.dataset
             options = owner.loader.active.imported.options

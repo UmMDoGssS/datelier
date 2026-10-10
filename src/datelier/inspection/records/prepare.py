@@ -1,5 +1,8 @@
 """Worker-side record selection and arbitrary supporting-column preparation."""
 
+import json
+from dataclasses import replace
+
 import polars as pl
 
 from datelier.core.column_roles import REFERENCE_ROLES
@@ -14,6 +17,16 @@ from datelier.inspection.records.types import (
 )
 
 RECORD_PAGE_SIZE = 4
+
+
+def _supporting(field: RecordField) -> RecordField:
+    if field.lines is None:
+        return field
+    return replace(
+        field,
+        text="{ ... }" if field.text.startswith("{") else "[ ... ]",
+        lines=None,
+    )
 
 
 def prepare_records(
@@ -68,23 +81,53 @@ def prepare_record_page(dataset: Dataset, records: RecordSet, start: int) -> Rec
         position = int(records.positions[slot])
         fields: dict[str, RecordField] = {}
         for name in names:
-            value = table.get_column(name)[position]
+            series = table.get_column(name)
+            nested = series.dtype.is_nested()
+            primary = name == settings.primary
+            # Supporting containers use metadata only; complete payload conversion
+            # is confined to the selected primary fields of this bounded page.
+            if nested and not primary:
+                is_null = bool(series.slice(position, 1).is_null().item())
+                fields[name] = RecordField(
+                    name,
+                    "(null)"
+                    if is_null
+                    else "{ ... }"
+                    if isinstance(series.dtype, pl.Struct)
+                    else "[ ... ]",
+                    is_null=is_null,
+                )
+                continue
+            value = series[position]
+            if isinstance(value, pl.Series):
+                value = value.to_list()
             limit = 4096 if name == settings.primary else 256
-            text = "(null)" if value is None else str(value)
+            text = (
+                json.dumps(value, ensure_ascii=False, indent=2, default=str)
+                if nested and value is not None
+                else "(null)"
+                if value is None
+                else str(value)
+            )
             reference = (
                 value
                 if isinstance(value, str) and dataset.role(name).role in REFERENCE_ROLES
                 else None
             )
             fields[name] = RecordField(
-                name, text[:limit], reference, value is None, len(text) > limit
+                name,
+                text if nested else text[:limit],
+                reference,
+                value is None,
+                not nested and len(text) > limit,
+                tuple(text.splitlines()) if nested and value is not None else None,
             )
         cards.append(
             RecordCard(
                 int(records.row_ids[slot]),
                 position,
                 fields.get(settings.primary or ""),
-                tuple(fields[n] for n in settings.supporting or ()),
+                tuple(_supporting(fields[n]) for n in settings.supporting or ()),
             )
         )
     return RecordPage(dataset.revision, start, tuple(cards))

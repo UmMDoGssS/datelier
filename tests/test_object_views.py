@@ -37,7 +37,7 @@ def fixture_source(tmp_path: Path) -> Path:
     path = tmp_path / "nested.json"
     path.write_text(
         '{"train":[{"id":8,"x":3.5},{"id":3,"x":1.5}],'
-        '"test":[{"id":2,"x":9.5}],"invalid":[{"x":[]}]}'
+        '"test":[{"id":2,"x":9.5}],"invalid":[1]}'
     )
     return path
 
@@ -75,7 +75,7 @@ def test_named_views_preserve_other_nodes_histories_and_identity(
         failed = root.record_views.open(root, ("invalid",))
         wait(editor)
         assert failed.closed and root.record_views.active_id == train.identity
-        assert "nested" in root.record_views.message
+        assert "object" in root.record_views.message
         assert len(root.record_views.files) == 2
         assert train.selection.row_ids == {1} and test.selection.row_ids == {0}
         train.editor.request(HistoryAction.UNDO)

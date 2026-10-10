@@ -57,6 +57,7 @@ class RecordField:
     reference: str | None = None
     is_null: bool = False
     truncated: bool = False
+    lines: tuple[str, ...] | None = None
 
 
 @dataclass(frozen=True)

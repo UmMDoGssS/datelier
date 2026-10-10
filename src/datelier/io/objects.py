@@ -1,4 +1,4 @@
-"""Worker-side JSON/TOML hierarchy loading and explicit flat record extraction."""
+"""Worker-side JSON/TOML hierarchy loading and typed record extraction."""
 
 import math
 import tomllib
@@ -16,7 +16,7 @@ from datelier.inspection.objects.types import (
     node_label,
 )
 from datelier.io.json import decode_json
-from datelier.io.records import ScalarValue, records_to_table
+from datelier.io.records import RecordValue, records_to_table
 from datelier.io.source import read_source
 from datelier.io.types import ImportFormat, ImportResult, ObjectOptions
 
@@ -46,35 +46,39 @@ def build_node(value: object, *, finite: bool = True) -> ObjectNode:
     raise ValueError(f"Unsupported object value: {type(value).__name__}")
 
 
+def _record_object(node: ObjectNode) -> dict[str, RecordValue]:
+    row: dict[str, RecordValue] = {}
+    for child in node.children:
+        if not isinstance(child.key, str):
+            raise ValueError("Record fields must be named")
+        row[child.key] = _record_value(child.node)
+    return row
+
+
+def _record_value(node: ObjectNode) -> RecordValue:
+    if node.kind == "object":
+        return _record_object(node)
+    if node.kind == "array":
+        return [_record_value(child.node) for child in node.children]
+    value = node.value
+    if isinstance(value, bytes):
+        raise ValueError("Binary metadata cannot form JSON/TOML record columns")
+    return value.isoformat() if isinstance(value, (date, datetime, time)) else value
+
+
 def extract_records(node: ObjectNode, *, as_text: bool = False) -> pl.DataFrame:
     if node.kind != "array":
-        raise ValueError("Select an array of flat record objects to open a table view")
-    rows: list[dict[str, ScalarValue]] = []
-    for index, child in enumerate(node.children):
-        if child.node.kind != "object":
-            raise ValueError(f"Record {index}: expected an object with scalar fields")
-        row: dict[str, ScalarValue] = {}
-        for field in child.node.children:
-            value = field.node.value
-            if isinstance(value, bytes):
-                raise ValueError("Binary metadata cannot form JSON/TOML record columns")
-            if field.node.children or field.node.kind in ("object", "array"):
-                raise ValueError(
-                    f"Record {index}, field {field.key!r}: nested values cannot enter "
-                    "a flat table. Select another record node in the object browser."
-                )
-            if isinstance(value, (date, datetime, time)):
-                value = value.isoformat()
-            if not isinstance(field.key, str):
-                raise ValueError("Record fields must be named")
-            row[field.key] = value
-        rows.append(row)
+        raise ValueError("Select an array of record objects to open a table view")
+    if any(child.node.kind != "object" for child in node.children):
+        raise ValueError("Each record must be an object with named fields")
     try:
-        return records_to_table(rows, as_text=as_text)
+        return records_to_table(
+            (_record_object(child.node) for child in node.children), as_text=as_text
+        )
     except (ValueError, pl.exceptions.PolarsError) as error:
         raise ValueError(
             f"Records cannot form a table: {error}. "
-            "Try Read columns as text for mixed scalar types."
+            "Try Read columns as text for incompatible field/element types."
         ) from error
 
 

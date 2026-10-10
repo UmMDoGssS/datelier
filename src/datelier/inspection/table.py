@@ -55,6 +55,21 @@ def _display_series(series: pl.Series) -> pl.Series:
     # Python temporal objects lose sub-microsecond precision. Format only the
     # bounded visible slice with Polars before converting cells to Python.
     dtype = series.dtype
+    if isinstance(dtype, pl.Struct):
+        return pl.select(
+            pl.when(series.is_not_null())
+            .then(pl.lit("{ ... }"))
+            .otherwise(None)
+            .alias(series.name)
+        ).to_series()
+    if isinstance(dtype, (pl.List, pl.Array)):
+        lengths = series.list.len() if isinstance(dtype, pl.List) else series.arr.len()
+        return pl.select(
+            pl.when(series.is_not_null())
+            .then(pl.lit("[ ... ] (") + lengths.cast(pl.String) + " items)")
+            .otherwise(None)
+            .alias(series.name)
+        ).to_series()
     if isinstance(dtype, pl.Datetime):
         return series.cast(pl.String)
     if dtype == pl.Time:
@@ -87,7 +102,12 @@ def prepare_page(
 
     physical_rows = tuple(
         table.select(
-            [table.get_column(n).slice(row_start, PAGE_ROWS) for n in columns]
+            [
+                visible.get_column(n).alias(n)
+                if table.schema[n].is_nested()
+                else table.get_column(n).slice(row_start, PAGE_ROWS)
+                for n in columns
+            ]
         ).iter_rows()
     )
     roles = tuple(dataset.role(name).role for name in columns)

@@ -1,4 +1,4 @@
-"""Flat record JSON/JSONL imports with validation before Polars conversion."""
+"""Typed JSON/JSONL records with recursive validation before Polars conversion."""
 
 import json
 import math
@@ -9,11 +9,9 @@ from typing import BinaryIO, cast
 import polars as pl
 
 from datelier.io.json_records import array_records
-from datelier.io.records import records_to_table
+from datelier.io.records import RecordValue, records_to_table
 from datelier.io.source import read_source
 from datelier.io.types import ImportFormat, ImportResult, JsonOptions
-
-type JsonScalar = str | int | float | bool | None
 
 
 def _object(pairs: list[tuple[str, object]]) -> dict[str, object]:
@@ -36,25 +34,26 @@ def decode_json(text: str) -> object:
     )
 
 
-def _record(value: object, location: str) -> dict[str, JsonScalar]:
+def _value(value: object, location: str) -> RecordValue:
+    if isinstance(value, dict):
+        return _record(value, location)
+    if isinstance(value, list):
+        return [_value(item, f"{location}[{i}]") for i, item in enumerate(value)]
+    if value is not None and not isinstance(value, (str, int, float, bool)):
+        raise ValueError(f"{location}: unsupported value.")
+    if isinstance(value, float) and not math.isfinite(value):
+        raise ValueError(f"{location}: number exceeds finite range.")
+    return value
+
+
+def _record(value: object, location: str) -> dict[str, RecordValue]:
     if not isinstance(value, dict):
-        raise ValueError(
-            f"{location}: expected an object containing named scalar fields."
-        )
-    record: dict[str, JsonScalar] = {}
+        raise ValueError(f"{location}: expected an object containing named fields.")
+    record: dict[str, RecordValue] = {}
     for key, item in value.items():
         if not isinstance(key, str):
             raise ValueError(f"{location}: field names must be strings.")
-        if isinstance(item, (dict, list)):
-            raise ValueError(
-                f"{location}, field {key!r}: nested JSON is unsupported; "
-                "flatten objects and arrays into scalar columns before importing."
-            )
-        if item is not None and not isinstance(item, (str, int, float, bool)):
-            raise ValueError(f"{location}, field {key!r}: unsupported value.")
-        if isinstance(item, float) and not math.isfinite(item):
-            raise ValueError(f"{location}, field {key!r}: number exceeds finite range.")
-        record[key] = item
+        record[key] = _value(item, f"{location}, field {key!r}")
     return record
 
 
@@ -65,7 +64,7 @@ def load_json(
     format = ImportFormat.JSONL if lines else ImportFormat.JSON
 
     def read(source: BinaryIO) -> tuple[pl.DataFrame, tuple[str, ...]]:
-        def records() -> Iterator[dict[str, JsonScalar]]:
+        def records() -> Iterator[dict[str, RecordValue]]:
             if lines:
                 for number, raw in enumerate(source, 1):
                     if not raw.strip():
@@ -85,6 +84,8 @@ def load_json(
         table = records_to_table(records(), as_text=options.read_as_text)
         diagnostics = (
             "Types inferred across all records; missing fields become null.",
+            "Nested objects/lists retain typed fields/elements; "
+            "Inspect shows full values.",
         )
         if options.read_as_text:
             diagnostics += ("Columns loaded as text; JSON null remains null.",)
@@ -95,6 +96,6 @@ def load_json(
         options,
         format,
         read,
-        "Use flat record objects with consistent scalar types; "
-        "for mixed types read as text.",
+        "Use record objects with compatible field and list-element types; "
+        "for incompatible types read columns as text.",
     )

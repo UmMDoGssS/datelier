@@ -1,7 +1,7 @@
-"""Convert validated scalar records in bounded batches, retaining late fields."""
+"""Convert validated typed records in bounded batches, retaining late fields."""
 
 import json
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from time import sleep
 
 import polars as pl
@@ -11,14 +11,15 @@ BATCH_CELLS = 4096
 YIELD_CELLS = 256
 BLOCK_BATCHES = 32
 type ScalarValue = str | int | float | bool | None
+type RecordValue = ScalarValue | list[RecordValue] | dict[str, RecordValue]
 
 
-def records_to_table[T: ScalarValue](
-    records: Iterable[dict[str, T]], *, as_text: bool = False
+def records_to_table(
+    records: Iterable[Mapping[str, RecordValue]], *, as_text: bool = False
 ) -> pl.DataFrame:
     frames: list[pl.DataFrame] = []
     blocks: list[pl.DataFrame] = []
-    batch: list[dict[str, ScalarValue]] = []
+    batch: list[dict[str, RecordValue]] = []
     leading_empty: int = 0
     batch_cells = 0
     yield_cells = 0

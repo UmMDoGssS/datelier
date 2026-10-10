@@ -85,7 +85,6 @@ def test_malformed_json_has_local_diagnostic(tmp_path: Path, content: str) -> No
 @pytest.mark.parametrize(
     "content,path_to_node",
     [
-        ('{"rows":[{"x":[]}]}', ("rows",)),
         ('{"rows":[1,{}]}', ("rows",)),
         ('{"rows":[]}', ("rows",)),
         ('{"rows":[{}]}', ("rows",)),
