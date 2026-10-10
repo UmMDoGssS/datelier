@@ -10,12 +10,14 @@ from datelier.inspection.audio.playback.requests import playback_request
 from datelier.inspection.audio.settings import AudioSettings
 from datelier.inspection.audio.types import AudioLocator, AudioMetadata
 from datelier.inspection.audio.view_jobs import SignalViewJobs
+from datelier.io.types import ArrayOptions
 
 
 class AudioController(MediaController):
     def __init__(
         self, executor: Executor | None = None, playback: AudioPlayback | None = None
     ) -> None:
+        self._source: MediaInput | None = None
         self.jobs = AudioJobs(executor)
         self.signal = SignalViewJobs(executor)
         self.player = (
@@ -25,6 +27,7 @@ class AudioController(MediaController):
         self.settings = AudioSettings()
 
     def sync(self, source: MediaInput) -> None:
+        self._source = source
         active = source.active
         self.jobs.sync(
             source.file_id,
@@ -74,7 +77,45 @@ class AudioController(MediaController):
             ) != playback_request(prepared, settings):
                 self.player.stop(file_id)
 
+    def request_record(self, column: str, position: int) -> None:
+        source = self._source
+        active = source.active if source else None
+        if active is None:
+            return
+        options = active.imported.options
+        mapping = (
+            options.mapping_for(active.imported.array_catalog, column)
+            if isinstance(options, ArrayOptions)
+            else None
+        )
+        self.jobs.request_record(
+            active.dataset,
+            column,
+            position,
+            active.imported.array_catalog,
+            mapping,
+            self.settings.array_sample_rate,
+        )
+
+    def request_profile(self) -> None:
+        if self._source:
+            self.jobs.request_profile(
+                self.settings.range, self.settings.thresholds, self._source.arrays
+            )
+
+    def request_signal(self) -> None:
+        if self._source:
+            settings = self.settings
+            self.signal.request(
+                settings.range,
+                settings.channel,
+                settings.view,
+                self._source.arrays,
+                settings.cpu_bytes,
+            )
+
     def close(self, file_id: str | None = None) -> None:
+        self._source = None
         if self._owns_player:
             self.player.close(wait=False)
         elif file_id is not None:

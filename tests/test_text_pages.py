@@ -7,9 +7,9 @@ from time import monotonic, sleep
 from unittest.mock import patch
 from uuid import uuid4
 
+from datelier.application.editor import EditorController
 from datelier.core.dataset import DatasetRevision
 from datelier.core.jobs import SharedWorkers
-from datelier.gui.editor_session import EditorSession
 from datelier.inspection.text.page_jobs import TextPageJobs
 from datelier.inspection.text.pages import TextPage, display_text, prepare_text_page
 from datelier.inspection.text.tokenization import TextTokenizer
@@ -122,7 +122,7 @@ def test_line_record_default_uses_one_line_and_supporting_identity(
 ) -> None:
     path = tmp_path / "lines.txt"
     path.write_text("first line\nsecond 中🙂\n")
-    editor = EditorSession()
+    editor = EditorController()
     try:
         file = editor.active
         file.loader.request(
@@ -133,7 +133,7 @@ def test_line_record_default_uses_one_line_and_supporting_identity(
             editor.poll()
             sleep(0.001)
         assert file.loader.active and file.text.jobs.settings.column == "text"
-        file.text.request_record(file, "text", 1)
+        file.text.request_record("text", 1)
         deadline = monotonic() + 5
         while file.text.jobs.active is None and monotonic() < deadline:
             editor.poll()

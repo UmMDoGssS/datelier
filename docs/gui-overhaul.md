@@ -56,7 +56,7 @@ components implement Component.render; container classes render direct children.
 | A | Replace GUI package; GUI-free file/record/editor runtime and component contracts | Complete; desktop deliberately not runnable |
 | B | Shared controls, shell, columns, table, tabular profiles and plots | Complete; basic inspection shell runnable |
 | C | Contextual analysis, transforms/history, export and workspace/preferences | Complete; advanced plot modes tracked separately |
-| D | Structured/array/checkpoint source and multimodal record/profile families | Pending |
+| D | Structured/array/checkpoint source and multimodal record/profile families | In progress; focused Inspect restored |
 | E | Comparison families, remaining features and integrated acceptance | Pending |
 
 Each stage runs scoped Pyrefly, behavioral tests, full Ruff checks and diff review
@@ -137,6 +137,26 @@ first-frame defaults from overwriting restored routes. Shared resize/navigation
 regression passes 64 frames, 14.13 ms p95. [Workspace report](evidence/gui-overhaul/fresh-workspace.json).
 Native file-browser selection, remaining advanced plots and all specialized
 content/comparison acceptance remain open, as does full old caller migration.
+
+## Fresh Stage D1 — Shared record Inspect
+
+Inspect now composes virtualized collection/card/header/content/supporting-field
+components. Focused text, image, audio, nested and scalar content share typed
+record routing and model-bound viewports; gallery previews stay bounded. Original
+image pixels retain lazy metadata/window preparation, exact Unicode/token offsets
+and full text paging are restored, and audio headers remain decode-free until
+an explicit waveform/profile command. Context shows only controls applicable to
+that record family. Page teardown releases textures on the GUI thread, including
+callback failures. Closing views releases their prepared record bindings.
+
+Verification: scoped Pyrefly zero errors, 26 focused controller/record/image/audio/
+text tests, full Ruff lint/format and diff checks pass. Migrated text/record tests
+exercise new controller APIs, including restored missing-field recovery and
+line-text defaults. Native original pixels, NFC source spans and explicit waveform
+input pass with unchanged source bytes and zero implicit collection work/playback.
+[Record report](evidence/gui-overhaul/fresh-records.json) retains timing evidence.
+Structured sources, array content, media profiles/training/annotations/playback,
+comparison families and advanced plots remain open.
 
 ## Baseline evidence
 

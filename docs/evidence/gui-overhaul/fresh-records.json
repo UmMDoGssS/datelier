@@ -1,0 +1,9 @@
+{
+  "frames": 54,
+  "p95_ms": 20.609434450216224,
+  "image_original_pixels": true,
+  "text_original_spans": true,
+  "audio_original_waveform": true,
+  "source_preserved": true,
+  "implicit_collection_playback": 0
+}

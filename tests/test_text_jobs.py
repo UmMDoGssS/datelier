@@ -10,9 +10,9 @@ from unittest.mock import patch
 import polars as pl
 from tokenizers import Tokenizer, models
 
+from datelier.application.editor import EditorController
 from datelier.core.dataset import Dataset, SourceReference
 from datelier.core.jobs import SharedWorkers
-from datelier.gui.editor_session import EditorSession
 from datelier.inspection.references.types import ReferenceSettings
 from datelier.inspection.text.jobs import TextJobs, prepare_document
 from datelier.inspection.text.types import (
@@ -126,13 +126,13 @@ def test_obsolete_or_closed_work_cannot_publish(tmp_path: Path) -> None:
 def test_saved_configuration_and_legacy_defaults_restore_without_work(
     tmp_path: Path,
 ) -> None:
-    from datelier.gui.workspace.state import capture_views
+    from datelier.application.workspace import capture_views
 
     path = tmp_path / "source.csv"
     path.write_text("id,text\n1,Hello world\n2,你好\n")
-    editor = EditorSession()
+    editor = EditorController()
     try:
-        file = editor.new_tab(path)
+        file = editor.new_file(path)
         deadline = monotonic() + 5
         while not file.loader.active and monotonic() < deadline:
             editor.poll()
@@ -152,15 +152,15 @@ def test_saved_configuration_and_legacy_defaults_restore_without_work(
         legacy.pop("text")
         assert decode_record(WorkspaceViews, legacy).text == TextSettings()
         workspace = tmp_path / "session.datelier.json"
-        editor.save_workspace(workspace)
+        editor.save_workspace(workspace, "", (), False, True)
         deadline = monotonic() + 5
-        while editor.workspace_jobs.session_busy and monotonic() < deadline:
+        while editor.workspace.session_busy and monotonic() < deadline:
             editor.poll()
             sleep(0.001)
-        assert editor.workspace_jobs.saved
+        assert editor.workspace.saved
         editor.open_workspace(workspace)
         deadline = monotonic() + 5
-        while editor.workspace_jobs.session_busy and monotonic() < deadline:
+        while editor.workspace.session_busy and monotonic() < deadline:
             editor.poll()
             sleep(0.001)
         reopened = next(f for f in editor.files if f.loader.active)

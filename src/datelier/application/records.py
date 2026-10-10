@@ -4,10 +4,14 @@ from concurrent.futures import Executor
 from dataclasses import replace
 from enum import StrEnum
 
+import polars as pl
+
+from datelier.application.columns import ColumnChoice
 from datelier.core.column_roles import ColumnRole
+from datelier.core.dataset import Dataset
 from datelier.inspection.arrays.mapping import ArrayLayout
 from datelier.inspection.records.jobs import RecordJobs
-from datelier.inspection.records.types import InspectSettings, RecordCard
+from datelier.inspection.records.types import InspectSettings, RecordCard, RecordField
 from datelier.inspection.table import Inspection
 from datelier.io.types import ArrayOptions
 from datelier.plotting.selection import LinkedSelection
@@ -41,6 +45,11 @@ def record_kind(inspection: Inspection, card: RecordCard) -> RecordKind:
             ArrayLayout.HEATMAP: RecordKind.IMAGE,
         }.get(mapping.layout, RecordKind.ARRAY)
     role = inspection.dataset.role(primary.name).role
+    if inspection.dataset.table.schema[primary.name] == pl.String and role not in (
+        ColumnRole.IMAGE,
+        ColumnRole.AUDIO,
+    ):
+        return RecordKind.TEXT
     return {
         ColumnRole.TEXT: RecordKind.TEXT,
         ColumnRole.EXTERNAL_TEXT: RecordKind.TEXT,
@@ -54,15 +63,64 @@ class RecordController:
         self.jobs = RecordJobs(executor)
         self.settings = InspectSettings()
         self.selection = selection
+        self.choices: tuple[ColumnChoice, ...] = ()
+        self._inspection: Inspection | None = None
+
+    def bind(self, dataset: Dataset) -> None:
+        columns = dataset.table.columns
+        self.settings = replace(
+            self.settings,
+            primary=self.settings.primary
+            if self.settings.primary in columns
+            else next(iter(columns), None),
+            supporting=None
+            if self.settings.supporting is None
+            else tuple(name for name in self.settings.supporting if name in columns),
+        )
 
     def poll(self, inspection: Inspection | None) -> None:
+        self._inspection = inspection
+        self.choices = (
+            tuple(
+                ColumnChoice(info.name, info.role.value)
+                for info in inspection.dataset.roles or ()
+            )
+            if inspection
+            else ()
+        )
         if inspection is None:
             self.jobs.abandon()
             return
+        self.bind(inspection.dataset)
         self.jobs.sync(
             inspection.dataset, self.settings, tuple(sorted(self.selection.row_ids))
         )
         self.jobs.poll()
+
+    def kind(self, card: RecordCard) -> RecordKind:
+        return (
+            record_kind(self._inspection, card)
+            if self._inspection
+            else RecordKind.VALUE
+        )
+
+    def current_kind(self) -> RecordKind:
+        inspection, name = self._inspection, self.settings.primary
+        if (
+            inspection is None
+            or name is None
+            or name not in inspection.dataset.table.columns
+        ):
+            return RecordKind.VALUE
+        if inspection.dataset.table.schema[name].is_nested():
+            return RecordKind.NESTED
+        return record_kind(inspection, RecordCard(0, 0, RecordField(name, ""), ()))
+
+    def select(self, card: RecordCard, toggle: bool) -> None:
+        if self._inspection:
+            self.selection.choose(
+                self._inspection.dataset.revision, (card.row_id,), toggle=toggle
+            )
 
     def focus(self, slot: int) -> None:
         records = self.jobs.active
@@ -72,4 +130,5 @@ class RecordController:
         self.selection.choose(records.revision, (int(records.row_ids[slot]),))
 
     def close(self) -> None:
+        self._inspection = None
         self.jobs.close()

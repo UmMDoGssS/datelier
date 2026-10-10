@@ -35,6 +35,8 @@ def capture_views(file: FileController) -> WorkspaceViews:
         array_retention_bytes=file.arrays.store.limit,
         checkpoint_slice=file.checkpoints.settings,
         text=file.text.jobs.settings,
+        text_height=file.text.original_height,
+        token_height=file.text.token_height,
         image=file.images.settings,
         audio=file.audio.settings,
     )

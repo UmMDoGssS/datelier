@@ -8,14 +8,21 @@ from imgui_bundle import imgui
 from datelier.analysis.types import Algorithm
 from datelier.application.editor import EditorController
 from datelier.application.file import FileController
+from datelier.application.records import RecordKind
 from datelier.gui.analysis.view import AnalysisSettingsView
 from datelier.gui.components.base import Component, Container, FrameContext
 from datelier.gui.components.viewport import ResizableViewport
 from datelier.gui.context.history import HistoryView
+from datelier.gui.context.media import InspectSettings
 from datelier.gui.context.profiles import ProfileSettings
 from datelier.gui.context.relationships import CorrelationSettings, RelationshipSettings
 from datelier.gui.context.transforms import TransformSettings
 from datelier.gui.profiles.content import ProfileRouter
+from datelier.gui.records.audio import AudioContent
+from datelier.gui.records.base import RecordContent
+from datelier.gui.records.collection import RecordBody, RecordCollection
+from datelier.gui.records.images import ImageContent
+from datelier.gui.records.text import TextContent
 from datelier.gui.relationships.correlations import CorrelationPlot
 from datelier.gui.relationships.scatter import ScatterPlot
 from datelier.gui.shell.navigation import CanvasTabs, NamedTab
@@ -112,6 +119,42 @@ def assemble_file(file: FileController, editor: EditorController) -> FileCompone
             ),
         )
 
+    def record_viewport(kind: RecordKind, content: RecordContent) -> ResizableViewport:
+        if kind == RecordKind.IMAGE:
+            return ResizableViewport(
+                "image-viewport",
+                content,
+                minimum=100,
+                read_height=lambda: file.views.image_height,
+                write_height=lambda value: setattr(
+                    file, "views", replace(file.views, image_height=value)
+                ),
+            )
+        if kind == RecordKind.AUDIO:
+            return ResizableViewport(
+                "audio-viewport",
+                content,
+                read_height=lambda: file.audio.settings.plot_height,
+                write_height=lambda value: setattr(
+                    file.audio,
+                    "settings",
+                    replace(file.audio.settings, plot_height=value),
+                ),
+            )
+        return ResizableViewport(kind.value, content, height=220, minimum=100)
+
+    body = RecordBody(
+        file.records,
+        file.references,
+        {
+            RecordKind.IMAGE: ImageContent(file.images),
+            RecordKind.TEXT: TextContent(file.text),
+            RecordKind.AUDIO: AudioContent(file.audio),
+        },
+        record_viewport,
+    )
+    records = RecordCollection(file.records, body, file.table.go_to)
+
     canvas = CanvasTabs(
         (
             NamedTab("Profiles", ProfileRouter(file.profiles)),
@@ -123,7 +166,7 @@ def assemble_file(file: FileController, editor: EditorController) -> FileCompone
                 "Correlations",
                 correlation_viewport(),
             ),
-            NamedTab("Inspect", Message("records", "Choose records to inspect.")),
+            NamedTab("Inspect", records),
             NamedTab(
                 "Compare files", Message("comparisons", "Choose sources to compare.")
             ),
@@ -146,6 +189,9 @@ def assemble_file(file: FileController, editor: EditorController) -> FileCompone
                             ),
                         ),
                         "Correlations": CorrelationSettings(file.plots),
+                        "Inspect": InspectSettings(
+                            file.records, file.text, file.images, file.audio
+                        ),
                     },
                     route,
                 ),

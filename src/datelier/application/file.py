@@ -36,7 +36,7 @@ from datelier.inspection.text.list_records import is_text_field
 from datelier.io.arrays.storage import ArrayStore
 from datelier.io.exporting import DatasetExporter
 from datelier.io.loading import DatasetLoader
-from datelier.io.types import ImportFormat, ImportOptions
+from datelier.io.types import ImportFormat, ImportOptions, MediaOptions
 from datelier.pipeline.editing import DatasetEditor
 from datelier.plotting.selection import LinkedSelection
 from datelier.workspace.jobs import WorkspaceJobs
@@ -138,6 +138,8 @@ class FileController:
         )
         self.records.settings = self.views.inspect
         self.text.jobs.settings = self.views.text
+        self.text.original_height = self.views.text_height
+        self.text.token_height = self.views.token_height
         self.images.settings = self.views.image
         self.audio.settings = self.views.audio
         self.references.settings = self.views.references
@@ -200,15 +202,30 @@ class FileController:
                 ),
                 next(iter(dataset.table.columns), None),
             )
+        if (
+            isinstance(active.imported.options, MediaOptions)
+            and active.imported.options.text_lines
+            and "text" in dataset.table.columns
+        ):
+            primary = "text"
         self.records.settings = replace(self.records.settings, primary=primary)
         if self.text.jobs.settings.column not in dataset.table.columns:
             self.text.jobs.settings = replace(
                 self.text.jobs.settings,
                 column=next(
-                    (
-                        n
-                        for n, dtype in dataset.table.schema.items()
-                        if is_text_field(dtype)
+                    iter(
+                        sorted(
+                            (
+                                n
+                                for n, dtype in dataset.table.schema.items()
+                                if is_text_field(dtype)
+                            ),
+                            key=lambda name: (
+                                name != "text",
+                                dataset.role(name).role
+                                not in (ColumnRole.TEXT, ColumnRole.LIST_TEXT),
+                            ),
+                        )
                     ),
                     None,
                 ),

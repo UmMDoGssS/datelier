@@ -89,10 +89,20 @@ def run_gui(
         if smoke_frames and evidence.frames >= smoke_frames:
             params.app_shall_exit = True
 
+    def safe(callback: Callable[[], None]) -> Callable[[], None]:
+        def guarded() -> None:
+            try:
+                callback()
+            except BaseException:
+                page.close()
+                raise
+
+        return guarded
+
     params.callbacks.post_init = initialize
-    params.callbacks.pre_new_frame = prepare
-    params.callbacks.show_menus = lambda: page.menu.render(frame.child("menus"))
-    params.callbacks.show_gui = draw
+    params.callbacks.pre_new_frame = safe(prepare)
+    params.callbacks.show_menus = safe(lambda: page.menu.render(frame.child("menus")))
+    params.callbacks.show_gui = safe(draw)
 
     def before_exit() -> None:
         page.save_preferences()

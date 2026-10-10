@@ -9,11 +9,13 @@ from datelier.inspection.annotations.profile_jobs import AnnotationProfileJobs
 from datelier.inspection.images.jobs import ImageJobs
 from datelier.inspection.images.profile_jobs import ImageProfileJobs
 from datelier.inspection.images.settings import ImageSettings
+from datelier.inspection.images.types import ImageWindow
 from datelier.io.types import ArrayOptions
 
 
 class ImageController(MediaController):
     def __init__(self, executor: Executor | None = None) -> None:
+        self._source: MediaInput | None = None
         self.jobs = ImageJobs(executor)
         self.settings = ImageSettings()
         self.profile_jobs = ImageProfileJobs(executor)
@@ -21,6 +23,7 @@ class ImageController(MediaController):
         self.annotation_profiles = AnnotationProfileJobs(executor)
 
     def sync(self, source: MediaInput) -> None:
+        self._source = source
         active = source.active
         self.jobs.sync(
             source.file_id,
@@ -73,7 +76,27 @@ class ImageController(MediaController):
         self.annotation_profiles.bind(self.annotations.active)
         self.annotation_profiles.poll()
 
+    def request_record(self, column: str, position: int) -> None:
+        source = self._source
+        active = source.active if source else None
+        if active is None:
+            return
+        options = active.imported.options
+        mapping = (
+            options.mapping_for(active.imported.array_catalog, column)
+            if isinstance(options, ArrayOptions)
+            else None
+        )
+        self.jobs.request_record(
+            active.dataset, column, position, active.imported.array_catalog, mapping
+        )
+
+    def request_window(self, window: ImageWindow) -> None:
+        if self._source:
+            self.jobs.request_window(window, self.settings.display, self._source.arrays)
+
     def close(self) -> None:
+        self._source = None
         self.jobs.close()
         self.profile_jobs.close()
         self.annotations.close()
