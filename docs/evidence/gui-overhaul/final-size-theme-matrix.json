@@ -1,0 +1,573 @@
+{
+  "shell": [
+    {
+      "frames": 179,
+      "frame_p95_ms": 17.292617401108146,
+      "size": [
+        1024,
+        768
+      ],
+      "theme": "Dark",
+      "profiles": 1,
+      "resize_delta": 35.0,
+      "native_expand_restore": true,
+      "relationships": true,
+      "context_drawer": true,
+      "native_keyboard_filtered_column_selection": true,
+      "correlations": true,
+      "source_preserved": true,
+      "implicit_operations": 0,
+      "targets": 72
+    },
+    {
+      "frames": 179,
+      "frame_p95_ms": 17.672264999418985,
+      "size": [
+        1024,
+        768
+      ],
+      "theme": "Light",
+      "profiles": 1,
+      "resize_delta": 35.0,
+      "native_expand_restore": true,
+      "relationships": true,
+      "context_drawer": true,
+      "native_keyboard_filtered_column_selection": true,
+      "correlations": true,
+      "source_preserved": true,
+      "implicit_operations": 0,
+      "targets": 72
+    },
+    {
+      "frames": 179,
+      "frame_p95_ms": 17.34849979984574,
+      "size": [
+        1024,
+        768
+      ],
+      "theme": "Classic",
+      "profiles": 1,
+      "resize_delta": 35.0,
+      "native_expand_restore": true,
+      "relationships": true,
+      "context_drawer": true,
+      "native_keyboard_filtered_column_selection": true,
+      "correlations": true,
+      "source_preserved": true,
+      "implicit_operations": 0,
+      "targets": 72
+    },
+    {
+      "frames": 170,
+      "frame_p95_ms": 21.20142675594252,
+      "size": [
+        1280,
+        800
+      ],
+      "theme": "Dark",
+      "profiles": 1,
+      "resize_delta": 35.0,
+      "native_expand_restore": true,
+      "relationships": true,
+      "context_drawer": false,
+      "native_keyboard_filtered_column_selection": true,
+      "correlations": true,
+      "source_preserved": true,
+      "implicit_operations": 0,
+      "targets": 67
+    },
+    {
+      "frames": 170,
+      "frame_p95_ms": 21.51618324787705,
+      "size": [
+        1280,
+        800
+      ],
+      "theme": "Light",
+      "profiles": 1,
+      "resize_delta": 35.0,
+      "native_expand_restore": true,
+      "relationships": true,
+      "context_drawer": false,
+      "native_keyboard_filtered_column_selection": true,
+      "correlations": true,
+      "source_preserved": true,
+      "implicit_operations": 0,
+      "targets": 67
+    },
+    {
+      "frames": 170,
+      "frame_p95_ms": 20.904892497856054,
+      "size": [
+        1280,
+        800
+      ],
+      "theme": "Classic",
+      "profiles": 1,
+      "resize_delta": 35.0,
+      "native_expand_restore": true,
+      "relationships": true,
+      "context_drawer": false,
+      "native_keyboard_filtered_column_selection": true,
+      "correlations": true,
+      "source_preserved": true,
+      "implicit_operations": 0,
+      "targets": 67
+    },
+    {
+      "frames": 170,
+      "frame_p95_ms": 30.047510149597656,
+      "size": [
+        1600,
+        1000
+      ],
+      "theme": "Dark",
+      "profiles": 1,
+      "resize_delta": 35.0,
+      "native_expand_restore": true,
+      "relationships": true,
+      "context_drawer": false,
+      "native_keyboard_filtered_column_selection": true,
+      "correlations": true,
+      "source_preserved": true,
+      "implicit_operations": 0,
+      "targets": 72
+    },
+    {
+      "frames": 170,
+      "frame_p95_ms": 30.720420000943705,
+      "size": [
+        1600,
+        1000
+      ],
+      "theme": "Light",
+      "profiles": 1,
+      "resize_delta": 35.0,
+      "native_expand_restore": true,
+      "relationships": true,
+      "context_drawer": false,
+      "native_keyboard_filtered_column_selection": true,
+      "correlations": true,
+      "source_preserved": true,
+      "implicit_operations": 0,
+      "targets": 72
+    },
+    {
+      "frames": 170,
+      "frame_p95_ms": 29.61396930440969,
+      "size": [
+        1600,
+        1000
+      ],
+      "theme": "Classic",
+      "profiles": 1,
+      "resize_delta": 35.0,
+      "native_expand_restore": true,
+      "relationships": true,
+      "context_drawer": false,
+      "native_keyboard_filtered_column_selection": true,
+      "correlations": true,
+      "source_preserved": true,
+      "implicit_operations": 0,
+      "targets": 72
+    }
+  ],
+  "media": [
+    {
+      "size": [
+        1024,
+        768
+      ],
+      "theme": "Dark",
+      "frames": 1291,
+      "p95_ms": 19.281292996311095,
+      "viewports": [
+        "image/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/image-viewport",
+        "caption/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/text/original-text",
+        "caption/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/text/token-list",
+        "audio/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/audio-viewport",
+        "audio-spectral/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/audio-viewport",
+        "pixels/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/image-viewport",
+        "Profiles/workbench/canvas/view/canvas/Profiles/view/content/numeric/numeric-plot",
+        "profile-text-Length distribution/workbench/canvas/view/canvas/Profiles/view/text-profile/canvas/Length distribution/text-lengths",
+        "profile-text-Token frequencies/workbench/canvas/view/canvas/Profiles/view/text-profile/canvas/Token frequencies/frequencies/text-frequency",
+        "profile-image-Dimensions/workbench/canvas/view/canvas/Profiles/view/image-profile/canvas/Dimensions/dimensions",
+        "profile-image-Colors/workbench/canvas/view/canvas/Profiles/view/image-profile/canvas/Colors/colors",
+        "Columns/workbench/canvas/view/canvas/Compare files/shared/canvas/Columns/column-comparison/column-viewport",
+        "Text/workbench/canvas/view/canvas/Compare files/shared/canvas/Text/text-comparison/canvas/Lengths/text-length-viewport",
+        "Images/workbench/canvas/view/canvas/Compare files/shared/canvas/Images/image-comparison/canvas/Dimensions/image-dimension-viewport",
+        "Audio/workbench/canvas/view/canvas/Compare files/shared/canvas/Audio/audio-comparison/canvas/Distributions/audio-comparison-viewport"
+      ],
+      "gpu_cycles": 6,
+      "peak_gpu_bytes": 75888,
+      "gpu_after_every_close": 0,
+      "peak_rss_mib": 394.51171875,
+      "retained_growth_mib": 0.28125,
+      "max_close_ms": 0.7862679995014332,
+      "workers": 4,
+      "max_outstanding": 5,
+      "preview_ms": [
+        136.34700299735414,
+        139.0303540028981,
+        139.1518559976248,
+        138.59789300477132,
+        139.02239999879384,
+        133.7633729999652
+      ],
+      "source_preserved": true,
+      "implicit_ml_training_playback": 0
+    },
+    {
+      "size": [
+        1024,
+        768
+      ],
+      "theme": "Light",
+      "frames": 1291,
+      "p95_ms": 19.758451999223325,
+      "viewports": [
+        "image/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/image-viewport",
+        "caption/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/text/original-text",
+        "caption/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/text/token-list",
+        "audio/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/audio-viewport",
+        "audio-spectral/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/audio-viewport",
+        "pixels/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/image-viewport",
+        "Profiles/workbench/canvas/view/canvas/Profiles/view/content/numeric/numeric-plot",
+        "profile-text-Length distribution/workbench/canvas/view/canvas/Profiles/view/text-profile/canvas/Length distribution/text-lengths",
+        "profile-text-Token frequencies/workbench/canvas/view/canvas/Profiles/view/text-profile/canvas/Token frequencies/frequencies/text-frequency",
+        "profile-image-Dimensions/workbench/canvas/view/canvas/Profiles/view/image-profile/canvas/Dimensions/dimensions",
+        "profile-image-Colors/workbench/canvas/view/canvas/Profiles/view/image-profile/canvas/Colors/colors",
+        "Columns/workbench/canvas/view/canvas/Compare files/shared/canvas/Columns/column-comparison/column-viewport",
+        "Text/workbench/canvas/view/canvas/Compare files/shared/canvas/Text/text-comparison/canvas/Lengths/text-length-viewport",
+        "Images/workbench/canvas/view/canvas/Compare files/shared/canvas/Images/image-comparison/canvas/Dimensions/image-dimension-viewport",
+        "Audio/workbench/canvas/view/canvas/Compare files/shared/canvas/Audio/audio-comparison/canvas/Distributions/audio-comparison-viewport"
+      ],
+      "gpu_cycles": 6,
+      "peak_gpu_bytes": 75888,
+      "gpu_after_every_close": 0,
+      "peak_rss_mib": 393.6875,
+      "retained_growth_mib": 0.30859375,
+      "max_close_ms": 0.789669000369031,
+      "workers": 4,
+      "max_outstanding": 5,
+      "preview_ms": [
+        137.91526099521434,
+        137.2354199993424,
+        143.3251990019926,
+        138.89085900154896,
+        148.71935900009703,
+        139.93282499723136
+      ],
+      "source_preserved": true,
+      "implicit_ml_training_playback": 0
+    },
+    {
+      "size": [
+        1024,
+        768
+      ],
+      "theme": "Classic",
+      "frames": 1291,
+      "p95_ms": 19.585415000619832,
+      "viewports": [
+        "image/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/image-viewport",
+        "caption/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/text/original-text",
+        "caption/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/text/token-list",
+        "audio/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/audio-viewport",
+        "audio-spectral/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/audio-viewport",
+        "pixels/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/image-viewport",
+        "Profiles/workbench/canvas/view/canvas/Profiles/view/content/numeric/numeric-plot",
+        "profile-text-Length distribution/workbench/canvas/view/canvas/Profiles/view/text-profile/canvas/Length distribution/text-lengths",
+        "profile-text-Token frequencies/workbench/canvas/view/canvas/Profiles/view/text-profile/canvas/Token frequencies/frequencies/text-frequency",
+        "profile-image-Dimensions/workbench/canvas/view/canvas/Profiles/view/image-profile/canvas/Dimensions/dimensions",
+        "profile-image-Colors/workbench/canvas/view/canvas/Profiles/view/image-profile/canvas/Colors/colors",
+        "Columns/workbench/canvas/view/canvas/Compare files/shared/canvas/Columns/column-comparison/column-viewport",
+        "Text/workbench/canvas/view/canvas/Compare files/shared/canvas/Text/text-comparison/canvas/Lengths/text-length-viewport",
+        "Images/workbench/canvas/view/canvas/Compare files/shared/canvas/Images/image-comparison/canvas/Dimensions/image-dimension-viewport",
+        "Audio/workbench/canvas/view/canvas/Compare files/shared/canvas/Audio/audio-comparison/canvas/Distributions/audio-comparison-viewport"
+      ],
+      "gpu_cycles": 6,
+      "peak_gpu_bytes": 75888,
+      "gpu_after_every_close": 0,
+      "peak_rss_mib": 394.04296875,
+      "retained_growth_mib": 0.5078125,
+      "max_close_ms": 0.7172210025601089,
+      "workers": 4,
+      "max_outstanding": 5,
+      "preview_ms": [
+        142.20124800340272,
+        135.76808099605842,
+        139.16140800574794,
+        140.71255100134294,
+        140.88462100335164,
+        138.3349990064744
+      ],
+      "source_preserved": true,
+      "implicit_ml_training_playback": 0
+    },
+    {
+      "size": [
+        1280,
+        800
+      ],
+      "theme": "Dark",
+      "frames": 1289,
+      "p95_ms": 23.435941695061043,
+      "viewports": [
+        "image/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/image-viewport",
+        "caption/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/text/original-text",
+        "caption/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/text/token-list",
+        "audio/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/audio-viewport",
+        "audio-spectral/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/audio-viewport",
+        "pixels/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/image-viewport",
+        "Profiles/workbench/canvas/view/canvas/Profiles/view/content/numeric/numeric-plot",
+        "profile-text-Length distribution/workbench/canvas/view/canvas/Profiles/view/text-profile/canvas/Length distribution/text-lengths",
+        "profile-text-Token frequencies/workbench/canvas/view/canvas/Profiles/view/text-profile/canvas/Token frequencies/frequencies/text-frequency",
+        "profile-image-Dimensions/workbench/canvas/view/canvas/Profiles/view/image-profile/canvas/Dimensions/dimensions",
+        "profile-image-Colors/workbench/canvas/view/canvas/Profiles/view/image-profile/canvas/Colors/colors",
+        "Columns/workbench/canvas/view/canvas/Compare files/shared/canvas/Columns/column-comparison/column-viewport",
+        "Text/workbench/canvas/view/canvas/Compare files/shared/canvas/Text/text-comparison/canvas/Lengths/text-length-viewport",
+        "Images/workbench/canvas/view/canvas/Compare files/shared/canvas/Images/image-comparison/canvas/Dimensions/image-dimension-viewport",
+        "Audio/workbench/canvas/view/canvas/Compare files/shared/canvas/Audio/audio-comparison/canvas/Distributions/audio-comparison-viewport"
+      ],
+      "gpu_cycles": 6,
+      "peak_gpu_bytes": 75888,
+      "gpu_after_every_close": 0,
+      "peak_rss_mib": 412.41796875,
+      "retained_growth_mib": 0.10546875,
+      "max_close_ms": 0.7378279988188297,
+      "workers": 4,
+      "max_outstanding": 5,
+      "preview_ms": [
+        175.3237610028009,
+        179.14472600386944,
+        172.93894100293983,
+        175.87500299850944,
+        175.61624700465472,
+        176.03251399850706
+      ],
+      "source_preserved": true,
+      "implicit_ml_training_playback": 0
+    },
+    {
+      "size": [
+        1280,
+        800
+      ],
+      "theme": "Light",
+      "frames": 1289,
+      "p95_ms": 23.53045280178776,
+      "viewports": [
+        "image/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/image-viewport",
+        "caption/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/text/original-text",
+        "caption/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/text/token-list",
+        "audio/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/audio-viewport",
+        "audio-spectral/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/audio-viewport",
+        "pixels/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/image-viewport",
+        "Profiles/workbench/canvas/view/canvas/Profiles/view/content/numeric/numeric-plot",
+        "profile-text-Length distribution/workbench/canvas/view/canvas/Profiles/view/text-profile/canvas/Length distribution/text-lengths",
+        "profile-text-Token frequencies/workbench/canvas/view/canvas/Profiles/view/text-profile/canvas/Token frequencies/frequencies/text-frequency",
+        "profile-image-Dimensions/workbench/canvas/view/canvas/Profiles/view/image-profile/canvas/Dimensions/dimensions",
+        "profile-image-Colors/workbench/canvas/view/canvas/Profiles/view/image-profile/canvas/Colors/colors",
+        "Columns/workbench/canvas/view/canvas/Compare files/shared/canvas/Columns/column-comparison/column-viewport",
+        "Text/workbench/canvas/view/canvas/Compare files/shared/canvas/Text/text-comparison/canvas/Lengths/text-length-viewport",
+        "Images/workbench/canvas/view/canvas/Compare files/shared/canvas/Images/image-comparison/canvas/Dimensions/image-dimension-viewport",
+        "Audio/workbench/canvas/view/canvas/Compare files/shared/canvas/Audio/audio-comparison/canvas/Distributions/audio-comparison-viewport"
+      ],
+      "gpu_cycles": 6,
+      "peak_gpu_bytes": 75888,
+      "gpu_after_every_close": 0,
+      "peak_rss_mib": 412.95703125,
+      "retained_growth_mib": 0.00390625,
+      "max_close_ms": 0.7276360047399066,
+      "workers": 4,
+      "max_outstanding": 4,
+      "preview_ms": [
+        189.34525099757593,
+        178.24199099413818,
+        178.7679599947296,
+        171.5520049983752,
+        181.8341319958563,
+        172.4323149974225
+      ],
+      "source_preserved": true,
+      "implicit_ml_training_playback": 0
+    },
+    {
+      "size": [
+        1280,
+        800
+      ],
+      "theme": "Classic",
+      "frames": 1289,
+      "p95_ms": 23.329195004043864,
+      "viewports": [
+        "image/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/image-viewport",
+        "caption/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/text/original-text",
+        "caption/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/text/token-list",
+        "audio/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/audio-viewport",
+        "audio-spectral/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/audio-viewport",
+        "pixels/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/image-viewport",
+        "Profiles/workbench/canvas/view/canvas/Profiles/view/content/numeric/numeric-plot",
+        "profile-text-Length distribution/workbench/canvas/view/canvas/Profiles/view/text-profile/canvas/Length distribution/text-lengths",
+        "profile-text-Token frequencies/workbench/canvas/view/canvas/Profiles/view/text-profile/canvas/Token frequencies/frequencies/text-frequency",
+        "profile-image-Dimensions/workbench/canvas/view/canvas/Profiles/view/image-profile/canvas/Dimensions/dimensions",
+        "profile-image-Colors/workbench/canvas/view/canvas/Profiles/view/image-profile/canvas/Colors/colors",
+        "Columns/workbench/canvas/view/canvas/Compare files/shared/canvas/Columns/column-comparison/column-viewport",
+        "Text/workbench/canvas/view/canvas/Compare files/shared/canvas/Text/text-comparison/canvas/Lengths/text-length-viewport",
+        "Images/workbench/canvas/view/canvas/Compare files/shared/canvas/Images/image-comparison/canvas/Dimensions/image-dimension-viewport",
+        "Audio/workbench/canvas/view/canvas/Compare files/shared/canvas/Audio/audio-comparison/canvas/Distributions/audio-comparison-viewport"
+      ],
+      "gpu_cycles": 6,
+      "peak_gpu_bytes": 75888,
+      "gpu_after_every_close": 0,
+      "peak_rss_mib": 413.50390625,
+      "retained_growth_mib": 0.13671875,
+      "max_close_ms": 0.784217998443637,
+      "workers": 4,
+      "max_outstanding": 5,
+      "preview_ms": [
+        182.8525989985792,
+        176.94155700155534,
+        180.07537800440332,
+        169.29132599761942,
+        174.10211899550632,
+        174.96381499950076
+      ],
+      "source_preserved": true,
+      "implicit_ml_training_playback": 0
+    },
+    {
+      "size": [
+        1600,
+        1000
+      ],
+      "theme": "Dark",
+      "frames": 1269,
+      "p95_ms": 31.87707500401302,
+      "viewports": [
+        "image/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/image-viewport",
+        "caption/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/text/original-text",
+        "caption/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/text/token-list",
+        "audio/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/audio-viewport",
+        "audio-spectral/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/audio-viewport",
+        "pixels/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/image-viewport",
+        "Profiles/workbench/canvas/view/canvas/Profiles/view/content/numeric/numeric-plot",
+        "profile-text-Length distribution/workbench/canvas/view/canvas/Profiles/view/text-profile/canvas/Length distribution/text-lengths",
+        "profile-text-Token frequencies/workbench/canvas/view/canvas/Profiles/view/text-profile/canvas/Token frequencies/frequencies/text-frequency",
+        "profile-image-Dimensions/workbench/canvas/view/canvas/Profiles/view/image-profile/canvas/Dimensions/dimensions",
+        "profile-image-Colors/workbench/canvas/view/canvas/Profiles/view/image-profile/canvas/Colors/colors",
+        "Columns/workbench/canvas/view/canvas/Compare files/shared/canvas/Columns/column-comparison/column-viewport",
+        "Text/workbench/canvas/view/canvas/Compare files/shared/canvas/Text/text-comparison/canvas/Lengths/text-length-viewport",
+        "Images/workbench/canvas/view/canvas/Compare files/shared/canvas/Images/image-comparison/canvas/Dimensions/image-dimension-viewport",
+        "Audio/workbench/canvas/view/canvas/Compare files/shared/canvas/Audio/audio-comparison/canvas/Distributions/audio-comparison-viewport"
+      ],
+      "gpu_cycles": 6,
+      "peak_gpu_bytes": 75888,
+      "gpu_after_every_close": 0,
+      "peak_rss_mib": 531.765625,
+      "retained_growth_mib": 0.21875,
+      "max_close_ms": 0.7361700045294128,
+      "workers": 4,
+      "max_outstanding": 5,
+      "preview_ms": [
+        236.8776479997905,
+        236.93934900074964,
+        234.52154100232292,
+        238.26791499595856,
+        236.33694000454852,
+        233.93534399656346
+      ],
+      "source_preserved": true,
+      "implicit_ml_training_playback": 0
+    },
+    {
+      "size": [
+        1600,
+        1000
+      ],
+      "theme": "Light",
+      "frames": 1269,
+      "p95_ms": 31.51293320115654,
+      "viewports": [
+        "image/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/image-viewport",
+        "caption/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/text/original-text",
+        "caption/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/text/token-list",
+        "audio/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/audio-viewport",
+        "audio-spectral/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/audio-viewport",
+        "pixels/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/image-viewport",
+        "Profiles/workbench/canvas/view/canvas/Profiles/view/content/numeric/numeric-plot",
+        "profile-text-Length distribution/workbench/canvas/view/canvas/Profiles/view/text-profile/canvas/Length distribution/text-lengths",
+        "profile-text-Token frequencies/workbench/canvas/view/canvas/Profiles/view/text-profile/canvas/Token frequencies/frequencies/text-frequency",
+        "profile-image-Dimensions/workbench/canvas/view/canvas/Profiles/view/image-profile/canvas/Dimensions/dimensions",
+        "profile-image-Colors/workbench/canvas/view/canvas/Profiles/view/image-profile/canvas/Colors/colors",
+        "Columns/workbench/canvas/view/canvas/Compare files/shared/canvas/Columns/column-comparison/column-viewport",
+        "Text/workbench/canvas/view/canvas/Compare files/shared/canvas/Text/text-comparison/canvas/Lengths/text-length-viewport",
+        "Images/workbench/canvas/view/canvas/Compare files/shared/canvas/Images/image-comparison/canvas/Dimensions/image-dimension-viewport",
+        "Audio/workbench/canvas/view/canvas/Compare files/shared/canvas/Audio/audio-comparison/canvas/Distributions/audio-comparison-viewport"
+      ],
+      "gpu_cycles": 6,
+      "peak_gpu_bytes": 75888,
+      "gpu_after_every_close": 0,
+      "peak_rss_mib": 532.08984375,
+      "retained_growth_mib": 0.02734375,
+      "max_close_ms": 0.7100699949660338,
+      "workers": 4,
+      "max_outstanding": 4,
+      "preview_ms": [
+        245.17572699551238,
+        235.26476199913304,
+        228.91414900368545,
+        237.10191599820973,
+        235.7605090001016,
+        234.570607994101
+      ],
+      "source_preserved": true,
+      "implicit_ml_training_playback": 0
+    },
+    {
+      "size": [
+        1600,
+        1000
+      ],
+      "theme": "Classic",
+      "frames": 1269,
+      "p95_ms": 31.773116900876623,
+      "viewports": [
+        "image/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/image-viewport",
+        "caption/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/text/original-text",
+        "caption/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/text/token-list",
+        "audio/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/audio-viewport",
+        "audio-spectral/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/audio-viewport",
+        "pixels/workbench/canvas/view/canvas/Inspect/inspect-source/records/0/body/image-viewport",
+        "Profiles/workbench/canvas/view/canvas/Profiles/view/content/numeric/numeric-plot",
+        "profile-text-Length distribution/workbench/canvas/view/canvas/Profiles/view/text-profile/canvas/Length distribution/text-lengths",
+        "profile-text-Token frequencies/workbench/canvas/view/canvas/Profiles/view/text-profile/canvas/Token frequencies/frequencies/text-frequency",
+        "profile-image-Dimensions/workbench/canvas/view/canvas/Profiles/view/image-profile/canvas/Dimensions/dimensions",
+        "profile-image-Colors/workbench/canvas/view/canvas/Profiles/view/image-profile/canvas/Colors/colors",
+        "Columns/workbench/canvas/view/canvas/Compare files/shared/canvas/Columns/column-comparison/column-viewport",
+        "Text/workbench/canvas/view/canvas/Compare files/shared/canvas/Text/text-comparison/canvas/Lengths/text-length-viewport",
+        "Images/workbench/canvas/view/canvas/Compare files/shared/canvas/Images/image-comparison/canvas/Dimensions/image-dimension-viewport",
+        "Audio/workbench/canvas/view/canvas/Compare files/shared/canvas/Audio/audio-comparison/canvas/Distributions/audio-comparison-viewport"
+      ],
+      "gpu_cycles": 6,
+      "peak_gpu_bytes": 75888,
+      "gpu_after_every_close": 0,
+      "peak_rss_mib": 532.1328125,
+      "retained_growth_mib": 0.11328125,
+      "max_close_ms": 0.6786439989809878,
+      "workers": 4,
+      "max_outstanding": 4,
+      "preview_ms": [
+        232.7898829971673,
+        239.10846500075422,
+        233.6289700033376,
+        236.89229899900965,
+        234.3304399983026,
+        248.4662369970465
+      ],
+      "source_preserved": true,
+      "implicit_ml_training_playback": 0
+    }
+  ]
+}

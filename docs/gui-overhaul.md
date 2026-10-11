@@ -1035,6 +1035,37 @@ expanded preparation is below 1.235 seconds. All four worker cases and visible
 Scoped Pyrefly, 19 selection/scatter/relationship tests, full Ruff and diff checks
 pass. Final harness consolidation, full-project checks and merge remain open.
 
+## Fresh E29 — Harness consolidation and final native inventory
+
+The obsolete native widget/session API callers are retired with a per-harness
+purpose/replacement catalog in [gui-harness-audit.md](gui-harness-audit.md).
+All behavioral tests and domain/resource benchmarks remain. Unicode glyph baking
+and visible emoji verification are migrated to the current callback. Historical
+harness sources remain recoverable from Git; historical evidence is unchanged.
+The current runner executes native processes serially and validates saved command
+lists when resuming an interrupted run.
+
+All **48 native cases pass**: 29 current smoke harnesses, a second distinct dense
+annotation fixture, and shell/media checks for all nine size/theme combinations.
+The long run terminated after 45 successful cases; the last three were completed
+with the validated resume option. No failed result is counted as passed. Shell
+p95 peaks at **30.72 ms** and media p95 at **31.88 ms**; matrix peak RSS is
+**532.13 MiB**. All 135 modality viewport exercises, 54 gallery cycles, source
+hashes, worker bounds, zero GPU owners after closure and no implicit ML/training/
+playback pass. Dark compact, Light medium and Classic large shell captures were
+visually inspected. Evidence:
+[final-native-inventory.json](evidence/gui-overhaul/final-native-inventory.json),
+[final-size-theme-matrix.json](evidence/gui-overhaul/final-size-theme-matrix.json).
+
+Full-project Pyrefly now passes with **zero errors** (one existing narrow
+suppression, 37 warnings). Full pytest passes **1,151 tests**, three dependency
+warnings, 33.44 seconds. An outdated filename assertion was corrected to check
+literal visible content and distinct native identity. Full Ruff lint/format,
+Markdown audit links and diff whitespace pass. README navigation reflects the
+new shell. [gui-refactor-audit.md](gui-refactor-audit.md) records boundaries,
+lifecycle, capability scope and retained human/platform assumptions. Final
+multi-file resource reruns and installed-wheel acceptance remain before merge.
+
 ## Baseline evidence
 
 Before implementation, 38 targeted editor/session/schema-role/profile-selection/

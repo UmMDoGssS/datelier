@@ -86,7 +86,7 @@ the optional CPU checkpoint reader in that local installation.
 Try a CSV with an `id` column followed by at least two varying numeric columns
 (for example `x` and `y`):
 
-1. Open the file and inspect **Table preview**, **Schema and nulls** and **Explore**.
+1. Open the file and inspect **Table preview**, **Source browser** and **Explore**.
 2. In **Transform and history**, sort `x`, then derive `score` with
    `col("x") * 2 + col("y")`. Try **Undo** and **Redo**.
 3. In **Explore → Scatter**, choose `x` and `score`, then **Update raw scatter**.
@@ -119,6 +119,16 @@ uv run ruff format --check .
 `uv sync` installs the default `dev` group with Pyrefly, pytest, and Ruff.
 Use `uv sync --no-dev` for runtime dependencies alone.
 
+Run the current Linux native acceptance inventory and size/theme matrix serially:
+
+```sh
+LIBGL_ALWAYS_SOFTWARE=1 POLARS_MAX_THREADS=8 uv run scripts/rebuild_acceptance.py --matrix
+```
+
+See the [GUI refactor audit](docs/gui-refactor-audit.md) and
+[harness migration catalog](docs/gui-harness-audit.md) for coverage and historical
+smoke commands superseded by the replacement GUI.
+
 ## Data workbench
 
 On a Linux graphical session:
@@ -128,10 +138,17 @@ uv run datelier
 uv run datelier /path/to/data.csv
 ```
 
-Welcome offers **Open Files**, **Open Folder**, a path/retry action and recent
+The workbench has Source/Columns, Canvas, Context and Table panels. Canvas
+contains Profiles, Relationships, Correlations, Inspect and Compare files.
+Context contains View, Transform and History; its controls follow the selected
+canvas route. Context and Table toggles sit beside file tabs. Below 1100 pixels,
+Context opens as a drawer; custom docking is preserved. Undo/Redo are available
+in the toolbar. Switching file tabs exits Compare files and preserves drafts.
+
+Welcome offers file/folder opening, a path/retry action and recent
 files/workspaces. Multiple selected files open independent tabs; reopening a
 source focuses its tab. Tabs switch, reorder and close, and **New Tab** opens
-Welcome. Choose **File → Import settings…** for contextual format/options.
+Welcome. Expand **Import settings** in Source browser for format/options.
 **Auto** detects the format from its extension; use **Format** to override it.
 **Reimport source (resets history)** applies changed options to that tab.
 Imports run in the background; failed reimports retain the previous dataset.
@@ -227,8 +244,8 @@ Referenced workspace recipes are available; fitted results remain session-only.
 
 ## Workspaces
 
-Choose **File → Workspace actions…**. Enter a destination path such
-as `/path/to/session.datelier`, then choose **Save workspace**. Existing files
+Choose **File → Session workspace…**. Enter a destination path such
+as `/path/to/session.datelier`, then choose **Save all tabs**. Existing files
 require **Replace existing workspace**. Save records all tabs and their order,
 the active tab, independent source references/fingerprints, import options,
 undo/redo histories, analysis settings, views and selections (up to 10,000 row
@@ -254,25 +271,22 @@ message. Legacy single-source workspaces open as one-file sessions. An invalid
 workspace leaves the current editor intact. Restoring never launches ML; use an
 explicit Run command. Fitted results last for the session.
 
-The **Preferences** menu offers Dark, Light and Classic themes, **Save
-preferences**, **Restore saved layout**, **Reset layout** and **Reset plot
-defaults**. Preferences also save on exit, including docking, panel visibility,
-plot defaults, views and recent sources. Older layouts with the removed import/
-workspace panels reset while preserving other preferences. Use **View** to reopen
-closed panels. Layout reset
-restores all panels without changing your dataset or history. Settings live in
-`$XDG_CONFIG_HOME/datelier/preferences.json`, or
-`~/.config/datelier/preferences.json` by default. Missing/outdated/invalid settings
-recover with defaults and a status message. Global plot defaults apply on dataset
-import; workspace settings take precedence when reopening. Zoom/pan and 3D
-camera position last for the session. See [Phase 6 evidence](docs/phase-6.md).
+The **Theme** menu offers Dark, Light and Classic. Preferences save on exit,
+including docking, panel visibility, plot defaults, views and recent sources.
+Legacy docking resets with a notice while recipes and other settings remain.
+**View → Reset layout** restores the default panels without changing data or
+history. **View → Context / Table** and the matching toolbar toggles restore
+those panels. Settings live in `$XDG_CONFIG_HOME/datelier/preferences.json`, or
+`~/.config/datelier/preferences.json`. Invalid settings recover with a message.
+Workspace settings take precedence when reopening. Zoom/pan and 3D camera
+position last for the session.
 
 ## Compare files
 
-Open the training and test files, then choose **Compare files** (beside Explore,
-or through **View**). Choose **New comparison**, expand **Mappings and scales**,
-and check each file to map its column explicitly. Column names can differ.
-Set source labels/colors, shared bins or top categories, then **Update comparison**.
+Open the training and test files, then choose **Compare files** in Canvas, then
+**Columns**. In Context → View, choose **New comparison** and map each selected
+file/view to its column explicitly. Column names can differ.
+Set source labels/colors, shared bins or top categories, then **Apply comparison**.
 You can keep up to 32 comparisons, each mapping at most 32 files.
 
 Numeric columns share histogram bins; categorical columns share an order based
@@ -282,7 +296,7 @@ or divides category counts by that file’s row count, so unequal file sizes are
 comparable. Numeric null/nonfinite values are excluded and reported; category
 counts retain them. Summaries appear beside the chart in a scrollable table.
 Incompatible roles/types or unavailable columns show a diagnostic. Change a
-column’s analysis role in **Schema and nulls** when needed.
+column’s analysis role in **Source browser** when needed.
 
 Choose **Selection source**, then click a bin/category or use **Select matching
 source rows**. Selection activates that file and selects up to its first 10,000
@@ -294,26 +308,26 @@ fixture-specific resource measurements.
 
 ## Reference previews and Inspect
 
-**Schema and nulls → Interpretation** explains inferred roles and allows reversible
+**Source browser → Interpretation** explains inferred roles and allows reversible
 overrides. Recognizable image/audio/text references and prose take precedence over
 identifiers. Otherwise, a nonempty, unique, non-null integer/string first source
 column becomes Identifier; floating columns do not qualify through uniqueness.
 Change the role when that first column is an ordinary measurement or category.
 The physical dtype and original cell value stay visible.
 
-In **Table preview → Reference previews**, configure search roots, extensions,
+In **Table preview → Cell / reference settings**, configure search roots, extensions,
 thumbnail size and CPU/GPU retention limits. Discovery runs in the background;
 exact absolute/dataset-relative paths resolve first, then unambiguous filenames
 or stems. **Choose reference** handles ambiguous or missing matches by selecting
 a candidate or entering **Exact file**. Hover for text excerpts and diagnostics.
 Direct media sources resolve their own paths without automatic nearby discovery.
 
-**Cell presentation** offers blue-to-red numeric shading with percentile (2–98),
+Table cell settings offer blue-to-red numeric shading with percentile (2–98),
 linear min/max or custom scales, stable category colors and interpretation badges.
 `<`/`>` mark values outside the scale, `=` a flat scale, `(null)` typed nulls and
 `!` nonfinite values. Selected rows use their selection color.
 
-Open **Explore → Inspect**, or open a media collection to focus it. Choose
+Open **Canvas → Inspect**, or open a media collection to focus it. Choose
 Gallery or focused Previous/Next navigation. **Inspect settings** selects current
 row ranges, linked selection or reproducible seeded samples and a primary field.
 **Supporting fields** can include every column, with search, All/Clear and Done.
@@ -328,7 +342,7 @@ linear colormaps and display-only ranges. Automatic bounds describe the prepared
 window, constants use the ramp midpoint, and nonfinite values are magenta.
 Hover retains original dtype values and full array coordinates.
 
-In **Explore → Profiles**, choose an Image field and **Prepare image profile**,
+In **Canvas → Profiles**, choose an Image field and **Prepare image profile**,
 or **Profile mapped images** for a confirmed image array. Image-only folders
 route to these tools. Exact original pixels are the default; **Image collection
 scope** offers current rows, ranges, linked selections, seeded records and
@@ -336,7 +350,7 @@ separately seeded pixels. Statistics, Dimensions, Colors and Record outcomes
 retain scope/provenance and missing/corrupt diagnostics. Outcome rows link back
 to Inspect. Collection commands never run implicitly during load or restore.
 
-In **Explore → Inspect**, expand **Detection annotations**, add a local source
+In **Canvas → Inspect**, expand **Detection annotations**, add a local source
 and choose VOC XML, YOLO text, COCO dataset JSON or an Ultralytics YAML manifest.
 VOC/YOLO also accept label folders. **Load / associate annotations** explicitly
 reads sources and image headers. Choose filename, stem, resolved path or a scalar
@@ -377,7 +391,7 @@ fixture-specific resource measurements.
 ## Audio inspection and listening
 
 Open an audio file, a media collection, an audio-reference table field, or a
-confirmed waveform array view. In **Explore → Inspect**, choose the record and
+confirmed waveform array view. In **Canvas → Inspect**, choose the record and
 supporting columns. Headers show original frames, channels, rate and encoding
 before samples are decoded. For arrays, set **Array sample rate (Hz; 0 = unknown)**
 explicitly; an unknown rate still permits exact sample inspection.
@@ -413,7 +427,7 @@ verified fixtures, playback resources and the deferred personal listening check.
 
 ## Local text tokenization, training, inspection and comparisons
 
-In **Explore → Profiles**, choose a text column from the **Columns** checklist.
+In **Canvas → Profiles**, choose a text column from the shared **Columns** picker.
 Expand **Text settings** to choose inline/external source, encoding and tokenization.
 String categories also offer **Text tokens** under **Chart type**; **Counts** retains
 their category view without changing the column interpretation. **Character** counts
@@ -438,15 +452,15 @@ statistics require **Calculate corpus profile**. It provides document/token
 totals, length statistics/quantiles, vocabulary/hapax ratios, entropy in bits,
 length distributions, token/document frequencies and record outcomes. The chart
 shows twelve ranked types; the virtual table retains every exact frequency row.
-In **Explore → Inspect**, turn off **Gallery**, choose a text primary field, and
+In **Canvas → Inspect**, turn off **Gallery**, choose a text primary field, and
 click **Inspect text tokens** to show complete text and tokens beside supporting fields.
 Navigate with original offsets, text pages, token index or the complete virtual
 token list. Selecting a token highlights its original span even after normalization.
 Offsets count original Unicode code points; control characters use visible symbols.
 Large token pieces have separate pages. Record and page choices restore as recipes.
 
-In **Compare files → Text corpora**, add a text comparison and expand **Text mappings
-and shared tokenizer**. Configure tokenization in the active view's **Explore → Profiles**,
+In **Compare files → Text**, add a text comparison and expand **Text mappings
+and shared tokenizer**. Configure tokenization in the active view's **Canvas → Profiles**,
 then click **Use active view tokenizer** to apply that configuration to every mapped
 source. Select each file/view's field, interpretation, encoding and corpus scope,
 then click **Prepare text comparison**. Lengths use common bins; statistics remain
@@ -461,10 +475,10 @@ and shared tokenizer references without training or corpus work on reopening.
 
 The **Explore** panel automatically prepares numeric, categorical, and temporal
 profiles after import and successful edits. Choose **Profiles**, **Relationships**,
-**Correlations**, or **Inspect**. Schema shows `Shape: (rows, cols)` above **Column**,
-**Non nulls**, **Uniques**, **Type**, and **Interpretation**. Non-null and unique counts
-exclude nulls; NaNs and infinities remain non-null values. Interpretation allows
-reversible overrides of inferred column roles.
+**Correlations**, or **Inspect**. Source browser shows row/column counts,
+physical types and reversible interpretation overrides. Profiles contains the
+statistics for selected columns. Non-null and unique counts exclude nulls;
+NaNs and infinities remain non-null values.
 
 Automatic work profiles the first 32 columns, selects the first six numeric
 columns, and suggests up to three scatter pairs. Correlations use at most 10,000
@@ -474,10 +488,10 @@ evenly spaced input rows with pairwise finite values. Scatter plots show up to
 120 characters. Sampling and exclusions are labeled. Numeric plot coordinates
 use Float64, so very large integers and high-precision decimals may round.
 
-Expand **Plot settings** to change bins, top counts and scatter point limits.
-In **Profiles**, the **Columns** checklist accepts one category/date/text field or any
+Use **Context → View** for bins, top counts, feature selectors and point limits.
+In **Profiles**, the shared **Columns** picker accepts one category/date/text field or any
 number of numeric columns, including columns beyond the automatic preparation
-limit. **All numeric**, **Clear**, and **Done** manage the checklist. Selecting a
+limit. **Select shown** and **Clear** manage the picker; search and role groups narrow it. Selecting a
 category/date/text field replaces the numeric group; selecting a numeric
 column replaces that field. Numeric **Chart type** switches between Histogram,
 KDE, ECDF, Box, and Violin. Text fields show the tokenizer and corpus tools.
@@ -576,7 +590,8 @@ or **Colors**, then select
 features in its **inputs and settings**. Choose preprocessing, seed and sample
 limit, then press **Run**. The Scatter 2D/3D chart determines coordinate output. Colors
 methods hide output dimensions and use the original analysis feature space.
-The **Analysis** panel follows the source you change or the setup you open.
+Analysis settings and results appear in **Context → View** for Relationships.
+Completion preserves the current view; **Open result** explicitly opens fitted coordinates.
 Defaults drop missing/nonfinite rows and
 standardize features; median imputation and original units are available.
 Constants are removed and reported. Invalid inputs/settings fail clearly;
@@ -635,8 +650,8 @@ sampling, preprocessing, parameters, seed, runtime and library versions.
 
 ## Chart space and axes
 
-Charts fill the available panel height. Drag the **Plot height** divider below
-the chart, or drag/type its **Height** value above it, to choose a taller region.
+Charts and media views share sizing controls. Drag the divider below the view
+to choose a taller region.
 **Auto** restores adaptive height. **Expand** opens the same chart in a larger
 window; **Restore** returns it with its current zoom, selection, and 3D camera.
 Manual chart heights are saved in workspaces and preferences.
@@ -654,20 +669,19 @@ new catalog and verification.
 
 ## Transform and export
 
-Use the **Transform and history** tab to sort a named column, filter rows with
+Use **Context → Transform** and its **Operation** selector to sort named columns,
+filter rows with
 comparisons or null predicates, or keep columns in a specified order. Filter
 values accept numbers, booleans, and text; quote numeric-looking text such as
-`"1"`. Dates and timestamps accept ISO values. Column selection uses a JSON list,
-for example `["name", "value"]`. Source row IDs stay aligned through edits.
+`"1"`. Dates and timestamps accept ISO values. Column selection uses the shared picker and retains its configured order. Source row IDs stay aligned through edits.
 
-Expand **Types, missing values and mappings** to cast a column, fill/drop missing
-values, or apply a lookup. Invalid casts can fail or become null where supported;
+Choose Cast, Fill missing, Drop missing or Lookup under **Operation**. Invalid casts can fail or become null where supported;
 integer casts use Polars truncation semantics. Null counts update after each
 edit. **Treat nonfinite as missing** includes NaN and infinity. Lookup pairs use
 `[["old", "new"], ["other", "next"]]` with an explicit output type and policy for
 unmatched keys: keep, null, or reject.
 
-Expand **Derived columns** to enter a column name and constrained expression,
+Choose **Derived column** to enter a column name and constrained expression,
 for example `fill_null(col("price"), 0) * col("quantity")`. The panel documents
 supported arithmetic, comparisons, conditional, numeric, text, and null
 functions. Expressions cannot execute Python. Replacing an existing column
@@ -679,8 +693,8 @@ active table and history. **Abandon edit** ignores an executing result; it may
 still finish. Opening a new dataset starts new history. Source files stay
 unchanged. Workspace files preserve the full history and undo/redo cursor.
 
-Use **Export table**, choose CSV or Parquet and a destination, then select
-**Export active table**. Replacing an existing destination requires its checkbox;
+Use **File → Export active source…**, choose CSV or Parquet and a destination,
+then select **Export**. The dialog retains its captured source when tabs switch. Replacing an existing destination requires its checkbox;
 source files and their aliases are always protected. Exports contain user
 columns in the active order. Parquet retains scalar schemas; CSV is text, so
 reimport may need schema/date options for numeric-looking strings and dates.

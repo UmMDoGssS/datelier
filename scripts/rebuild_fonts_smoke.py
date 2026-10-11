@@ -7,19 +7,19 @@ from tempfile import TemporaryDirectory
 from imgui_bundle import hello_imgui, imgui
 from PIL import Image
 
+from datelier.application.editor import EditorController
 from datelier.gui.app import InspectionEvidence, run_gui
-from datelier.gui.editor_session import EditorSession
-from datelier.gui.tabs import EditorTabs
+from datelier.gui.components.probe import GuiProbe
 
 TEXT = "Tiếng Việt e\u0301 · Ελληνικά · 中文日本語 · 🙂🚀"
 
 
 def main() -> None:
-    output = Path("docs/evidence/phase12")
+    output = Path("/tmp/datelier-rebuild-fonts")
     verified = False
 
     def frame(
-        editor: EditorSession, tabs: EditorTabs, evidence: InspectionEvidence
+        editor: EditorController, probe: GuiProbe, evidence: InspectionEvidence
     ) -> None:
         nonlocal verified
         imgui.set_next_window_size((650, 160), imgui.Cond_.always)
@@ -61,7 +61,7 @@ def main() -> None:
     with TemporaryDirectory() as directory:
         evidence = run_gui(
             smoke_frames=50,
-            on_editor_frame=frame,
+            on_probe_frame=frame,
             preferences_path=Path(directory) / "prefs.json",
         )
     assert verified

@@ -80,8 +80,11 @@ def test_duplicate_filenames_have_distinct_native_ids(tmp_path: Path) -> None:
             FileTab(first.identity, first.title, False).label
             != FileTab(second.identity, second.title, False).label
         )
-        assert FileTab(first.identity, "data##literal.csv", False).label == (
-            "data# #literal.csv###" + first.identity
-        )
+        caption, _, identity = FileTab(
+            first.identity, "data##literal.csv", False
+        ).label.rpartition("###")
+        assert caption.replace("\u200b", "") == "data##literal.csv"
+        assert "##" not in caption
+        assert identity == first.identity
     finally:
         editor.close()

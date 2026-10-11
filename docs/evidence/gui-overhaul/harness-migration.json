@@ -1,0 +1,1374 @@
+[
+  {
+    "retired": "scripts/analysis_navigation_smoke.py",
+    "purpose": "Click Analysis inputs before fitting, including an inactive or hidden panel.",
+    "family": "Analysis and scatter",
+    "native": [
+      "scripts/rebuild_analysis_smoke.py",
+      "scripts/rebuild_scatter_smoke.py",
+      "scripts/benchmark_analysis_gui.py",
+      "scripts/benchmark_exploration.py"
+    ],
+    "behavioral": [
+      "tests/test_analysis_jobs.py",
+      "tests/test_rebuild_scatter.py",
+      "tests/test_scatter3d.py",
+      "tests/test_selection.py"
+    ]
+  },
+  {
+    "retired": "scripts/analysis_workbench_smoke.py",
+    "purpose": "Explicit analysis command to linked embedding on the live workbench.",
+    "family": "Analysis and scatter",
+    "native": [
+      "scripts/rebuild_analysis_smoke.py",
+      "scripts/rebuild_scatter_smoke.py",
+      "scripts/benchmark_analysis_gui.py",
+      "scripts/benchmark_exploration.py"
+    ],
+    "behavioral": [
+      "tests/test_analysis_jobs.py",
+      "tests/test_rebuild_scatter.py",
+      "tests/test_scatter3d.py",
+      "tests/test_selection.py"
+    ]
+  },
+  {
+    "retired": "scripts/annotation_smoke.py",
+    "purpose": "Native explicit source/mapping commands, cross-format geometry and idle reopen.",
+    "family": "Image, annotations and references",
+    "native": [
+      "scripts/rebuild_annotations_smoke.py",
+      "scripts/rebuild_image_profiles_smoke.py",
+      "scripts/rebuild_image_comparisons_smoke.py",
+      "scripts/rebuild_table_smoke.py",
+      "scripts/rebuild_records_smoke.py",
+      "scripts/box_overlay_resources.py",
+      "scripts/benchmark_references.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_annotations.py",
+      "tests/test_rebuild_images.py",
+      "tests/test_references.py"
+    ]
+  },
+  {
+    "retired": "scripts/array_records_smoke.py",
+    "purpose": "Native mapping confirmation, linked row/payload preview and deferred reopen.",
+    "family": "Structured, array and checkpoint sources",
+    "native": [
+      "scripts/rebuild_sources_smoke.py",
+      "scripts/rebuild_numeric_smoke.py",
+      "scripts/rebuild_gallery_smoke.py",
+      "scripts/benchmark_objects.py",
+      "scripts/benchmark_arrays.py",
+      "scripts/benchmark_checkpoints.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_sources.py",
+      "tests/test_npz_aligned_records.py",
+      "tests/test_array_record_sessions.py"
+    ]
+  },
+  {
+    "retired": "scripts/array_views_smoke.py",
+    "purpose": "Native array fixed-index input, explicit slicing and fresh-process restore.",
+    "family": "Structured, array and checkpoint sources",
+    "native": [
+      "scripts/rebuild_sources_smoke.py",
+      "scripts/rebuild_numeric_smoke.py",
+      "scripts/rebuild_gallery_smoke.py",
+      "scripts/benchmark_objects.py",
+      "scripts/benchmark_arrays.py",
+      "scripts/benchmark_checkpoints.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_sources.py",
+      "tests/test_npz_aligned_records.py",
+      "tests/test_array_record_sessions.py"
+    ]
+  },
+  {
+    "retired": "scripts/audio_comparison_smoke.py",
+    "purpose": "Native audio mappings, scalar legends/links and fresh-process idle restoration.",
+    "family": "Audio inspection and comparison",
+    "native": [
+      "scripts/rebuild_audio_smoke.py",
+      "scripts/rebuild_audio_comparisons_smoke.py",
+      "scripts/rebuild_records_smoke.py",
+      "scripts/rebuild_media_matrix.py",
+      "scripts/benchmark_audio_views.py",
+      "scripts/benchmark_audio_playback.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_audio.py",
+      "tests/test_audio_playback.py"
+    ]
+  },
+  {
+    "retired": "scripts/audio_inspect_smoke.py",
+    "purpose": "Native audio metadata/profile/sample controls and idle fresh-process restore.",
+    "family": "Audio inspection and comparison",
+    "native": [
+      "scripts/rebuild_audio_smoke.py",
+      "scripts/rebuild_audio_comparisons_smoke.py",
+      "scripts/rebuild_records_smoke.py",
+      "scripts/rebuild_media_matrix.py",
+      "scripts/benchmark_audio_views.py",
+      "scripts/benchmark_audio_playback.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_audio.py",
+      "tests/test_audio_playback.py"
+    ]
+  },
+  {
+    "retired": "scripts/audio_listening_smoke.py",
+    "purpose": "Native output selection, listening commands and fresh-process idle preferences.",
+    "family": "Audio inspection and comparison",
+    "native": [
+      "scripts/rebuild_audio_smoke.py",
+      "scripts/rebuild_audio_comparisons_smoke.py",
+      "scripts/rebuild_records_smoke.py",
+      "scripts/rebuild_media_matrix.py",
+      "scripts/benchmark_audio_views.py",
+      "scripts/benchmark_audio_playback.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_audio.py",
+      "tests/test_audio_playback.py"
+    ]
+  },
+  {
+    "retired": "scripts/audio_long_signal_smoke.py",
+    "purpose": "Native whole-recording and adjacent-range navigation on ten-minute audio.",
+    "family": "Audio inspection and comparison",
+    "native": [
+      "scripts/rebuild_audio_smoke.py",
+      "scripts/rebuild_audio_comparisons_smoke.py",
+      "scripts/rebuild_records_smoke.py",
+      "scripts/rebuild_media_matrix.py",
+      "scripts/benchmark_audio_views.py",
+      "scripts/benchmark_audio_playback.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_audio.py",
+      "tests/test_audio_playback.py"
+    ]
+  },
+  {
+    "retired": "scripts/audio_mel_smoke.py",
+    "purpose": "Native file/mapped-array mel recipes, original record identity and idle restore.",
+    "family": "Audio inspection and comparison",
+    "native": [
+      "scripts/rebuild_audio_smoke.py",
+      "scripts/rebuild_audio_comparisons_smoke.py",
+      "scripts/rebuild_records_smoke.py",
+      "scripts/rebuild_media_matrix.py",
+      "scripts/benchmark_audio_views.py",
+      "scripts/benchmark_audio_playback.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_audio.py",
+      "tests/test_audio_playback.py"
+    ]
+  },
+  {
+    "retired": "scripts/audio_spectrum_smoke.py",
+    "purpose": "Native waveform/spectral settings, correct raster orientation and fresh restore.",
+    "family": "Audio inspection and comparison",
+    "native": [
+      "scripts/rebuild_audio_smoke.py",
+      "scripts/rebuild_audio_comparisons_smoke.py",
+      "scripts/rebuild_records_smoke.py",
+      "scripts/rebuild_media_matrix.py",
+      "scripts/benchmark_audio_views.py",
+      "scripts/benchmark_audio_playback.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_audio.py",
+      "tests/test_audio_playback.py"
+    ]
+  },
+  {
+    "retired": "scripts/category_charts_smoke.py",
+    "purpose": "Native box choice, linked rows, violin, and grouped Titanic relationships.",
+    "family": "Profiles, relationships and interpretations",
+    "native": [
+      "scripts/rebuild_categories_smoke.py",
+      "scripts/rebuild_pairs_smoke.py",
+      "scripts/rebuild_axes_smoke.py",
+      "scripts/rebuild_gui_smoke.py",
+      "scripts/rebuild_media_matrix.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_plot_controls.py",
+      "tests/test_rebuild_relationships.py",
+      "tests/test_column_roles.py",
+      "tests/test_nested_columns.py"
+    ]
+  },
+  {
+    "retired": "scripts/category_views_smoke.py",
+    "purpose": "Reopen migrated category views and new violin settings in the native GUI.",
+    "family": "Profiles, relationships and interpretations",
+    "native": [
+      "scripts/rebuild_categories_smoke.py",
+      "scripts/rebuild_pairs_smoke.py",
+      "scripts/rebuild_axes_smoke.py",
+      "scripts/rebuild_gui_smoke.py",
+      "scripts/rebuild_media_matrix.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_plot_controls.py",
+      "tests/test_rebuild_relationships.py",
+      "tests/test_column_roles.py",
+      "tests/test_nested_columns.py"
+    ]
+  },
+  {
+    "retired": "scripts/checkpoint_views_smoke.py",
+    "purpose": "Native array fixed-index input, explicit slicing and fresh-process restore.",
+    "family": "Structured, array and checkpoint sources",
+    "native": [
+      "scripts/rebuild_sources_smoke.py",
+      "scripts/rebuild_numeric_smoke.py",
+      "scripts/rebuild_gallery_smoke.py",
+      "scripts/benchmark_objects.py",
+      "scripts/benchmark_arrays.py",
+      "scripts/benchmark_checkpoints.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_sources.py",
+      "tests/test_npz_aligned_records.py",
+      "tests/test_array_record_sessions.py"
+    ]
+  },
+  {
+    "retired": "scripts/column_roles_smoke.py",
+    "purpose": "Exercise a real Schema role override and undo with the Titanic source.",
+    "family": "Profiles, relationships and interpretations",
+    "native": [
+      "scripts/rebuild_categories_smoke.py",
+      "scripts/rebuild_pairs_smoke.py",
+      "scripts/rebuild_axes_smoke.py",
+      "scripts/rebuild_gui_smoke.py",
+      "scripts/rebuild_media_matrix.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_plot_controls.py",
+      "tests/test_rebuild_relationships.py",
+      "tests/test_column_roles.py",
+      "tests/test_nested_columns.py"
+    ]
+  },
+  {
+    "retired": "scripts/comparison_smoke.py",
+    "purpose": "Exercise every comparison renderer on a live Linux GUI.",
+    "family": "Comparisons",
+    "native": [
+      "scripts/rebuild_comparisons_smoke.py",
+      "scripts/rebuild_text_comparisons_smoke.py",
+      "scripts/rebuild_image_comparisons_smoke.py",
+      "scripts/rebuild_audio_comparisons_smoke.py",
+      "scripts/benchmark_comparisons.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_comparisons.py"
+    ]
+  },
+  {
+    "retired": "scripts/component_schema_smoke.py",
+    "purpose": "Native schema selection through stable probes, including revision and undo.",
+    "family": "Profiles, relationships and interpretations",
+    "native": [
+      "scripts/rebuild_categories_smoke.py",
+      "scripts/rebuild_pairs_smoke.py",
+      "scripts/rebuild_axes_smoke.py",
+      "scripts/rebuild_gui_smoke.py",
+      "scripts/rebuild_media_matrix.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_plot_controls.py",
+      "tests/test_rebuild_relationships.py",
+      "tests/test_column_roles.py",
+      "tests/test_nested_columns.py"
+    ]
+  },
+  {
+    "retired": "scripts/direct_sources_smoke.py",
+    "purpose": "Native Open Folder collection action and independent explicit text-line import.",
+    "family": "Loading, recovery, sessions, shell and persistence",
+    "native": [
+      "scripts/rebuild_browser_smoke.py",
+      "scripts/rebuild_imports_smoke.py",
+      "scripts/rebuild_tabs_smoke.py",
+      "scripts/rebuild_pending_views_smoke.py",
+      "scripts/rebuild_workspace_smoke.py",
+      "scripts/rebuild_layout_restore_smoke.py"
+    ],
+    "behavioral": [
+      "tests/test_editor_sessions.py",
+      "tests/test_rebuild_controllers.py",
+      "tests/test_multimodal_sessions.py"
+    ]
+  },
+  {
+    "retired": "scripts/editor_menu_smoke.py",
+    "purpose": "Native editor menus, contextual import/workspace actions and layout recovery.",
+    "family": "Loading, recovery, sessions, shell and persistence",
+    "native": [
+      "scripts/rebuild_browser_smoke.py",
+      "scripts/rebuild_imports_smoke.py",
+      "scripts/rebuild_tabs_smoke.py",
+      "scripts/rebuild_pending_views_smoke.py",
+      "scripts/rebuild_workspace_smoke.py",
+      "scripts/rebuild_layout_restore_smoke.py"
+    ],
+    "behavioral": [
+      "tests/test_editor_sessions.py",
+      "tests/test_rebuild_controllers.py",
+      "tests/test_multimodal_sessions.py"
+    ]
+  },
+  {
+    "retired": "scripts/editor_tabs_smoke.py",
+    "purpose": "Native two-file tab input, independent jobs, history and docking smoke.",
+    "family": "Loading, recovery, sessions, shell and persistence",
+    "native": [
+      "scripts/rebuild_browser_smoke.py",
+      "scripts/rebuild_imports_smoke.py",
+      "scripts/rebuild_tabs_smoke.py",
+      "scripts/rebuild_pending_views_smoke.py",
+      "scripts/rebuild_workspace_smoke.py",
+      "scripts/rebuild_layout_restore_smoke.py"
+    ],
+    "behavioral": [
+      "tests/test_editor_sessions.py",
+      "tests/test_rebuild_controllers.py",
+      "tests/test_multimodal_sessions.py"
+    ]
+  },
+  {
+    "retired": "scripts/exploration_smoke.py",
+    "purpose": "Live automatic profiles/scatter, edit invalidation, and dashboard gate.",
+    "family": "Operations and export",
+    "native": [
+      "scripts/rebuild_workflow_smoke.py",
+      "scripts/rebuild_imports_smoke.py",
+      "scripts/benchmark_operations.py",
+      "scripts/benchmark_exploration.py"
+    ],
+    "behavioral": [
+      "tests/test_editing.py",
+      "tests/test_exporting.py",
+      "tests/test_transforms.py"
+    ]
+  },
+  {
+    "retired": "scripts/export_smoke.py",
+    "purpose": "Live transformed export/roundtrip and source-protection acceptance check.",
+    "family": "Operations and export",
+    "native": [
+      "scripts/rebuild_workflow_smoke.py",
+      "scripts/rebuild_imports_smoke.py",
+      "scripts/benchmark_operations.py",
+      "scripts/benchmark_exploration.py"
+    ],
+    "behavioral": [
+      "tests/test_editing.py",
+      "tests/test_exporting.py",
+      "tests/test_transforms.py"
+    ]
+  },
+  {
+    "retired": "scripts/format_loading_smoke.py",
+    "purpose": "Measure live new-format loading and bounded previews on the Linux GUI.",
+    "family": "Loading, recovery, sessions, shell and persistence",
+    "native": [
+      "scripts/rebuild_browser_smoke.py",
+      "scripts/rebuild_imports_smoke.py",
+      "scripts/rebuild_tabs_smoke.py",
+      "scripts/rebuild_pending_views_smoke.py",
+      "scripts/rebuild_workspace_smoke.py",
+      "scripts/rebuild_layout_restore_smoke.py"
+    ],
+    "behavioral": [
+      "tests/test_editor_sessions.py",
+      "tests/test_rebuild_controllers.py",
+      "tests/test_multimodal_sessions.py"
+    ]
+  },
+  {
+    "retired": "scripts/format_smoke.py",
+    "purpose": "Per-format import, prepared preview, and diagnostic GUI acceptance checks.",
+    "family": "Loading, recovery, sessions, shell and persistence",
+    "native": [
+      "scripts/rebuild_browser_smoke.py",
+      "scripts/rebuild_imports_smoke.py",
+      "scripts/rebuild_tabs_smoke.py",
+      "scripts/rebuild_pending_views_smoke.py",
+      "scripts/rebuild_workspace_smoke.py",
+      "scripts/rebuild_layout_restore_smoke.py"
+    ],
+    "behavioral": [
+      "tests/test_editor_sessions.py",
+      "tests/test_rebuild_controllers.py",
+      "tests/test_multimodal_sessions.py"
+    ]
+  },
+  {
+    "retired": "scripts/heatmap_labels_smoke.py",
+    "purpose": "Live annotated-cell, undefined-value, color-scale and wide-canvas checks.",
+    "family": "Profiles, relationships and interpretations",
+    "native": [
+      "scripts/rebuild_categories_smoke.py",
+      "scripts/rebuild_pairs_smoke.py",
+      "scripts/rebuild_axes_smoke.py",
+      "scripts/rebuild_gui_smoke.py",
+      "scripts/rebuild_media_matrix.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_plot_controls.py",
+      "tests/test_rebuild_relationships.py",
+      "tests/test_column_roles.py",
+      "tests/test_nested_columns.py"
+    ]
+  },
+  {
+    "retired": "scripts/heatmap_smoke.py",
+    "purpose": "Native numeric channels/slices/ranges, exact hover and independent restore.",
+    "family": "Image, annotations and references",
+    "native": [
+      "scripts/rebuild_annotations_smoke.py",
+      "scripts/rebuild_image_profiles_smoke.py",
+      "scripts/rebuild_image_comparisons_smoke.py",
+      "scripts/rebuild_table_smoke.py",
+      "scripts/rebuild_records_smoke.py",
+      "scripts/box_overlay_resources.py",
+      "scripts/benchmark_references.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_annotations.py",
+      "tests/test_rebuild_images.py",
+      "tests/test_references.py"
+    ]
+  },
+  {
+    "retired": "scripts/image_array_smoke.py",
+    "purpose": "Mapped image Inspect preserves source indices and supporting rows after sorting.",
+    "family": "Structured, array and checkpoint sources",
+    "native": [
+      "scripts/rebuild_sources_smoke.py",
+      "scripts/rebuild_numeric_smoke.py",
+      "scripts/rebuild_gallery_smoke.py",
+      "scripts/benchmark_objects.py",
+      "scripts/benchmark_arrays.py",
+      "scripts/benchmark_checkpoints.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_sources.py",
+      "tests/test_npz_aligned_records.py",
+      "tests/test_array_record_sessions.py"
+    ]
+  },
+  {
+    "retired": "scripts/image_comparison_smoke.py",
+    "purpose": "Native common image bins, source-scoped links and idle fresh-process restore.",
+    "family": "Image, annotations and references",
+    "native": [
+      "scripts/rebuild_annotations_smoke.py",
+      "scripts/rebuild_image_profiles_smoke.py",
+      "scripts/rebuild_image_comparisons_smoke.py",
+      "scripts/rebuild_table_smoke.py",
+      "scripts/rebuild_records_smoke.py",
+      "scripts/box_overlay_resources.py",
+      "scripts/benchmark_references.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_annotations.py",
+      "tests/test_rebuild_images.py",
+      "tests/test_references.py"
+    ]
+  },
+  {
+    "retired": "scripts/image_inspect_smoke.py",
+    "purpose": "Native image focus, zoom/pan/channels/pixels and fresh-process workspace reopen.",
+    "family": "Image, annotations and references",
+    "native": [
+      "scripts/rebuild_annotations_smoke.py",
+      "scripts/rebuild_image_profiles_smoke.py",
+      "scripts/rebuild_image_comparisons_smoke.py",
+      "scripts/rebuild_table_smoke.py",
+      "scripts/rebuild_records_smoke.py",
+      "scripts/box_overlay_resources.py",
+      "scripts/benchmark_references.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_annotations.py",
+      "tests/test_rebuild_images.py",
+      "tests/test_references.py"
+    ]
+  },
+  {
+    "retired": "scripts/image_profiles_smoke.py",
+    "purpose": "Native image field/profile commands, diagnostic selection and recipe restoration.",
+    "family": "Image, annotations and references",
+    "native": [
+      "scripts/rebuild_annotations_smoke.py",
+      "scripts/rebuild_image_profiles_smoke.py",
+      "scripts/rebuild_image_comparisons_smoke.py",
+      "scripts/rebuild_table_smoke.py",
+      "scripts/rebuild_records_smoke.py",
+      "scripts/box_overlay_resources.py",
+      "scripts/benchmark_references.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_annotations.py",
+      "tests/test_rebuild_images.py",
+      "tests/test_references.py"
+    ]
+  },
+  {
+    "retired": "scripts/inspect_navigation_smoke.py",
+    "purpose": "Native Explore tabs and fresh-process Inspect restoration with an old layout.",
+    "family": "Loading, recovery, sessions, shell and persistence",
+    "native": [
+      "scripts/rebuild_browser_smoke.py",
+      "scripts/rebuild_imports_smoke.py",
+      "scripts/rebuild_tabs_smoke.py",
+      "scripts/rebuild_pending_views_smoke.py",
+      "scripts/rebuild_workspace_smoke.py",
+      "scripts/rebuild_layout_restore_smoke.py"
+    ],
+    "behavioral": [
+      "tests/test_editor_sessions.py",
+      "tests/test_rebuild_controllers.py",
+      "tests/test_multimodal_sessions.py"
+    ]
+  },
+  {
+    "retired": "scripts/inspect_smoke.py",
+    "purpose": "Native wide-field gallery/detail controls and file-aligned record selection.",
+    "family": "Table and gallery inspection",
+    "native": [
+      "scripts/rebuild_table_smoke.py",
+      "scripts/rebuild_records_smoke.py",
+      "scripts/benchmark_references.py",
+      "scripts/benchmark_inspection.py"
+    ],
+    "behavioral": [
+      "tests/test_records.py",
+      "tests/test_table_presentation.py"
+    ]
+  },
+  {
+    "retired": "scripts/inspection_smoke.py",
+    "purpose": "CSV GUI gates on a Linux display; captures pixels and measured behavior.",
+    "family": "Table and gallery inspection",
+    "native": [
+      "scripts/rebuild_table_smoke.py",
+      "scripts/rebuild_records_smoke.py",
+      "scripts/benchmark_references.py",
+      "scripts/benchmark_inspection.py"
+    ],
+    "behavioral": [
+      "tests/test_records.py",
+      "tests/test_table_presentation.py"
+    ]
+  },
+  {
+    "retired": "scripts/list_profiles_smoke.py",
+    "purpose": "Render flattened list charts, length/shape tables and restored profile selection.",
+    "family": "Profiles, relationships and interpretations",
+    "native": [
+      "scripts/rebuild_categories_smoke.py",
+      "scripts/rebuild_pairs_smoke.py",
+      "scripts/rebuild_axes_smoke.py",
+      "scripts/rebuild_gui_smoke.py",
+      "scripts/rebuild_media_matrix.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_plot_controls.py",
+      "tests/test_rebuild_relationships.py",
+      "tests/test_column_roles.py",
+      "tests/test_nested_columns.py"
+    ]
+  },
+  {
+    "retired": "scripts/list_roles_smoke.py",
+    "purpose": "Render Schema list choices, inject a combo change, and restore its recipe.",
+    "family": "Profiles, relationships and interpretations",
+    "native": [
+      "scripts/rebuild_categories_smoke.py",
+      "scripts/rebuild_pairs_smoke.py",
+      "scripts/rebuild_axes_smoke.py",
+      "scripts/rebuild_gui_smoke.py",
+      "scripts/rebuild_media_matrix.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_plot_controls.py",
+      "tests/test_rebuild_relationships.py",
+      "tests/test_column_roles.py",
+      "tests/test_nested_columns.py"
+    ]
+  },
+  {
+    "retired": "scripts/list_text_smoke.py",
+    "purpose": "Render List[Text] controls/statistics and restore its selected nested element.",
+    "family": "Text inspection, profiles, training and comparison",
+    "native": [
+      "scripts/rebuild_text_profiles_smoke.py",
+      "scripts/rebuild_text_comparisons_smoke.py",
+      "scripts/rebuild_records_smoke.py",
+      "scripts/rebuild_table_smoke.py",
+      "scripts/benchmark_text_profiles.py",
+      "scripts/benchmark_text_inspection.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_text_profiles.py",
+      "tests/test_text_tokenization.py",
+      "tests/test_rebuild_text_comparisons.py"
+    ]
+  },
+  {
+    "retired": "scripts/multimodal_recovery_smoke.py",
+    "purpose": "Native missing/changed-source recovery, idle reopen and legacy migration.",
+    "family": "Loading, recovery, sessions, shell and persistence",
+    "native": [
+      "scripts/rebuild_browser_smoke.py",
+      "scripts/rebuild_imports_smoke.py",
+      "scripts/rebuild_tabs_smoke.py",
+      "scripts/rebuild_pending_views_smoke.py",
+      "scripts/rebuild_workspace_smoke.py",
+      "scripts/rebuild_layout_restore_smoke.py"
+    ],
+    "behavioral": [
+      "tests/test_editor_sessions.py",
+      "tests/test_rebuild_controllers.py",
+      "tests/test_multimodal_sessions.py"
+    ]
+  },
+  {
+    "retired": "scripts/multimodal_smoke.py",
+    "purpose": "Hidden native mixed modality commands, GPU ownership and independent restore.",
+    "family": "Loading, recovery, sessions, shell and persistence",
+    "native": [
+      "scripts/rebuild_browser_smoke.py",
+      "scripts/rebuild_imports_smoke.py",
+      "scripts/rebuild_tabs_smoke.py",
+      "scripts/rebuild_pending_views_smoke.py",
+      "scripts/rebuild_workspace_smoke.py",
+      "scripts/rebuild_layout_restore_smoke.py"
+    ],
+    "behavioral": [
+      "tests/test_editor_sessions.py",
+      "tests/test_rebuild_controllers.py",
+      "tests/test_multimodal_sessions.py"
+    ]
+  },
+  {
+    "retired": "scripts/nested_inspect_smoke.py",
+    "purpose": "Render full object/list cells and restore their sorted Inspect session.",
+    "family": "Text inspection, profiles, training and comparison",
+    "native": [
+      "scripts/rebuild_text_profiles_smoke.py",
+      "scripts/rebuild_text_comparisons_smoke.py",
+      "scripts/rebuild_records_smoke.py",
+      "scripts/rebuild_table_smoke.py",
+      "scripts/benchmark_text_profiles.py",
+      "scripts/benchmark_text_inspection.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_text_profiles.py",
+      "tests/test_text_tokenization.py",
+      "tests/test_rebuild_text_comparisons.py"
+    ]
+  },
+  {
+    "retired": "scripts/npz_records_smoke.py",
+    "purpose": "Native aligned NPZ table, per-column Inspect and fresh-process restoration.",
+    "family": "Structured, array and checkpoint sources",
+    "native": [
+      "scripts/rebuild_sources_smoke.py",
+      "scripts/rebuild_numeric_smoke.py",
+      "scripts/rebuild_gallery_smoke.py",
+      "scripts/benchmark_objects.py",
+      "scripts/benchmark_arrays.py",
+      "scripts/benchmark_checkpoints.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_sources.py",
+      "tests/test_npz_aligned_records.py",
+      "tests/test_array_record_sessions.py"
+    ]
+  },
+  {
+    "retired": "scripts/object_views_smoke.py",
+    "purpose": "Native object selection/extraction and fresh-process named view restoration.",
+    "family": "Structured, array and checkpoint sources",
+    "native": [
+      "scripts/rebuild_sources_smoke.py",
+      "scripts/rebuild_numeric_smoke.py",
+      "scripts/rebuild_gallery_smoke.py",
+      "scripts/benchmark_objects.py",
+      "scripts/benchmark_arrays.py",
+      "scripts/benchmark_checkpoints.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_sources.py",
+      "tests/test_npz_aligned_records.py",
+      "tests/test_array_record_sessions.py"
+    ]
+  },
+  {
+    "retired": "scripts/operations_smoke.py",
+    "purpose": "Live history/preview gate on a Linux display with prepared-row assertions.",
+    "family": "Operations and export",
+    "native": [
+      "scripts/rebuild_workflow_smoke.py",
+      "scripts/rebuild_imports_smoke.py",
+      "scripts/benchmark_operations.py",
+      "scripts/benchmark_exploration.py"
+    ],
+    "behavioral": [
+      "tests/test_editing.py",
+      "tests/test_exporting.py",
+      "tests/test_transforms.py"
+    ]
+  },
+  {
+    "retired": "scripts/pair_diagonal_smoke.py",
+    "purpose": "Native pair-grid diagonal choice, all five plots and workspace reopen.",
+    "family": "Profiles, relationships and interpretations",
+    "native": [
+      "scripts/rebuild_categories_smoke.py",
+      "scripts/rebuild_pairs_smoke.py",
+      "scripts/rebuild_axes_smoke.py",
+      "scripts/rebuild_gui_smoke.py",
+      "scripts/rebuild_media_matrix.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_plot_controls.py",
+      "tests/test_rebuild_relationships.py",
+      "tests/test_column_roles.py",
+      "tests/test_nested_columns.py"
+    ]
+  },
+  {
+    "retired": "scripts/pair_grid_labels_smoke.py",
+    "purpose": "Native dense-grid axis names, zoom retention and linked-selection checks.",
+    "family": "Profiles, relationships and interpretations",
+    "native": [
+      "scripts/rebuild_categories_smoke.py",
+      "scripts/rebuild_pairs_smoke.py",
+      "scripts/rebuild_axes_smoke.py",
+      "scripts/rebuild_gui_smoke.py",
+      "scripts/rebuild_media_matrix.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_plot_controls.py",
+      "tests/test_rebuild_relationships.py",
+      "tests/test_column_roles.py",
+      "tests/test_nested_columns.py"
+    ]
+  },
+  {
+    "retired": "scripts/phase10_workspace_smoke.py",
+    "purpose": "Fresh-process native save/restore and changed media-member recovery.",
+    "family": "Loading, recovery, sessions, shell and persistence",
+    "native": [
+      "scripts/rebuild_browser_smoke.py",
+      "scripts/rebuild_imports_smoke.py",
+      "scripts/rebuild_tabs_smoke.py",
+      "scripts/rebuild_pending_views_smoke.py",
+      "scripts/rebuild_workspace_smoke.py",
+      "scripts/rebuild_layout_restore_smoke.py"
+    ],
+    "behavioral": [
+      "tests/test_editor_sessions.py",
+      "tests/test_rebuild_controllers.py",
+      "tests/test_multimodal_sessions.py"
+    ]
+  },
+  {
+    "retired": "scripts/plot_area_smoke.py",
+    "purpose": "Real drag/expand events and native axis checks across every chart family.",
+    "family": "Sizing and docking",
+    "native": [
+      "scripts/rebuild_gui_smoke.py",
+      "scripts/rebuild_media_matrix.py",
+      "scripts/rebuild_docking_smoke.py",
+      "scripts/rebuild_splitter_smoke.py"
+    ],
+    "behavioral": [
+      "tests/test_column_selection_policies.py",
+      "tests/test_rebuild_controllers.py"
+    ]
+  },
+  {
+    "retired": "scripts/preferences_smoke.py",
+    "purpose": "Live dock rearrangement/restart/reset and theme/plot preference acceptance.",
+    "family": "Loading, recovery, sessions, shell and persistence",
+    "native": [
+      "scripts/rebuild_browser_smoke.py",
+      "scripts/rebuild_imports_smoke.py",
+      "scripts/rebuild_tabs_smoke.py",
+      "scripts/rebuild_pending_views_smoke.py",
+      "scripts/rebuild_workspace_smoke.py",
+      "scripts/rebuild_layout_restore_smoke.py"
+    ],
+    "behavioral": [
+      "tests/test_editor_sessions.py",
+      "tests/test_rebuild_controllers.py",
+      "tests/test_multimodal_sessions.py"
+    ]
+  },
+  {
+    "retired": "scripts/profile_checklist_smoke.py",
+    "purpose": "Click real profile checkboxes, render all modes, and reopen saved selections.",
+    "family": "Profiles, relationships and interpretations",
+    "native": [
+      "scripts/rebuild_categories_smoke.py",
+      "scripts/rebuild_pairs_smoke.py",
+      "scripts/rebuild_axes_smoke.py",
+      "scripts/rebuild_gui_smoke.py",
+      "scripts/rebuild_media_matrix.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_plot_controls.py",
+      "tests/test_rebuild_relationships.py",
+      "tests/test_column_roles.py",
+      "tests/test_nested_columns.py"
+    ]
+  },
+  {
+    "retired": "scripts/profile_legends_smoke.py",
+    "purpose": "Native profile legends for every mode, coupled outliers, and single columns.",
+    "family": "Profiles, relationships and interpretations",
+    "native": [
+      "scripts/rebuild_categories_smoke.py",
+      "scripts/rebuild_pairs_smoke.py",
+      "scripts/rebuild_axes_smoke.py",
+      "scripts/rebuild_gui_smoke.py",
+      "scripts/rebuild_media_matrix.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_plot_controls.py",
+      "tests/test_rebuild_relationships.py",
+      "tests/test_column_roles.py",
+      "tests/test_nested_columns.py"
+    ]
+  },
+  {
+    "retired": "scripts/profile_smoke.py",
+    "purpose": "Render a selected profile using a real source or a deterministic fixture.",
+    "family": "Profiles, relationships and interpretations",
+    "native": [
+      "scripts/rebuild_categories_smoke.py",
+      "scripts/rebuild_pairs_smoke.py",
+      "scripts/rebuild_axes_smoke.py",
+      "scripts/rebuild_gui_smoke.py",
+      "scripts/rebuild_media_matrix.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_plot_controls.py",
+      "tests/test_rebuild_relationships.py",
+      "tests/test_column_roles.py",
+      "tests/test_nested_columns.py"
+    ]
+  },
+  {
+    "retired": "scripts/recent_smoke.py",
+    "purpose": "Fresh-process native recent opening, missing-file retry and workspace relink.",
+    "family": "Loading, recovery, sessions, shell and persistence",
+    "native": [
+      "scripts/rebuild_browser_smoke.py",
+      "scripts/rebuild_imports_smoke.py",
+      "scripts/rebuild_tabs_smoke.py",
+      "scripts/rebuild_pending_views_smoke.py",
+      "scripts/rebuild_workspace_smoke.py",
+      "scripts/rebuild_layout_restore_smoke.py"
+    ],
+    "behavioral": [
+      "tests/test_editor_sessions.py",
+      "tests/test_rebuild_controllers.py",
+      "tests/test_multimodal_sessions.py"
+    ]
+  },
+  {
+    "retired": "scripts/reference_mapping_smoke.py",
+    "purpose": "Real native ambiguous-reference choice with a final thumbnail screenshot.",
+    "family": "Image, annotations and references",
+    "native": [
+      "scripts/rebuild_annotations_smoke.py",
+      "scripts/rebuild_image_profiles_smoke.py",
+      "scripts/rebuild_image_comparisons_smoke.py",
+      "scripts/rebuild_table_smoke.py",
+      "scripts/rebuild_records_smoke.py",
+      "scripts/box_overlay_resources.py",
+      "scripts/benchmark_references.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_annotations.py",
+      "tests/test_rebuild_images.py",
+      "tests/test_references.py"
+    ]
+  },
+  {
+    "retired": "scripts/reference_previews_smoke.py",
+    "purpose": "Native lazy thumbnails, scroll/switch and CPU/GPU lifetime acceptance.",
+    "family": "Image, annotations and references",
+    "native": [
+      "scripts/rebuild_annotations_smoke.py",
+      "scripts/rebuild_image_profiles_smoke.py",
+      "scripts/rebuild_image_comparisons_smoke.py",
+      "scripts/rebuild_table_smoke.py",
+      "scripts/rebuild_records_smoke.py",
+      "scripts/box_overlay_resources.py",
+      "scripts/benchmark_references.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_annotations.py",
+      "tests/test_rebuild_images.py",
+      "tests/test_references.py"
+    ]
+  },
+  {
+    "retired": "scripts/relationship_smoke.py",
+    "purpose": "Live heatmap navigation and grid/linked-highlight checks.",
+    "family": "Profiles, relationships and interpretations",
+    "native": [
+      "scripts/rebuild_categories_smoke.py",
+      "scripts/rebuild_pairs_smoke.py",
+      "scripts/rebuild_axes_smoke.py",
+      "scripts/rebuild_gui_smoke.py",
+      "scripts/rebuild_media_matrix.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_plot_controls.py",
+      "tests/test_rebuild_relationships.py",
+      "tests/test_column_roles.py",
+      "tests/test_nested_columns.py"
+    ]
+  },
+  {
+    "retired": "scripts/scatter3d_smoke.py",
+    "purpose": "Live raw 3D identity, picking, brushing and camera-gesture acceptance.",
+    "family": "Analysis and scatter",
+    "native": [
+      "scripts/rebuild_analysis_smoke.py",
+      "scripts/rebuild_scatter_smoke.py",
+      "scripts/benchmark_analysis_gui.py",
+      "scripts/benchmark_exploration.py"
+    ],
+    "behavioral": [
+      "tests/test_analysis_jobs.py",
+      "tests/test_rebuild_scatter.py",
+      "tests/test_scatter3d.py",
+      "tests/test_selection.py"
+    ]
+  },
+  {
+    "retired": "scripts/scatter_dimensions_smoke.py",
+    "purpose": "Native 2D/3D choices, nested axes, fixed reduction outputs and saved heights.",
+    "family": "Analysis and scatter",
+    "native": [
+      "scripts/rebuild_analysis_smoke.py",
+      "scripts/rebuild_scatter_smoke.py",
+      "scripts/benchmark_analysis_gui.py",
+      "scripts/benchmark_exploration.py"
+    ],
+    "behavioral": [
+      "tests/test_analysis_jobs.py",
+      "tests/test_rebuild_scatter.py",
+      "tests/test_scatter3d.py",
+      "tests/test_selection.py"
+    ]
+  },
+  {
+    "retired": "scripts/scatter_faces_smoke.py",
+    "purpose": "Real 3D face-menu clicks, projected planes, free rotation and expanded views.",
+    "family": "Analysis and scatter",
+    "native": [
+      "scripts/rebuild_analysis_smoke.py",
+      "scripts/rebuild_scatter_smoke.py",
+      "scripts/benchmark_analysis_gui.py",
+      "scripts/benchmark_exploration.py"
+    ],
+    "behavioral": [
+      "tests/test_analysis_jobs.py",
+      "tests/test_rebuild_scatter.py",
+      "tests/test_scatter3d.py",
+      "tests/test_selection.py"
+    ]
+  },
+  {
+    "retired": "scripts/scatter_legends_smoke.py",
+    "purpose": "Click native color legends, retain source selection, and render numeric scales.",
+    "family": "Analysis and scatter",
+    "native": [
+      "scripts/rebuild_analysis_smoke.py",
+      "scripts/rebuild_scatter_smoke.py",
+      "scripts/benchmark_analysis_gui.py",
+      "scripts/benchmark_exploration.py"
+    ],
+    "behavioral": [
+      "tests/test_analysis_jobs.py",
+      "tests/test_rebuild_scatter.py",
+      "tests/test_scatter3d.py",
+      "tests/test_selection.py"
+    ]
+  },
+  {
+    "retired": "scripts/scatter_modes_smoke.py",
+    "purpose": "Live exclusive coordinate controls, unfitted states, and an explicit PCA click.",
+    "family": "Analysis and scatter",
+    "native": [
+      "scripts/rebuild_analysis_smoke.py",
+      "scripts/rebuild_scatter_smoke.py",
+      "scripts/benchmark_analysis_gui.py",
+      "scripts/benchmark_exploration.py"
+    ],
+    "behavioral": [
+      "tests/test_analysis_jobs.py",
+      "tests/test_rebuild_scatter.py",
+      "tests/test_scatter3d.py",
+      "tests/test_selection.py"
+    ]
+  },
+  {
+    "retired": "scripts/selection_smoke.py",
+    "purpose": "Live input-event gate for sampled row links, plot zoom, pan, and brushing.",
+    "family": "Analysis and scatter",
+    "native": [
+      "scripts/rebuild_analysis_smoke.py",
+      "scripts/rebuild_scatter_smoke.py",
+      "scripts/benchmark_analysis_gui.py",
+      "scripts/benchmark_exploration.py"
+    ],
+    "behavioral": [
+      "tests/test_analysis_jobs.py",
+      "tests/test_rebuild_scatter.py",
+      "tests/test_scatter3d.py",
+      "tests/test_selection.py"
+    ]
+  },
+  {
+    "retired": "scripts/session_comparison_smoke.py",
+    "purpose": "Native comparison controls, diagnostics and fresh-process restoration.",
+    "family": "Comparisons",
+    "native": [
+      "scripts/rebuild_comparisons_smoke.py",
+      "scripts/rebuild_text_comparisons_smoke.py",
+      "scripts/rebuild_image_comparisons_smoke.py",
+      "scripts/rebuild_audio_comparisons_smoke.py",
+      "scripts/benchmark_comparisons.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_comparisons.py"
+    ]
+  },
+  {
+    "retired": "scripts/session_workspace_smoke.py",
+    "purpose": "Fresh-process session API save/reopen and independent native tab recovery.",
+    "family": "Loading, recovery, sessions, shell and persistence",
+    "native": [
+      "scripts/rebuild_browser_smoke.py",
+      "scripts/rebuild_imports_smoke.py",
+      "scripts/rebuild_tabs_smoke.py",
+      "scripts/rebuild_pending_views_smoke.py",
+      "scripts/rebuild_workspace_smoke.py",
+      "scripts/rebuild_layout_restore_smoke.py"
+    ],
+    "behavioral": [
+      "tests/test_editor_sessions.py",
+      "tests/test_rebuild_controllers.py",
+      "tests/test_multimodal_sessions.py"
+    ]
+  },
+  {
+    "retired": "scripts/shell_navigation_smoke.py",
+    "purpose": "Completion preserves focus; explicit result opening and file tabs navigate.",
+    "family": "Analysis and scatter",
+    "native": [
+      "scripts/rebuild_analysis_smoke.py",
+      "scripts/rebuild_scatter_smoke.py",
+      "scripts/benchmark_analysis_gui.py",
+      "scripts/benchmark_exploration.py"
+    ],
+    "behavioral": [
+      "tests/test_analysis_jobs.py",
+      "tests/test_rebuild_scatter.py",
+      "tests/test_scatter3d.py",
+      "tests/test_selection.py"
+    ]
+  },
+  {
+    "retired": "scripts/table_styles_smoke.py",
+    "purpose": "Native typed-cell shading, selected rows, scales and light/dark verification.",
+    "family": "Table and gallery inspection",
+    "native": [
+      "scripts/rebuild_table_smoke.py",
+      "scripts/rebuild_records_smoke.py",
+      "scripts/benchmark_references.py",
+      "scripts/benchmark_inspection.py"
+    ],
+    "behavioral": [
+      "tests/test_records.py",
+      "tests/test_table_presentation.py"
+    ]
+  },
+  {
+    "retired": "scripts/text_comparison_smoke.py",
+    "purpose": "Native shared tokenizer, source-linked text selection and fresh restore.",
+    "family": "Text inspection, profiles, training and comparison",
+    "native": [
+      "scripts/rebuild_text_profiles_smoke.py",
+      "scripts/rebuild_text_comparisons_smoke.py",
+      "scripts/rebuild_records_smoke.py",
+      "scripts/rebuild_table_smoke.py",
+      "scripts/benchmark_text_profiles.py",
+      "scripts/benchmark_text_inspection.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_text_profiles.py",
+      "tests/test_text_tokenization.py",
+      "tests/test_rebuild_text_comparisons.py"
+    ]
+  },
+  {
+    "retired": "scripts/text_inspect_smoke.py",
+    "purpose": "Native source-linked token selection, long text paging and session restore.",
+    "family": "Text inspection, profiles, training and comparison",
+    "native": [
+      "scripts/rebuild_text_profiles_smoke.py",
+      "scripts/rebuild_text_comparisons_smoke.py",
+      "scripts/rebuild_records_smoke.py",
+      "scripts/rebuild_table_smoke.py",
+      "scripts/benchmark_text_profiles.py",
+      "scripts/benchmark_text_inspection.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_text_profiles.py",
+      "tests/test_text_tokenization.py",
+      "tests/test_rebuild_text_comparisons.py"
+    ]
+  },
+  {
+    "retired": "scripts/text_profile_navigation_smoke.py",
+    "purpose": "Native Profiles field/type changes and independent-process text restoration.",
+    "family": "Text inspection, profiles, training and comparison",
+    "native": [
+      "scripts/rebuild_text_profiles_smoke.py",
+      "scripts/rebuild_text_comparisons_smoke.py",
+      "scripts/rebuild_records_smoke.py",
+      "scripts/rebuild_table_smoke.py",
+      "scripts/benchmark_text_profiles.py",
+      "scripts/benchmark_text_inspection.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_text_profiles.py",
+      "tests/test_text_tokenization.py",
+      "tests/test_rebuild_text_comparisons.py"
+    ]
+  },
+  {
+    "retired": "scripts/text_statistics_smoke.py",
+    "purpose": "Render text statistics tables and restore their selection in a fresh process.",
+    "family": "Text inspection, profiles, training and comparison",
+    "native": [
+      "scripts/rebuild_text_profiles_smoke.py",
+      "scripts/rebuild_text_comparisons_smoke.py",
+      "scripts/rebuild_records_smoke.py",
+      "scripts/rebuild_table_smoke.py",
+      "scripts/benchmark_text_profiles.py",
+      "scripts/benchmark_text_inspection.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_text_profiles.py",
+      "tests/test_text_tokenization.py",
+      "tests/test_rebuild_text_comparisons.py"
+    ]
+  },
+  {
+    "retired": "scripts/text_tokenization_smoke.py",
+    "purpose": "Native normalization/preparation/reload and fresh-process text restoration.",
+    "family": "Text inspection, profiles, training and comparison",
+    "native": [
+      "scripts/rebuild_text_profiles_smoke.py",
+      "scripts/rebuild_text_comparisons_smoke.py",
+      "scripts/rebuild_records_smoke.py",
+      "scripts/rebuild_table_smoke.py",
+      "scripts/benchmark_text_profiles.py",
+      "scripts/benchmark_text_inspection.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_text_profiles.py",
+      "tests/test_text_tokenization.py",
+      "tests/test_rebuild_text_comparisons.py"
+    ]
+  },
+  {
+    "retired": "scripts/text_training_smoke.py",
+    "purpose": "Native explicit BPE/Unigram commands and separate-process artifact recovery.",
+    "family": "Text inspection, profiles, training and comparison",
+    "native": [
+      "scripts/rebuild_text_profiles_smoke.py",
+      "scripts/rebuild_text_comparisons_smoke.py",
+      "scripts/rebuild_records_smoke.py",
+      "scripts/rebuild_table_smoke.py",
+      "scripts/benchmark_text_profiles.py",
+      "scripts/benchmark_text_inspection.py"
+    ],
+    "behavioral": [
+      "tests/test_rebuild_text_profiles.py",
+      "tests/test_text_tokenization.py",
+      "tests/test_rebuild_text_comparisons.py"
+    ]
+  },
+  {
+    "retired": "scripts/transforms_smoke.py",
+    "purpose": "Live typed-transform, diagnostic, history and prepared-schema checks.",
+    "family": "Operations and export",
+    "native": [
+      "scripts/rebuild_workflow_smoke.py",
+      "scripts/rebuild_imports_smoke.py",
+      "scripts/benchmark_operations.py",
+      "scripts/benchmark_exploration.py"
+    ],
+    "behavioral": [
+      "tests/test_editing.py",
+      "tests/test_exporting.py",
+      "tests/test_transforms.py"
+    ]
+  },
+  {
+    "retired": "scripts/unicode_fonts_smoke.py",
+    "purpose": "Actual native glyph/texture coverage for the Phase 12 multilingual fixtures.",
+    "family": "Unicode fonts",
+    "native": [
+      "scripts/rebuild_fonts_smoke.py"
+    ],
+    "behavioral": []
+  },
+  {
+    "retired": "scripts/unsupervised_gui_smoke.py",
+    "purpose": "Exercise unfitted sources, parameter forms, explicit fit, colors and selection.",
+    "family": "Analysis and scatter",
+    "native": [
+      "scripts/rebuild_analysis_smoke.py",
+      "scripts/rebuild_scatter_smoke.py",
+      "scripts/benchmark_analysis_gui.py",
+      "scripts/benchmark_exploration.py"
+    ],
+    "behavioral": [
+      "tests/test_analysis_jobs.py",
+      "tests/test_rebuild_scatter.py",
+      "tests/test_scatter3d.py",
+      "tests/test_selection.py"
+    ]
+  },
+  {
+    "retired": "scripts/unsupervised_titanic_smoke.py",
+    "purpose": "Inspect every method on Titanic, including exclusive Colors and linked 3D views.",
+    "family": "Analysis and scatter",
+    "native": [
+      "scripts/rebuild_analysis_smoke.py",
+      "scripts/rebuild_scatter_smoke.py",
+      "scripts/benchmark_analysis_gui.py",
+      "scripts/benchmark_exploration.py"
+    ],
+    "behavioral": [
+      "tests/test_analysis_jobs.py",
+      "tests/test_rebuild_scatter.py",
+      "tests/test_scatter3d.py",
+      "tests/test_selection.py"
+    ]
+  },
+  {
+    "retired": "scripts/viewport_component_smoke.py",
+    "purpose": "Native drag/expand/restore on the shared content viewport.",
+    "family": "Sizing and docking",
+    "native": [
+      "scripts/rebuild_gui_smoke.py",
+      "scripts/rebuild_media_matrix.py",
+      "scripts/rebuild_docking_smoke.py",
+      "scripts/rebuild_splitter_smoke.py"
+    ],
+    "behavioral": [
+      "tests/test_column_selection_policies.py",
+      "tests/test_rebuild_controllers.py"
+    ]
+  },
+  {
+    "retired": "scripts/welcome_smoke.py",
+    "purpose": "Native Welcome, multiple file selection and folder opening smoke.",
+    "family": "Loading, recovery, sessions, shell and persistence",
+    "native": [
+      "scripts/rebuild_browser_smoke.py",
+      "scripts/rebuild_imports_smoke.py",
+      "scripts/rebuild_tabs_smoke.py",
+      "scripts/rebuild_pending_views_smoke.py",
+      "scripts/rebuild_workspace_smoke.py",
+      "scripts/rebuild_layout_restore_smoke.py"
+    ],
+    "behavioral": [
+      "tests/test_editor_sessions.py",
+      "tests/test_rebuild_controllers.py",
+      "tests/test_multimodal_sessions.py"
+    ]
+  },
+  {
+    "retired": "scripts/workbench_restore_smoke.py",
+    "purpose": "Fresh-process canvas/context and viewport restoration without implicit commands.",
+    "family": "Loading, recovery, sessions, shell and persistence",
+    "native": [
+      "scripts/rebuild_browser_smoke.py",
+      "scripts/rebuild_imports_smoke.py",
+      "scripts/rebuild_tabs_smoke.py",
+      "scripts/rebuild_pending_views_smoke.py",
+      "scripts/rebuild_workspace_smoke.py",
+      "scripts/rebuild_layout_restore_smoke.py"
+    ],
+    "behavioral": [
+      "tests/test_editor_sessions.py",
+      "tests/test_rebuild_controllers.py",
+      "tests/test_multimodal_sessions.py"
+    ]
+  },
+  {
+    "retired": "scripts/workflow_smoke.py",
+    "purpose": "Personal-use walkthrough in fresh save/reopen GUI processes (also from a wheel).",
+    "family": "Operations and export",
+    "native": [
+      "scripts/rebuild_workflow_smoke.py",
+      "scripts/rebuild_imports_smoke.py",
+      "scripts/benchmark_operations.py",
+      "scripts/benchmark_exploration.py"
+    ],
+    "behavioral": [
+      "tests/test_editing.py",
+      "tests/test_exporting.py",
+      "tests/test_transforms.py"
+    ]
+  },
+  {
+    "retired": "scripts/workspace_smoke.py",
+    "purpose": "Live save/restart, missing-source recovery, history and linked-selection gate.",
+    "family": "Loading, recovery, sessions, shell and persistence",
+    "native": [
+      "scripts/rebuild_browser_smoke.py",
+      "scripts/rebuild_imports_smoke.py",
+      "scripts/rebuild_tabs_smoke.py",
+      "scripts/rebuild_pending_views_smoke.py",
+      "scripts/rebuild_workspace_smoke.py",
+      "scripts/rebuild_layout_restore_smoke.py"
+    ],
+    "behavioral": [
+      "tests/test_editor_sessions.py",
+      "tests/test_rebuild_controllers.py",
+      "tests/test_multimodal_sessions.py"
+    ]
+  }
+]
