@@ -941,3 +941,12 @@ Application tests, Pyrefly, dependency probes, and GUI/resource gates were not
 run for that documentation-only step; all Phase 9–14 implementation gates
 were unchecked then. The first implementation gate at approval was M9.1;
 [Phase 9 evidence](docs/phase-9.md) records subsequent implementation progress.
+
+## Analysis architecture follow-up — authorized 2026-10-11
+
+[Analysis refactor](docs/analysis-refactor.md) tracks the concrete algorithm
+families, method-owned parameter schemas and generic GUI forms.
+
+- [x] Replace estimator dispatch chains with concrete algorithm builders and input constraints.
+- [ ] Consolidate parameter defaults, limits, request/restoration and GUI schema rendering.
+- [ ] Verify all algorithms, persistence, native forms and full-suite acceptance.

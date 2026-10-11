@@ -1,0 +1,77 @@
+"""Explicit trusted algorithm catalog; importing it never loads estimators."""
+
+from datelier.analysis.algorithm import Algorithm as AlgorithmId
+from datelier.analysis.algorithms.affinitypropagation import (
+    AffinityPropagationAlgorithm,
+)
+from datelier.analysis.algorithms.agglomerative import AgglomerativeAlgorithm
+from datelier.analysis.algorithms.base import Algorithm, ClusteringAlgorithm
+from datelier.analysis.algorithms.bayesianmixture import BayesianMixtureAlgorithm
+from datelier.analysis.algorithms.birch import BirchAlgorithm
+from datelier.analysis.algorithms.dbscan import DBSCANAlgorithm
+from datelier.analysis.algorithms.factoranalysis import FactorAnalysisAlgorithm
+from datelier.analysis.algorithms.gaussianmixture import GaussianMixtureAlgorithm
+from datelier.analysis.algorithms.gaussianprojection import GaussianProjectionAlgorithm
+from datelier.analysis.algorithms.hdbscan import HDBSCANAlgorithm
+from datelier.analysis.algorithms.ica import ICAAlgorithm
+from datelier.analysis.algorithms.isomap import IsomapAlgorithm
+from datelier.analysis.algorithms.kernelpca import KernelPCAAlgorithm
+from datelier.analysis.algorithms.kmeans import KMeansAlgorithm
+from datelier.analysis.algorithms.lle import LLEAlgorithm
+from datelier.analysis.algorithms.mds import MDSAlgorithm
+from datelier.analysis.algorithms.meanshift import MeanShiftAlgorithm
+from datelier.analysis.algorithms.minibatch import MiniBatchAlgorithm
+from datelier.analysis.algorithms.nmf import NMFAlgorithm
+from datelier.analysis.algorithms.optics import OPTICSAlgorithm
+from datelier.analysis.algorithms.pca import PCAAlgorithm
+from datelier.analysis.algorithms.sparseprojection import SparseProjectionAlgorithm
+from datelier.analysis.algorithms.spectralclustering import SpectralClusteringAlgorithm
+from datelier.analysis.algorithms.spectralembedding import SpectralEmbeddingAlgorithm
+from datelier.analysis.algorithms.svd import SVDAlgorithm
+from datelier.analysis.algorithms.tsne import TSNEAlgorithm
+from datelier.analysis.algorithms.umap import UMAPAlgorithm
+from datelier.analysis.types import Parameters
+
+BUILDERS: dict[AlgorithmId, type[Algorithm]] = {
+    builder.parameter_type.algorithm: builder
+    for builder in (
+        KMeansAlgorithm,
+        DBSCANAlgorithm,
+        HDBSCANAlgorithm,
+        OPTICSAlgorithm,
+        MiniBatchAlgorithm,
+        GaussianMixtureAlgorithm,
+        BayesianMixtureAlgorithm,
+        AgglomerativeAlgorithm,
+        BirchAlgorithm,
+        MeanShiftAlgorithm,
+        SpectralClusteringAlgorithm,
+        AffinityPropagationAlgorithm,
+        SVDAlgorithm,
+        ICAAlgorithm,
+        FactorAnalysisAlgorithm,
+        KernelPCAAlgorithm,
+        NMFAlgorithm,
+        GaussianProjectionAlgorithm,
+        SparseProjectionAlgorithm,
+        IsomapAlgorithm,
+        MDSAlgorithm,
+        SpectralEmbeddingAlgorithm,
+        LLEAlgorithm,
+        PCAAlgorithm,
+        TSNEAlgorithm,
+        UMAPAlgorithm,
+    )
+}
+
+
+def build_algorithm(parameters: Parameters) -> Algorithm:
+    builder = BUILDERS[parameters.algorithm]
+    algorithm = builder(parameters)
+    if type(parameters) is not algorithm.parameter_type:
+        raise ValueError("Parameters do not match the selected algorithm")
+    return algorithm
+
+
+def is_clustering(identifier: AlgorithmId) -> bool:
+    return issubclass(BUILDERS[identifier], ClusteringAlgorithm)

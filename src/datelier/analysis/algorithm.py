@@ -33,17 +33,6 @@ class Algorithm(StrEnum):
 
     @property
     def is_clustering(self) -> bool:
-        return self in (
-            Algorithm.KMEANS,
-            Algorithm.DBSCAN,
-            Algorithm.HDBSCAN,
-            Algorithm.OPTICS,
-            Algorithm.MINIBATCH_KMEANS,
-            Algorithm.GAUSSIAN_MIXTURE,
-            Algorithm.BAYESIAN_MIXTURE,
-            Algorithm.AGGLOMERATIVE,
-            Algorithm.BIRCH,
-            Algorithm.MEAN_SHIFT,
-            Algorithm.SPECTRAL_CLUSTERING,
-            Algorithm.AFFINITY_PROPAGATION,
-        )
+        from datelier.analysis.algorithms.registry import is_clustering
+
+        return is_clustering(self)

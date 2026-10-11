@@ -3,36 +3,12 @@
 import numpy as np
 import polars as pl
 
-from datelier.analysis.embedding_parameters import (
-    FactorAnalysisParameters,
-    ICAParameters,
-    IsomapParameters,
-    KernelPCAParameters,
-    LLEParameters,
-    MDSParameters,
-    NMFParameters,
-    SpectralEmbeddingParameters,
-    SVDParameters,
-)
-from datelier.analysis.parameters import (
-    AgglomerativeParameters,
-    BayesianMixtureParameters,
-    BirchParameters,
-    GaussianMixtureParameters,
-    HDBSCANParameters,
-    MiniBatchParameters,
-    OPTICSParameters,
-    SpectralClusteringParameters,
-)
+from datelier.analysis.algorithms.registry import build_algorithm
 from datelier.analysis.types import (
     AnalysisRequest,
     InputSummary,
-    KMeansParameters,
-    PCAParameters,
     PreparedInput,
     PreprocessingModel,
-    TSNEParameters,
-    UMAPParameters,
 )
 from datelier.core.dataset import Dataset
 from datelier.core.sampling import seeded_sample
@@ -77,10 +53,10 @@ def prepare_input(dataset: Dataset, request: AnalysisRequest) -> PreparedInput:
     normalized[~finite] = np.broadcast_to(medians, matrix.shape)[~finite]
     varying = np.ptp(normalized, axis=0) > 0
     removed = tuple(
-        n for n, keep in zip(request.features, varying, strict=True) if not keep
+        (n for n, keep in zip(request.features, varying, strict=True) if not keep)
     )
     features = tuple(
-        n for n, keep in zip(request.features, varying, strict=True) if keep
+        (n for n, keep in zip(request.features, varying, strict=True) if keep)
     )
     if not features:
         raise ValueError("No varying features remain after preprocessing")
@@ -95,101 +71,9 @@ def prepare_input(dataset: Dataset, request: AnalysisRequest) -> PreparedInput:
         normalized.std(axis=0),
     )
     values, _ = model.transform(matrix)
-    params = request.parameters
-    rows, width = values.shape
-    if isinstance(params, PCAParameters) and request.dimensions > min(rows, width):
-        raise ValueError(
-            "PCA dimensions exceed the sampled rows or varying feature count"
-        )
-    if isinstance(params, TSNEParameters):
-        if params.perplexity >= rows:
-            raise ValueError(
-                "t-SNE perplexity must be smaller than the sampled row count"
-            )
-        if params.initialization == "pca" and request.dimensions > min(rows, width):
-            raise ValueError(
-                "PCA initialization needs enough varying features for the dimensions"
-            )
-    if isinstance(params, UMAPParameters):
-        if params.neighbors >= rows or rows <= request.dimensions + 1:
-            raise ValueError(
-                "UMAP needs more sampled rows than neighbors and dimensions + 1"
-            )
-        if params.metric == "cosine" and np.any(np.linalg.norm(values, axis=1) == 0):
-            raise ValueError(
-                "Cosine distance is undefined for zero-valued preprocessed rows"
-            )
-    if isinstance(
-        params,
-        (
-            KMeansParameters,
-            MiniBatchParameters,
-            GaussianMixtureParameters,
-            BayesianMixtureParameters,
-            AgglomerativeParameters,
-            BirchParameters,
-            SpectralClusteringParameters,
-        ),
-    ) and params.clusters > len(np.unique(values, axis=0)):
-        raise ValueError("Cluster count exceeds distinct sampled inputs")
-    if (
-        isinstance(params, (HDBSCANParameters, OPTICSParameters))
-        and max(params.min_samples, params.min_cluster_size) > rows
-    ):
-        raise ValueError("Minimum neighbors and cluster size exceed the sampled rows")
-    if (
-        isinstance(params, SpectralClusteringParameters)
-        and params.affinity == "nearest_neighbors"
-        and params.neighbors >= rows
-    ):
-        raise ValueError("Spectral clustering needs more sampled rows than neighbors")
-    if isinstance(
-        params, (SVDParameters, ICAParameters, FactorAnalysisParameters, NMFParameters)
-    ) and request.dimensions > min(rows, width):
-        raise ValueError(
-            "Output dimensions exceed sampled rows or varying feature count"
-        )
-    if isinstance(params, SVDParameters) and width < 2:
-        raise ValueError("Truncated SVD needs at least two varying features")
-    if isinstance(params, KernelPCAParameters) and rows <= request.dimensions:
-        raise ValueError("Kernel PCA needs more sampled rows than output dimensions")
-    if (
-        isinstance(params, NMFParameters)
-        and params.scaling == "none"
-        and np.any(values < 0)
-    ):
-        raise ValueError(
-            "NMF needs nonnegative inputs; choose minmax scaling "
-            "or disable standardization"
-        )
-    if isinstance(
-        params, (IsomapParameters, LLEParameters, SpectralEmbeddingParameters)
-    ):
-        if rows <= request.dimensions + 1:
-            raise ValueError(
-                "Manifold views need more sampled rows than dimensions + 1"
-            )
-        uses_neighbors = (
-            not isinstance(params, SpectralEmbeddingParameters)
-            or params.affinity == "nearest_neighbors"
-        )
-        if uses_neighbors and params.neighbors >= rows:
-            raise ValueError("Neighbors must be smaller than the sampled row count")
-    if isinstance(params, MDSParameters) and rows <= request.dimensions:
-        raise ValueError("MDS needs more sampled rows than dimensions")
-    if isinstance(params, LLEParameters):
-        if request.dimensions > width:
-            raise ValueError("LLE dimensions exceed the varying feature count")
-        minimum = (
-            request.dimensions * (request.dimensions + 3) / 2
-            if params.method == "hessian"
-            else request.dimensions
-        )
-        if params.neighbors <= minimum:
-            raise ValueError(
-                f"{params.method} LLE needs more than {minimum:g} neighbors"
-            )
-    ids, positions = sample["id"].to_numpy(), sample["position"].to_numpy()
+    rows = values.shape[0]
+    build_algorithm(request.parameters).validate_input(values, request)
+    ids, positions = (sample["id"].to_numpy(), sample["position"].to_numpy())
     for array in (
         values,
         ids,
