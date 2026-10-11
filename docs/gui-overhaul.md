@@ -997,6 +997,20 @@ Scoped Pyrefly, focused reference/record tests, full Ruff and whitespace checks
 pass. Full-project type checking and final acceptance remain open for obsolete
 GUI harness callers.
 
+## Fresh E27 — Dense native annotation resource gate
+
+The original 2,200-box COCO fixture retains the 33 ms frame budget, 120 limited
+and 120 full-overlay measured frames, source hashes and 1 MiB GPU payload bound.
+Its caller now uses explicit annotation controllers and native interaction probes,
+without patching widget functions or layout internals. Actual drawn geometry and
+labels are measured after native rendering. Native association, limit entry to
+2,200 and overlapping-label toggles pass; decluttering and idle scene reuse pass.
+The run completes 394 frames with 29.51 ms measured p95. Evidence is in
+[evidence/gui-overhaul/fresh-overlay-resources.json](evidence/gui-overhaul/fresh-overlay-resources.json).
+
+Scoped Pyrefly, annotation correctness/control tests, full Ruff and diff checks
+pass. The obsolete harness audit and final full-project gates remain open.
+
 ## Baseline evidence
 
 Before implementation, 38 targeted editor/session/schema-role/profile-selection/

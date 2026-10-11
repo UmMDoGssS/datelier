@@ -114,6 +114,7 @@ class AnnotationOverlay(Container):
             )
         draw.pop_clip_rect()
         self.drawn, self.labels_shown = len(scene.boxes), len(scene.labels)
+        frame.measure("drawn", (float(self.drawn), float(self.labels_shown)))
         if surface.clicked is not None:
             choices = tuple(
                 item.box for item in scene.boxes if hits(item.box, surface.clicked)

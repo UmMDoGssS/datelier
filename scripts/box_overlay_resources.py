@@ -3,20 +3,18 @@
 import argparse
 import hashlib
 import json
-from contextlib import ExitStack
 from dataclasses import replace
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from unittest.mock import patch
 
 import numpy as np
-from imgui_bundle import hello_imgui, imgui
+from imgui_bundle import hello_imgui
 from PIL import Image
+from rebuild_input import NativeInput, NativeText
 
+from datelier.application.editor import EditorController
 from datelier.gui.app import InspectionEvidence, run_gui
-from datelier.gui.editor_session import EditorSession
-from datelier.gui.layout import configure_layout
-from datelier.gui.tabs import EditorTabs
+from datelier.gui.components.probe import GuiProbe
 from datelier.inspection.annotations.settings import (
     AnnotationSettings,
     AnnotationSource,
@@ -60,75 +58,39 @@ def main() -> None:
             path: hashlib.sha256(path.read_bytes()).hexdigest()
             for path in root.iterdir()
         }
-        pixels: dict[str, tuple[float, float]] = {}
-        expanded: dict[str, bool] = {}
-        notices: set[str] = set()
-        original_text = imgui.text
-        names = ("collapsing_header", "button", "tree_node", "input_int", "checkbox")
-        originals = {name: getattr(imgui, name) for name in names}
-
-        def text(value: str, *args) -> None:
-            if value.startswith("Showing "):
-                notices.add(value)
-            original_text(value, *args)
-
-        def wrapper(name: str):
-            def wrapped(label, *args, **kwargs):
-                result = originals[name](label, *args, **kwargs)
-                if name in ("collapsing_header", "tree_node"):
-                    expanded[label] = result
-                if imgui.is_item_visible():
-                    lo, hi = imgui.get_item_rect_min(), imgui.get_item_rect_max()
-                    pixels[label] = (
-                        lo.x + 35 if name == "input_int" else (lo.x + hi.x) / 2,
-                        (lo.y + hi.y) / 2,
-                    )
-                else:
-                    pixels.pop(label, None)
-                return result
-
-            return wrapped
-
-        def layout(params, callbacks) -> None:
-            configure_layout(params, callbacks)
-            params.docking_params.docking_splits = []
-            for window in params.docking_params.dockable_windows:
-                window.dock_space_name = "MainDockSpace"
-
-        actions = [
-            "Detection annotations",
-            "Load / associate annotations",
-            "ready",
-            "Detection annotations",
-            "limited",
-            "Overlay sources and filters",
-            "Visible box limit=2200",
-            "Overlay sources and filters",
-            "all",
-            "Overlay sources and filters",
-            "Show overlapping box labels",
-            "overlap",
-            "Show overlapping box labels",
-            "Overlay sources and filters",
-            "declutter",
-        ]
-        stage = action = phase = entered = 0
-        limited_frames = full_frames = 0
+        native, text = NativeInput(), NativeText()
+        stage = entered = limited_frames = full_frames = cached = 0
+        done = False
         intervals: list[float] = []
 
         def frame(
-            editor: EditorSession, tabs: EditorTabs, evidence: InspectionEvidence
+            editor: EditorController, probe: GuiProbe, evidence: InspectionEvidence
         ) -> None:
-            nonlocal stage, action, phase, entered, limited_frames, full_frames
-            file, params, io = (
-                editor.active,
-                hello_imgui.get_runner_params(),
-                imgui.get_io(),
-            )
-            active = file.loader.active
-            if active is None:
+            nonlocal stage, entered, limited_frames, full_frames, cached, done
+            file, tools = editor.current, editor.current.images.annotation_tools
+            assert evidence.frames < 1500, (stage, tools.scene.message)
+            if native.advance(evidence.frames) or text.advance(evidence.frames):
                 return
-            if stage == 0:
+            age = evidence.frames - entered
+            scene = tools.scene.active
+            drawn = next(
+                (
+                    values
+                    for key, values in probe.measurements.items()
+                    if key.path[-2:] == ("overlay", "drawn")
+                ),
+                None,
+            )
+            gpu = next(
+                (
+                    values
+                    for key, values in probe.measurements.items()
+                    if key.path[-2:] == ("image", "gpu")
+                ),
+                None,
+            )
+            suffix: tuple[str, ...] | None = None
+            if stage == 0 and file.inspection and not file.references.busy:
                 file.references.configure(ReferenceSettings(roots=(str(root),)))
                 file.images.settings = replace(
                     file.images.settings,
@@ -142,122 +104,72 @@ def main() -> None:
                         ),
                     ),
                 )
-                file.inspect.settings = replace(
-                    file.inspect.settings, primary="image", gallery=False
+                file.records.settings = replace(
+                    file.records.settings, primary="image", gallery=False
                 )
-                file.exploration.tab = "Inspect"
-                params.docking_params.focus_dockable_window("Explore")
+                editor.choose_route("Inspect")
                 stage, entered = 1, evidence.frames
-            if action == len(actions):
-                params.app_shall_exit = True
-                return
-            target, age = actions[action], evidence.frames - entered
-            if action == 0 and file.images.canvas.shown < 12:
-                return
-            if target in ("overlap", "declutter"):
-                overlay = file.images.overlay
-                if age < 12 or not overlay.label_candidates:
+            elif stage == 1 and file.images.jobs.active:
+                suffix = ("image-settings", "annotations", "toggle")
+            elif stage == 2 and age > 5:
+                suffix = ("annotation-settings", "associate", "run")
+            elif stage == 3 and scene and drawn and age > 10:
+                assert (
+                    tools.jobs.active
+                    and len(tools.jobs.active.sources[0].boxes) == 2200
+                )
+                assert scene.visible_count == 2200 and drawn[0] == 2000
+                assert 0 < drawn[1] < scene.label_candidates
+                assert gpu and gpu[0] <= 512 * 512 * 4
+                intervals.append(evidence.frame_intervals_ms[-1])
+                limited_frames += 1
+                if limited_frames >= 120:
+                    suffix = ("annotation-settings", "overlays", "toggle")
+            elif stage == 4 and age > 5:
+                suffix = ("overlays", "limit", "value")
+            elif stage == 5 and age > 5:
+                text.start("2200", evidence.frames)
+                stage, entered = 6, evidence.frames
+            elif stage == 6 and scene and drawn and age > 10:
+                assert tools.read_view().overlay.limit == 2200
+                if drawn[0] != 2200:
                     return
-                if target == "overlap":
-                    assert overlay.labels_shown == overlay.label_candidates
-                else:
-                    assert overlay.visible_count == len(overlay.drawn) == 2200
-                    assert 0 < overlay.labels_shown < overlay.label_candidates
-                    assert overlay.scenes_prepared < evidence.frames // 4
-                action, phase, entered = action + 1, 0, evidence.frames
-                return
-            if target == "ready":
-                prepared = file.images.annotations.active
-                if prepared is None or age < 8:
-                    return
-                assert len(prepared.sources[0].boxes) == 2200
-                action, phase, entered = action + 1, 0, evidence.frames
-                return
-            if target in ("limited", "all"):
-                overlay = file.images.overlay
-                wanted = 2000 if target == "limited" else 2200
+                assert 0 < drawn[1] < scene.label_candidates
+                assert gpu and gpu[0] <= 512 * 512 * 4
+                intervals.append(evidence.frame_intervals_ms[-1])
+                full_frames += 1
+                if full_frames >= 120:
+                    suffix = ("overlays", "overlap", "value")
+            elif stage == 7 and scene and drawn and age > 10:
                 if (
-                    overlay.visible_count != 2200
-                    or len(overlay.drawn) != wanted
-                    or age < 10
+                    not tools.read_view().overlay.overlapping_labels
+                    or drawn[1] != scene.label_candidates
                 ):
                     return
-                assert file.images.canvas.retained_bytes <= 512 * 512 * 4
-                assert 0 < overlay.labels_shown < overlay.label_candidates
-                if target == "limited":
-                    limited_frames += 1
-                    done = limited_frames >= 120
-                else:
-                    full_frames += 1
-                    done = full_frames >= 120
-                intervals.append(evidence.frame_intervals_ms[-1])
-                if done:
-                    action, phase, entered = action + 1, 0, evidence.frames
-                return
-            key = target.split("=", 1)[0]
-            if phase == 0 and age > 8:
-                params.docking_params.focus_dockable_window("Explore")
-                phase, entered = 8, evidence.frames
-            elif phase == 8 and age > 4 and key in pixels:
-                io.mouse_pos = imgui.ImVec2(*pixels[key])
-                io.want_set_mouse_pos = True
-                phase, entered = 1, evidence.frames
-            elif phase == 1 and age > 4:
-                io.add_mouse_button_event(0, True)
-                phase, entered = 2, evidence.frames
-            elif phase == 2 and age > 4:
-                io.add_mouse_button_event(0, False)
-                if "=" in target:
-                    for keycode in (
-                        imgui.Key.left_ctrl,
-                        imgui.Key.mod_ctrl,
-                        imgui.Key.a,
-                    ):
-                        io.add_key_event(keycode, True)
-                    phase = 3
-                else:
-                    phase = 6
-                entered = evidence.frames
-            elif phase == 3 and age > 4:
-                for keycode in (imgui.Key.a, imgui.Key.left_ctrl, imgui.Key.mod_ctrl):
-                    io.add_key_event(keycode, False)
-                phase, entered = 4, evidence.frames
-            elif phase == 4 and age > 4:
-                io.add_input_characters_utf8("2200")
-                phase, entered = 5, evidence.frames
-            elif phase == 5 and age > 4:
-                io.add_key_event(imgui.Key.enter, True)
-                phase, entered = 7, evidence.frames
-            elif phase == 7 and age > 4:
-                io.add_key_event(imgui.Key.enter, False)
-                phase, entered = 6, evidence.frames
-            elif phase == 6 and age > 8:
-                wanted = (
-                    action == 0
-                    if key == "Detection annotations"
-                    else action in (5, 9)
-                    if key == "Overlay sources and filters"
-                    else None
-                )
-                if wanted is not None and expanded.get(key) != wanted:
-                    phase, entered = 0, evidence.frames
+                suffix = ("overlays", "overlap", "value")
+            elif stage == 8 and scene and drawn and age > 10:
+                if (
+                    tools.read_view().overlay.overlapping_labels
+                    or drawn[1] >= scene.label_candidates
+                ):
                     return
-                if key == "Visible box limit":
-                    assert file.images.settings.annotation_view.overlay.limit == 2200
-                action, phase, entered = action + 1, 0, evidence.frames
+                assert drawn[0] == 2200
+                cached = tools.scene.prepared_count
+                stage, entered = 9, evidence.frames
+            elif stage == 9 and age > 30:
+                assert tools.scene.prepared_count <= cached + 1
+                done = True
+                hello_imgui.get_runner_params().app_shall_exit = True
+            if suffix and native.click(probe, suffix, evidence.frames):
+                stage, entered = stage + 1, evidence.frames
 
-        with patch("datelier.gui.app.configure_layout", layout), ExitStack() as stack:
-            for name in names:
-                stack.enter_context(patch.object(imgui, name, wrapper(name)))
-            stack.enter_context(patch.object(imgui, "text", text))
-            evidence = run_gui(
-                root / "source.csv",
-                smoke_frames=1100,
-                on_editor_frame=frame,
-                preferences_path=root / "prefs.json",
-            )
-        assert action == len(actions), (actions[action], phase, list(pixels))
-        assert any("2,000/2,200" in value for value in notices)
+        evidence = run_gui(
+            root / "source.csv",
+            smoke_frames=1500,
+            on_probe_frame=frame,
+            preferences_path=root / "prefs.json",
+        )
+        assert done
         assert all(
             hashlib.sha256(path.read_bytes()).hexdigest() == digest
             for path, digest in before.items()

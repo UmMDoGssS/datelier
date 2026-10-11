@@ -73,6 +73,9 @@ class ImageContent(RecordContent):
         viewport = self.surface.draw(
             model.jobs.active, viewport, size, model.settings.gpu_bytes
         )
+        frame.measure(
+            "gpu", (float(self.surface.retained_bytes), float(self.surface.shown))
+        )
         target(frame, "canvas")
         model.settings = replace(
             model.settings,
