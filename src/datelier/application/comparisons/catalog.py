@@ -1,11 +1,15 @@
 """Immutable file/view metadata and scoped selection ports for comparison tools."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING
 
+import polars as pl
+
 from datelier.application.columns import ColumnChoice
+from datelier.application.sources.columns import record_mapping
 from datelier.core.column_roles import ColumnRole
-from datelier.core.dataset import Dataset
+from datelier.core.dataset import Dataset, DatasetRevision
+from datelier.inspection.arrays.mapping import ArrayLayout
 from datelier.inspection.comparisons.types import ComparisonSelection
 from datelier.inspection.references.index import ReferenceIndex
 from datelier.inspection.references.types import ReferenceSettings
@@ -13,6 +17,7 @@ from datelier.inspection.table import Inspection
 from datelier.inspection.text.list_records import is_text_field
 from datelier.inspection.text.types import TextSettings
 from datelier.io.arrays.storage import ArrayStore
+from datelier.io.types import ArrayOptions
 
 if TYPE_CHECKING:
     from datelier.application.file import FileController
@@ -43,6 +48,7 @@ class SourceCatalog:
         self._owners: dict[str, FileController] = {}
         self._column_choices: dict[str, tuple[ColumnChoice, ...]] = {}
         self._text_choices: dict[str, tuple[ColumnChoice, ...]] = {}
+        self._image_choices: dict[str, tuple[ColumnChoice, ...]] = {}
         self.current_id = ""
 
     @property
@@ -108,12 +114,78 @@ class SourceCatalog:
                     if c.name in schema
                 )
         self._text_choices = choices
+        images = {}
+        for source in self.files:
+            previous_source = previous.get(source.identity)
+            if previous_source and previous_source.inspection is source.inspection:
+                images[source.identity] = self._image_choices.get(source.identity, ())
+                continue
+            inspection = source.inspection
+            if inspection is None:
+                images[source.identity] = ()
+                continue
+            options = inspection.imported.options
+            mapping = options.mapping if isinstance(options, ArrayOptions) else None
+            mapped = (
+                (ColumnChoice(mapping.member, "Mapped image"),)
+                if mapping and mapping.layout == ArrayLayout.IMAGE
+                else ()
+            )
+            schema = inspection.dataset.table.schema
+            images[source.identity] = mapped + tuple(
+                ColumnChoice(
+                    c.name,
+                    c.group,
+                    enabled=schema[c.name] == pl.String
+                    or (
+                        (m := record_mapping(inspection, c.name)) is not None
+                        and m.layout == ArrayLayout.IMAGE
+                    ),
+                    reason="Use a reference string or confirmed image array mapping.",
+                )
+                for c in source.columns
+                if c.name in schema
+                and (not mapping or c.name not in (mapping.member, "record_index"))
+            )
+        self._image_choices = images
 
     def column_choices(self, identity: str) -> tuple[ColumnChoice, ...]:
         return self._column_choices.get(identity, ())
 
     def text_choices(self, identity: str) -> tuple[ColumnChoice, ...]:
         return self._text_choices.get(identity, ())
+
+    def image_choices(self, identity: str) -> tuple[ColumnChoice, ...]:
+        source = self.by_id.get(identity)
+        if source is None or source.inspection is None:
+            return ()
+        return self._image_choices.get(identity, ())
+
+    def open_record(
+        self,
+        identity: str,
+        revision: DatasetRevision,
+        position: int,
+        row_id: int,
+        column: str,
+        mapped: bool,
+        array_rate: int | None = None,
+    ) -> None:
+        file = self._owners.get(identity)
+        if (
+            file is None
+            or file.closed
+            or not file.records.open_position(
+                revision, position, row_id, column, mapped
+            )
+        ):
+            raise ValueError("The comparison source changed or closed")
+        file.table.go_to(position)
+        file.views = replace(file.views, tab="Inspect")
+        if array_rate is not None:
+            file.audio.settings = replace(
+                file.audio.settings, array_sample_rate=array_rate
+            )
 
     def apply_selection(self, selection: ComparisonSelection) -> None:
         file = self._owners.get(selection.origin.file_id)
@@ -137,3 +209,4 @@ class SourceCatalog:
         self._owners.clear()
         self._column_choices.clear()
         self._text_choices.clear()
+        self._image_choices.clear()

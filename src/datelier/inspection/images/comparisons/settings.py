@@ -1,5 +1,6 @@
 """Serializable source scopes and view-only image comparison choices."""
 
+import math
 from dataclasses import dataclass
 
 from datelier.inspection.images.profile_types import ImageProfileSettings
@@ -44,12 +45,17 @@ class ImageComparisonViewSettings:
     proportions: bool = True
     source: int = 0
     bin_index: int = 0
-    height: int = 240
+    height: float = 240
 
     def validate(self) -> None:
         if self.tab not in ("Dimensions", "Colors", "Statistics", "Records"):
             raise ValueError("Unknown image comparison view")
         if self.dimension not in ("Width", "Height", "Aspect ratio"):
             raise ValueError("Unknown image comparison dimension")
-        if min(self.source, self.bin_index) < 0 or not 80 <= self.height <= 800:
+        if (
+            min(self.source, self.bin_index) < 0
+            or not math.isfinite(self.height)
+            or self.height != 0
+            and self.height < 80
+        ):
             raise ValueError("Choose valid image comparison controls")

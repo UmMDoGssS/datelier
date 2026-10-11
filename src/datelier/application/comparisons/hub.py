@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 from datelier.application.comparisons.base import ComparisonFamily
 from datelier.application.comparisons.catalog import SourceCatalog
 from datelier.application.comparisons.columns import ColumnComparisonController
+from datelier.application.comparisons.images import ImageComparisonController
 from datelier.application.comparisons.text import TextComparisonController
 from datelier.workspace.session_types import SessionWorkspace
 
@@ -20,19 +21,25 @@ class ComparisonHub:
         self.catalog = SourceCatalog()
         self.columns = ColumnComparisonController(self.catalog, focus, executor)
         self.text = TextComparisonController(self.catalog, focus, executor)
+        self.images = ImageComparisonController(self.catalog, focus, executor)
         self.tab = ComparisonFamily.COLUMNS
 
     def refresh(self, files: tuple[FileController, ...]) -> None:
         self.catalog.sync(files)
         self.columns.prune(set(self.catalog.by_id))
         self.text.prune(set(self.catalog.by_id))
+        self.images.prune(set(self.catalog.by_id))
 
     def poll(self, files: tuple[FileController, ...]) -> None:
         self.refresh(files)
         self.columns.sync()
         self.text.sync()
+        self.images.sync()
 
     def restore(self, session: SessionWorkspace) -> None:
+        self.images.jobs.clear()
+        self.images.restore(session.image_comparisons, session.image_comparison_index)
+        self.images.view = session.image_comparison_view
         self.text.jobs.clear()
         self.text.restore(session.text_comparisons, session.text_comparison_index)
         self.text.view = session.text_comparison_view
@@ -61,13 +68,9 @@ class ComparisonHub:
             text_comparisons=self.text.recipes,
             text_comparison_index=self.text.index,
             text_comparison_view=self.text.view,
-            image_comparisons=tuple(
-                replace(
-                    recipe,
-                    sources=tuple(s for s in recipe.sources if s.file_id in identities),
-                )
-                for recipe in session.image_comparisons
-            ),
+            image_comparisons=self.images.recipes,
+            image_comparison_index=self.images.index,
+            image_comparison_view=self.images.view,
             audio_comparisons=tuple(
                 replace(
                     recipe,
@@ -81,6 +84,7 @@ class ComparisonHub:
         )
 
     def close(self) -> None:
+        self.images.close()
         self.text.close()
         self.columns.close()
         self.catalog.close()

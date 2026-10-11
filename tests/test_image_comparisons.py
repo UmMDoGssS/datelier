@@ -303,6 +303,7 @@ def wait(
     deadline = monotonic() + 5
     while jobs.busy and monotonic() < deadline:
         jobs.bind(recipe, inputs)
+        jobs.poll()
         sleep(0.001)
     assert not jobs.busy
 
@@ -355,6 +356,7 @@ def test_executing_results_and_selection_cannot_publish_after_source_closes(
         jobs = ImageComparisonJobs(executor)
         try:
             jobs.bind(recipe, inputs)
+            jobs.poll()
             jobs.request()
             assert entered.wait(5)
             jobs.bind(recipe, inputs[:1])

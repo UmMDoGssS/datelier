@@ -71,6 +71,8 @@ class ImageComparisonJobs:
             self.clear()
             self._stamp, self._recipe, self._inputs = stamp, recipe, inputs
             self.message = "Image comparison inputs changed; prepare explicitly."
+
+    def poll(self) -> None:
         if self._future is not None and self._future.done():
             future, self._future = self._future, None
             try:

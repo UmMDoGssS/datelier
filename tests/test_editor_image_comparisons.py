@@ -7,7 +7,8 @@ from unittest.mock import patch
 import pytest
 from PIL import Image
 
-from datelier.gui.editor_session import EditorSession
+from datelier.application.comparisons.base import ComparisonFamily
+from datelier.application.editor import EditorController
 from datelier.inspection.images.comparisons.settings import (
     ImageComparisonSettings,
     ImageComparisonSource,
@@ -21,19 +22,19 @@ from datelier.workspace.session_storage import read_session_workspace
 from datelier.workspace.session_types import SessionFile, SessionWorkspace
 
 
-def wait(editor: EditorSession, root: Path) -> None:
+def wait(editor: EditorController, root: Path) -> None:
     deadline = monotonic() + 5
     while monotonic() < deadline:
         editor.poll()
-        for file in editor.file_sessions:
+        for file in editor.all_files:
             if file.loader.active is not None and file.references.settings.roots != (
                 str(root),
             ):
                 file.references.configure(ReferenceSettings(roots=(str(root),)))
         if (
             not editor.opening.busy
-            and not editor.workspace_jobs.busy
-            and not editor.image_comparison_jobs.busy
+            and not editor.workspace.busy
+            and not editor.compare.images.jobs.busy
             and all(
                 file.loader.status.phase != LoadPhase.LOADING
                 and not file.references.busy
@@ -73,7 +74,7 @@ def test_saved_image_comparison_reopens_idle_links_correct_file_and_recovers(
     paths[0].write_text("image\na2.png\na4.png\n")
     paths[1].write_text("image\nb6.png\nb2.png\n")
     workspace = tmp_path / "session.datelier.json"
-    editor = EditorSession()
+    editor = EditorController()
     try:
         editor.opening.request(paths, editor.active_id)
         wait(editor, tmp_path)
@@ -88,31 +89,31 @@ def test_saved_image_comparison_reopens_idle_links_correct_file_and_recovers(
         view = ImageComparisonViewSettings(
             tab="Colors", mode="RGB", dtype="|u1", channel="R", source=1, height=200
         )
-        editor.image_comparisons = (recipe,)
-        editor.image_comparison_view = view
-        editor.comparison_tab = "Images"
+        editor.compare.images.restore((recipe,))
+        editor.compare.images.view = view
+        editor.compare.tab = ComparisonFamily.IMAGES
         editor.poll()
         assert (
-            editor.image_comparison_jobs.started == 0
-            and editor.image_comparison_jobs.active is None
+            editor.compare.images.jobs.started == 0
+            and editor.compare.images.jobs.active is None
         )
-        editor.image_comparison_jobs.request()
+        editor.compare.images.jobs.request()
         wait(editor, tmp_path)
-        result = editor.image_comparison_jobs.active
+        result = editor.compare.images.jobs.active
         assert result is not None
-        editor.select_image_comparison(result, 1, "Width", 1)
+        editor.compare.images.select(1, "Width", 1)
         deadline = monotonic() + 5
         while not second.selection.row_ids and monotonic() < deadline:
             editor.poll()
             sleep(0.001)
         assert second.selection.row_ids == {0} and not first.selection.row_ids
         assert editor.active is second and second.table.target_row == 1
-        editor.open_image_comparison_record(result, 0, 1)
+        editor.compare.images.open_record(result, 0, 1)
         assert editor.active is first and first.selection.row_ids == {1}
-        assert first.inspect.settings.focus == 0 and first.focus_inspect
+        assert first.records.settings.focus == 0
         assert first.table.target_row == 2
-        assert first.exploration.tab == "Inspect"
-        editor.save_workspace(workspace)
+        assert first.views.tab == "Inspect"
+        editor.save_workspace(workspace, "", (), False, False)
         wait(editor, tmp_path)
         saved = read_session_workspace(workspace)
         assert (
@@ -133,28 +134,28 @@ def test_saved_image_comparison_reopens_idle_links_correct_file_and_recovers(
         failed, good = editor.files
         assert failed.recovery and good.loader.active
         assert (
-            editor.image_comparisons == (recipe,)
-            and editor.image_comparison_view == view
+            editor.compare.images.recipes == (recipe,)
+            and editor.compare.images.view == view
         )
-        assert editor.comparison_tab == "Images"
+        assert editor.compare.tab == ComparisonFamily.IMAGES
         with pytest.raises(ValueError, match="changed"):
-            editor.open_image_comparison_record(result, 0, 1)
+            editor.compare.images.open_record(result, 0, 1)
         assert (
-            editor.image_comparison_jobs.active is None
-            and not editor.image_comparison_jobs.busy
+            editor.compare.images.jobs.active is None
+            and not editor.compare.images.jobs.busy
         )
-        assert editor.image_comparison_jobs.started == 1
-        editor.recover_source(failed.identity, relink=tmp_path / "moved.csv")
+        assert editor.compare.images.jobs.started == 1
+        editor.recover(failed.identity, tmp_path / "moved.csv", False)
         wait(editor, tmp_path)
-        assert failed.loader.active and editor.image_comparison_jobs.active is None
-        editor.close_tab(failed.identity)
-        assert editor.image_comparisons[0].sources == (recipe.sources[1],)
-        assert editor.image_comparison_jobs.active is None
-        editor.save_workspace(tmp_path / "closed.datelier.json")
+        assert failed.loader.active and editor.compare.images.jobs.active is None
+        editor.close_file(failed.identity)
+        assert editor.compare.images.recipes[0].sources == (recipe.sources[1],)
+        assert editor.compare.images.jobs.active is None
+        editor.save_workspace(tmp_path / "closed.datelier.json", "", (), False, False)
         wait(editor, tmp_path)
         assert (
-            editor.workspace_jobs.saved
-            and editor.workspace_jobs.saved.path.name == "closed.datelier.json"
+            editor.workspace.saved
+            and editor.workspace.saved.path.name == "closed.datelier.json"
         )
     finally:
         editor.close()

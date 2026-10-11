@@ -8,6 +8,8 @@ from datelier.application.comparisons.base import ComparisonFamily
 from datelier.application.comparisons.hub import ComparisonHub
 from datelier.gui.comparisons.column_tools import ColumnComparisonTools
 from datelier.gui.comparisons.columns import ColumnComparisonContent
+from datelier.gui.comparisons.image_tools import ImageComparisonTools
+from datelier.gui.comparisons.images import ImageComparisonContent
 from datelier.gui.comparisons.text import TextComparisonContent
 from datelier.gui.comparisons.text_tools import TextComparisonTools
 from datelier.gui.components.base import Component, FrameContext
@@ -38,10 +40,12 @@ def assemble_comparisons(model: ComparisonHub) -> CompareComponents:
     content = {
         ComparisonFamily.COLUMNS: ColumnComparisonContent(model.columns),
         ComparisonFamily.TEXT: TextComparisonContent(model.text),
+        ComparisonFamily.IMAGES: ImageComparisonContent(model.images),
     }
     settings: dict[str, Component] = {
         ComparisonFamily.COLUMNS: ColumnComparisonTools(model.columns),
         ComparisonFamily.TEXT: TextComparisonTools(model.text),
+        ComparisonFamily.IMAGES: ImageComparisonTools(model.images),
     }
     canvas = CanvasTabs(
         tuple(

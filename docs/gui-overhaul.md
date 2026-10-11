@@ -57,7 +57,7 @@ components implement Component.render; container classes render direct children.
 | B | Shared controls, shell, columns, table, tabular profiles and plots | Complete; basic inspection shell runnable |
 | C | Contextual analysis, transforms/history, export and workspace/preferences | Complete; advanced plot modes tracked separately |
 | D | Structured/array/checkpoint source and multimodal record/profile families | In progress; source/Inspect, text/image/audio profiles and annotation workflows restored; remaining forms and integration pending |
-| E | Comparison families, remaining features and integrated acceptance | In progress; column/text comparisons restored; image/audio comparisons and remaining integration pending |
+| E | Comparison families, remaining features and integrated acceptance | In progress; column/text/image comparisons restored; audio comparisons and remaining integration pending |
 
 Each stage runs scoped Pyrefly, behavioral tests, full Ruff checks and diff review
 before commit. Full Pyrefly/old GUI tests remain open while their imports target
@@ -350,6 +350,29 @@ Shared column controls regress at 124 frames/20.23 ms p95; corpus/training contr
 regress at 94 frames/11.18 ms p95. Image/audio comparisons, advanced plots,
 remaining import/table/mapping controls, full old caller migration and final
 integrated resource/size/theme gates remain open.
+
+## Fresh Stage E3 — Scoped image comparisons
+
+Image comparisons now compose the shared recipe/contributor/row-link hierarchy
+and a reusable scalar histogram component. Per-source record scopes and exact or
+seeded pixel samples reuse the image profile form. Dimensions use common original
+physical bins; color curves keep mode/dtype/channel families separate. Native
+legends, counts/proportions, full scalar statistics and record outcomes are rebuilt.
+Both chart tabs support shared Auto/Expand/Restore/drag sizing. Explicit record
+links open the originating file or named array view in Inspect, retaining sorted
+source-row identity, original pixels and aligned supporting fields. Recipes and
+view settings restore idle; source changes and closure invalidate results without
+rerunning preparation. No per-file profile or playback starts implicitly.
+
+Verification: production/migrated caller Pyrefly zero errors, 58 focused image/
+comparison/session/restore tests, full Ruff lint/format (687 files) and whitespace
+checks pass. Native shared source bulk, sampled Prepare, dimension/color/statistics/
+record tabs, both chart Expand/Restore, sorted row links and original-pixel record
+opening pass in 197 frames/23.86 ms p95 with source bytes preserved.
+[Image comparison report](evidence/gui-overhaul/fresh-image-comparisons.json).
+The shared single-source image profile form regresses at 129 frames/20.02 ms p95.
+Audio comparisons, advanced plots, remaining import/table/mapping controls, full
+old caller migration and integrated resource/size/theme acceptance remain open.
 
 ## Baseline evidence
 
