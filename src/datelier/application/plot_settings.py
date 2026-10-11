@@ -56,6 +56,32 @@ class PlotState:
     def scatter_dimensions(self) -> int:
         return 3 if self.three_d else 2
 
+    @property
+    def chart_choices(self) -> tuple[str, ...]:
+        choices = ["Scatter 2D"]
+        if self.categories:
+            choices.append(CategoryRepresentation.COUNTS.value)
+            if len(self.categories) > 1:
+                choices.append(CategoryRepresentation.GROUPED.value)
+            if self.numeric:
+                choices.extend(
+                    m.value
+                    for m in CategoryRepresentation
+                    if m
+                    not in (
+                        CategoryRepresentation.COUNTS,
+                        CategoryRepresentation.GROUPED,
+                    )
+                )
+        return tuple(choices)
+
+    def choose_category(self, name: str) -> None:
+        if name not in self.categories:
+            return
+        self.category_column = name
+        if self.category_group == name:
+            self.category_group = next((n for n in self.categories if n != name), None)
+
     def choose_chart(self, chart: str) -> None:
         if chart in ("Scatter 2D", "Scatter 3D"):
             three_d = chart == "Scatter 3D"
@@ -122,6 +148,11 @@ class PlotState:
             if self.category_value in self.numeric
             else next(iter(self.numeric), None)
         )
+        if (
+            self.relationship_chart != "Scatter"
+            and self.chart_choice not in self.chart_choices
+        ):
+            self.choose_chart("Scatter 2D")
         self.relationship_features = (
             list(self.numeric[:6])
             if self.relationship_features is None

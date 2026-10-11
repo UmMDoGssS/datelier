@@ -108,6 +108,16 @@ class EditorController:
                 SourceRecovery(identity, path, accept_changed, prepare_records),
             )
 
+    def choose_relationship_chart(self, chart: str) -> None:
+        file = self.current
+        if chart == "Count bars":
+            if file.plots.category_column:
+                file.profiles.choose((file.plots.category_column,))
+                self.choose_route("Profiles")
+            return
+        file.plots.choose_chart(chart)
+        self.choose_route("Relationships")
+
     def new_file(self, path: Path | None = None) -> FileController:
         if self.closed:
             raise RuntimeError("The editor is closed")

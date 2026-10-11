@@ -6,6 +6,10 @@ from imgui_bundle import imgui, implot
 from datelier.plotting.distributions import NumericDistribution
 
 
+def box_label(name: str, index: int) -> str:
+    return name.replace("##", "#\u200b#") + f"##box/{index}"
+
+
 def draw_box(
     series: NumericDistribution,
     index: int,
@@ -14,6 +18,7 @@ def draw_box(
 ) -> None:
     if series.box is None:
         return
+    label = box_label(series.name, index)
     lo, q1, median, q3, hi = series.box
     center = float(index)
     if violin and len(series.kde_y):
@@ -22,7 +27,7 @@ def draw_box(
             (center - width, (center + width)[::-1], [center - width[0]])
         )
         ys = np.concatenate((series.kde_x, series.kde_x[::-1], series.kde_x[:1]))
-        implot.plot_line(series.name, xs, ys, implot.Spec(line_color=color))
+        implot.plot_line(label, xs, ys, implot.Spec(line_color=color))
     else:
         xs = np.array(
             [
@@ -40,13 +45,13 @@ def draw_box(
             ]
         )
         ys = np.array([lo, hi, np.nan, q1, q1, q3, q3, q1, np.nan, median, median])
-        implot.plot_line(series.name, xs, ys, implot.Spec(line_color=color))
+        implot.plot_line(label, xs, ys, implot.Spec(line_color=color))
     if len(series.outliers):
         implot.hide_next_item(
-            not implot.internal.get_item(series.name).show, implot.Cond_.always
+            not implot.internal.get_item(label).show, implot.Cond_.always
         )
         implot.plot_scatter(
-            f"{series.name} outliers",
+            f"Outliers##{label}",
             np.full(len(series.outliers), center),
             series.outliers,
             implot.Spec(

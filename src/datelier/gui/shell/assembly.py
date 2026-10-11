@@ -22,6 +22,8 @@ from datelier.gui.profiles.audio import AudioProfileContent
 from datelier.gui.profiles.content import ProfileRouter
 from datelier.gui.profiles.images import ImageProfileContent
 from datelier.gui.profiles.text import TextProfileContent
+from datelier.gui.relationships.categories import CategoryRouter
+from datelier.gui.relationships.content import RelationshipContent
 from datelier.gui.relationships.correlations import CorrelationPlot
 from datelier.gui.relationships.scatter import ScatterPlot
 from datelier.gui.shell.inspect_assembly import assemble_inspect
@@ -86,10 +88,30 @@ def assemble_file(
     def scatter_viewport() -> ResizableViewport:
         return ResizableViewport(
             "scatter",
-            ScatterPlot(points, file.selection, file.table.go_to),
-            read_height=lambda: file.views.scatter_height,
+            RelationshipContent(
+                ScatterPlot(points, file.selection, file.table.go_to),
+                CategoryRouter(
+                    lambda: (
+                        file.explorer.active.category_chart
+                        if file.explorer.active
+                        else None
+                    ),
+                    file.selection,
+                    file.table.go_to,
+                ),
+                lambda: file.plots.relationship_chart != "Scatter",
+            ),
+            read_height=lambda: (
+                file.views.category_height
+                if file.plots.relationship_chart != "Scatter"
+                else file.views.scatter_height
+            ),
             write_height=lambda value: setattr(
-                file, "views", replace(file.views, scatter_height=value)
+                file,
+                "views",
+                replace(file.views, category_height=value)
+                if file.plots.relationship_chart != "Scatter"
+                else replace(file.views, scatter_height=value),
             ),
         )
 
@@ -184,7 +206,9 @@ def assemble_file(
                         "Relationships": Group(
                             "relationship-tools",
                             (
-                                RelationshipSettings(file.plots),
+                                RelationshipSettings(
+                                    file.plots, editor.choose_relationship_chart
+                                ),
                                 AnalysisSettingsView(file.analysis, open_result),
                             ),
                         ),

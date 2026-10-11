@@ -402,6 +402,31 @@ All four comparison families are rebuilt; advanced relationship plots, remaining
 import/table/mapping controls, full old caller migration and final integrated
 resource/size/theme acceptance remain open.
 
+## Fresh Stage E5 — Categorical relationship families
+
+Relationships now routes scatter and category content through direct child
+composition. Related category components share an abstract chart/input lifecycle;
+grouped counts and mean/median/sum bars use the bar implementation, while box and
+violin subclasses share distribution geometry and row links. Typed contextual
+selectors expose eligible categories, groups and numeric values; changing the
+category avoids selecting it as its own group. Role changes fall back to an
+available view. Native legends, bounded category/Other groups, exclusions, sampling
+notes, linked original rows and shared viewport controls remain visible. Category
+and scatter heights persist independently. Count bars explicitly navigate to
+Profiles. Numeric aggregate recipes retain their representation on restore;
+legacy counts open Profiles only when Relationships was the saved view, preserving
+saved Inspect focus. Data labels containing native ID separators are escaped.
+
+Verification: production/migrated caller Pyrefly zero errors, 38 focused category/
+exploration/workspace/comparison tests, full Ruff lint/format (698 files) and
+whitespace checks pass. Native grouped bars, all three aggregates, box/violin row
+links after sorting, Expand/Restore and count-to-Profile navigation pass in
+126 frames/16.64 ms p95 with source bytes and zero implicit analysis preserved.
+[Category report](evidence/gui-overhaul/fresh-categories.json).
+3D scatter/camera, pair-grid/diagonal modes, remaining plot/axis/color styles,
+import/table/mapping controls, full old caller migration and final integrated
+resource/size/theme acceptance remain open.
+
 ## Baseline evidence
 
 Before implementation, 38 targeted editor/session/schema-role/profile-selection/

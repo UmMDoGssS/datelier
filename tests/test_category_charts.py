@@ -5,10 +5,10 @@ import numpy as np
 import polars as pl
 import pytest
 
+from datelier.application.plot_settings import PlotState
+from datelier.application.settings_restore import restore_plots
 from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset, SourceReference
-from datelier.gui.plots.controls import PlotControls
-from datelier.gui.workspace.state import restore_plots
 from datelier.inspection.exploration import PlotSettings
 from datelier.pipeline.operations import Sort, apply_operation
 from datelier.plotting.categories import CategoryRepresentation as Mode
@@ -71,7 +71,7 @@ def test_role_compatibility_saved_controls_and_unique_text_exclusion() -> None:
         category_chart=CategorySettings("category", Mode.BOX, value="value")
     )
     assert decode_record(PlotSettings, encode(settings)) == settings
-    plots = PlotControls()
+    plots = PlotState()
     assert not restore_plots(plots, dataset, settings)
     assert plots.category_settings() == settings.category_chart
     with pytest.raises(ValueError):
@@ -151,7 +151,7 @@ def test_category_recipe_survives_workspace_replay_and_view_restore(
     restored = restore_workspace(saved)
     assert restored.workspace.plots == plots
     assert restored.workspace.views.category_height == 310
-    controls = PlotControls()
+    controls = PlotState()
     assert not restore_plots(
         controls, restored.pipeline.current, restored.workspace.plots
     )
@@ -159,21 +159,23 @@ def test_category_recipe_survives_workspace_replay_and_view_restore(
 
 
 @pytest.mark.parametrize("mode", [Mode.MEAN, Mode.MEDIAN, Mode.SUM])
-def test_legacy_numeric_bars_restore_as_boxes_with_the_same_columns(mode: Mode) -> None:
+def test_numeric_aggregate_recipes_restore_their_original_representation(
+    mode: Mode,
+) -> None:
     saved = PlotSettings(
         category_chart=CategorySettings("category", mode, value="value", top=4)
     )
-    controls = PlotControls()
-    assert restore_plots(controls, data(), decode_record(PlotSettings, encode(saved)))
+    controls = PlotState()
+    restore_plots(controls, data(), decode_record(PlotSettings, encode(saved)))
     assert controls.category_settings() == CategorySettings(
-        "category", Mode.BOX, value="value", top=4
+        "category", mode, value="value", top=4
     )
     assert controls.profile_redirect is None
 
 
 def test_legacy_single_column_bars_route_to_profiles() -> None:
     saved = PlotSettings(category_chart=CategorySettings("group", top=5))
-    controls = PlotControls()
+    controls = PlotState()
     dataset = data()
     assert restore_plots(controls, dataset, saved)
     assert controls.settings().category_chart is None
@@ -181,7 +183,7 @@ def test_legacy_single_column_bars_route_to_profiles() -> None:
     assert controls.columns[controls.profile_index - 1] == "group"
     assert controls.top_counts == 5
     removed = dataset.with_role("group", ColumnRole.TEXT)
-    controls = PlotControls()
+    controls = PlotState()
     assert restore_plots(controls, removed, saved)
     assert controls.profile_redirect is None
 
@@ -195,7 +197,7 @@ def test_category_density_settings_restore_with_provenance() -> None:
             "category", Mode.VIOLIN, value="value", bandwidth=0.75, seed=17
         ),
     )
-    controls = PlotControls()
+    controls = PlotState()
     assert not restore_plots(controls, data(), saved)
     assert controls.settings() == saved
 
@@ -205,7 +207,7 @@ def test_numeric_axes_remain_distinct_after_a_role_change() -> None:
         pl.DataFrame({"a": [1, 2, 3], "b": [2, 3, 4], "c": [3, 4, 5], "d": [4, 5, 6]}),
         SourceReference(Path("unused"), 0, 0),
     )
-    controls = PlotControls(three_d=True)
+    controls = PlotState(three_d=True)
     controls.bind(dataset)
     controls.bind(dataset.with_role("a", ColumnRole.CATEGORY))
     assert len(set((controls.x_index, controls.y_index, controls.z_index))) == 3

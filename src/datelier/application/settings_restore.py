@@ -79,16 +79,7 @@ def restore_plots(controls: PlotState, dataset: Dataset, saved: PlotSettings) ->
                 controls.profile_redirect = chart.category
                 controls.profile_index = controls.columns.index(chart.category) + 1
             else:
-                controls.relationship_chart = (
-                    CategoryRepresentation.BOX.value
-                    if chart.representation
-                    in (
-                        CategoryRepresentation.MEAN,
-                        CategoryRepresentation.MEDIAN,
-                        CategoryRepresentation.SUM,
-                    )
-                    else chart.representation.value
-                )
+                controls.relationship_chart = chart.representation.value
                 if chart.representation in (
                     CategoryRepresentation.BOX,
                     CategoryRepresentation.VIOLIN,

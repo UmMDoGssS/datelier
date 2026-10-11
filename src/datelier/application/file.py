@@ -189,6 +189,9 @@ class FileController:
         self.profiles.restore_selection(
             restored.inspection.dataset, self.views.profile_selection
         )
+        if self.plots.profile_redirect and self.views.tab == "Relationships":
+            self.profiles.choose((self.plots.profile_redirect,))
+            self.views = replace(self.views, tab="Profiles")
         self.profiles.height = self.views.profile_height
         self.profiles.mode = self.views.profile_mode
         self.profiles.text = self.views.profile_text
