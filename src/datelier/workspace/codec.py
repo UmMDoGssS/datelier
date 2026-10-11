@@ -10,8 +10,8 @@ from dataclasses import fields, is_dataclass
 from enum import Enum
 from typing import TypeAliasType, cast, get_args, get_origin, get_type_hints
 
-from datelier.analysis.algorithms.base import Algorithm as AnalysisAlgorithm
-from datelier.analysis.algorithms.registry import ALGORITHMS
+from datelier.analysis.algorithms import ALGORITHMS
+from datelier.analysis.algorithms import Algorithm as AnalysisAlgorithm
 from datelier.analysis.types import (
     AnalysisRequest,
     Preprocessing,

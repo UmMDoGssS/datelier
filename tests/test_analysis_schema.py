@@ -1,6 +1,8 @@
 """Public schema behavior, independent drafts and legacy recipe compatibility."""
 
+import base64
 import json
+import pickle
 import subprocess
 import sys
 from dataclasses import replace
@@ -8,7 +10,7 @@ from typing import cast
 
 import pytest
 
-from datelier.analysis.algorithms.registry import ALGORITHMS
+from datelier.analysis.algorithms import ALGORITHMS
 from datelier.analysis.parameters import MeanShiftParameters
 from datelier.analysis.types import Algorithm, AnalysisRequest, TSNEParameters
 from datelier.application.analysis_settings import AnalysisSettings
@@ -21,10 +23,34 @@ def test_catalog_import_and_default_validation_never_import_estimators() -> None
             sys.executable,
             "-c",
             "import sys, json; "
-            "from datelier.analysis.algorithms.registry import ALGORITHMS; "
+            "from datelier.analysis.algorithms import ALGORITHMS; "
             "[builder().validate() for builder in ALGORITHMS.values()]; "
             "print(json.dumps(sorted(set(sys.modules) & "
             "{'sklearn', 'umap', 'numba', 'imgui_bundle'})))",
+        ],
+        check=True,
+        text=True,
+        capture_output=True,
+    )
+    assert json.loads(process.stdout) == []
+
+
+def test_public_family_objects_round_trip_in_a_fresh_process() -> None:
+    methods = tuple(method() for method in ALGORITHMS.values())
+    payload = base64.b64encode(pickle.dumps(methods)).decode("ascii")
+    process = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import sys, json, base64, pickle; "
+            "from datelier.analysis.algorithms import ALGORITHMS; "
+            "methods = pickle.loads(base64.b64decode(sys.argv[1])); "
+            "assert all(type(m) is ALGORITHMS[m.algorithm] for m in methods); "
+            "assert all(m == ALGORITHMS[m.algorithm]() for m in methods); "
+            "[m.validate() for m in methods]; "
+            "print(json.dumps(sorted(set(sys.modules) & "
+            "{'sklearn', 'umap', 'numba', 'imgui_bundle'})))",
+            payload,
         ],
         check=True,
         text=True,

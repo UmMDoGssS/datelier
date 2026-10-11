@@ -9,7 +9,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from time import perf_counter, sleep
 
-from datelier.analysis.algorithms.registry import ALGORITHMS
+from datelier.analysis.algorithms import ALGORITHMS
 from datelier.analysis.jobs import AnalysisJobs
 from datelier.analysis.parameters import DBSCANParameters
 from datelier.analysis.types import (

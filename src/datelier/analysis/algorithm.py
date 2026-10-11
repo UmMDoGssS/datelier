@@ -33,6 +33,6 @@ class Algorithm(StrEnum):
 
     @property
     def is_clustering(self) -> bool:
-        from datelier.analysis.algorithms.registry import is_clustering
+        from datelier.analysis.algorithms import is_clustering
 
         return is_clustering(self)

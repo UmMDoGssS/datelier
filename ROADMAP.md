@@ -424,7 +424,9 @@ Simplify redundant filename prefixes and update imports directly, without root
 compatibility modules. Preserve behavior, CLI commands, class names, recipe
 identifiers, dependencies and workspace schemas. Tests and smoke scripts retain
 their current folder organization. `datelier:main` remains the CLI entry point;
-package initializers stay minimal and imports name concrete modules.
+package initializers were kept minimal and imports named concrete modules in
+that original migration. The package export follow-up below supersedes this
+import convention with explicit family exports.
 
 | Package | Responsibilities |
 | --- | --- |
@@ -956,3 +958,16 @@ execution must belong to the same algorithm object, with an explicit fit facade.
 
 - [x] Combine parameter records and executable algorithms; preserve recipe wire compatibility.
 - [x] Simplify shared fit facades and verify the corrected design's full acceptance gates.
+
+## Analysis package exports follow-up — authorized 2026-10-11
+
+Group the flat algorithm modules by clustering, decomposition, manifold and
+projection responsibility. Re-export family APIs from `__init__.py` and keep the
+trusted catalog composed from those family types. Group legacy parameter exports
+in packages while preserving their public names and recipe formats. This is a
+source-layout change; numerical pipelines and GUI behavior remain the same.
+
+- [x] Group algorithm implementations and expose family package APIs; verify fitting, worker lifecycle, recipes, imports, Pyrefly and Ruff, then commit.
+- [ ] Group legacy parameter exports; verify compatibility, full suite, wheel contents and native analysis/restoration workflows, then commit.
+
+[Layout and verification evidence](docs/analysis-packages.md).

@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass, field, replace
 
-from datelier.analysis.algorithms.registry import ALGORITHMS, AlgorithmInstance
+from datelier.analysis.algorithms import ALGORITHMS, AlgorithmInstance
 from datelier.analysis.jobs import AnalysisJobs
 from datelier.analysis.schema import ParameterValue
 from datelier.analysis.types import (

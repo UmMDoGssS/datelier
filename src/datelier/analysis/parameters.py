@@ -1,53 +1,55 @@
 """Legacy imports for concrete algorithm objects, without separate parameter records."""
 
 from datelier.analysis.algorithm import Algorithm
-from datelier.analysis.algorithms.affinity_propagation import (
+from datelier.analysis.algorithms import ALGORITHMS
+from datelier.analysis.algorithms.clustering import (
     AffinityPropagationAlgorithm as AffinityPropagationParameters,
 )
-from datelier.analysis.algorithms.agglomerative import (
+from datelier.analysis.algorithms.clustering import (
     AgglomerativeAlgorithm as AgglomerativeParameters,
 )
-from datelier.analysis.algorithms.bayesian_mixture import (
+from datelier.analysis.algorithms.clustering import (
     BayesianMixtureAlgorithm as BayesianMixtureParameters,
 )
-from datelier.analysis.algorithms.birch import BirchAlgorithm as BirchParameters
-from datelier.analysis.algorithms.dbscan import DBSCANAlgorithm as DBSCANParameters
-from datelier.analysis.algorithms.factor_analysis import (
-    FactorAnalysisAlgorithm as FactorAnalysisParameters,
-)
-from datelier.analysis.algorithms.gaussian_mixture import (
+from datelier.analysis.algorithms.clustering import BirchAlgorithm as BirchParameters
+from datelier.analysis.algorithms.clustering import DBSCANAlgorithm as DBSCANParameters
+from datelier.analysis.algorithms.clustering import (
     GaussianMixtureAlgorithm as GaussianMixtureParameters,
 )
-from datelier.analysis.algorithms.gaussian_projection import (
-    GaussianProjectionAlgorithm as GaussianProjectionParameters,
+from datelier.analysis.algorithms.clustering import (
+    HDBSCANAlgorithm as HDBSCANParameters,
 )
-from datelier.analysis.algorithms.hdbscan import HDBSCANAlgorithm as HDBSCANParameters
-from datelier.analysis.algorithms.ica import ICAAlgorithm as ICAParameters
-from datelier.analysis.algorithms.isomap import IsomapAlgorithm as IsomapParameters
-from datelier.analysis.algorithms.kernel_pca import (
-    KernelPCAAlgorithm as KernelPCAParameters,
-)
-from datelier.analysis.algorithms.lle import LLEAlgorithm as LLEParameters
-from datelier.analysis.algorithms.mds import MDSAlgorithm as MDSParameters
-from datelier.analysis.algorithms.mean_shift import (
+from datelier.analysis.algorithms.clustering import (
     MeanShiftAlgorithm as MeanShiftParameters,
 )
-from datelier.analysis.algorithms.mini_batch import (
+from datelier.analysis.algorithms.clustering import (
     MiniBatchAlgorithm as MiniBatchParameters,
 )
-from datelier.analysis.algorithms.nmf import NMFAlgorithm as NMFParameters
-from datelier.analysis.algorithms.optics import OPTICSAlgorithm as OPTICSParameters
-from datelier.analysis.algorithms.registry import ALGORITHMS
-from datelier.analysis.algorithms.sparse_projection import (
-    SparseProjectionAlgorithm as SparseProjectionParameters,
-)
-from datelier.analysis.algorithms.spectral_clustering import (
+from datelier.analysis.algorithms.clustering import OPTICSAlgorithm as OPTICSParameters
+from datelier.analysis.algorithms.clustering import (
     SpectralClusteringAlgorithm as SpectralClusteringParameters,
 )
-from datelier.analysis.algorithms.spectral_embedding import (
+from datelier.analysis.algorithms.decomposition import (
+    FactorAnalysisAlgorithm as FactorAnalysisParameters,
+)
+from datelier.analysis.algorithms.decomposition import ICAAlgorithm as ICAParameters
+from datelier.analysis.algorithms.decomposition import (
+    KernelPCAAlgorithm as KernelPCAParameters,
+)
+from datelier.analysis.algorithms.decomposition import NMFAlgorithm as NMFParameters
+from datelier.analysis.algorithms.decomposition import SVDAlgorithm as SVDParameters
+from datelier.analysis.algorithms.manifold import IsomapAlgorithm as IsomapParameters
+from datelier.analysis.algorithms.manifold import LLEAlgorithm as LLEParameters
+from datelier.analysis.algorithms.manifold import MDSAlgorithm as MDSParameters
+from datelier.analysis.algorithms.manifold import (
     SpectralEmbeddingAlgorithm as SpectralEmbeddingParameters,
 )
-from datelier.analysis.algorithms.svd import SVDAlgorithm as SVDParameters
+from datelier.analysis.algorithms.projection import (
+    GaussianProjectionAlgorithm as GaussianProjectionParameters,
+)
+from datelier.analysis.algorithms.projection import (
+    SparseProjectionAlgorithm as SparseProjectionParameters,
+)
 from datelier.analysis.schema import validate_parameters as validate_parameters
 
 ExtraParameters = (

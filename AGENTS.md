@@ -262,6 +262,10 @@ parameter import names are aliases to the same executable classes.
   subpackages when several files form a meaningful group. Keep the package root
   focused on bootstrap code; avoid unrelated utility folders and redundant
   filename prefixes.
+- Expose cohesive public APIs with explicit re-exports in package `__init__.py`
+  files. Keep dependency imports and side effects bounded; family catalogs must
+  not load ML estimators or GUI libraries. Inside a family, import concrete
+  modules when needed to avoid circular dependencies.
 - Write idiomatic, typed Python with explicit function return types, useful
   domain types, and narrow interfaces. Use names and small functions to make
   responsibilities clear. Avoid unnecessary frameworks and indirection.

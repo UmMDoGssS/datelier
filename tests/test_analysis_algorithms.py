@@ -147,7 +147,7 @@ def test_umap_finite_dimensions_seed_and_metric() -> None:
 def test_builder_rejects_different_prepared_settings_before_fit() -> None:
     import pytest
 
-    from datelier.analysis.algorithms.pca import PCAAlgorithm
+    from datelier.analysis.algorithms.decomposition import PCAAlgorithm
 
     dataset = Dataset.from_source(
         pl.DataFrame({"x": [1.0, 2.0, 3.0], "y": [2.0, 4.0, 5.0]}),
@@ -164,7 +164,7 @@ def test_clustering_family_uses_its_fitted_space_predictor() -> None:
     import pytest
     from numpy.typing import NDArray
 
-    from datelier.analysis.algorithms.kmeans import KMeansAlgorithm
+    from datelier.analysis.algorithms.clustering import KMeansAlgorithm
     from datelier.analysis.types import ClusteringResult, KMeansFit, KMeansParameters
 
     class ConstantPredictor(KMeansAlgorithm):
@@ -203,7 +203,7 @@ def test_clustering_family_uses_its_fitted_space_predictor() -> None:
 
 
 def test_one_algorithm_object_owns_tunable_fields_and_fit_facade() -> None:
-    from datelier.analysis.algorithms.kmeans import KMeansAlgorithm
+    from datelier.analysis.algorithms.clustering import KMeansAlgorithm
     from datelier.analysis.types import ClusteringResult
 
     dataset = Dataset.from_source(

@@ -1,28 +1,28 @@
 """Legacy imports for concrete algorithm objects, without separate parameter records."""
 
 from datelier.analysis.algorithm import Algorithm
-from datelier.analysis.algorithms.factor_analysis import (
+from datelier.analysis.algorithms import ALGORITHMS
+from datelier.analysis.algorithms.decomposition import (
     FactorAnalysisAlgorithm as FactorAnalysisParameters,
 )
-from datelier.analysis.algorithms.gaussian_projection import (
-    GaussianProjectionAlgorithm as GaussianProjectionParameters,
-)
-from datelier.analysis.algorithms.ica import ICAAlgorithm as ICAParameters
-from datelier.analysis.algorithms.isomap import IsomapAlgorithm as IsomapParameters
-from datelier.analysis.algorithms.kernel_pca import (
+from datelier.analysis.algorithms.decomposition import ICAAlgorithm as ICAParameters
+from datelier.analysis.algorithms.decomposition import (
     KernelPCAAlgorithm as KernelPCAParameters,
 )
-from datelier.analysis.algorithms.lle import LLEAlgorithm as LLEParameters
-from datelier.analysis.algorithms.mds import MDSAlgorithm as MDSParameters
-from datelier.analysis.algorithms.nmf import NMFAlgorithm as NMFParameters
-from datelier.analysis.algorithms.registry import ALGORITHMS
-from datelier.analysis.algorithms.sparse_projection import (
-    SparseProjectionAlgorithm as SparseProjectionParameters,
-)
-from datelier.analysis.algorithms.spectral_embedding import (
+from datelier.analysis.algorithms.decomposition import NMFAlgorithm as NMFParameters
+from datelier.analysis.algorithms.decomposition import SVDAlgorithm as SVDParameters
+from datelier.analysis.algorithms.manifold import IsomapAlgorithm as IsomapParameters
+from datelier.analysis.algorithms.manifold import LLEAlgorithm as LLEParameters
+from datelier.analysis.algorithms.manifold import MDSAlgorithm as MDSParameters
+from datelier.analysis.algorithms.manifold import (
     SpectralEmbeddingAlgorithm as SpectralEmbeddingParameters,
 )
-from datelier.analysis.algorithms.svd import SVDAlgorithm as SVDParameters
+from datelier.analysis.algorithms.projection import (
+    GaussianProjectionAlgorithm as GaussianProjectionParameters,
+)
+from datelier.analysis.algorithms.projection import (
+    SparseProjectionAlgorithm as SparseProjectionParameters,
+)
 
 EmbeddingParameters = (
     SVDParameters

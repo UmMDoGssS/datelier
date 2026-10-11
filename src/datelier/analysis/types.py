@@ -6,11 +6,10 @@ import numpy as np
 from numpy.typing import NDArray
 
 from datelier.analysis.algorithm import Algorithm as Algorithm
-from datelier.analysis.algorithms.kmeans import KMeansAlgorithm
-from datelier.analysis.algorithms.pca import PCAAlgorithm
-from datelier.analysis.algorithms.registry import ALGORITHMS, AlgorithmInstance
-from datelier.analysis.algorithms.tsne import TSNEAlgorithm
-from datelier.analysis.algorithms.umap import UMAPAlgorithm
+from datelier.analysis.algorithms import ALGORITHMS, AlgorithmInstance
+from datelier.analysis.algorithms.clustering import KMeansAlgorithm
+from datelier.analysis.algorithms.decomposition import PCAAlgorithm
+from datelier.analysis.algorithms.manifold import TSNEAlgorithm, UMAPAlgorithm
 from datelier.core.dataset import DatasetRevision
 
 # Compatibility imports refer to executable algorithm classes, not parameter records.
