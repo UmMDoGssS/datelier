@@ -1,18 +1,21 @@
 """GUI-thread owning textures; bounded cache and per-frame upload work."""
 
 from collections import OrderedDict
+from collections.abc import Hashable
 
+import numpy as np
 from imgui_bundle import hello_imgui, imgui
+from numpy.typing import NDArray
 
-from datelier.inspection.references.types import AssetIdentity, AssetPreview
+from datelier.inspection.references.types import AssetPreview
 
 
 class TextureCache:
     def __init__(self) -> None:
-        self._textures: OrderedDict[
-            AssetIdentity, tuple[hello_imgui.TextureGpu, int]
-        ] = OrderedDict()
-        self._used: set[AssetIdentity] = set()
+        self._textures: OrderedDict[Hashable, tuple[hello_imgui.TextureGpu, int]] = (
+            OrderedDict()
+        )
+        self._used: set[Hashable] = set()
         self._invalid = False
         self.uploads = 0
         self.shown = 0
@@ -39,7 +42,11 @@ class TextureCache:
         rgba = preview.rgba
         if rgba is None:
             return False
-        asset = preview.asset
+        return self.draw_rgba((preview.asset, rgba.shape), rgba, limit, extent)
+
+    def draw_rgba(
+        self, asset: Hashable, rgba: NDArray[np.uint8], limit: int, extent: float
+    ) -> bool:
         cached = self._textures.get(asset)
         if cached is None:
             if self.uploads >= 4 or rgba.nbytes > limit:

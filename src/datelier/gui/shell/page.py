@@ -174,6 +174,18 @@ class WorkbenchPage(Page):
             ),
         )
 
+    def render(self, frame: FrameContext) -> None:
+        super().render(frame)
+        components = self.files.get(self.editor.current.identity)
+        if components:
+            frame.measure(
+                "preview-cache",
+                (
+                    float(components.previews.retained_bytes),
+                    float(components.previews.uploads),
+                ),
+            )
+
     def choose_theme(self, theme: Theme) -> None:
         self.editor.preferences.value = replace(
             self.editor.preferences.value, theme=theme

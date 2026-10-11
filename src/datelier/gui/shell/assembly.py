@@ -161,7 +161,7 @@ def assemble_file(
             ),
         )
 
-    previews = PreviewTextures(file.references)
+    previews = PreviewTextures(file.references, lambda: file.gallery.scope)
     mapping_popup = ReferenceMappingPopup(file.reference_tools)
 
     def preview(column: str, value: str, label: str, extent: float) -> Component:
@@ -176,7 +176,7 @@ def assemble_file(
             file.reference_tools, previews, mapping_popup, column, value, label, extent
         )
 
-    inspect = assemble_inspect(file, editor, gallery_preview)
+    inspect = assemble_inspect(file, editor, gallery_preview, previews)
 
     def open_image_record(index: int) -> None:
         profile = file.images.profile_jobs.active

@@ -2,6 +2,7 @@
 
 from collections import OrderedDict
 from concurrent.futures import Executor, Future
+from math import isqrt
 from pathlib import Path
 from threading import Event
 from time import monotonic
@@ -46,11 +47,21 @@ class ReferenceJobs:
         self.previews: OrderedDict[AssetIdentity, AssetPreview] = OrderedDict()
         self.message = ""
         self.closed = False
+        self._reserved_bytes = 0
         self._discover_nearby = True
 
     @property
     def retained_bytes(self) -> int:
         return sum(p.retained_bytes for p in self.previews.values())
+
+    def reserve_retention(self, bytes: int) -> None:
+        """Visible array previews borrow part of the same file preview budget."""
+        self._reserved_bytes = max(0, min(bytes, self.settings.cpu_bytes))
+        while (
+            self.previews
+            and self.retained_bytes > self.settings.cpu_bytes - self._reserved_bytes
+        ):
+            self.previews.popitem(last=False)
 
     @property
     def busy(self) -> bool:
@@ -171,10 +182,14 @@ class ReferenceJobs:
                 del self._decodes[asset]
                 try:
                     preview = future.result()
-                    if preview.retained_bytes <= self.settings.cpu_bytes:
+                    if (
+                        preview.retained_bytes
+                        <= self.settings.cpu_bytes - self._reserved_bytes
+                    ):
                         self.previews[asset] = preview
                     while (
-                        self.retained_bytes > self.settings.cpu_bytes
+                        self.retained_bytes
+                        > self.settings.cpu_bytes - self._reserved_bytes
                         or len(self.previews) > 256
                     ):
                         self.previews.popitem(last=False)
@@ -203,7 +218,14 @@ class ReferenceJobs:
             self.previews.move_to_end(asset)
         elif asset and asset not in self._decodes and len(self._decodes) < 4:
             self._decodes[asset] = self._visible_jobs.submit(
-                decode, asset, self.settings.thumbnail_size
+                decode,
+                asset,
+                min(
+                    self.settings.thumbnail_size,
+                    max(
+                        32, isqrt((self.settings.cpu_bytes - self._reserved_bytes) // 4)
+                    ),
+                ),
             )
         return resolution, preview
 

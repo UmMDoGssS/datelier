@@ -23,7 +23,11 @@ def decode(asset: AssetIdentity, size: int) -> AssetPreview:
                     oriented = ImageOps.exif_transpose(image)
                     rgba = np.asarray(oriented.convert("RGBA")).copy()
                     rgba.flags.writeable = False
-            result = AssetPreview(asset, rgba=rgba, description=description)
+            result = AssetPreview(
+                asset,
+                rgba=rgba,
+                description=description + f"; {rgba.shape[1]}×{rgba.shape[0]} preview",
+            )
         elif suffix in TEXT_EXTENSIONS:
             with asset.path.open("rb") as stream:
                 data = stream.read(4097)

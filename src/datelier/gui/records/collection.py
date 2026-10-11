@@ -10,8 +10,7 @@ from datelier.gui.components.base import Component, Container, FrameContext
 from datelier.gui.components.native import target
 from datelier.gui.components.viewport import ResizableViewport
 from datelier.gui.records.base import RecordContent
-from datelier.gui.records.values import GalleryContent, NestedContent, ValueContent
-from datelier.gui.table.cells import ReferenceFactory
+from datelier.gui.records.values import NestedContent, ValueContent
 from datelier.inspection.records.types import RecordCard
 
 
@@ -28,9 +27,17 @@ class RecordHeader(Component):
 
     def render(self, frame: FrameContext) -> None:
         card = self.card
+        width = imgui.get_content_region_avail().x
+        if self.model.settings.gallery:
+            width -= (
+                imgui.calc_text_size("Open").x
+                + 2 * imgui.get_style().frame_padding.x
+                + imgui.get_style().item_spacing.x
+            )
         if imgui.selectable(
             f"Row {card.position + 1:,} · source {card.row_id}",
             card.row_id in self.model.selection.row_ids,
+            size=(max(1, width), 0),
         )[0]:
             self.model.select(card, imgui.get_io().key_ctrl)
             self.jump(card.position)
@@ -73,7 +80,7 @@ class RecordBody(Container):
     def __init__(
         self,
         model: RecordController,
-        preview: ReferenceFactory,
+        preview: RecordContent,
         content: dict[RecordKind, RecordContent],
         viewport: Callable[[RecordKind, RecordContent], ResizableViewport],
     ) -> None:
@@ -89,7 +96,7 @@ class RecordBody(Container):
             for kind, child in self.content.items()
             if kind not in (RecordKind.TEXT, RecordKind.ARRAY)
         }
-        self.preview = GalleryContent(preview)
+        self.preview = preview
         self.card: RecordCard | None = None
         self.gallery = True
         super().__init__("body", ())

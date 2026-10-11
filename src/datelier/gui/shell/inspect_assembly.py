@@ -18,6 +18,8 @@ from datelier.gui.records.base import RecordContent
 from datelier.gui.records.collection import RecordBody, RecordCollection
 from datelier.gui.records.images import ImageContent
 from datelier.gui.records.text import TextContent
+from datelier.gui.records.textures import TextureCache
+from datelier.gui.records.values import GalleryContent
 from datelier.gui.sources.browser import NumericBrowser, ObjectBrowser, SourceRouter
 from datelier.gui.sources.numeric import NumericContent
 from datelier.gui.sources.routing import SourceInspection
@@ -34,7 +36,10 @@ class InspectComponents:
 
 
 def assemble_inspect(
-    file: FileController, editor: EditorController, preview: ReferenceFactory
+    file: FileController,
+    editor: EditorController,
+    preview: ReferenceFactory,
+    textures: TextureCache,
 ) -> InspectComponents:
     viewport_factories = {
         RecordKind.IMAGE: lambda content: ResizableViewport(
@@ -79,7 +84,7 @@ def assemble_inspect(
 
     body = RecordBody(
         file.records,
-        preview,
+        GalleryContent(preview, file.gallery, textures),
         {
             RecordKind.IMAGE: ImageContent(
                 file.images, annotation_rows, annotation_box

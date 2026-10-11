@@ -1,0 +1,11 @@
+{
+  "frames": 39,
+  "p95_ms": 15.229842201370046,
+  "first_visible_preview_ms": 63.194115999067435,
+  "max_shared_gpu_bytes": 42848,
+  "max_shared_uploads_per_frame": 2,
+  "max_pending_array_previews": 2,
+  "native_sorted_gallery_open_exact_pixels": true,
+  "visible_only_no_collection_analysis": true,
+  "source_preserved": true
+}

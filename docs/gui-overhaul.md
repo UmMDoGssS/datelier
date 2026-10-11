@@ -606,6 +606,37 @@ Full-project Pyrefly remains open: the E10 audit reports 368 errors from obsolet
 GUI tests/scripts. Browser, remaining preview workflows, old caller migration and
 final integrated resource/size/theme acceptance remain open.
 
+## Fresh Stage E12 — Lazy array galleries and shared preview retention
+
+Visible array image/heatmap cards now use a prepared gallery content family beside
+file references and text excerpts. Workers read metadata first, prepare bounded
+sampled overviews, and retain immutable RGBA results by file/view/revision/source
+row. At most two previews are pending and 24 are retained within the byte budget.
+Sorting, display changes and closure abandon obsolete publication. Focused opening
+continues to use original pixel inspection; collection profiling remains explicit.
+
+File and array thumbnails share one GUI-owned texture cache and four uploads per
+frame. CPU retention also shares the file preview budget; file thumbnails adapt
+to available space beside array previews. Array aliases never trigger filesystem
+reference discovery. Gallery excerpts stay bounded. Native verification found and
+fixed the row selector consuming the Open button's width; opening stays within
+the canvas and preserves the sorted row's original identity.
+
+Verification: production/migrated caller Pyrefly zero errors; 87 rebuilt/reference/
+array/checkpoint checks pass. Ten focused gallery/reference/table checks pass,
+including simultaneous file/array previews under a 1 MiB cache and closure during
+preparation. Full Ruff lint/format (748 files) and whitespace checks pass. Native
+gallery sampling and sorted exact opening pass in 39 frames at 15.23 ms p95;
+first visible preview takes 63.19 ms. GPU retention reaches 42,848 bytes, with at
+most two uploads and two pending array previews.
+[Gallery report](evidence/gui-overhaul/fresh-gallery.json).
+File-reference controls and fresh-process restoration regress in 177/31 frames
+at 16.30/12.48 ms p95. Focused image/text/audio regress in 55 frames at 24.21 ms
+p95. Source preservation and zero implicit collection analysis/playback pass.
+Full-suite collection identifies 1,076 tests and ten obsolete GUI-import modules;
+its gate stays open. Browser/caller migration and final integrated resource,
+size/theme and restoration acceptance remain open.
+
 ## Baseline evidence
 
 Before implementation, 38 targeted editor/session/schema-role/profile-selection/

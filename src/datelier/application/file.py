@@ -12,6 +12,7 @@ from datelier.application.analysis import AnalysisController
 from datelier.application.audio import AudioController
 from datelier.application.columns import ColumnChoice
 from datelier.application.dataset import DatasetRuntime
+from datelier.application.gallery import ArrayGalleryController
 from datelier.application.images import ImageController
 from datelier.application.import_settings import DEFAULTS, import_draft
 from datelier.application.imports.controller import ImportController
@@ -28,7 +29,7 @@ from datelier.application.sources.objects import ObjectController
 from datelier.application.sources.records import ArrayRecordController
 from datelier.application.table import TableController
 from datelier.application.text import TextController
-from datelier.core.column_roles import REFERENCE_ROLES, ColumnRole
+from datelier.core.column_roles import ColumnRole
 from datelier.inspection.arrays.jobs import ArrayJobs
 from datelier.inspection.arrays.slices import SliceSettings
 from datelier.inspection.audio.playback.controller import AudioPlayback
@@ -102,6 +103,7 @@ class FileController:
         self.tensor_source = NumericSourceController(self.checkpoints)
         self.array_records = ArrayRecordController(executor, self.arrays.store)
         self.array_record_source = NumericSourceController(self.array_records.jobs)
+        self.gallery = ArrayGalleryController(executor, self.references)
         self.recovery: RestoredSessionFile | None = None
         self.draft: SourceDraft | None = None
         self.imports = ImportController(self._request_import)
@@ -360,9 +362,7 @@ class FileController:
         self.table.refresh(active)
         self.reference_tools.sync(self.table.reference_columns)
         self.profiles.poll(active, self.choices)
-        if active and any(
-            c.role in REFERENCE_ROLES for c in active.dataset.roles or ()
-        ):
+        if active and self.table.reference_columns:
             self.references.bind(
                 active.dataset.source.path,
                 active.dataset.revision,
@@ -400,6 +400,8 @@ class FileController:
         media = self.media_input()
         for controller in (self.text, self.images, self.audio, self.array_records):
             controller.sync(media)
+        self.gallery.display = self.images.settings.display
+        self.gallery.sync(media)
         self.schema.refresh(active, busy=self.editor.busy)
         self.record_views.poll(self)
 
@@ -411,6 +413,7 @@ class FileController:
         self.record_views.close()
         self.audio.close(self.identity)
         for controller in (
+            self.gallery,
             self.records,
             self.array_records,
             self.text,
