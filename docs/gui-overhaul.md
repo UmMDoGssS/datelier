@@ -728,6 +728,37 @@ Full-project Pyrefly remains open with 342 errors, confined to old scripts. Thei
 migration and the final resource, size/theme and capability audit remain open;
 passing the restored test suite does not complete GUI overhaul acceptance.
 
+## Fresh Stage E16 — Replacement lifecycle/resource benchmarks
+
+The original tab and mixed-session benchmarks now use the replacement application
+controllers and native prepared-row probe. Table preview readiness requires an
+actually rendered source row; initial preview includes native startup after fixture
+creation. Comparison preparation uses each typed controller's explicit command.
+The fixtures, cycle counts and acceptance budgets remain intact.
+
+The native two-file benchmark passes **30 cycles**, 100,000 rows/eight numeric
+columns per file, in 551 frames: **15.27 ms frame p95**, 303.78/242.00 ms initial
+previews, 224.45 ms maximum cycle preview, 592.21 MiB peak RSS, **74.23 MiB retained
+growth**, 0.52 ms maximum close and four workers. Outstanding jobs and retained
+closed controllers are zero. Temporary fixtures and worker threads are removed on
+exit; source bytes are unchanged.
+[Tab resource report](evidence/gui-overhaul/fresh-tab-resources.json).
+
+Six mixed-source cycles pass aligned sorted image/audio/text records, explicit
+cross-file comparisons, oversized array eviction, independent view closure,
+source hashes and full cache/temporary-directory cleanup. Prepared results retain
+34,328 bytes per cycle; RSS increases 50.04 MiB. No optional audio/checkpoint
+runtime imports or playback are triggered. Native GPU measurements for the mixed
+resource benchmark remain open; these controller measurements do not substitute
+for them. [Mixed resource report](evidence/gui-overhaul/fresh-mixed-resources.json).
+
+Verification: production, tests, rebuilt scripts and these two migrated benchmarks
+pass Pyrefly with zero errors; 14 focused lifecycle/media/comparison tests, full
+Ruff lint/format and whitespace checks pass. E15's full suite remains 1,132 passing
+tests; this step changes only benchmark callers and evidence. Remaining old native
+script migration, integrated GPU retention, three-size/theme and final capability
+acceptance remain open.
+
 ## Baseline evidence
 
 Before implementation, 38 targeted editor/session/schema-role/profile-selection/

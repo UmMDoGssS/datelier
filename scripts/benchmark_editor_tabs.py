@@ -14,10 +14,10 @@ import numpy as np
 import polars as pl
 from imgui_bundle import hello_imgui
 
+from datelier.application.editor import EditorController
+from datelier.application.file import FileController
 from datelier.gui.app import InspectionEvidence, run_gui
-from datelier.gui.editor_session import EditorSession
-from datelier.gui.file_session import FileSession
-from datelier.gui.tabs import EditorTabs
+from datelier.gui.components.probe import GuiProbe
 
 BUDGETS = {
     "preview_ms": 2000,
@@ -34,10 +34,19 @@ def rss_mib() -> float:
     return pages * os.sysconf("SC_PAGE_SIZE") / 2**20
 
 
+def has_preview(file: FileController, probe: GuiProbe) -> bool:
+    return any(
+        key.scope.file_id == file.identity
+        and "rows" in key.path
+        and key.path[-2:] == ("source", "select")
+        for key in probe.targets
+    )
+
+
 def main() -> None:
     stage, cycles, entered = 0, 0, 0
-    current: FileSession | None = None
-    closed: list[weakref.ReferenceType[FileSession]] = []
+    current: FileController | None = None
+    closed: list[weakref.ReferenceType[FileController]] = []
     preview_ms: list[float] = []
     close_ms: list[float] = []
     baseline = 0.0
@@ -56,47 +65,42 @@ def main() -> None:
         originals = (train.read_bytes(), test.read_bytes())
 
         def frame(
-            editor: EditorSession, tabs: EditorTabs, evidence: InspectionEvidence
+            editor: EditorController, probe: GuiProbe, evidence: InspectionEvidence
         ) -> None:
             nonlocal stage, cycles, entered, current, baseline, created
             if stage == 0:
-                if (
-                    editor.active.explorer.active is None
-                    or not editor.active.table.prepared_visible_rows
+                if editor.active.explorer.active is None or not has_preview(
+                    editor.active, probe
                 ):
                     return
-                assert evidence.first_preview_ms is not None
-                preview_ms.append(evidence.first_preview_ms)
+                preview_ms.append((perf_counter() - created) * 1000)
                 created = perf_counter()
-                current = editor.new_tab(test)
+                current = editor.new_file(test)
                 stage = 1
             elif stage == 1:
                 assert current is not None
-                if (
-                    current.explorer.active is None
-                    or not current.table.prepared_visible_rows
-                ):
+                if current.explorer.active is None or not has_preview(current, probe):
                     return
                 preview_ms.append((perf_counter() - created) * 1000)
                 baseline = rss_mib()
                 created = perf_counter()
-                current = editor.new_tab(train)
+                current = editor.new_file(train)
                 stage = 2
             elif stage == 2:
                 assert current is not None
-                if current.explorer.busy or not current.table.prepared_visible_rows:
+                if current.explorer.busy or not has_preview(current, probe):
                     return
                 preview_ms.append((perf_counter() - created) * 1000)
                 assert current.pages.page_count <= 4
                 closed.append(weakref.ref(current))
                 started = perf_counter()
-                editor.close_tab(current.identity)
+                editor.close_file(current.identity)
                 close_ms.append((perf_counter() - started) * 1000)
                 current = None
                 cycles += 1
                 if cycles < 30:
                     created = perf_counter()
-                    current = editor.new_tab(train)
+                    current = editor.new_file(train)
                 else:
                     stage, entered = 3, evidence.frames
             elif stage == 3:
@@ -137,7 +141,8 @@ def main() -> None:
                 hello_imgui.get_runner_params().app_shall_exit = True
                 stage = 4
 
-        run_gui(train, smoke_frames=10_000, on_editor_frame=frame)
+        created = perf_counter()
+        run_gui(train, smoke_frames=10_000, on_probe_frame=frame)
         assert stage == 4, (stage, cycles)
         report["source_bytes_unchanged"] = (
             train.read_bytes(),

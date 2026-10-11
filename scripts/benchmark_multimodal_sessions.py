@@ -13,9 +13,9 @@ from time import monotonic, perf_counter, sleep
 
 import numpy as np
 
+from datelier.application.editor import EditorController
+from datelier.application.file import FileController
 from datelier.feasibility.multimodal import make_multimodal
-from datelier.gui.editor_session import EditorSession
-from datelier.gui.file_session import FileSession
 from datelier.inspection.arrays.mapping import (
     ArrayLayout,
     ArrayRecordMapping,
@@ -47,7 +47,7 @@ from datelier.io.types import ArrayOptions
 from datelier.pipeline.operations import Sort
 
 
-def wait(editor: EditorSession, ready: Callable[[], bool]) -> float:
+def wait(editor: EditorController, ready: Callable[[], bool]) -> float:
     started = perf_counter()
     deadline = monotonic() + 3
     while monotonic() < deadline:
@@ -58,7 +58,7 @@ def wait(editor: EditorSession, ready: Callable[[], bool]) -> float:
     raise AssertionError("Mixed fixture command exceeded three seconds")
 
 
-def settled(editor: EditorSession) -> bool:
+def settled(editor: EditorController) -> bool:
     return all(
         f.loader.status.phase != LoadPhase.LOADING
         and not f.editor.busy
@@ -67,11 +67,11 @@ def settled(editor: EditorSession) -> bool:
         and not f.images.jobs.busy
         and not f.audio.jobs.busy
         and not f.text.jobs.busy
-        for f in editor.file_sessions
+        for f in editor.all_files
     )
 
 
-def view(owner: FileSession, member: str, layout: ArrayLayout) -> FileSession:
+def view(owner: FileController, member: str, layout: ArrayLayout) -> FileController:
     return owner.record_views.open_array(
         owner,
         ArrayRecordMapping(
@@ -87,7 +87,7 @@ def view(owner: FileSession, member: str, layout: ArrayLayout) -> FileSession:
     )
 
 
-def records(editor: EditorSession, file: FileSession) -> None:
+def records(editor: EditorController, file: FileController) -> None:
     active = file.loader.active
     assert active is not None
     options = active.imported.options
@@ -108,9 +108,10 @@ def records(editor: EditorSession, file: FileSession) -> None:
     wait(editor, lambda: not file.images.jobs.busy and not file.audio.jobs.busy)
 
 
-def cycle(editor: EditorSession, root: Path) -> dict[str, object]:
+def cycle(editor: EditorController, root: Path) -> dict[str, object]:
     csv, test, owner = (
-        editor.new_tab(root / name) for name in ("train.csv", "test.csv", "records.npz")
+        editor.new_file(root / name)
+        for name in ("train.csv", "test.csv", "records.npz")
     )
     load_seconds = wait(
         editor,
@@ -196,30 +197,31 @@ def cycle(editor: EditorSession, root: Path) -> dict[str, object]:
         ),
         bins=8,
     )
-    editor.text_comparisons, editor.image_comparisons, editor.audio_comparisons = (
-        (text_recipe,),
-        (image_recipe,),
-        (audio_recipe,),
-    )
     editor.poll()
-    editor.text_comparison_jobs.request()
-    editor.image_comparison_jobs.request()
-    editor.audio_comparison_jobs.request()
+    editor.compare.text.draft = text_recipe
+    editor.compare.images.draft = image_recipe
+    editor.compare.audio.draft = audio_recipe
+    for controller in (
+        editor.compare.text,
+        editor.compare.images,
+        editor.compare.audio,
+    ):
+        controller.prepare()
     comparison_seconds = wait(
         editor,
         lambda: all(
             j.active is not None
             for j in (
-                editor.text_comparison_jobs,
-                editor.image_comparison_jobs,
-                editor.audio_comparison_jobs,
+                editor.compare.text.jobs,
+                editor.compare.images.jobs,
+                editor.compare.audio.jobs,
             )
         ),
     )
     prepared = (
-        editor.text_comparison_jobs.active,
-        editor.image_comparison_jobs.active,
-        editor.audio_comparison_jobs.active,
+        editor.compare.text.jobs.active,
+        editor.compare.images.jobs.active,
+        editor.compare.audio.jobs.active,
     )
     assert all(prepared)
     prepared_bytes = sum(
@@ -232,7 +234,7 @@ def cycle(editor: EditorSession, root: Path) -> dict[str, object]:
         image.images.jobs.active.retained_bytes + audio.audio.jobs.active.retained_bytes
     )
     assert prepared_bytes < 16 * 1024 * 1024
-    array_profile = editor.audio_comparison_jobs.active
+    array_profile = editor.compare.audio.jobs.active
     assert array_profile and array_profile.profiles[2].records["row_id"].to_list() == [
         1,
         2,
@@ -250,12 +252,10 @@ def cycle(editor: EditorSession, root: Path) -> dict[str, object]:
         s.temporary_path for s in stores if s.temporary_path is not None
     )
     owner.record_views.close_view(image.identity)
-    wait(editor, lambda: editor.image_comparison_jobs.active is None)
-    assert (
-        editor.audio_comparison_jobs.active is array_profile and not store.stop.is_set()
-    )
+    wait(editor, lambda: editor.compare.images.jobs.active is None)
+    assert editor.compare.audio.jobs.active is array_profile and not store.stop.is_set()
     for file in (owner, csv, test):
-        editor.close_tab(file.identity)
+        editor.close_file(file.identity)
     close_seconds = wait(editor, lambda: editor.workers.pending == 0)
     assert all(not path.exists() for path in directories)
     assert all(s.stored_bytes == 0 for s in stores)
@@ -303,7 +303,7 @@ def main() -> None:
             p: hashlib.sha256(p.read_bytes()).hexdigest() for p in fixtures.sources
         }
         del payloads
-        editor = EditorSession()
+        editor = EditorController()
         try:
             cycles = [cycle(editor, root) for _ in range(6)]
         finally:
