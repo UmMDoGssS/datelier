@@ -18,6 +18,9 @@ class FrameContext:
     def record(self, key: str, point: tuple[float, float]) -> None:
         self.probe.record(self.scope, (*self.path, key), point)
 
+    def measure(self, key: str, values: tuple[float, float]) -> None:
+        self.probe.measure(self.scope, (*self.path, key), values)
+
 
 class Component(ABC):
     def __init__(self, key: str) -> None:

@@ -476,6 +476,35 @@ The native numeric-profile resize/navigation regression passes in 64 frames/
 13.57 ms p95. Axis controls, import/table/mapping controls, old caller migration
 and final integrated resource/size/theme acceptance remain open.
 
+## Fresh Stage E8 — Shared numeric axes and scoped fields
+
+Numeric Profiles, count plots, 2D scatter, category plots and column comparisons
+inherit the shared axis-enabled plot family. A GUI-free axis model validates
+both drafts before publication, applies ranges once and observes native pan/zoom.
+Its controls expose Linear, Symmetric log and Log 10 only on numeric axes;
+category coordinates retain their native labels. Fit discards pending ranges;
+Expand/Restore keeps the same native plot and axes. New prepared sources reset
+old range/scale drafts. Related field types now inherit a common native-ID scope
+based on the component path, fixing repeated X/Y and parameter field collisions.
+
+Profiles, pair diagonals and category violins reuse density bandwidth/seed
+controls with the domain's valid 0.1–5 range. Numeric lists retain exclusive
+selection while exposing numeric distribution controls; count controls appear
+only for countable values. Original/scaled units, curve sampling, bounded
+outliers and unavailable-density facts remain visible.
+
+Verification: production/migrated caller Pyrefly zero errors; 41 focused axis,
+list/profile, restoration, scatter and relationship tests pass. Full Ruff
+lint/format (715 files) and whitespace checks pass. Native keyboard range and
+Log 10 edits, free zoom after Apply, Fit, invalid-range rejection, category-axis
+protection and Expand/Restore pass in 415 frames/14.23 ms p95.
+[Axis report](evidence/gui-overhaul/fresh-axes.json).
+Profile sizing, scatter and column comparison regressions pass at 64/121/124
+frames with 13.96/17.69/29.04 ms p95. Pair/category and explicit analysis regress
+at 144/125/228 frames with 16.73/17.54/14.71 ms p95. Source bytes and explicit
+analysis behavior pass. Import/table/mapping controls, full old caller migration
+and final integrated resource/size/theme acceptance remain open.
+
 ## Baseline evidence
 
 Before implementation, 38 targeted editor/session/schema-role/profile-selection/

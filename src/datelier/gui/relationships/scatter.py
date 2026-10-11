@@ -5,9 +5,10 @@ from collections.abc import Callable
 import numpy as np
 from imgui_bundle import imgui, implot
 
+from datelier.application.axes import AxisState
+from datelier.gui.components.axes import AxisPlot, apply_axes, observe_axes
 from datelier.gui.components.base import Component, Container, FrameContext
 from datelier.gui.components.native import help_tip, target
-from datelier.gui.components.viewport import ViewportContent
 from datelier.gui.relationships.primitives import (
     draw_color_items,
     legend_hovered,
@@ -117,10 +118,11 @@ class NativeScatter2D(Container):
         prepared: Callable[[], Scatter | None],
         selection: LinkedSelection,
         jump: Callable[[int], None],
+        axes: AxisState,
     ) -> None:
         self.input = ScatterInput(prepared, selection, jump)
         super().__init__("canvas", (self.input,))
-        self.prepared, self.selection = prepared, selection
+        self.prepared, self.selection, self.axes = prepared, selection, axes
         self.height = 200.0
         self.fit = True
 
@@ -133,6 +135,7 @@ class NativeScatter2D(Container):
         if not implot.begin_plot("##scatter", (width, self.height)):
             return False
         implot.setup_axes(points.x_name, points.y_name)
+        apply_axes(self.axes)
         chosen = (
             np.isin(points.row_ids, tuple(self.selection.row_ids))
             if self.selection.revision == points.revision
@@ -140,6 +143,7 @@ class NativeScatter2D(Container):
         )
         self.input.visible = draw_color_items(points, chosen)
         super().render(frame)
+        observe_axes(self.axes, frame)
         implot.end_plot()
         target(frame, "plot")
         self.fit = False
@@ -156,7 +160,7 @@ class NativeScatter2D(Container):
         super().close()
 
 
-class ScatterPlot(ViewportContent):
+class ScatterPlot(AxisPlot):
     def __init__(
         self,
         prepared: Callable[[], Scatter | None],
@@ -166,10 +170,13 @@ class ScatterPlot(ViewportContent):
         super().__init__("scatter2d")
         self.prepared = prepared
         self._points: Scatter | None = None
-        self.canvas = NativeScatter2D(prepared, selection, jump)
+        self.canvas = NativeScatter2D(prepared, selection, jump, self.axes)
         self.children = (ScatterSummary(prepared, selection), self.canvas)
 
-    def render(self, frame: FrameContext) -> None:
+    def plot_scope(self) -> object:
+        return id(self.prepared())
+
+    def render_plot(self, frame: FrameContext) -> None:
         points = self.prepared()
         if points is None:
             self.canvas.input.brush = None
@@ -183,10 +190,10 @@ class ScatterPlot(ViewportContent):
             self._points = points
             self.canvas.input.brush = None
         self.canvas.height, self.canvas.fit = (
-            max(120, self.height - 55),
+            max(120, self.height - 85),
             self.fit or self.canvas.fit,
         )
-        super().render(frame)
+        self.render_children(frame)
         self.fit = self.canvas.fit
         help_tip(
             "Wheel zooms; middle drag pans; double click fits. Click selects, "

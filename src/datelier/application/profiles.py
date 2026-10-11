@@ -5,7 +5,7 @@ from enum import StrEnum
 
 from datelier.application.columns import ColumnChoice, ProfileSelectionPolicy
 from datelier.application.sources.columns import record_mapping
-from datelier.core.column_roles import ColumnRole
+from datelier.core.column_roles import ColumnRole, list_element_role
 from datelier.core.dataset import Dataset
 from datelier.inspection.arrays.mapping import ArrayLayout
 from datelier.inspection.exploration import Explorer
@@ -32,6 +32,8 @@ class ProfileController:
         self.text = False
         self.can_text = False
         self.text_optional = False
+        self.numeric = False
+        self.countable = False
         self.family = ProfileFamily.COLUMNS
         self._dataset_id = None
 
@@ -57,12 +59,23 @@ class ProfileController:
                 self.selected = (choices[0].name,)
             self._dataset_id = inspection.dataset.revision.dataset_id
         first = self.selected[0] if self.selected else None
+        schema = inspection.dataset.table.schema
         self.can_text = bool(
-            first
-            and len(self.selected) == 1
-            and is_text_field(inspection.dataset.table.schema[first])
+            first and len(self.selected) == 1 and is_text_field(schema[first])
         )
         role = inspection.dataset.role(first).role if first else None
+        self.numeric = bool(self.selected) and all(
+            list_element_role(inspection.dataset.role(name).role, schema[name])
+            == ColumnRole.NUMERIC
+            for name in self.selected
+        )
+        self.countable = bool(
+            first
+            and len(self.selected) == 1
+            and role
+            and list_element_role(role, schema[first])
+            in (ColumnRole.CATEGORY, ColumnRole.TEMPORAL)
+        )
         self.text_optional = self.can_text and role not in (
             ColumnRole.TEXT,
             ColumnRole.EXTERNAL_TEXT,

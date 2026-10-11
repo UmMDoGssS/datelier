@@ -21,9 +21,16 @@ class TargetKey:
 @dataclass
 class GuiProbe:
     targets: dict[TargetKey, tuple[float, float]] = field(default_factory=dict)
+    measurements: dict[TargetKey, tuple[float, float]] = field(default_factory=dict)
 
     def begin_frame(self) -> None:
         self.targets.clear()
+        self.measurements.clear()
+
+    def measure(
+        self, scope: ViewScope, path: tuple[str, ...], values: tuple[float, float]
+    ) -> None:
+        self.measurements[TargetKey(scope, path)] = values
 
     def record(
         self, scope: ViewScope, path: tuple[str, ...], point: tuple[float, float]

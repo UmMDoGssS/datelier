@@ -6,11 +6,13 @@ import numpy as np
 from imgui_bundle import imgui, implot
 
 from datelier.application.profiles import ProfileController, ProfileFamily
+from datelier.gui.components.axes import AxisPlot, apply_axes, observe_axes
 from datelier.gui.components.base import Component, FrameContext
 from datelier.gui.components.facts import FactsTable
-from datelier.gui.components.viewport import ResizableViewport, ViewportContent
+from datelier.gui.components.viewport import ResizableViewport
 from datelier.gui.profiles.base import ProfileContent
 from datelier.gui.profiles.charts import CHARTS
+from datelier.gui.profiles.distribution_facts import DistributionFacts
 from datelier.inspection.profiles import ProfileKind
 
 
@@ -124,7 +126,14 @@ class NumericContent(ColumnProfileContent):
             read_height=lambda: model.height,
             write_height=lambda value: setattr(model, "height", value),
         )
-        super().__init__("numeric", model, (self.viewport,))
+        super().__init__(
+            "numeric",
+            model,
+            (
+                self.viewport,
+                DistributionFacts(self.charts[0].prepared, lambda: model.mode),
+            ),
+        )
 
     def render(self, frame: FrameContext) -> None:
         chart = self.charts[self.model.mode]
@@ -135,30 +144,39 @@ class NumericContent(ColumnProfileContent):
         super().render(frame)
 
 
-class ProfileBars(ViewportContent):
+class ProfileBars(AxisPlot):
     def __init__(self, model: ProfileController) -> None:
         super().__init__("bars")
         self.model = model
 
-    def render(self, frame: FrameContext) -> None:
+    def plot_scope(self) -> object:
+        return id(self.model.explorer.profiles.active)
+
+    def numeric_axes(self) -> tuple[bool, bool]:
+        data = self.model.explorer.profiles.active
+        return bool(data and data.bars and len(data.bars[0].edges)), True
+
+    def render_plot(self, frame: FrameContext) -> None:
         data = self.model.explorer.profiles.active
         if data is None or not data.bars:
             return
         bars = data.bars[0]
         if self.fit:
             implot.set_next_axes_to_fit()
-        if implot.begin_plot("##profile", (-1, self.height)):
+        if implot.begin_plot("##profile", (-1, max(120, self.height - 30))):
             implot.setup_axes("Value", "Count")
             if not len(bars.edges):
                 implot.setup_axis_ticks(
                     implot.ImAxis_.x1, bars.positions.tolist(), list(bars.labels)
                 )
+            apply_axes(self.axes)
             implot.plot_bars(
-                data.profiles.columns[0].name,
+                data.profiles.columns[0].name.replace("##", "#\u200b#"),
                 bars.positions,
                 bars.counts,
                 float(np.diff(bars.edges)[0]) if len(bars.edges) > 1 else 0.7,
             )
+            observe_axes(self.axes, frame)
             implot.end_plot()
             self.fit = False
 

@@ -9,8 +9,9 @@ from datelier.application.plot_settings import PlotState
 from datelier.gui.components.actions import JobFeedback, JobSnapshot
 from datelier.gui.components.base import Container
 from datelier.gui.components.columns import ColumnPicker
-from datelier.gui.components.fields import ChoiceField, FloatField, IntegerField
+from datelier.gui.components.fields import ChoiceField, IntegerField
 from datelier.gui.components.groups import Conditional
+from datelier.gui.context.distributions import DistributionTuning
 from datelier.gui.profiles.series import SERIES_TYPES
 from datelier.plotting.categories import CategoryRepresentation
 
@@ -212,24 +213,7 @@ class RelationshipSettings(Container):
                                 plots.relationship_chart
                                 == CategoryRepresentation.VIOLIN
                             ),
-                            (
-                                FloatField(
-                                    "bandwidth",
-                                    "Density bandwidth",
-                                    lambda: plots.bandwidth,
-                                    lambda v: setattr(plots, "bandwidth", v),
-                                    0.05,
-                                    4,
-                                ),
-                                IntegerField(
-                                    "seed",
-                                    "Density seed",
-                                    lambda: plots.seed,
-                                    lambda v: setattr(plots, "seed", v),
-                                    0,
-                                    2**32 - 1,
-                                ),
-                            ),
+                            (DistributionTuning(plots),),
                         ),
                     ),
                 ),
@@ -279,24 +263,7 @@ class CorrelationSettings(Container):
                         Conditional(
                             "curves",
                             lambda: plots.diagonal_mode in (1, 4),
-                            (
-                                FloatField(
-                                    "bandwidth",
-                                    "Density bandwidth",
-                                    lambda: plots.bandwidth,
-                                    lambda v: setattr(plots, "bandwidth", v),
-                                    0.05,
-                                    4,
-                                ),
-                                IntegerField(
-                                    "seed",
-                                    "Curve seed",
-                                    lambda: plots.seed,
-                                    lambda v: setattr(plots, "seed", v),
-                                    0,
-                                    2**32 - 1,
-                                ),
-                            ),
+                            (DistributionTuning(plots),),
                         ),
                     ),
                 ),

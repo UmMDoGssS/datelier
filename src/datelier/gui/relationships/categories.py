@@ -6,6 +6,7 @@ from collections.abc import Callable
 import numpy as np
 from imgui_bundle import imgui, implot
 
+from datelier.gui.components.axes import AxisPlot, apply_axes, observe_axes
 from datelier.gui.components.base import Component, FrameContext
 from datelier.gui.components.native import target
 from datelier.gui.components.viewport import ViewportContent
@@ -59,7 +60,7 @@ class CategoryInput(Component):
         implot.get_input_map().pan = imgui.MouseButton_.middle
 
 
-class CategoryPlot(ViewportContent, ABC):
+class CategoryPlot(AxisPlot, ABC):
     def __init__(
         self,
         key: str,
@@ -74,7 +75,7 @@ class CategoryPlot(ViewportContent, ABC):
         self.children = (CategoryInput(prepared, selection, jump, self.hit),)
 
     @abstractmethod
-    def axes(self, data: CategoryChart) -> None: ...
+    def setup_axes(self, data: CategoryChart) -> None: ...
 
     @abstractmethod
     def draw(self, data: CategoryChart, frame: FrameContext) -> None: ...
@@ -84,7 +85,11 @@ class CategoryPlot(ViewportContent, ABC):
         self, data: CategoryChart, point: implot.Point
     ) -> tuple[int, int] | None: ...
 
-    def render(self, frame: FrameContext) -> None:
+    def plot_scope(self) -> object:
+        data = self.prepared()
+        return (data.revision, data.settings) if data else None
+
+    def render_plot(self, frame: FrameContext) -> None:
         data = self.prepared()
         if data is None:
             imgui.text_wrapped(
@@ -112,14 +117,16 @@ class CategoryPlot(ViewportContent, ABC):
             imgui.text_wrapped(note)
         if self.fit:
             implot.set_next_axes_to_fit()
-        if implot.begin_plot("##category", (-1, max(120, self.height - 55))):
-            self.axes(data)
+        if implot.begin_plot("##category", (-1, max(120, self.height - 85))):
+            self.setup_axes(data)
+            apply_axes(self.axes)
             implot.setup_legend(
                 implot.Location_.north,
                 implot.LegendFlags_.outside | implot.LegendFlags_.horizontal,
             )
             self.draw(data, frame)
-            super().render(frame)
+            self.render_children(frame)
+            observe_axes(self.axes, frame)
             implot.end_plot()
             target(frame, "canvas")
             self.fit = False
@@ -138,7 +145,10 @@ class CategoryBars(CategoryPlot):
     ) -> None:
         super().__init__("category-bars", prepared, selection, jump)
 
-    def axes(self, data: CategoryChart) -> None:
+    def numeric_axes(self) -> tuple[bool, bool]:
+        return True, False
+
+    def setup_axes(self, data: CategoryChart) -> None:
         implot.setup_axes(
             data.value_label, data.settings.category, y_flags=implot.AxisFlags_.invert
         )
@@ -189,7 +199,10 @@ class CategoryDistribution(CategoryPlot, ABC):
     @abstractmethod
     def violin(self) -> bool: ...
 
-    def axes(self, data: CategoryChart) -> None:
+    def numeric_axes(self) -> tuple[bool, bool]:
+        return False, True
+
+    def setup_axes(self, data: CategoryChart) -> None:
         implot.setup_axes(data.settings.category, data.value_label)
         implot.setup_axis_ticks(
             implot.ImAxis_.x1,

@@ -6,6 +6,7 @@ from datelier.gui.components.base import Container
 from datelier.gui.components.columns import ColumnPicker
 from datelier.gui.components.fields import BooleanField, ChoiceField, IntegerField
 from datelier.gui.components.groups import Conditional
+from datelier.gui.context.distributions import DistributionTuning
 from datelier.gui.profiles.series import SERIES_TYPES
 
 
@@ -37,13 +38,7 @@ class ProfileSettings(Container):
                 Conditional(
                     "numeric-controls",
                     lambda: (
-                        profiles.family == ProfileFamily.COLUMNS
-                        and bool(profiles.selected)
-                        and all(
-                            choice.numeric
-                            for choice in profiles.choices
-                            if choice.name in profiles.selected
-                        )
+                        profiles.family == ProfileFamily.COLUMNS and profiles.numeric
                     ),
                     (
                         ChoiceField(
@@ -73,6 +68,27 @@ class ProfileSettings(Container):
                             "Histogram density",
                             lambda: plots.density,
                             lambda value: setattr(plots, "density", value),
+                        ),
+                        Conditional(
+                            "curves",
+                            lambda: profiles.mode in (1, 4),
+                            (DistributionTuning(plots),),
+                        ),
+                    ),
+                ),
+                Conditional(
+                    "count-controls",
+                    lambda: (
+                        profiles.family == ProfileFamily.COLUMNS and profiles.countable
+                    ),
+                    (
+                        IntegerField(
+                            "top",
+                            "Visible values",
+                            lambda: plots.top_counts,
+                            lambda v: setattr(plots, "top_counts", v),
+                            1,
+                            100,
                         ),
                     ),
                 ),

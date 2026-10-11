@@ -10,6 +10,7 @@ from datelier.application.comparisons.columns import (
     ColumnSeries,
 )
 from datelier.core.column_roles import ColumnRole
+from datelier.gui.components.axes import AxisPlot, apply_axes, observe_axes
 from datelier.gui.components.base import FrameContext
 from datelier.gui.components.native import target
 from datelier.gui.components.viewport import ViewportContent
@@ -18,14 +19,14 @@ from datelier.inspection.comparison_settings import Normalization
 from datelier.inspection.comparisons.types import PreparedComparison
 
 
-class ColumnComparisonPlot(ViewportContent, ABC):
+class ColumnComparisonPlot(AxisPlot, ABC):
     def __init__(self, model: ColumnComparisonController) -> None:
         super().__init__("column-chart")
         self.model = model
         self._prepared: PreparedComparison | None = None
 
     @abstractmethod
-    def axes(self, result: PreparedComparison) -> None: ...
+    def setup_axes(self, result: PreparedComparison) -> None: ...
 
     @abstractmethod
     def draw(
@@ -35,7 +36,10 @@ class ColumnComparisonPlot(ViewportContent, ABC):
     @abstractmethod
     def bin_index(self, result: PreparedComparison, mouse: implot.Point) -> int: ...
 
-    def render(self, frame: FrameContext) -> None:
+    def plot_scope(self) -> object:
+        return id(self.model.active)
+
+    def render_plot(self, frame: FrameContext) -> None:
         result = self.model.active
         if result is None:
             return
@@ -43,8 +47,9 @@ class ColumnComparisonPlot(ViewportContent, ABC):
             self._prepared, self.fit = result, True
         if self.fit:
             implot.set_next_axes_to_fit()
-        if implot.begin_plot("##comparison", (-1, self.height)):
-            self.axes(result)
+        if implot.begin_plot("##comparison", (-1, max(120, self.height - 30))):
+            self.setup_axes(result)
+            apply_axes(self.axes)
             implot.setup_legend(
                 implot.Location_.north,
                 implot.LegendFlags_.outside | implot.LegendFlags_.horizontal,
@@ -81,6 +86,7 @@ class ColumnComparisonPlot(ViewportContent, ABC):
                     if imgui.is_mouse_clicked(imgui.MouseButton_.left):
                         self.model.select(source, index)
             implot.get_input_map().pan = imgui.MouseButton_.middle
+            observe_axes(self.axes, frame)
             implot.end_plot()
             target(frame, "canvas")
             self.fit = False
@@ -91,7 +97,7 @@ class ColumnComparisonPlot(ViewportContent, ABC):
 
 
 class NumericComparisonPlot(ColumnComparisonPlot):
-    def axes(self, result: PreparedComparison) -> None:
+    def setup_axes(self, result: PreparedComparison) -> None:
         label = "Value" + (f" / {result.scale:.6g}" if result.scale != 1 else "")
         implot.setup_axes(
             label,
@@ -123,7 +129,10 @@ class NumericComparisonPlot(ColumnComparisonPlot):
 
 
 class CategoryComparisonPlot(ColumnComparisonPlot):
-    def axes(self, result: PreparedComparison) -> None:
+    def numeric_axes(self) -> tuple[bool, bool]:
+        return True, False
+
+    def setup_axes(self, result: PreparedComparison) -> None:
         implot.setup_axes(
             "Proportion"
             if result.settings.normalization == Normalization.DENSITY

@@ -5,8 +5,9 @@ from collections.abc import Callable
 
 from imgui_bundle import implot
 
+from datelier.gui.components.axes import AxisPlot, apply_axes, observe_axes
 from datelier.gui.components.base import FrameContext
-from datelier.gui.components.viewport import ViewportContent
+from datelier.gui.components.native import target
 from datelier.gui.profiles.series import (
     BoxSeries,
     CumulativeSeries,
@@ -18,7 +19,7 @@ from datelier.gui.profiles.series import (
 from datelier.plotting.distributions import Comparison
 
 
-class DistributionChart(ViewportContent, ABC):
+class DistributionChart(AxisPlot, ABC):
     def __init__(self, prepared: Callable[[], Comparison | None]) -> None:
         self.series = self.make_series(prepared)
         super().__init__(self.series.label)
@@ -30,16 +31,28 @@ class DistributionChart(ViewportContent, ABC):
         self, prepared: Callable[[], Comparison | None]
     ) -> DistributionSeries: ...
 
-    def render(self, frame: FrameContext) -> None:
+    def plot_scope(self) -> object:
+        return id(self.prepared())
+
+    def numeric_axes(self) -> tuple[bool, bool]:
+        return not self.series.boxes, True
+
+    def render_plot(self, frame: FrameContext) -> None:
         data = self.prepared()
         if data is None or not data.series:
             return
         if self.fit:
             implot.set_next_axes_to_fit()
-        if implot.begin_plot("##distribution", (-1, self.height)):
+        if implot.begin_plot("##distribution", (-1, max(120, self.height - 30))):
             implot.setup_axes(
-                "Column" if self.series.boxes else "Value",
-                "Rows"
+                "Column"
+                if self.series.boxes
+                else "Z-score"
+                if data.settings.standardize
+                else "Value",
+                "Z-score"
+                if self.series.boxes and data.settings.standardize
+                else "Rows"
                 if self.series.label == "Histogram" and not data.settings.density
                 else self.series.ylabel,
             )
@@ -49,8 +62,11 @@ class DistributionChart(ViewportContent, ABC):
                     [float(i) for i in range(len(data.series))],
                     [s.name for s in data.series],
                 )
-            super().render(frame)
+            apply_axes(self.axes)
+            self.render_children(frame)
+            observe_axes(self.axes, frame)
             implot.end_plot()
+            target(frame, "canvas")
             self.fit = False
 
 

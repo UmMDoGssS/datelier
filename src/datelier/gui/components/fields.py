@@ -1,5 +1,6 @@
 """Typed field components with uniform labels and available-width sizing."""
 
+from abc import ABC, abstractmethod
 from collections.abc import Callable
 
 from imgui_bundle import imgui
@@ -8,7 +9,21 @@ from datelier.gui.components.base import Component, FrameContext
 from datelier.gui.components.native import target
 
 
-class ChoiceField[T](Component):
+class Field(Component, ABC):
+    """Repeated field names remain independent inside different component groups."""
+
+    def render(self, frame: FrameContext) -> None:
+        imgui.push_id("/".join(frame.path))
+        try:
+            self.render_field(frame)
+        finally:
+            imgui.pop_id()
+
+    @abstractmethod
+    def render_field(self, frame: FrameContext) -> None: ...
+
+
+class ChoiceField[T](Field):
     def __init__(
         self,
         key: str,
@@ -27,7 +42,7 @@ class ChoiceField[T](Component):
         )
         self.labels = labels
 
-    def render(self, frame: FrameContext) -> None:
+    def render_field(self, frame: FrameContext) -> None:
         imgui.text(self.label)
         imgui.set_next_item_width(-1)
         value = self.get()
@@ -48,7 +63,7 @@ class ChoiceField[T](Component):
             self.set_value(choices[index])
 
 
-class BooleanField(Component):
+class BooleanField(Field):
     def __init__(
         self,
         key: str,
@@ -59,14 +74,14 @@ class BooleanField(Component):
         super().__init__(key)
         self.label, self.get, self.set_value = label, get, set_value
 
-    def render(self, frame: FrameContext) -> None:
+    def render_field(self, frame: FrameContext) -> None:
         changed, value = imgui.checkbox(self.label + "##" + self.key, self.get())
         target(frame, "value")
         if changed:
             self.set_value(value)
 
 
-class IntegerField(Component):
+class IntegerField(Field):
     def __init__(
         self,
         key: str,
@@ -80,7 +95,7 @@ class IntegerField(Component):
         self.label, self.get, self.set_value = label, get, set_value
         self.minimum, self.maximum = minimum, maximum
 
-    def render(self, frame: FrameContext) -> None:
+    def render_field(self, frame: FrameContext) -> None:
         imgui.text(self.label)
         imgui.set_next_item_width(-1)
         changed, value = imgui.input_int("##" + self.key, self.get())
@@ -89,7 +104,7 @@ class IntegerField(Component):
             self.set_value(max(self.minimum, min(self.maximum, value)))
 
 
-class FloatField(Component):
+class FloatField(Field):
     def __init__(
         self,
         key: str,
@@ -103,7 +118,7 @@ class FloatField(Component):
         self.label, self.get, self.set_value = label, get, set_value
         self.minimum, self.maximum = minimum, maximum
 
-    def render(self, frame: FrameContext) -> None:
+    def render_field(self, frame: FrameContext) -> None:
         imgui.text(self.label)
         imgui.set_next_item_width(-1)
         changed, value = imgui.input_double("##" + self.key, self.get())
@@ -112,7 +127,7 @@ class FloatField(Component):
             self.set_value(max(self.minimum, min(self.maximum, value)))
 
 
-class TextField(Component):
+class TextField(Field):
     def __init__(
         self,
         key: str,
@@ -129,7 +144,7 @@ class TextField(Component):
             multiline,
         )
 
-    def render(self, frame: FrameContext) -> None:
+    def render_field(self, frame: FrameContext) -> None:
         imgui.text(self.label)
         imgui.set_next_item_width(-1)
         if self.multiline:
