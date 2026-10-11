@@ -1,7 +1,6 @@
 """Fresh object/array controllers preserve explicit preparation and row provenance."""
 
 from collections.abc import Callable
-from dataclasses import replace
 from pathlib import Path
 from time import monotonic, sleep
 
@@ -82,14 +81,23 @@ def test_generic_record_slice_keeps_source_index_after_sort_and_sibling_close(
         assert root.arrays.active is None and root.arrays.store.temporary_path is None
         model = root.array_source
         model.choose("values")
-        assert model.mapping_reason and model.support_choices == ("labels", "wrong")
-        model.mapping = replace(model.mapping, layout=ArrayLayout.GENERIC)
-        model.supporting = ("wrong",)
+        draft = model.mapping
+        assert draft and draft.reason
+        assert {choice.name for choice in draft.choices} == {
+            "values",
+            "labels",
+            "wrong",
+        }
+        draft.choose_layout(ArrayLayout.GENERIC)
+        draft.candidate = ("wrong",)
+        wrong = draft.add()
         with pytest.raises(ValueError, match="do not match"):
-            model.confirmed_mapping()
-        model.supporting = ("labels",)
-        mapping = model.confirmed_mapping()
-        assert mapping.supporting == (SupportingArray("labels", "labels"),)
+            draft.build()
+        draft.remove(wrong.key)
+        draft.candidate = ("labels",)
+        draft.add()
+        mapping = draft.build()
+        assert mapping.supporting == (SupportingArray("labels", "labels", fixed=(0,)),)
         root.record_views.open_array(root, mapping)
         until(editor, lambda: bool(root.record_views.files))
         view = root.record_views.files[0]

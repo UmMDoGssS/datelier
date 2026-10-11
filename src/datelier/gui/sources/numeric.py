@@ -7,42 +7,53 @@ from collections.abc import Callable
 from imgui_bundle import imgui, implot
 
 from datelier.application.sources.numeric import NumericSourceController
+from datelier.gui.components.axes import AxisPlot, apply_axes, observe_axes
 from datelier.gui.components.base import Component, Container, FrameContext
 from datelier.gui.components.colors import native_colormap
+from datelier.gui.components.groups import Conditional
+from datelier.gui.components.native import target
 from datelier.gui.components.viewport import ResizableViewport, ViewportContent
 from datelier.inspection.arrays.slices import PreparedSlice
 
 
-class SliceChart(ViewportContent, ABC):
+class SliceChart(AxisPlot, ABC):
     def __init__(self, key: str, prepared: Callable[[], PreparedSlice | None]) -> None:
         super().__init__(key)
         self.prepared = prepared
 
+    def plot_scope(self) -> object:
+        return id(self.prepared())
+
     @abstractmethod
-    def render(self, frame: FrameContext) -> None: ...
+    def render_plot(self, frame: FrameContext) -> None: ...
 
 
 class VectorChart(SliceChart):
-    def render(self, frame: FrameContext) -> None:
+    def render_plot(self, frame: FrameContext) -> None:
         data = self.prepared()
         if data is None or data.numeric is None or not data.numeric.size:
             return
         if self.fit:
             implot.set_next_axes_to_fit()
-        if implot.begin_plot("##vector", (-1, self.height)):
+        if implot.begin_plot("##vector", (-1, max(120, self.height - 30))):
             implot.setup_axes(f"Axis {data.axes[0]} index", "Value")
+            apply_axes(self.axes)
             implot.plot_line("Values", data.numeric, xstart=float(data.starts[0]))
+            observe_axes(self.axes, frame)
             implot.end_plot()
+            target(frame, "canvas")
             self.fit = False
 
 
 class MatrixChart(SliceChart):
-    def render(self, frame: FrameContext) -> None:
+    def render_plot(self, frame: FrameContext) -> None:
         data = self.prepared()
         if data is None or data.heatmap is None or not data.heatmap.size:
             return
         rows, columns = data.raw.shape
-        if implot.begin_plot("##matrix", (-1, self.height), implot.Flags_.no_legend):
+        if implot.begin_plot(
+            "##matrix", (-1, max(120, self.height - 30)), implot.Flags_.no_legend
+        ):
             row, column = data.starts
             implot.setup_axes(
                 f"Axis {data.axes[1]} index", f"Axis {data.axes[0]} index"
@@ -54,6 +65,7 @@ class MatrixChart(SliceChart):
                 row + rows,
                 imgui.Cond_.always if self.fit else imgui.Cond_.once,
             )
+            apply_axes(self.axes)
             implot.push_colormap(native_colormap(data.settings.colormap))
             implot.plot_heatmap(
                 "Display colors",
@@ -86,7 +98,9 @@ class MatrixChart(SliceChart):
                     imgui.set_tooltip(
                         f"Original index {tuple(coords)}: {data.cells[y][x]}"
                     )
+            observe_axes(self.axes, frame)
             implot.end_plot()
+            target(frame, "canvas")
             self.fit = False
 
 
@@ -176,11 +190,21 @@ class NumericContent(Container):
         super().__init__(
             "numeric-values",
             (
-                ResizableViewport(
-                    "array-plot",
-                    SlicePlots(lambda: model.prepared),
-                    read_height=lambda: model.height,
-                    write_height=lambda value: setattr(model, "height", value),
+                Conditional(
+                    "numeric",
+                    lambda: bool(
+                        model.prepared is not None
+                        and model.prepared.axes
+                        and model.prepared.numeric is not None
+                    ),
+                    (
+                        ResizableViewport(
+                            "array-plot",
+                            SlicePlots(lambda: model.prepared),
+                            read_height=lambda: model.height,
+                            write_height=lambda value: setattr(model, "height", value),
+                        ),
+                    ),
                 ),
                 SliceCells("raw-values", lambda: model.prepared),
                 SliceCells("storage-bits", lambda: model.storage),

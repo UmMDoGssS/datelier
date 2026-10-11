@@ -133,7 +133,8 @@ class MemberListing(Component):
                     clipper.display_start : clipper.display_end
                 ]:
                     if imgui.selectable(
-                        entry.name, entry.name == self.model.settings.member
+                        entry.name.replace("##", "# #") + "###" + entry.name,
+                        entry.name == self.model.settings.member,
                     )[0]:
                         self.select(entry.name)
                     target(frame.child(entry.name), "select")
@@ -165,10 +166,7 @@ class NumericBrowser(SourceBrowser):
     def render(self, frame: FrameContext) -> None:
         imgui.text(f"{len(self.model.entries):,} members · metadata first")
         super().render(frame)
-        entry = next(
-            (e for e in self.model.entries if e.name == self.model.settings.member),
-            None,
-        )
+        entry = self.model.entry
         if entry:
             imgui.text_wrapped(f"{entry.name}: {entry.dtype} {entry.shape}")
             imgui.text(f"Original storage: {entry.bytes:,} bytes")

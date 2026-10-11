@@ -570,6 +570,42 @@ and zero implicit collection analysis/playback pass. Advanced mapping/browser
 controls, full old caller migration and final integrated resource/size/theme
 acceptance remain open.
 
+## Fresh Stage E11 — Numeric slice and supporting-column controllers
+
+NumPy members, mapped records and CPU tensors share a GUI-free slice draft and
+explicit prepare command. Metadata validates axes, coordinates, window lengths,
+structured fields and display ranges before work starts. Invalid drafts cannot
+decode payloads or replace the earlier prepared slice. Per-member drafts survive
+navigation; record changes update source coordinates while retaining window and
+display drafts. Valid unprepared slice controls persist without decoding.
+
+Record mappings now accept multidimensional supporting arrays, configurable record
+axes/fixed coordinates, scalar structured fields and independent column aliases.
+The same member can supply multiple fields. Metadata rejects unequal record counts,
+duplicate aliases and nonscalar fields without truncation. Supporting forms render
+at most eight entries per page; irrelevant field/page controls stay hidden.
+Confirmation prepares supporting columns in shared workers and keeps payloads lazy.
+Saved mapped views retain the existing explicit preparation/recovery behavior.
+
+Array/tensor vector and matrix plots now inherit the shared numeric axis family;
+scalar and nonnumeric previews show their raw values without an empty plot area.
+Member labels preserve literal ImGui separator characters and selected metadata
+uses cached lookup.
+
+Verification: production/migrated caller Pyrefly zero errors; 109 rebuilt and
+array/checkpoint correctness checks pass (three dependency warnings). Eighteen
+focused numeric/source/mapping/workspace checks pass after the final form changes.
+Full Ruff lint/format (744 files) and whitespace checks pass. Native supporting
+axis/alias/coordinate edits, alignment rejection, sorted exact record windows and
+expand/restore pass in 263 frames at 20.04 ms p95; source/object/CPU checkpoint
+preparation regresses in 164
+frames at 19.12 ms p95. Original image/text/audio records regress in 55 frames at
+24.09 ms p95. Source bytes and zero implicit analysis/playback pass.
+[Numeric report](evidence/gui-overhaul/fresh-numeric.json).
+Full-project Pyrefly remains open: the E10 audit reports 368 errors from obsolete
+GUI tests/scripts. Browser, remaining preview workflows, old caller migration and
+final integrated resource/size/theme acceptance remain open.
+
 ## Baseline evidence
 
 Before implementation, 38 targeted editor/session/schema-role/profile-selection/
