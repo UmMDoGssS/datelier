@@ -64,6 +64,7 @@ class TokenRows(Component):
             | imgui.TableFlags_.row_bg
         )
         if imgui.begin_table("tokens", 5, flags, (-1, self.height)):
+            rendered = 0
             for header in (
                 "Index / piece",
                 "ID",
@@ -77,6 +78,7 @@ class TokenRows(Component):
             clipper.begin(len(document.tokens))
             while clipper.step():
                 for index in range(clipper.display_start, clipper.display_end):
+                    rendered += 1
                     token = document.tokens[index]
                     imgui.table_next_row()
                     imgui.table_next_column()
@@ -103,6 +105,9 @@ class TokenRows(Component):
                         imgui.table_next_column()
                         imgui.text_unformatted(value)
             imgui.end_table()
+            frame.measure(
+                "rendered-rows", (float(rendered), float(len(document.tokens)))
+            )
 
 
 class TokenPiece(Component):

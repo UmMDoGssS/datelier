@@ -6,7 +6,7 @@ from collections.abc import Callable
 from imgui_bundle import imgui
 
 from datelier.gui.components.base import Component, FrameContext
-from datelier.gui.components.native import number, target
+from datelier.gui.components.native import label_text, number, target
 
 
 class VirtualTable(Component, ABC):
@@ -29,6 +29,7 @@ class VirtualTable(Component, ABC):
 
     def render(self, frame: FrameContext) -> None:
         columns, count = self.bind()
+        rendered = 0
         if not columns:
             return
         flags = (
@@ -47,13 +48,16 @@ class VirtualTable(Component, ABC):
                     "Action", imgui.TableColumnFlags_.width_fixed, 65
                 )
             for name in columns:
-                imgui.table_setup_column(name, imgui.TableColumnFlags_.width_fixed, 130)
+                imgui.table_setup_column(
+                    label_text(name), imgui.TableColumnFlags_.width_fixed, 130
+                )
             imgui.table_setup_scroll_freeze(0, 1)
             imgui.table_headers_row()
             clipper = imgui.ListClipper()
             clipper.begin(count)
             while clipper.step():
                 for index in range(clipper.display_start, clipper.display_end):
+                    rendered += 1
                     imgui.table_next_row()
                     if self.open_row:
                         imgui.table_next_column()
@@ -70,6 +74,7 @@ class VirtualTable(Component, ABC):
                                 + ("… (preview truncated)" if len(text) > 4096 else "")
                             )
             imgui.end_table()
+        frame.measure("rendered-rows", (float(rendered), float(count)))
 
 
 class SequenceTable[T](VirtualTable):

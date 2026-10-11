@@ -30,6 +30,26 @@ def document(text: str) -> TextDocument:
     )
 
 
+@pytest.mark.parametrize("prefix_length", [2047, 4095])
+@pytest.mark.parametrize(
+    "original,normalized", [("e\u0301", "é"), ("가", "가"), ("각", "각")]
+)
+def test_composition_across_character_batches_preserves_original_spans(
+    prefix_length: int, original: str, normalized: str
+) -> None:
+    prefix = "a" * prefix_length
+    text = prefix + original + "z🙂"
+    result = TextTokenizer(
+        TokenSettings(TokenMode.CHARACTER, Normalization.NFC)
+    ).encode(document(text))
+    assert result.document.text == text
+    assert result.normalized == prefix + normalized + "z🙂"
+    token = result.tokens[prefix_length]
+    assert token.piece == normalized
+    assert (token.start, token.end) == (prefix_length, prefix_length + len(original))
+    assert result.tokens[-1].end == len(text)
+
+
 @pytest.mark.parametrize(
     ("mode", "pieces"),
     [

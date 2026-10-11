@@ -202,7 +202,9 @@ class TextTokenizer:
         )
         start = 0
         while start < len(text):
-            end = min(start + 4096, len(text)) if character else len(text)
+            # Keep native split conversion and Python token construction below
+            # one GUI frame while a large record shares the worker interpreter.
+            end = min(start + 2048, len(text)) if character else len(text)
             if character and self.settings.normalization != Normalization.NONE:
                 # Keep combining runs together for canonical reordering, and
                 # test joins for non-mark composition such as Hangul Jamo.

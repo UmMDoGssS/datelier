@@ -937,6 +937,31 @@ Verification: splitter 82 frames/20.92 ms p95, workflow 252/13.89 ms, docking re
 full Ruff lint/format and whitespace checks pass. Historical caller consolidation
 and final acceptance audit remain open.
 
+## Fresh Stage E24 — Exact text corpus and long-record resource gates
+
+The original 100,000-record corpus and two-file 100,000-record comparison/long
+Unicode record benchmarks retain their fixtures, exact counts and budgets.
+They now share prepared-state controller/probe instrumentation, including measured
+virtual-table/token rows and weak-reference result release after closure.
+
+The long-record gate initially failed twice at approximately 38 ms preparation
+frame p95. Character normalization/token construction now yields after 2048-code-
+point batches rather than 4096, keeping original composition/offset behavior.
+Six new NFC tests cover combining marks and two/three-part Hangul compositions at
+both batch seams. The corrected native gate passes at 24.65 ms preparation p95:
+110,013 original code points, 110,012 complete tokens, exact EOF/selected source
+and 2048-code-point pages, with two rendered token rows and released results.
+
+Exact corpus profiling passes 784,000 tokens, 99,000 documents, 1000 nulls/empties
+and 104 frequency types; only seven rows render. Profile/comparison results retain
+3.74 MiB each, frame p95 25.45/27.17 ms, total peaks 457.70/451.49 MiB, four workers
+and no temporary data. Sources remain unchanged.
+[Text resource reports](evidence/gui-overhaul/fresh-text-resources.json).
+
+Verification: 30 token/span/page/profile/comparison checks, scoped types (zero
+errors), full Ruff lint/format and whitespace checks pass. Remaining historical
+caller consolidation and final integrated acceptance stay open.
+
 ## Baseline evidence
 
 Before implementation, 38 targeted editor/session/schema-role/profile-selection/
