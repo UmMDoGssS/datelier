@@ -11,9 +11,9 @@ from time import perf_counter
 import numpy as np
 from imgui_bundle import hello_imgui
 
+from datelier.application.editor import EditorController
 from datelier.gui.app import InspectionEvidence, run_gui
-from datelier.gui.editor_session import EditorSession
-from datelier.gui.tabs import EditorTabs
+from datelier.gui.components.probe import GuiProbe
 from datelier.inspection.arrays.slices import SliceSettings
 
 BUDGETS = {
@@ -43,7 +43,7 @@ def main() -> None:
         prepared_at = 0.0
         stage = updates = completed_at = 0
         updates_ms: list[float] = []
-        owning: EditorSession | None = None
+        owning: EditorController | None = None
         temporary: Path | None = None
         report: dict[str, object] = {
             "budgets": BUDGETS,
@@ -52,7 +52,7 @@ def main() -> None:
             "window": [128, 128],
         }
 
-        def request(editor: EditorSession, offset: int) -> None:
+        def request(editor: EditorController, offset: int) -> None:
             nonlocal prepared_at
             fixed = (offset % 8, 0, 0)
             editor.active.arrays.request(
@@ -67,7 +67,7 @@ def main() -> None:
             prepared_at = perf_counter()
 
         def frame(
-            editor: EditorSession, tabs: EditorTabs, evidence: InspectionEvidence
+            editor: EditorController, probe: GuiProbe, evidence: InspectionEvidence
         ) -> None:
             nonlocal owning, temporary, stage, updates, completed_at
             owning = editor
@@ -114,7 +114,7 @@ def main() -> None:
                 completed_at = evidence.frames
                 stage = 2
 
-        evidence = run_gui(source, smoke_frames=1500, on_editor_frame=frame)
+        evidence = run_gui(source, smoke_frames=1500, on_probe_frame=frame)
         assert stage == 4
         report["frames"] = evidence.frames
         report["update_ms"] = max(updates_ms)

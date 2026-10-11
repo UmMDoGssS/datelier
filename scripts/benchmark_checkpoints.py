@@ -17,9 +17,9 @@ from time import perf_counter
 import numpy as np
 from imgui_bundle import hello_imgui
 
+from datelier.application.editor import EditorController
 from datelier.gui.app import InspectionEvidence, run_gui
-from datelier.gui.editor_session import EditorSession
-from datelier.gui.tabs import EditorTabs
+from datelier.gui.components.probe import GuiProbe
 from datelier.inspection.arrays.settings import SliceSettings
 from datelier.inspection.arrays.windows import MAX_SLICE_CELLS
 from datelier.io.checkpoints.storage import CheckpointStore
@@ -47,7 +47,7 @@ def run(source: Path) -> dict[str, object]:
     prepared_at = 0.0
     stage = updates = completed_at = 0
     times: list[float] = []
-    owning: EditorSession | None = None
+    owning: EditorController | None = None
     store: CheckpointStore | None = None
     numpy_sizes: list[int] = []
     restore_numpy = None
@@ -58,7 +58,7 @@ def run(source: Path) -> dict[str, object]:
         "window": [128, 128],
     }
 
-    def request(editor: EditorSession, offset: int) -> None:
+    def request(editor: EditorController, offset: int) -> None:
         nonlocal prepared_at
         editor.active.checkpoints.request(
             SliceSettings(
@@ -72,7 +72,7 @@ def run(source: Path) -> dict[str, object]:
         prepared_at = perf_counter()
 
     def frame(
-        editor: EditorSession, tabs: EditorTabs, evidence: InspectionEvidence
+        editor: EditorController, probe: GuiProbe, evidence: InspectionEvidence
     ) -> None:
         nonlocal stage, updates, completed_at, owning, store, restore_numpy
         owning = editor
@@ -133,7 +133,7 @@ def run(source: Path) -> dict[str, object]:
             completed_at, stage = evidence.frames, 2
 
     try:
-        evidence = run_gui(source, smoke_frames=1500, on_editor_frame=frame)
+        evidence = run_gui(source, smoke_frames=1500, on_probe_frame=frame)
     finally:
         if restore_numpy is not None:
             importlib.import_module("torch").Tensor.numpy = restore_numpy

@@ -824,6 +824,21 @@ lint/format (754 files) and whitespace checks pass. E17's full suite remains 1,1
 passing tests. Specialized multimodal size/theme and integrated GPU/resource
 acceptance, remaining old callers and final capability audit stay open.
 
+## Fresh Stage E19 — Retained source resource benchmarks
+
+Migrated the original structured, compressed-array and CPU checkpoint native
+benchmarks to controller/probe callbacks without changing their fixtures or
+budgets. Structured opening of 50,000 records preserves shared object ownership;
+arrays and checkpoints retain 20 window updates, exact values, unselected-payload
+laziness, bounded storage and complete closure/source preservation.
+
+All three pass: frame p95 11.37/27.67/28.51 ms and peak RSS 494.67/414.11/666.13 MiB.
+Array metadata/first window take 145.58/65.00 ms; cold CPU checkpoint metadata/first
+window take 1715.73/45.38 ms. Four workers and storage/thread cleanup pass.
+[Source resource report](evidence/gui-overhaul/fresh-source-resources.json).
+Scoped types pass with zero errors; 24 source/window behavioral tests and full
+Ruff lint/format pass. Full-project types remain open for obsolete harnesses.
+
 ## Baseline evidence
 
 Before implementation, 38 targeted editor/session/schema-role/profile-selection/

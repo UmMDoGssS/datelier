@@ -1,0 +1,100 @@
+{
+  "objects": {
+    "budgets": {
+      "source_ms": 5000,
+      "view_ms": 3000,
+      "frame_p95_ms": 33,
+      "peak_rss_mib": 1024,
+      "workers": 4
+    },
+    "rows": 50000,
+    "columns": 3,
+    "source_ms": 644.4701419968624,
+    "view_ms": 233.86036599549698,
+    "workers": 4,
+    "frames": 180,
+    "frame_p95_ms": 11.370322850052617,
+    "peak_rss_mib": 494.66796875,
+    "source_preserved": true,
+    "temporary_cleanup": true
+  },
+  "arrays": {
+    "budgets": {
+      "metadata_ms": 2000,
+      "first_slice_ms": 3000,
+      "update_ms": 1000,
+      "frame_p95_ms": 33,
+      "peak_rss_mib": 1024,
+      "retained_disk_bytes": 16777216,
+      "workers": 4
+    },
+    "selected_shape": [
+      8,
+      512,
+      512
+    ],
+    "unselected_shape": [
+      1024,
+      1024,
+      32
+    ],
+    "window": [
+      128,
+      128
+    ],
+    "metadata_ms": 145.57653600058984,
+    "first_slice_ms": 64.99885900120717,
+    "extractions": 1,
+    "extracted_bytes": 8388736,
+    "retained_disk_bytes": 8388736,
+    "unselected_payload_loaded": false,
+    "workers": 4,
+    "frames": 168,
+    "update_ms": 41.10501499962993,
+    "frame_p95_ms": 27.672037649244885,
+    "peak_rss_mib": 414.109375,
+    "source_preserved": true,
+    "temporary_cleanup": true
+  },
+  "checkpoints": {
+    "budgets": {
+      "metadata_ms": 5000,
+      "first_slice_ms": 3000,
+      "update_ms": 1000,
+      "frame_p95_ms": 33,
+      "peak_rss_mib": 1536,
+      "retained_logical_bytes": 67108864,
+      "prepared_bytes": 2097152,
+      "workers": 4
+    },
+    "selected_shape": [
+      8,
+      512,
+      512
+    ],
+    "unselected_shape": [
+      1024,
+      1024,
+      32
+    ],
+    "window": [
+      128,
+      128
+    ],
+    "metadata_ms": 1715.731696000148,
+    "first_slice_ms": 45.38213399791857,
+    "loads": 1,
+    "numpy_windows": 21,
+    "unselected_payload_converted": false,
+    "retained_logical_bytes": 41943040,
+    "prepared_bytes": 653539,
+    "workers": 4,
+    "frames": 250,
+    "update_ms": 42.27113699744223,
+    "frame_p95_ms": 28.51422154708415,
+    "peak_rss_mib": 666.12890625,
+    "source_preserved": true,
+    "storage_cleanup": true,
+    "temporary_cleanup": true
+  }
+}

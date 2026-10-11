@@ -10,9 +10,9 @@ from time import perf_counter
 import numpy as np
 from imgui_bundle import hello_imgui
 
+from datelier.application.editor import EditorController
 from datelier.gui.app import InspectionEvidence, run_gui
-from datelier.gui.editor_session import EditorSession
-from datelier.gui.tabs import EditorTabs
+from datelier.gui.components.probe import GuiProbe
 
 BUDGETS = {
     "source_ms": 5000,
@@ -48,10 +48,10 @@ def main() -> None:
         stage = 0
         opened = 0.0
         report: dict[str, object] = {"budgets": BUDGETS, "rows": 50_000, "columns": 3}
-        owning: EditorSession | None = None
+        owning: EditorController | None = None
 
         def frame(
-            editor: EditorSession, tabs: EditorTabs, evidence: InspectionEvidence
+            editor: EditorController, probe: GuiProbe, evidence: InspectionEvidence
         ) -> None:
             nonlocal stage, opened, owning
             owning = editor
@@ -75,7 +75,7 @@ def main() -> None:
                 report["workers"] = sum(t.name.startswith("file_") for t in threads())
                 hello_imgui.get_runner_params().app_shall_exit = True
 
-        evidence = run_gui(source, smoke_frames=1200, on_editor_frame=frame)
+        evidence = run_gui(source, smoke_frames=1200, on_probe_frame=frame)
         assert stage == 2
         report["frames"] = evidence.frames
         report["frame_p95_ms"] = float(np.percentile(evidence.frame_intervals_ms, 95))
