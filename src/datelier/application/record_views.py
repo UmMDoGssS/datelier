@@ -34,9 +34,20 @@ class RecordViews:
         self.message = ""
         self._origins: dict[str, int] = {}
         self._options: dict[str, ImportOptions] = {}
+        self._previous: dict[str, str | None] = {}
 
     def active(self, owner: FileController) -> FileController:
-        return next((f for f in self.files if f.identity == self.active_id), owner)
+        return next(
+            (f for f in (*self.files, *self.pending) if f.identity == self.active_id),
+            owner,
+        )
+
+    def choose(self, identity: str | None) -> None:
+        if identity is not None and not any(
+            f.identity == identity for f in (*self.files, *self.pending)
+        ):
+            raise ValueError("The record view is unavailable")
+        self.active_id = identity
 
     def open(
         self, owner: FileController, path: NodePath, *, as_text: bool = False
@@ -55,8 +66,7 @@ class RecordViews:
                 or file.inspection
                 and file.inspection.imported.options == options
             ):
-                if file in self.files:
-                    self.active_id = file.identity
+                self.choose(file.identity)
                 return file
         if len(self.files) + len(self.pending) >= 32:
             raise ValueError("Close a record view before opening more than 32 views")
@@ -78,6 +88,8 @@ class RecordViews:
         self.pending.append(file)
         self._origins[file.identity] = owner.loader.generation
         self._options[file.identity] = options
+        self._previous[file.identity] = self.active_id
+        self.choose(file.identity)
         return file
 
     def open_array(
@@ -99,8 +111,7 @@ class RecordViews:
                 or file.inspection
                 and file.inspection.imported.options == options
             ):
-                if file in self.files:
-                    self.active_id = file.identity
+                self.choose(file.identity)
                 return file
 
         if len(self.files) + len(self.pending) >= 32:
@@ -124,12 +135,16 @@ class RecordViews:
         file.view_name = (
             f"{mapping.member} · {mapping.layout} · axis {mapping.record_axis}"
         )
+        file.views = replace(file.views, tab="Inspect")
+        file.records.settings = replace(file.records.settings, gallery=False)
         file.loader.request(
             active.dataset.source.path, options, format=ImportFormat.ARRAY
         )
         self.pending.append(file)
         self._origins[file.identity] = owner.loader.generation
         self._options[file.identity] = options
+        self._previous[file.identity] = self.active_id
+        self.choose(file.identity)
         return file
 
     def poll(self, owner: FileController) -> None:
@@ -137,32 +152,36 @@ class RecordViews:
             file.poll()
         for file in tuple(self.pending):
             if owner.loader.generation != self._origins[file.identity]:
-                file.close()
-                self.pending.remove(file)
-                self._origins.pop(file.identity)
-                self._options.pop(file.identity, None)
+                self.close_view(file.identity)
                 continue
             file.poll()
             if file.inspection:
                 self.pending.remove(file)
                 self._origins.pop(file.identity)
                 self.files.append(file)
-                self.active_id = file.identity
+                self._previous.pop(file.identity, None)
+                self.message = f"Record view ready: {file.view_name}"
             elif file.loader.status.phase == LoadPhase.FAILED:
                 self.message = file.loader.status.message
-                self.pending.remove(file)
-                self._origins.pop(file.identity)
-                file.close()
-                self._options.pop(file.identity, None)
+                self.close_view(file.identity)
 
     def close_view(self, identity: str) -> None:
-        file = next((f for f in self.files if f.identity == identity), None)
+        previous = self._previous.pop(identity, None)
+        file = next(
+            (f for f in (*self.files, *self.pending) if f.identity == identity), None
+        )
         if file:
-            self.files.remove(file)
+            collection = self.pending if file in self.pending else self.files
+            collection.remove(file)
+            self._origins.pop(file.identity, None)
             self._options.pop(file.identity, None)
             file.close()
         if self.active_id == identity:
-            self.active_id = None
+            self.active_id = (
+                previous
+                if any(f.identity == previous for f in (*self.files, *self.pending))
+                else None
+            )
 
     def clear(self) -> None:
         for file in (*self.files, *self.pending):
@@ -171,6 +190,7 @@ class RecordViews:
         self.pending.clear()
         self._origins.clear()
         self._options.clear()
+        self._previous.clear()
         self.path = self.focus_path = ()
         self.active_id = None
         self.expanded = {()}

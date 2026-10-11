@@ -6,7 +6,8 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import numpy as np
-from imgui_bundle import hello_imgui, imgui
+from imgui_bundle import hello_imgui
+from rebuild_input import NativeInput
 
 from datelier.application.editor import EditorController
 from datelier.gui.app import InspectionEvidence, run_gui
@@ -27,32 +28,21 @@ def main() -> None:
         originals = {
             path: path.read_bytes() for path in (arrays, structured, checkpoint)
         }
-        stage, entered, click_stage, next_stage = 0, 0, 0, 0
-        clicking: tuple[float, float] | None = None
+        stage, entered, next_stage = 0, 0, 0
+        native = NativeInput()
         done = False
 
         def frame(
             editor: EditorController, probe: GuiProbe, evidence: InspectionEvidence
         ) -> None:
-            nonlocal stage, entered, click_stage, next_stage, clicking, done
-            file, io = editor.current, imgui.get_io()
+            nonlocal stage, entered, next_stage, done
+            file = editor.current
             age = evidence.frames - entered
             if evidence.frames > 600:
                 raise AssertionError(
                     (stage, file.arrays.message, file.record_views.message)
                 )
-            if clicking:
-                if age < 4:
-                    return
-                if click_stage == 0:
-                    io.add_mouse_button_event(0, True)
-                    click_stage, entered = 1, evidence.frames
-                elif click_stage == 1:
-                    io.add_mouse_button_event(0, False)
-                    click_stage, entered = 2, evidence.frames
-                else:
-                    clicking = None
-                    stage, entered = next_stage, evidence.frames
+            if native.advance(evidence.frames):
                 return
             suffix: tuple[str, ...] | None = None
             if stage == 0 and file.arrays.catalog and age > 5:
@@ -114,9 +104,8 @@ def main() -> None:
                 )
                 if point:
                     assert 0 <= point[1] < 800, (suffix, point)
-                    io.mouse_pos = imgui.ImVec2(*point)
-                    io.want_set_mouse_pos = True
-                    clicking, click_stage, entered = point, 0, evidence.frames
+                    native.click_point(point, evidence.frames)
+                    stage, entered = next_stage, evidence.frames
 
         evidence = run_gui(initial_path=arrays, on_probe_frame=frame)
         assert done

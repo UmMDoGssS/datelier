@@ -166,3 +166,80 @@ def test_saved_numeric_views_restore_drafts_without_decoding(tmp_path: Path) -> 
         assert file.arrays.store.temporary_path is None
     finally:
         reopened.close()
+
+
+@pytest.mark.parametrize("kind", ["object", "array"])
+@pytest.mark.parametrize("cancel", [False, True])
+def test_explicit_pending_view_activation_and_completion_preserve_navigation(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, kind: str, cancel: bool
+) -> None:
+    from dataclasses import replace
+    from threading import Event
+
+    from datelier.inspection.arrays.mapping import ArrayRecordMapping
+    from datelier.inspection.table import Inspection
+    from datelier.io import loading
+    from datelier.io.types import ImportResult
+
+    editor = EditorController()
+    started, release = Event(), Event()
+    try:
+        owner = editor.active
+        if kind == "object":
+            source = tmp_path / "object.json"
+            source.write_text('{"rows":[{"x":3},{"x":1}]}')
+            owner.open(source, ObjectOptions(), format=ImportFormat.OBJECT)
+        else:
+            source = tmp_path / "array.npz"
+            np.savez_compressed(source, cube=np.arange(24).reshape(3, 2, 4))
+            owner.open(source, ArrayOptions(record_table=False))
+        original = source.read_bytes()
+        until(editor, lambda: owner.inspection is not None)
+        prepare = loading.prepare_inspection
+
+        def blocked(imported: ImportResult) -> Inspection:
+            started.set()
+            assert release.wait(3)
+            return prepare(imported)
+
+        monkeypatch.setattr(loading, "prepare_inspection", blocked)
+        pending = (
+            owner.record_views.open(owner, ("rows",))
+            if kind == "object"
+            else owner.record_views.open_array(owner, ArrayRecordMapping("cube"))
+        )
+        assert editor.current is pending
+        assert pending.inspection is None
+        assert started.wait(3)
+        pending.views = replace(pending.views, tab="Relationships")
+        if cancel:
+            owner.record_views.close_view(pending.identity)
+            assert pending.closed and editor.current is owner
+            assert not owner.record_views.pending
+        else:
+            owner.record_views.choose(None)
+            assert editor.current is owner
+        editor.choose_route("Relationships")
+        editor.choose_route("Compare files")
+        release.set()
+        until(
+            editor,
+            lambda: not owner.record_views.pending and not editor.workers.pending,
+        )
+        assert editor.current is owner and editor.navigation.comparing
+        assert owner.views.tab == "Relationships"
+        assert owner.record_views.active_id is None
+        if cancel:
+            assert not owner.record_views.files and pending.inspection is None
+        else:
+            assert owner.record_views.files == [pending] and pending.inspection
+            assert pending.views.tab == "Relationships"
+            owner.record_views.choose(pending.identity)
+            assert editor.current is pending
+            assert not pending.analysis.jobs.busy and not pending.analysis.jobs.results
+        with pytest.raises(ValueError, match="unavailable"):
+            owner.record_views.choose("absent")
+        assert source.read_bytes() == original and not editor.playback.snapshot.request
+    finally:
+        release.set()
+        editor.close()

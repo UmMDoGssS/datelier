@@ -759,6 +759,38 @@ tests; this step changes only benchmark callers and evidence. Remaining old nati
 script migration, integrated GPU retention, three-size/theme and final capability
 acceptance remain open.
 
+## Fresh Stage E17 — Explicit pending-view navigation and safe closure
+
+Opening object or mapped-array records selects the loading view at the explicit
+command. Its completion publishes prepared data without changing the selected
+record view, file or canvas route. Pending views appear in the source selector and
+can be closed while their worker continues; late results cannot publish. Opening
+an existing prepared view reuses it explicitly. Failed preparation returns to the
+previous usable view only while the failed loading view is still selected.
+
+Media/mapped-source Inspect navigation also happens at opening time rather than
+completion, so later navigation survives loading. The source smoke check now uses
+the shared settled pointer driver; its old one-shot cursor movement proved
+unreliable during native row input.
+
+Verification: four new blocked object/array cases cover immediate pending
+activation, closure, focus changes during preparation, retained child routes,
+explicit reopening and source preservation. The initial focused group passes 37
+checks; 18 source/view/navigation checks rerun after restoring failure fallback.
+**Full pytest passes 1,136 tests**, three dependency warnings, 29.76 s. Scoped
+production/test/rebuilt-script/benchmark Pyrefly reports zero errors; full Ruff
+lint/format (753 files) and whitespace checks pass.
+
+Actual native pending opening, close during execution, discarded late publication
+and explicit ready-view reopening pass 91 frames at 11.73 ms p95; focus changes
+before completion are driven through the controller command. Structured/member/
+checkpoint input regresses in 154 frames at 18.01 ms p95, mapped window/supporting
+fields and Expand/Restore in 263 frames at 20.15 ms, and browser/media opening in
+281 frames at 15.33 ms. Source bytes and zero implicit analysis/playback pass.
+[Pending-view report](evidence/gui-overhaul/fresh-pending-views.json).
+Old native-script migration, integrated GPU/resource and three-size/theme/final
+capability acceptance remain open.
+
 ## Baseline evidence
 
 Before implementation, 38 targeted editor/session/schema-role/profile-selection/

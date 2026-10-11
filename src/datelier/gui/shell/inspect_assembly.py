@@ -172,9 +172,13 @@ def assemble_inspect(
         lambda: (
             (None, "Source"),
             *((view.identity, view.title) for view in file.record_views.files),
+            *(
+                (view.identity, view.title + " · loading")
+                for view in file.record_views.pending
+            ),
         ),
         lambda: file.record_views.active_id,
-        lambda identity: setattr(file.record_views, "active_id", identity),
+        file.record_views.choose,
         file.record_views.close_view,
     )
 

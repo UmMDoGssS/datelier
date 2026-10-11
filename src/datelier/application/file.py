@@ -131,6 +131,13 @@ class FileController:
         format: ImportFormat | None = None,
     ) -> None:
         self.draft = import_draft(path, options, format)
+        if self.draft.format == ImportFormat.MEDIA or (
+            isinstance(self.draft.options, ArrayOptions)
+            and self.draft.options.mapping is not None
+        ):
+            self.views = replace(self.views, tab="Inspect")
+        if isinstance(self.draft.options, ArrayOptions) and self.draft.options.mapping:
+            self.records.settings = replace(self.records.settings, gallery=False)
         self.imports.bind(self.draft)
         self.loader.request(path, options, format=format)
         self.imports.busy = True
@@ -323,9 +330,6 @@ class FileController:
         self.imports.blocked = self.recovery is not None
         if changes.loaded or changes.edited:
             self._bind()
-            if changes.loaded and self.inspection:
-                if self.inspection.imported.format == ImportFormat.MEDIA:
-                    self.views = replace(self.views, tab="Inspect")
         active = self.inspection
         dataset = active.dataset if active else None
         self.analysis.sync_dimensions(self.plots)
@@ -395,8 +399,6 @@ class FileController:
             and active.imported.options.mapping is not None
         ):
             self.array_source.member_mode = False
-            self.views = replace(self.views, tab="Inspect")
-            self.records.settings = replace(self.records.settings, gallery=False)
         self.tensor_source.sync(self.checkpoints.catalog)
         media = self.media_input()
         for controller in (self.text, self.images, self.audio, self.array_records):
