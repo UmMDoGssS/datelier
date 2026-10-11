@@ -132,6 +132,7 @@ def install_file(file: FileController, result: RestoredSessionFile) -> None:
     file.record_views.clear()
     if result.restored:
         file.install(result.restored)
+        file.loader.status = replace(file.loader.status, message=result.message)
         file.selection.choose(
             result.restored.inspection.dataset.revision, result.file.selection
         )

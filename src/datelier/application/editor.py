@@ -318,6 +318,9 @@ class EditorController:
                             checkpoint_slice=None,
                             tab=file.views.tab,
                         )
+                        file.references.configure(file.views.references)
+                        file.reference_tools.thumbnails = file.views.thumbnails
+                        file.table.presentation.restore(file.views.presentation)
                         file.profiles.height = (
                             defaults.views.profile_height or file.profiles.height
                         )

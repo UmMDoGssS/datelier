@@ -1,0 +1,42 @@
+{
+  "full_pytest": {
+    "passed": 1132,
+    "warnings": 3,
+    "seconds": 30.28,
+    "excluded_modules": []
+  },
+  "scoped_pyrefly": {
+    "production_tests_and_rebuild_scripts_errors": 0,
+    "suppressed": 1,
+    "warnings": 31
+  },
+  "full_project_pyrefly": {
+    "obsolete_script_errors": 342,
+    "gate": "open"
+  },
+  "native_session": {
+    "save": {
+      "mode": "save",
+      "frames": 23,
+      "p95_ms": 15.047180799592748,
+      "source_preserved": true,
+      "implicit_operations": 0
+    },
+    "restore": {
+      "mode": "restore",
+      "frames": 31,
+      "p95_ms": 10.440860998642165,
+      "source_preserved": true,
+      "implicit_operations": 0
+    }
+  },
+  "native_records": {
+    "frames": 55,
+    "p95_ms": 23.503868599073005,
+    "image_original_pixels": true,
+    "text_original_spans": true,
+    "audio_original_waveform": true,
+    "source_preserved": true,
+    "implicit_collection_playback": 0
+  }
+}

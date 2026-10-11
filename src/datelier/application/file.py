@@ -267,6 +267,7 @@ class FileController:
         ):
             primary = "text"
         self.records.settings = replace(self.records.settings, primary=primary)
+        self.records.bind(dataset)
         if self.text.jobs.settings.column not in dataset.table.columns:
             self.text.jobs.settings = replace(
                 self.text.jobs.settings,

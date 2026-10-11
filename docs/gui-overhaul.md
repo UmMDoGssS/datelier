@@ -697,6 +697,37 @@ Full-project Pyrefly still reports 346 errors from obsolete callers. The remaini
 two session/multimodal test modules, old native scripts and integrated resource,
 size/theme and capability acceptance remain open.
 
+## Fresh Stage E15 — Session and multimodal regression gates restored
+
+The final two obsolete-import test modules now exercise the replacement editor,
+file, comparison and media controllers. They retain independent text-profile
+selection/routes, saved histories/settings/selections, worker-only fingerprinting,
+partial relinking/changed-source acceptance, stale restore/recovery rejection,
+source-safe failed writes, named array mappings and shared storage ownership.
+Explicit playback remains scoped to its file and stops on closure; failed casts
+preserve history. Compressed mapped views restore metadata without decoding or
+profiling until records are explicitly prepared. Legacy single-source migration
+and original source bytes remain covered.
+
+Restored selection adjustments now remain visible on their owning source. New
+files apply saved preview size, thumbnail visibility and table styles while
+clearing another source's reference roots/mappings. Record primary/supporting
+controls bind to the restored schema before the first frame, without requesting
+record payloads. The metadata-only fixture explicitly opts out of automatic aligned
+NPZ record tables so it exercises the original stale-control failure mode.
+
+Verification: **full pytest passes 1,132 tests without exclusions**, three dependency
+warnings, 30.28 s. Production, all tests and rebuilt native scripts pass Pyrefly with
+zero errors (one suppression, 31 warnings); full Ruff lint/format (752 files) and
+whitespace checks pass. The focused session/record/numeric checks pass 36 tests;
+11 migrated session/multimodal tests rerun after strengthening text-family checks.
+Native session save/fresh-process restore pass 23/31 frames at 15.05/10.44 ms p95;
+native original image pixels, text spans and audio waveform pass 55 frames at
+23.50 ms p95. [Validation report](evidence/gui-overhaul/fresh-session-validation.json).
+Full-project Pyrefly remains open with 342 errors, confined to old scripts. Their
+migration and the final resource, size/theme and capability audit remain open;
+passing the restored test suite does not complete GUI overhaul acceptance.
+
 ## Baseline evidence
 
 Before implementation, 38 targeted editor/session/schema-role/profile-selection/

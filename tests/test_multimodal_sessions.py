@@ -8,10 +8,10 @@ from unittest.mock import patch
 
 from audio_playback_fixtures import Devices
 
+from datelier.application.editor import EditorController
+from datelier.application.file import FileController
+from datelier.application.workspace import capture_session, install_file
 from datelier.feasibility.multimodal import make_multimodal
-from datelier.gui.editor_session import EditorSession
-from datelier.gui.file_session import FileSession
-from datelier.gui.workspace.capture import capture_session
 from datelier.inspection.arrays.mapping import (
     ArrayLayout,
     ArrayRecordMapping,
@@ -31,7 +31,7 @@ from datelier.workspace.session_restore import restore_session_workspace
 from datelier.workspace.storage import save_workspace
 
 
-def until(editor: EditorSession, ready: Callable[[], bool]) -> None:
+def until(editor: EditorController, ready: Callable[[], bool]) -> None:
     deadline = monotonic() + 5
     while monotonic() < deadline:
         editor.poll()
@@ -41,9 +41,9 @@ def until(editor: EditorSession, ready: Callable[[], bool]) -> None:
     raise AssertionError("Mixed session did not settle")
 
 
-def settle(editor: EditorSession, root: Path) -> None:
+def settle(editor: EditorController, root: Path) -> None:
     def ready() -> bool:
-        for file in editor.file_sessions:
+        for file in editor.all_files:
             if (
                 file.loader.active is not None
                 and file.loader.active.imported.array_catalog is None
@@ -51,7 +51,7 @@ def settle(editor: EditorSession, root: Path) -> None:
             ):
                 file.references.configure(ReferenceSettings(roots=(str(root),)))
                 return False
-        return not editor.workspace_jobs.busy and all(
+        return not editor.workspace.busy and all(
             f.loader.status.phase != LoadPhase.LOADING
             and not f.editor.busy
             and not f.record_views.pending
@@ -59,15 +59,15 @@ def settle(editor: EditorSession, root: Path) -> None:
             and not f.audio.jobs.busy
             and not f.images.jobs.busy
             and not f.text.jobs.busy
-            for f in editor.file_sessions
+            for f in editor.all_files
         )
 
     until(editor, ready)
 
 
 def mapped(
-    editor: EditorSession, owner: FileSession, member: str, layout: ArrayLayout
-) -> FileSession:
+    editor: EditorController, owner: FileController, member: str, layout: ArrayLayout
+) -> FileController:
     mapping = ArrayRecordMapping(
         member,
         layout=layout,
@@ -90,7 +90,7 @@ def mapped(
     return view
 
 
-def audio_record(editor: EditorSession, file: FileSession, column: str) -> None:
+def audio_record(editor: EditorController, file: FileController, column: str) -> None:
     assert file.loader.active is not None
     active = file.loader.active
     options = active.imported.options
@@ -111,10 +111,10 @@ def test_mixed_mapped_views_keep_support_and_shared_cache_after_one_closes(
     fixtures = make_multimodal(tmp_path)
     originals = {p: p.read_bytes() for p in fixtures.sources}
     devices = Devices()
-    editor = EditorSession(playback_factory=devices.create)
+    editor = EditorController(playback_factory=devices.create)
     try:
-        csv = editor.new_tab(fixtures.train)
-        owner = editor.new_tab(fixtures.arrays)
+        csv = editor.new_file(fixtures.train)
+        owner = editor.new_file(fixtures.arrays)
         settle(editor, tmp_path)
         image = mapped(editor, owner, "images", ArrayLayout.IMAGE)
         audio = mapped(editor, owner, "audio", ArrayLayout.AUDIO)
@@ -171,9 +171,7 @@ def test_mixed_mapped_views_keep_support_and_shared_cache_after_one_closes(
         editor.activate(csv.identity)
         audio_record(editor, csv, "audio")
         assert csv.audio.jobs.metadata is not None
-        csv.audio.listening.start(
-            csv.audio.jobs.metadata, csv.audio.settings, csv.arrays.store
-        )
+        csv.audio.play()
         until(editor, lambda: editor.playback.snapshot.phase == PlaybackPhase.PLAYING)
         owner.record_views.close_view(image.identity)
         assert image.closed and not owner.arrays.store.stop.is_set()
@@ -196,10 +194,10 @@ def test_mixed_mapped_views_keep_support_and_shared_cache_after_one_closes(
         )
         assert csv.editor.message.startswith("Edit failed:")
         assert editor.playback.snapshot.phase == PlaybackPhase.PLAYING
-        editor.close_tab(csv.identity)
+        editor.close_file(csv.identity)
         until(editor, lambda: editor.playback.snapshot.phase == PlaybackPhase.IDLE)
         assert devices.devices[-1].closed
-        editor.close_tab(owner.identity)
+        editor.close_file(owner.identity)
         assert owner.arrays.store.stop.is_set()
     finally:
         editor.close()
@@ -211,11 +209,11 @@ def test_mixed_session_restores_idle_recovers_manifest_and_migrates_legacy(
 ) -> None:
     fixtures = make_multimodal(tmp_path)
     workspace = tmp_path / "mixed.datelier"
-    editor = EditorSession()
+    editor = EditorController()
     try:
-        train = editor.new_tab(fixtures.train)
-        test = editor.new_tab(fixtures.test)
-        owner = editor.new_tab(fixtures.arrays)
+        train = editor.new_file(fixtures.train)
+        test = editor.new_file(fixtures.test)
+        owner = editor.new_file(fixtures.arrays)
         owner.loader.request(fixtures.arrays, ArrayOptions(record_table=False))
         settle(editor, tmp_path)
         image = mapped(editor, owner, "images", ArrayLayout.IMAGE)
@@ -236,7 +234,7 @@ def test_mixed_session_restores_idle_recovers_manifest_and_migrates_legacy(
     finally:
         editor.close()
     fixtures.train.rename(tmp_path / "moved.csv")
-    reopened = EditorSession()
+    reopened = EditorController()
     try:
         with (
             patch(
@@ -250,34 +248,40 @@ def test_mixed_session_restores_idle_recovers_manifest_and_migrates_legacy(
         ):
             reopened.open_workspace(workspace)
             settle(reopened, tmp_path)
-        files = {f.identity: f for f in reopened.file_sessions}
+        files = {f.identity: f for f in reopened.all_files}
         assert files[train_id].recovery and files[owner_id].loader.active
-        assert files[image_id].deferred and files[audio_id].deferred
+        image_recovery, audio_recovery = (
+            files[image_id].recovery,
+            files[audio_id].recovery,
+        )
+        assert image_recovery is not None and image_recovery.deferred
+        assert audio_recovery is not None and audio_recovery.deferred
         assert not any(
             f.audio.jobs.active
             or f.audio.jobs.profile
             or f.images.jobs.active
             or f.text.jobs.active
-            for f in reopened.file_sessions
+            for f in reopened.all_files
         )
         assert (
             reopened.playback.snapshot.request is None
             and not reopened.playback.devices.busy
         )
         assert (
-            not reopened.text_comparison_jobs.busy
-            and not reopened.image_comparison_jobs.busy
-            and not reopened.audio_comparison_jobs.busy
+            not reopened.compare.text.jobs.busy
+            and not reopened.compare.images.jobs.busy
+            and not reopened.compare.audio.jobs.busy
         )
-        reopened.recover_source(train_id, relink=tmp_path / "moved.csv")
+        reopened.recover(train_id, tmp_path / "moved.csv", False)
         settle(reopened, tmp_path)
         assert files[train_id].loader.active and files[train_id].selection.row_ids == {
             1
         }
-        reopened.prepare_records(audio_id)
+        reopened.recover(audio_id, None, False, True)
         settle(reopened, tmp_path)
         restored_audio = files[audio_id].loader.active
-        assert restored_audio and files[image_id].deferred
+        image_recovery = files[image_id].recovery
+        assert restored_audio and image_recovery is not None and image_recovery.deferred
         assert restored_audio.dataset.row_ids.to_list() == [1, 2, 0]
         assert files[audio_id].audio.settings.array_sample_rate == 8000
         recipe = capture_session(reopened).workspace.files[1].recipe
@@ -297,12 +301,13 @@ def test_restored_catalog_inspect_is_bound_before_its_first_frame(
 ) -> None:
     fixtures = make_multimodal(tmp_path)
     workspace = tmp_path / "stale-inspect.datelier"
-    editor = EditorSession()
+    editor = EditorController()
     try:
-        owner = editor.new_tab(fixtures.arrays)
+        owner = editor.new_file()
+        owner.open(fixtures.arrays, ArrayOptions(record_table=False))
         settle(editor, tmp_path)
-        owner.inspect.settings = replace(
-            owner.inspect.settings,
+        owner.records.settings = replace(
+            owner.records.settings,
             primary="audio",
             supporting=("caption", "label"),
             gallery=False,
@@ -311,20 +316,20 @@ def test_restored_catalog_inspect_is_bound_before_its_first_frame(
     finally:
         editor.close()
     restored = restore_session_workspace(workspace)
-    reopened = EditorSession()
+    reopened = EditorController()
     try:
         file = reopened.active
-        file.install_session_file(
-            next(f for f in restored.files if f.file.identity == owner.identity)
+        install_file(
+            file, next(f for f in restored.files if f.file.identity == owner.identity)
         )
-        # The GUI renders immediately after installation, before FileSession.poll.
+        # The GUI renders immediately after installation, before FileController.poll.
         assert file.loader.active is not None
         dataset = file.loader.active.dataset
-        assert file.inspect.settings.primary in dataset.table.columns
-        assert dataset.role(file.inspect.settings.primary or "").name
-        assert file.inspect.settings.supporting == ()
-        assert not file.inspect.settings.gallery
-        assert file.inspect.jobs.active is None
+        assert file.records.settings.primary in dataset.table.columns
+        assert dataset.role(file.records.settings.primary or "").name
+        assert file.records.settings.supporting == ()
+        assert not file.records.settings.gallery
+        assert file.records.jobs.active is None
         assert file.arrays.store.extractions == 0
     finally:
         reopened.close()

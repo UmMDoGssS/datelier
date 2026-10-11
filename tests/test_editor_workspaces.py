@@ -7,8 +7,10 @@ from time import monotonic, sleep
 
 import pytest
 
+from datelier.application.editor import EditorController
+from datelier.application.file import FileController
+from datelier.application.profiles import ProfileFamily
 from datelier.core.dataset import SourceReference
-from datelier.gui.editor_session import EditorSession
 from datelier.inspection.comparison_settings import ComparisonSettings, ComparisonSource
 from datelier.io.importing import load_file
 from datelier.io.loading import DatasetLoader, LoadPhase
@@ -24,13 +26,13 @@ from datelier.workspace.session_types import SessionFile
 from datelier.workspace.types import WorkspaceSource
 
 
-def wait(editor: EditorSession) -> None:
+def wait(editor: EditorController) -> None:
     deadline = monotonic() + 5
     while monotonic() < deadline:
         editor.poll()
         if (
             not editor.opening.busy
-            and not editor.workspace_jobs.busy
+            and not editor.workspace.busy
             and all(
                 file.loader.status.phase != LoadPhase.LOADING and not file.editor.busy
                 for file in editor.files
@@ -48,23 +50,23 @@ def test_text_profile_selection_restores_independently_for_each_file(
     first.write_text("id,value,cat,text\n1,1,red,alpha beta\n2,2,red,gamma delta\n")
     second.write_text("id,value,text\n1,3,one two\n2,4,three four\n")
     workspace = tmp_path / "text.datelier"
-    editor = EditorSession()
+    editor = EditorController()
     try:
         editor.opening.request((first, second), editor.active_id)
         wait(editor)
         category, text = editor.files
-        category.exploration.profile.selection.columns = ("cat",)
-        category.exploration.profile.text = True
-        category.exploration.active_tab = "Inspect"
+        category.profiles.selected = ("cat",)
+        category.profiles.text = True
+        category.views = replace(category.views, tab="Inspect")
         category.text.jobs.settings = replace(category.text.jobs.settings, column="cat")
-        text.exploration.profile.selection.columns = ("text",)
+        text.profiles.selected = ("text",)
         text.text.jobs.settings = replace(text.text.jobs.settings, column="text")
         editor.activate(text.identity)
-        editor.save_workspace(workspace)
+        editor.save_workspace(workspace, "", (), False, False)
         wait(editor)
     finally:
         editor.close()
-    reopened = EditorSession()
+    reopened = EditorController()
     try:
         reopened.open_workspace(workspace)
         wait(reopened)
@@ -73,17 +75,14 @@ def test_text_profile_selection_restores_independently_for_each_file(
             (category, "cat", True),
             (text, "text", False),
         ):
-            profile = file.exploration.profile
-            assert profile.selection.columns == (column,) and profile.text == preferred
-            assert profile.selection.text_column(profile.text) == column
+            profile = file.profiles
+            assert profile.selected == (column,) and profile.text == preferred
+            assert profile.can_text and profile.selected[0] == column
+            assert profile.family == ProfileFamily.TEXT
             assert file.text.jobs.settings.column == column
             assert not file.text.jobs.busy
             assert file.text.jobs.active is None and file.text.jobs.profile is None
-            assert (
-                file.exploration.tab
-                == file.exploration.active_tab
-                == ("Inspect" if file is category else "Profiles")
-            )
+            assert file.views.tab == ("Inspect" if file is category else "Profiles")
         assert reopened.active is text
     finally:
         reopened.close()
@@ -94,7 +93,7 @@ def saved_session(tmp_path: Path) -> Path:
     train.write_text("x,y\n3,6\n1,2\n2,4\n")
     test.write_text("a,b\n10,20\n30,40\n")
     path = tmp_path / "session.datelier"
-    editor = EditorSession()
+    editor = EditorController()
     try:
         editor.opening.request((train, test), editor.active_id)
         wait(editor)
@@ -106,10 +105,10 @@ def saved_session(tmp_path: Path) -> Path:
         first.analysis.controls.seed, second.analysis.controls.seed = 17, 29
         assert first.loader.revision is not None
         first.selection.choose(first.loader.revision, (1,))
-        blank = editor.new_tab()
+        blank = editor.new_file()
         editor.reorder((second.identity, blank.identity, first.identity))
         editor.activate(first.identity)
-        editor.comparisons = (
+        editor.compare.columns.recipes = (
             ComparisonSettings(
                 (
                     ComparisonSource(first.identity, "x"),
@@ -117,9 +116,9 @@ def saved_session(tmp_path: Path) -> Path:
                 )
             ),
         )
-        editor.save_workspace(path)
+        editor.save_workspace(path, "", (), False, False)
         wait(editor)
-        assert editor.workspace_jobs.saved is not None
+        assert editor.workspace.saved is not None
     finally:
         editor.close()
     return path
@@ -140,7 +139,7 @@ def test_editor_save_restore_and_partial_source_recovery(
     monkeypatch.setattr(session_jobs, "reference_source", worker_fingerprint)
     path = saved_session(tmp_path)
     saved = read_session_workspace(path)
-    editor = EditorSession()
+    editor = EditorController()
     try:
         old = editor.active
         editor.open_workspace(path)
@@ -153,7 +152,7 @@ def test_editor_save_restore_and_partial_source_recovery(
         assert first.analysis.controls.seed == 29 and train.analysis.controls.seed == 17
         assert train.selection.row_ids == {1} and not first.selection.row_ids
         assert second.loader.active is None and editor.active is train
-        assert editor.comparisons == saved.comparisons
+        assert editor.compare.columns.recipes == saved.comparisons
         moved = tmp_path / "moved.csv"
         (tmp_path / "train.csv").rename(moved)
         editor.open_workspace(path)
@@ -162,7 +161,7 @@ def test_editor_save_restore_and_partial_source_recovery(
         assert good.loader.active is not None and failed.recovery is not None
         revision = good.loader.revision
         editor.activate(good.identity)
-        editor.recover_source(failed.identity, relink=moved)
+        editor.recover(failed.identity, moved, False)
         wait(editor)
         assert good.loader.revision == revision and editor.active is good
         assert failed.recovery is None and failed.loader.active is not None
@@ -192,15 +191,15 @@ def test_closed_recovery_owner_cannot_publish_into_replacement(
         return original(file, recovery)
 
     monkeypatch.setattr(session_jobs, "restore_session_file", blocked)
-    editor = EditorSession()
+    editor = EditorController()
     try:
         editor.open_workspace(path)
         wait(editor)
         failed = editor.files[2]
-        editor.recover_source(failed.identity, relink=moved)
+        editor.recover(failed.identity, moved, False)
         assert started.wait(3)
-        editor.close_tab(failed.identity)
-        replacement = editor.new_tab()
+        editor.close_file(failed.identity)
+        replacement = editor.new_file()
         release.set()
         wait(editor)
         assert (
@@ -234,7 +233,15 @@ def test_restore_is_obsolete_when_blank_owner_starts_a_new_import(
         return load_file(path, options)
 
     monkeypatch.setattr(session_jobs, "restore_session_workspace", blocked_restore)
-    editor = EditorSession(loader_override=DatasetLoader(importer=blocked_import))
+    editor = EditorController()
+    previous = editor.active
+    previous.close()
+    blank = FileController(
+        editor.workers,
+        loader=DatasetLoader(importer=blocked_import, executor=editor.workers),
+    )
+    editor.files = [blank]
+    editor.activate(blank.identity)
     try:
         blank = editor.active
         editor.open_workspace(path)
@@ -243,11 +250,11 @@ def test_restore_is_obsolete_when_blank_owner_starts_a_new_import(
         assert load_started.wait(3)
         release.set()
         deadline = monotonic() + 3
-        while editor.workspace_jobs.busy and monotonic() < deadline:
+        while editor.workspace.busy and monotonic() < deadline:
             editor.poll()
             sleep(0.001)
         assert editor.files == [blank] and blank.loader.active is None
-        assert "obsolete" in editor.workspace_jobs.message
+        assert "obsolete" in editor.workspace.message
         load_release.set()
         wait(editor)
         assert blank.loader.active is not None and editor.active is blank
@@ -261,7 +268,7 @@ def test_failed_whole_session_open_or_source_destination_retains_usable_tabs(
     tmp_path: Path,
 ) -> None:
     path = saved_session(tmp_path)
-    editor = EditorSession()
+    editor = EditorController()
     try:
         editor.open_workspace(path)
         wait(editor)
@@ -273,14 +280,13 @@ def test_failed_whole_session_open_or_source_destination_retains_usable_tabs(
         wait(editor)
         assert tuple(editor.files) == files and editor.active is active
         assert active.loader.revision == revision
-        assert "Session workspace failed" in editor.workspace_jobs.message
+        assert "Session workspace failed" in editor.workspace.message
         source = tmp_path / "test.csv"
         before = source.read_bytes()
-        editor.save_workspace(source, overwrite=True)
+        editor.save_workspace(source, "", (), False, True)
         wait(editor)
         assert (
-            source.read_bytes() == before
-            and "source data" in editor.workspace_jobs.message
+            source.read_bytes() == before and "source data" in editor.workspace.message
         )
         assert tuple(editor.files) == files and active.loader.revision == revision
     finally:
@@ -293,17 +299,17 @@ def test_changed_source_requires_acceptance_and_reports_view_selection_adjustmen
     path = saved_session(tmp_path)
     source = tmp_path / "train.csv"
     source.write_text("x\n30\n10\n20\n")
-    editor = EditorSession()
+    editor = EditorController()
     try:
         editor.open_workspace(path)
         wait(editor)
         good, _, changed = editor.files
         assert changed.recovery is not None and changed.recovery.changed
         revision = good.loader.revision
-        editor.recover_source(changed.identity)
+        editor.recover(changed.identity, None, False)
         wait(editor)
         assert changed.recovery is not None and changed.loader.active is None
-        editor.recover_source(changed.identity, accept_changed=True)
+        editor.recover(changed.identity, None, True)
         wait(editor)
         assert changed.loader.active is not None and changed.recovery is None
         assert changed.loader.active.dataset.table["x"].to_list() == [10, 20, 30]
@@ -328,7 +334,7 @@ def test_reference_controls_restore_without_payloads(tmp_path: Path) -> None:
     source = tmp_path / "media.csv"
     source.write_text("image\na.png\nb.png\n")
     path = tmp_path / "preview.datelier"
-    editor = EditorSession(initial_path=source)
+    editor = EditorController()
     try:
         editor.active.loader.request(source)
         wait(editor)
@@ -342,7 +348,7 @@ def test_reference_controls_restore_without_payloads(tmp_path: Path) -> None:
             ),
         )
         file.references.configure(settings)
-        file.reference_view.thumbnails = False
+        file.reference_tools.thumbnails = False
         style = TablePresentation(
             scale=NumericScale.CUSTOM, minimum=-2, maximum=7, badges=False
         )
@@ -356,15 +362,15 @@ def test_reference_controls_restore_without_payloads(tmp_path: Path) -> None:
             gallery=False,
             focus=1,
         )
-        file.inspect.settings = inspect
-        editor.save_workspace(path)
+        file.records.settings = inspect
+        editor.save_workspace(path, "", (), False, False)
         wait(editor)
         editor.open_workspace(path)
         wait(editor)
         assert editor.active.references.settings == settings
-        assert not editor.active.reference_view.thumbnails
+        assert not editor.active.reference_tools.thumbnails
         assert editor.active.table.presentation.settings == style
-        assert editor.active.inspect.settings == inspect
+        assert editor.active.records.settings == inspect
         assert not editor.active.references.previews
         assert not editor.active.analysis.jobs.results
         legacy = encode(WorkspaceViews())
@@ -384,11 +390,12 @@ def test_global_preview_defaults_do_not_apply_other_sources_mappings(
 ) -> None:
     from dataclasses import replace
 
+    from datelier.inspection.presentation import NumericScale, TablePresentation
     from datelier.inspection.references.types import ReferenceMapping
 
     source = tmp_path / "new.csv"
     source.write_text("image\na.png\nb.png\n")
-    editor = EditorSession()
+    editor = EditorController()
     try:
         defaults = editor.preferences.value
         references = replace(
@@ -398,12 +405,25 @@ def test_global_preview_defaults_do_not_apply_other_sources_mappings(
             thumbnail_size=64,
         )
         editor.preferences.value = replace(
-            defaults, views=replace(defaults.views, references=references)
+            defaults,
+            views=replace(
+                defaults.views,
+                references=references,
+                thumbnails=False,
+                presentation=TablePresentation(
+                    scale=NumericScale.CUSTOM, minimum=-2, maximum=7, badges=False
+                ),
+            ),
         )
         editor.active.loader.request(source)
         wait(editor)
         assert not editor.active.references.settings.mappings
         assert not editor.active.references.settings.roots
         assert editor.active.references.settings.thumbnail_size == 64
+        assert not editor.active.reference_tools.thumbnails
+        assert (
+            editor.active.table.presentation.settings
+            == editor.preferences.value.views.presentation
+        )
     finally:
         editor.close()
