@@ -1011,6 +1011,30 @@ The run completes 394 frames with 29.51 ms measured p95. Evidence is in
 Scoped Pyrefly, annotation correctness/control tests, full Ruff and diff checks
 pass. The obsolete harness audit and final full-project gates remain open.
 
+## Fresh E28 — Large linked-selection and exploration acceptance
+
+The original exploration benchmark retains its four worker fixtures, explicit
+expanded preparation, 10,000 selected scatter points, sort/filter source identity,
+large/wide native fixtures and 33 ms/1 GiB budgets. It now uses eligible numeric
+axes, current canvas routes and actual frame-local highlights/row probes.
+
+Acceptance exposed two regressions: default outlined selected markers raised the
+million-row frame p95 above 80 ms; repeated conversion of the same selected IDs
+in every pair cell raised grid p95 above 39 ms. Selected 2D markers now use the
+previous flat square style. All scatter/grid renderers reuse read-only highlight
+masks from the existing bounded, revision-bound selection cache. Tests verify
+selection changes, stale revisions and read-only masks; no points are dropped.
+
+Final isolated native p95 is 22.17 ms for million-row 2D, 22.78 ms for the wide
+fixture, 26.53 ms for million-row 3D, 21.29 ms for the pair grid and 17.07 ms for
+multi-column profiles. Maximum RSS is 785.11 MiB; first previews are below 628 ms;
+expanded preparation is below 1.235 seconds. All four worker cases and visible
+3D orange-marker/source preservation checks pass. Evidence is in
+[evidence/gui-overhaul/fresh-exploration-resources.json](evidence/gui-overhaul/fresh-exploration-resources.json).
+
+Scoped Pyrefly, 19 selection/scatter/relationship tests, full Ruff and diff checks
+pass. Final harness consolidation, full-project checks and merge remain open.
+
 ## Baseline evidence
 
 Before implementation, 38 targeted editor/session/schema-role/profile-selection/

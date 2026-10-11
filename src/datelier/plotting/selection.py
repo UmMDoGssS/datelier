@@ -20,9 +20,9 @@ class LinkedSelection:
     row_ids: frozenset[int] = frozenset()
     version: int = 0
     message: str = ""
-    _partitions: dict[int, tuple[Scatter, Coordinates, Coordinates]] = field(
-        default_factory=dict
-    )
+    _partitions: dict[
+        int, tuple[Scatter, Coordinates, Coordinates, NDArray[np.bool_]]
+    ] = field(default_factory=dict)
 
     def bind(self, revision: DatasetRevision) -> None:
         if revision != self.revision:
@@ -121,7 +121,8 @@ class LinkedSelection:
             # the object with its identity key to prevent Python ID reuse.
             if len(self._partitions) >= 128:
                 self._partitions.clear()
-            cached = (points, overlay, unselected)
+            mask.setflags(write=False)
+            cached = (points, overlay, unselected, mask)
             self._partitions[key] = cached
         return cached[1]
 
@@ -130,3 +131,8 @@ class LinkedSelection:
     ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         self.overlay(points)
         return self._partitions[id(points)][2]
+
+    def mask(self, points: Scatter) -> NDArray[np.bool_]:
+        """Read-only highlights cached with their revision and selected row set."""
+        self.overlay(points)
+        return self._partitions[id(points)][3]

@@ -198,13 +198,10 @@ class NativeScatter3D(Container):
                 pad = (hi - lo) * 0.05 if hi > lo else max(0.5, abs(lo) * 1e-6)
                 bounds.extend((lo - pad, hi + pad))
             implot3d.setup_axes_limits(*bounds, cond=implot3d.Cond_.always)
-        chosen = (
-            np.isin(points.row_ids, tuple(self.selection.row_ids))
-            if self.selection.revision == points.revision
-            else np.zeros(len(points.x), dtype=bool)
-        )
+        chosen = self.selection.mask(points)
         self.state.visible = draw_color_items(points, chosen, three_d=True)
         selected = chosen & self.state.visible
+        frame.measure("selected", (float(selected.sum()), float(len(selected))))
         if selected.any():
             implot3d.plot_scatter(
                 "Selected source rows",

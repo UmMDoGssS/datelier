@@ -118,3 +118,21 @@ def test_settings_focus_any_column_and_rebind_after_removed_columns() -> None:
     # Empty/one numeric schemas can be rebound again without invalid indices.
     controls.bind(source)
     assert controls.numeric == tuple(source.table.columns)
+
+
+def test_selection_mask_is_revision_bound_and_read_only() -> None:
+    source = data()
+    points = prepare_scatter(source, "x", "y", limit=4)
+    selection = LinkedSelection()
+    selection.bind(source.revision)
+    selection.choose(source.revision, [6, 19])
+    mask = selection.mask(points)
+    assert points.row_ids[mask].tolist() == [6, 19]
+    with pytest.raises(ValueError):
+        mask[0] = False
+    selection.choose(source.revision, [2])
+    assert not selection.mask(points).any()
+    selection.choose(source.revision, [19])
+    assert points.row_ids[selection.mask(points)].tolist() == [19]
+    selection.bind(data().revision)
+    assert not selection.mask(points).any()

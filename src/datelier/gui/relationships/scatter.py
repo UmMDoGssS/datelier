@@ -96,9 +96,10 @@ class ScatterInput(Component):
                     points, *self.brush, mouse.x, mouse.y, visible=self.visible
                 )
                 self.brush = None
-        selected = np.isin(points.row_ids, tuple(self.selection.row_ids))
+        selected = self.selection.mask(points)
         if self.visible is not None:
-            selected &= self.visible
+            selected = selected & self.visible
+        frame.measure("selected", (float(selected.sum()), float(len(selected))))
         if selected.any():
             implot.plot_scatter(
                 "Selected rows",
@@ -106,7 +107,10 @@ class ScatterInput(Component):
                 points.y[selected],
                 implot.Spec(
                     marker_fill_color=(1, 0.7, 0.2, 1),
-                    marker_size=4,
+                    marker=implot.Marker_.square,
+                    marker_size=3,
+                    marker_line_color=(1, 0.7, 0.2, 1),
+                    line_weight=0,
                     flags=implot.ItemFlags_.no_legend,
                 ),
             )
@@ -136,11 +140,7 @@ class NativeScatter2D(Container):
             return False
         implot.setup_axes(points.x_name, points.y_name)
         apply_axes(self.axes)
-        chosen = (
-            np.isin(points.row_ids, tuple(self.selection.row_ids))
-            if self.selection.revision == points.revision
-            else np.zeros(len(points.x), dtype=bool)
-        )
+        chosen = self.selection.mask(points)
         self.input.visible = draw_color_items(points, chosen)
         super().render(frame)
         observe_axes(self.axes, frame)

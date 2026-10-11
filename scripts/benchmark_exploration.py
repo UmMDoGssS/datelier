@@ -7,6 +7,7 @@ import platform
 import resource
 import subprocess
 import sys
+from dataclasses import replace
 from importlib.metadata import version
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -18,8 +19,10 @@ import polars as pl
 from imgui_bundle import hello_imgui
 from numpy.typing import NDArray
 
+from datelier.application.editor import EditorController
 from datelier.feasibility.fixtures import make_table
-from datelier.gui.app import GuiSession, InspectionEvidence, run_gui
+from datelier.gui.app import InspectionEvidence, run_gui
+from datelier.gui.components.probe import GuiProbe
 from datelier.inspection.exploration import PlotSettings, prepare_dashboard
 from datelier.inspection.profiles import prepare_profiles
 from datelier.inspection.table import prepare_inspection, prepare_page
@@ -148,13 +151,28 @@ def gui_measure(
 ) -> None:
     stage, ready_frame = 0, 0
     prepare_started, default_ms, expanded_ms = 0.0, 0.0, 0.0
+    first_preview_ms: float | None = None
+    max_rendered_rows = 0
+    started = perf_counter()
     with TemporaryDirectory(prefix="datelier-explore-gui-") as directory:
         source = Path(directory) / "source.csv"
         make_table(rows, columns).write_csv(source)
         original = source.stat()
 
-        def frame(session: GuiSession, evidence: InspectionEvidence) -> None:
+        def frame(
+            editor: EditorController, probe: GuiProbe, evidence: InspectionEvidence
+        ) -> None:
             nonlocal stage, ready_frame, prepare_started, default_ms, expanded_ms
+            nonlocal first_preview_ms, max_rendered_rows
+            session = editor.current
+            visible = [
+                int(key.path[-3])
+                for key in probe.targets
+                if key.path[-2:] == ("source", "select")
+            ]
+            max_rendered_rows = max(max_rendered_rows, len(visible))
+            if visible and first_preview_ms is None:
+                first_preview_ms = (perf_counter() - started) * 1000
             active = session.loader.active
             dashboard = session.explorer.active
             if active is None:
@@ -172,7 +190,10 @@ def gui_measure(
                 session.plots.three_d = three_d
                 session.plots.z_index = 1
                 session.plots.custom_scatter = True
-                session.plots.x_index, session.plots.y_index = 0, columns
+                session.plots.x_index, session.plots.y_index = (
+                    0,
+                    len(session.plots.numeric) - 1,
+                )
                 if view == "grid":
                     session.plots.relationship_features = list(
                         session.plots.numeric[:8]
@@ -183,7 +204,7 @@ def gui_measure(
                 session.explorer.request(active.dataset, session.plots.settings())
                 prepare_started = perf_counter()
                 stage = 2
-            elif stage == 2:
+            elif stage == 2 and dashboard.settings.point_limit == 10_000:
                 expanded_ms = (perf_counter() - prepare_started) * 1000
                 assert len(dashboard.scatters[0].x) == 10_000
                 session.editor.request(Sort(("row_id",), descending=True))
@@ -208,41 +229,41 @@ def gui_measure(
                 )
                 if columns > 16:
                     session.table.column_start = 48
-                session.exploration.tab = {
-                    "scatter": "Scatter",
-                    "grid": "Correlations",
-                    "comparison": "Profiles",
-                }[view]
-                session.exploration.relationships.mode = 1
-                session.exploration.comparison_mode = 1
+                editor.choose_route(
+                    {
+                        "scatter": "Relationships",
+                        "grid": "Correlations",
+                        "comparison": "Profiles",
+                    }[view]
+                )
+                session.views = replace(session.views, relationship_mode=1)
+                if view == "comparison":
+                    session.profiles.choose(tuple(session.plots.numeric[:8]))
+                    session.profiles.mode = 1
                 stage, ready_frame = 5, evidence.frames
             elif stage == 5 and evidence.frames > ready_frame + 90:
-                selected_points = (
-                    session.exploration.scatter3d.selected_points
-                    if three_d
-                    else session.exploration.interaction.selected_points
-                )
+                selected_counts = [
+                    values[0]
+                    for key, values in probe.measurements.items()
+                    if key.path[-1:] == ("selected",)
+                ]
                 if view == "scatter":
-                    assert selected_points == 10_000
+                    assert selected_counts and max(selected_counts) == 10_000
                 elif view == "grid":
-                    interactions = session.exploration.relationships.interactions
-                    assert any(
-                        interaction.selected_points > 0
-                        for interaction in interactions.values()
-                    )
+                    assert selected_counts and max(selected_counts) > 0
                 else:
                     assert dashboard.comparison is not None
-                    assert len(dashboard.comparison.series) == min(8, columns + 1)
-                assert session.table.selected_visible_rows > 0
-                assert (
-                    session.table.prepared_visible_rows
-                    == session.table.rendered_rows
-                    > 0
+                    assert len(dashboard.comparison.series) == min(
+                        8, len(session.plots.numeric)
+                    )
+                assert visible and any(
+                    int(active.dataset.row_ids[position]) in session.selection.row_ids
+                    for position in visible
                 )
                 hello_imgui.get_runner_params().app_shall_exit = True
 
-        evidence = run_gui(source, smoke_frames=6000, on_frame=frame)
-        assert stage == 5 and evidence.first_preview_ms is not None
+        evidence = run_gui(source, smoke_frames=6000, on_probe_frame=frame)
+        assert stage == 5 and first_preview_ms is not None
         p95 = float(np.percentile(evidence.frame_intervals_ms, 95))
         peak = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
         assert p95 <= 33 and peak <= 1024, (p95, peak)
@@ -269,7 +290,7 @@ def gui_measure(
             "rows": rows,
             "columns": columns + 2,
             "frames": evidence.frames,
-            "first_preview_ms": evidence.first_preview_ms,
+            "first_preview_ms": first_preview_ms,
             "frame_p95_ms": p95,
             "default_prepare_ms": default_ms,
             "expanded_prepare_ms": expanded_ms,
@@ -280,7 +301,7 @@ def gui_measure(
             "view": view,
             "row_identity": True,
             "source_preserved": True,
-            "max_rendered_rows": evidence.max_rendered_rows,
+            "max_rendered_rows": max_rendered_rows,
         }
         output.with_suffix(".json").write_text(json.dumps(report, indent=2) + "\n")
         print(json.dumps(report))

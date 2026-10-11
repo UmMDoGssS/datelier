@@ -2,7 +2,6 @@
 
 from collections.abc import Callable
 
-import numpy as np
 from imgui_bundle import imgui, implot
 
 from datelier.gui.components.base import Container, FrameContext
@@ -75,11 +74,7 @@ class PairCell(Container):
             if points is not self._points:
                 self._points = points
                 self.input.brush = None
-            mask = (
-                np.isin(points.row_ids, tuple(self.selection.row_ids))
-                if self.selection.revision == points.revision
-                else np.zeros(len(points.x), dtype=bool)
-            )
+            mask = self.selection.mask(points)
             implot.plot_scatter(
                 "Rows",
                 points.x[~mask],
