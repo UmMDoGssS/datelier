@@ -18,7 +18,22 @@ class ComparisonEntry:
     title: str
 
 
-class RecipeController[Recipe](ABC):
+class ComparisonController(ABC):
+    @property
+    @abstractmethod
+    def family(self) -> ComparisonFamily: ...
+
+    @abstractmethod
+    def prune(self, identities: set[str]) -> None: ...
+
+    @abstractmethod
+    def sync(self) -> None: ...
+
+    @abstractmethod
+    def close(self) -> None: ...
+
+
+class RecipeController[Recipe](ComparisonController):
     def __init__(self, default: Recipe) -> None:
         self.recipes: tuple[Recipe, ...] = ()
         self.index = 0
@@ -26,18 +41,8 @@ class RecipeController[Recipe](ABC):
         self._default = default
         self.message = ""
 
-    @property
-    @abstractmethod
-    def family(self) -> ComparisonFamily: ...
-
     @abstractmethod
     def validate(self, recipe: Recipe) -> None: ...
-
-    @abstractmethod
-    def prune(self, identities: set[str]) -> None: ...
-
-    @abstractmethod
-    def close(self) -> None: ...
 
     @property
     def recipe(self) -> Recipe | None:

@@ -1,5 +1,6 @@
 """Saved explicit audio mappings and common distribution/view controls."""
 
+import math
 from dataclasses import dataclass
 
 from datelier.inspection.audio.collections.settings import AudioCollectionSettings
@@ -41,7 +42,7 @@ class AudioComparisonViewSettings:
     proportions: bool = True
     source: int = 0
     bin_index: int = 0
-    height: int = 240
+    height: float = 240
 
     def validate(self) -> None:
         if self.tab not in ("Distributions", "Statistics", "Records"):
@@ -53,5 +54,10 @@ class AudioComparisonViewSettings:
             and self.channel < 0
         ):
             raise ValueError("Choose an available audio metric and unit family")
-        if min(self.source, self.bin_index) < 0 or not 80 <= self.height <= 800:
+        if (
+            min(self.source, self.bin_index) < 0
+            or not math.isfinite(self.height)
+            or self.height != 0
+            and self.height < 80
+        ):
             raise ValueError("Choose valid audio comparison controls")

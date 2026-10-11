@@ -9,7 +9,8 @@ import numpy as np
 import pytest
 import soundfile as sf
 
-from datelier.gui.editor_session import EditorSession
+from datelier.application.comparisons.base import ComparisonFamily
+from datelier.application.editor import EditorController
 from datelier.inspection.arrays.mapping import (
     ArrayLayout,
     ArrayRecordMapping,
@@ -34,24 +35,24 @@ from datelier.workspace.session_storage import read_session_workspace
 from datelier.workspace.session_types import SessionFile, SessionWorkspace
 
 
-def wait(editor: EditorSession, root: Path) -> None:
+def wait(editor: EditorController, root: Path) -> None:
     deadline = monotonic() + 5
     while monotonic() < deadline:
         editor.poll()
-        for file in editor.file_sessions:
+        for file in editor.all_files:
             if file.loader.active is not None and file.references.settings.roots != (
                 str(root),
             ):
                 file.references.configure(ReferenceSettings(roots=(str(root),)))
         if (
             not editor.opening.busy
-            and not editor.workspace_jobs.busy
-            and not editor.audio_comparison_jobs.busy
+            and not editor.workspace.busy
+            and not editor.compare.audio.jobs.busy
             and all(
                 file.loader.status.phase != LoadPhase.LOADING
                 and not file.editor.busy
                 and not file.references.busy
-                for file in editor.file_sessions
+                for file in editor.all_files
             )
         ):
             return
@@ -93,7 +94,7 @@ def test_saved_audio_comparison_links_correct_file_and_recovery_stays_idle(
     paths[0].write_text("audio,label\nshort.wav,a\nlong.wav,z\n")
     paths[1].write_text("audio,label\nlong.wav,z\nshort.wav,a\n")
     workspace = tmp_path / "session.datelier.json"
-    editor = EditorSession()
+    editor = EditorController()
     try:
         editor.opening.request(paths, editor.active_id)
         wait(editor, tmp_path)
@@ -118,34 +119,34 @@ def test_saved_audio_comparison_links_correct_file_and_recovery_stays_idle(
             height=200,
             proportions=False,
         )
-        editor.audio_comparisons = (recipe,)
-        editor.audio_comparison_view = view
-        editor.comparison_tab = "Audio"
+        editor.compare.audio.restore((recipe,))
+        editor.compare.audio.view = view
+        editor.compare.tab = ComparisonFamily.AUDIO
         editor.poll()
         assert (
-            editor.audio_comparison_jobs.started == 0
-            and editor.audio_comparison_jobs.active is None
+            editor.compare.audio.jobs.started == 0
+            and editor.compare.audio.jobs.active is None
         )
-        editor.audio_comparison_jobs.request()
+        editor.compare.audio.jobs.request()
         wait(editor, tmp_path)
-        result = editor.audio_comparison_jobs.active
+        result = editor.compare.audio.jobs.active
         assert result is not None
         duration = next(c for c in result.curves if c.metric.name == "Duration")
-        editor.select_audio_comparison(result, 1, duration.metric, 1)
+        editor.compare.audio.select(1, duration.metric, 1)
         deadline = monotonic() + 5
         while not second.selection.row_ids and monotonic() < deadline:
             editor.poll()
             sleep(0.001)
         assert second.selection.row_ids == {0} and not first.selection.row_ids
         assert editor.active is second and second.table.target_row == 2
-        editor.open_audio_comparison_record(result, 0, 0)
+        editor.compare.audio.open_record(result, 0, 0)
         assert editor.active is first and first.selection.row_ids == {0}
-        assert first.exploration.tab == "Inspect" and first.focus_inspect
+        assert first.views.tab == "Inspect"
         assert (
             editor.playback.snapshot.phase == PlaybackPhase.IDLE
             and editor.playback.snapshot.request is None
         )
-        editor.save_workspace(workspace)
+        editor.save_workspace(workspace, "", (), False, False)
         wait(editor, tmp_path)
         saved = read_session_workspace(workspace)
         assert (
@@ -166,27 +167,27 @@ def test_saved_audio_comparison_links_correct_file_and_recovery_stays_idle(
         failed, good = editor.files
         assert failed.recovery and good.loader.active
         assert (
-            editor.audio_comparisons == (recipe,)
-            and editor.audio_comparison_view == view
+            editor.compare.audio.recipes == (recipe,)
+            and editor.compare.audio.view == view
         )
         assert (
-            editor.audio_comparison_jobs.active is None
-            and not editor.audio_comparison_jobs.busy
+            editor.compare.audio.jobs.active is None
+            and not editor.compare.audio.jobs.busy
         )
         assert (
-            editor.audio_comparison_jobs.started == 1
+            editor.compare.audio.jobs.started == 1
             and editor.playback.snapshot.request is None
         )
         with pytest.raises(ValueError, match="changed"):
-            editor.open_audio_comparison_record(result, 0, 0)
-        editor.recover_source(failed.identity, relink=tmp_path / "moved.csv")
+            editor.compare.audio.open_record(result, 0, 0)
+        editor.recover(failed.identity, tmp_path / "moved.csv", False)
         wait(editor, tmp_path)
-        assert failed.loader.active and editor.audio_comparison_jobs.active is None
-        editor.close_tab(failed.identity)
-        assert editor.audio_comparisons[0].sources == (recipe.sources[1],)
-        editor.save_workspace(tmp_path / "closed.datelier.json")
+        assert failed.loader.active and editor.compare.audio.jobs.active is None
+        editor.close_file(failed.identity)
+        assert editor.compare.audio.recipes[0].sources == (recipe.sources[1],)
+        editor.save_workspace(tmp_path / "closed.datelier.json", "", (), False, False)
         wait(editor, tmp_path)
-        assert editor.workspace_jobs.saved is not None
+        assert editor.workspace.saved is not None
     finally:
         editor.close()
 
@@ -201,10 +202,10 @@ def test_mapped_record_view_comparison_preserves_support_and_closes_independentl
         labels=np.array([2, 1]),
     )
     sf.write(tmp_path / "tone.wav", np.zeros(4), 4, subtype="DOUBLE")
-    editor = EditorSession()
+    editor = EditorController()
     try:
-        owner = editor.new_tab(source)
-        file = editor.new_tab(tmp_path / "tone.wav")
+        owner = editor.new_file(source)
+        file = editor.new_file(tmp_path / "tone.wav")
         wait(editor, tmp_path)
         mapping = ArrayRecordMapping(
             "waves",
@@ -232,15 +233,15 @@ def test_mapped_record_view_comparison_preserves_support_and_closes_independentl
             ),
             2,
         )
-        editor.audio_comparisons = (recipe,)
+        editor.compare.audio.restore((recipe,))
         editor.poll()
-        editor.audio_comparison_jobs.request()
+        editor.compare.audio.jobs.request()
         wait(editor, tmp_path)
-        result = editor.audio_comparison_jobs.active
+        result = editor.compare.audio.jobs.active
         assert result is not None and result.profiles[1].records[
             "row_id"
         ].to_list() == [1, 0]
-        editor.open_audio_comparison_record(result, 1, 0)
+        editor.compare.audio.open_record(result, 1, 0)
         assert editor.active is owner and owner.record_views.active_id == view.identity
         assert view.selection.row_ids == {1} and not file.selection.row_ids
         assert view.audio.settings.array_sample_rate == 4
@@ -248,7 +249,7 @@ def test_mapped_record_view_comparison_preserves_support_and_closes_independentl
         assert editor.playback.snapshot.request is None
         owner.record_views.close_view(view.identity)
         editor.poll()
-        assert editor.audio_comparisons[0].sources == (recipe.sources[0],)
-        assert editor.audio_comparison_jobs.active is None
+        assert editor.compare.audio.recipes[0].sources == (recipe.sources[0],)
+        assert editor.compare.audio.jobs.active is None
     finally:
         editor.close()

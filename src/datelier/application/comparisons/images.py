@@ -59,7 +59,7 @@ class ImageComparisonController(RecipeController[ImageComparisonSettings]):
                 (
                     c.name
                     for c in choices
-                    if c.enabled and c.group in ("Image", "Mapped image")
+                    if c.enabled and c.group in ("Image", "Mapped Image / grayscale")
                 ),
                 None,
             )
@@ -288,6 +288,10 @@ class ImageComparisonController(RecipeController[ImageComparisonSettings]):
             profile.mapping is not None,
         )
         self.focus(profile.file_id)
+
+    def abandon(self) -> None:
+        self.jobs.clear()
+        self.jobs.message = "Executing work is abandoned and cannot publish."
 
     def close(self) -> None:
         self.jobs.close()

@@ -86,7 +86,7 @@ class ImageComparisonTools(ComparisonTools):
                         if model.jobs.busy
                         else model.jobs.selection_message,
                     ),
-                    model.jobs.clear,
+                    model.abandon,
                 ),
                 ContributorControls(
                     model.catalog,

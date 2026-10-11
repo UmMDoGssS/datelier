@@ -57,7 +57,7 @@ components implement Component.render; container classes render direct children.
 | B | Shared controls, shell, columns, table, tabular profiles and plots | Complete; basic inspection shell runnable |
 | C | Contextual analysis, transforms/history, export and workspace/preferences | Complete; advanced plot modes tracked separately |
 | D | Structured/array/checkpoint source and multimodal record/profile families | In progress; source/Inspect, text/image/audio profiles and annotation workflows restored; remaining forms and integration pending |
-| E | Comparison families, remaining features and integrated acceptance | In progress; column/text/image comparisons restored; audio comparisons and remaining integration pending |
+| E | Comparison families, remaining features and integrated acceptance | In progress; all four comparison families restored; remaining features and integrated acceptance pending |
 
 Each stage runs scoped Pyrefly, behavioral tests, full Ruff checks and diff review
 before commit. Full Pyrefly/old GUI tests remain open while their imports target
@@ -373,6 +373,34 @@ opening pass in 197 frames/23.86 ms p95 with source bytes preserved.
 The shared single-source image profile form regresses at 129 frames/20.02 ms p95.
 Audio comparisons, advanced plots, remaining import/table/mapping controls, full
 old caller migration and integrated resource/size/theme acceptance remain open.
+
+## Fresh Stage E4 — Explicit audio comparisons
+
+Audio comparisons reuse the common contributor, recipe, row-link, virtual table
+and histogram components. Source eligibility for image/audio references and
+confirmed array payloads shares a metadata-only catalog helper. Related comparison
+controllers now expose a common polling/closure contract, and the hub traverses
+that registry. The last placeholder comparison renderer is removed. Audio scopes,
+header/exact signal level, array rate and original-unit thresholds share one form
+with per-file Profiles. Distributions retain compatible metric/unit/channel
+families, counts/proportions, native legends and shared viewport sizing. Complete
+record/channel tables retain original rates, amplitudes, rails and provenance.
+Record links activate the originating file/view and open header-first Inspect;
+signal preparation and listening remain explicit. Restore/recovery remains idle.
+Abandonment feedback states that executing work cannot publish obsolete results.
+
+Verification: production/migrated caller Pyrefly zero errors, 52 focused audio/
+comparison/workspace/restore tests, full Ruff lint/format (694 files) and whitespace
+checks pass. Native shared contributor bulk, explicit exact signal Prepare,
+metric/channel views, distribution/statistics/record tabs, Expand/Restore, sorted
+row links and original-rate header opening pass in 155 frames/21.33 ms p95. Source
+bytes are preserved and zero output devices are opened.
+[Audio comparison report](evidence/gui-overhaul/fresh-audio-comparisons.json).
+PSD/mel, header profiles and explicit Play/Pause/Stop regress at 133 frames/
+14.51 ms p95 with injected output closed. Actual human hearing remains deferred.
+All four comparison families are rebuilt; advanced relationship plots, remaining
+import/table/mapping controls, full old caller migration and final integrated
+resource/size/theme acceptance remain open.
 
 ## Baseline evidence
 

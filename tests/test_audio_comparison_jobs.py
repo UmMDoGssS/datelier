@@ -23,6 +23,7 @@ def wait(
     deadline = monotonic() + 5
     while monotonic() < deadline:
         jobs.bind(recipe, inputs)
+        jobs.poll()
         if not jobs.busy:
             assert jobs.active is not None, jobs.message
             return

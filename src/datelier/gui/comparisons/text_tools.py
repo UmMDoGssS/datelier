@@ -93,7 +93,7 @@ class TextComparisonTools(ComparisonTools):
                     lambda: JobSnapshot(
                         model.message, model.jobs.busy, model.jobs.selection_message
                     ),
-                    model.jobs.clear,
+                    model.abandon,
                 ),
                 ContributorControls(
                     model.catalog,

@@ -1,0 +1,15 @@
+{
+  "frames": 155,
+  "p95_ms": 21.32594299910124,
+  "native_shared_contributors": true,
+  "explicit_exact_signal_prepare": true,
+  "metric_family_channel_selection": true,
+  "distributions_statistics_records": true,
+  "expand_restore": true,
+  "original_sorted_rows_linked": true,
+  "record_open_original_rate": true,
+  "source_preserved": true,
+  "implicit_profiles_playback": false,
+  "output_devices_opened": 0,
+  "human_listening": "deferred"
+}

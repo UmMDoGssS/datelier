@@ -5,7 +5,8 @@ from concurrent.futures import Executor
 from dataclasses import replace
 from typing import TYPE_CHECKING
 
-from datelier.application.comparisons.base import ComparisonFamily
+from datelier.application.comparisons.audio import AudioComparisonController
+from datelier.application.comparisons.base import ComparisonController, ComparisonFamily
 from datelier.application.comparisons.catalog import SourceCatalog
 from datelier.application.comparisons.columns import ColumnComparisonController
 from datelier.application.comparisons.images import ImageComparisonController
@@ -22,21 +23,29 @@ class ComparisonHub:
         self.columns = ColumnComparisonController(self.catalog, focus, executor)
         self.text = TextComparisonController(self.catalog, focus, executor)
         self.images = ImageComparisonController(self.catalog, focus, executor)
+        self.audio = AudioComparisonController(self.catalog, focus, executor)
+        self.families: tuple[ComparisonController, ...] = (
+            self.columns,
+            self.text,
+            self.images,
+            self.audio,
+        )
         self.tab = ComparisonFamily.COLUMNS
 
     def refresh(self, files: tuple[FileController, ...]) -> None:
         self.catalog.sync(files)
-        self.columns.prune(set(self.catalog.by_id))
-        self.text.prune(set(self.catalog.by_id))
-        self.images.prune(set(self.catalog.by_id))
+        for family in self.families:
+            family.prune(set(self.catalog.by_id))
 
     def poll(self, files: tuple[FileController, ...]) -> None:
         self.refresh(files)
-        self.columns.sync()
-        self.text.sync()
-        self.images.sync()
+        for family in self.families:
+            family.sync()
 
     def restore(self, session: SessionWorkspace) -> None:
+        self.audio.jobs.clear()
+        self.audio.restore(session.audio_comparisons, session.audio_comparison_index)
+        self.audio.view = session.audio_comparison_view
         self.images.jobs.clear()
         self.images.restore(session.image_comparisons, session.image_comparison_index)
         self.images.view = session.image_comparison_view
@@ -57,7 +66,6 @@ class ComparisonHub:
         )
 
     def capture(self, session: SessionWorkspace) -> SessionWorkspace:
-        identities = set(self.catalog.by_id)
         return replace(
             session,
             comparisons=self.columns.recipes,
@@ -71,20 +79,15 @@ class ComparisonHub:
             image_comparisons=self.images.recipes,
             image_comparison_index=self.images.index,
             image_comparison_view=self.images.view,
-            audio_comparisons=tuple(
-                replace(
-                    recipe,
-                    sources=tuple(s for s in recipe.sources if s.file_id in identities),
-                )
-                for recipe in session.audio_comparisons
-            ),
+            audio_comparisons=self.audio.recipes,
+            audio_comparison_index=self.audio.index,
+            audio_comparison_view=self.audio.view,
             comparison_tab="Text corpora"
             if self.tab == ComparisonFamily.TEXT
             else self.tab.value,
         )
 
     def close(self) -> None:
-        self.images.close()
-        self.text.close()
-        self.columns.close()
+        for family in self.families:
+            family.close()
         self.catalog.close()

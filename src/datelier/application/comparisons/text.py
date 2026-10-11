@@ -148,6 +148,10 @@ class TextComparisonController(RecipeController[TextComparisonSettings]):
         self.jobs.request_selection(result, series, bin_index, source.dataset)
         self.focus(identity)
 
+    def abandon(self) -> None:
+        self.jobs.clear()
+        self.jobs.message = "Executing work is abandoned and cannot publish."
+
     def close(self) -> None:
         self.jobs.close()
         self.statistics = self.lengths = ()
