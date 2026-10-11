@@ -27,9 +27,9 @@ from datelier.inspection.audio.comparisons.settings import (
     AudioComparisonSource,
 )
 from datelier.inspection.audio.comparisons.types import AudioComparisonInput
+from datelier.io.arrays import ArrayStore
 from datelier.io.arrays.metadata import inspect_arrays
 from datelier.io.arrays.records import prepare_array_records
-from datelier.io.arrays.storage import ArrayStore
 
 
 def digest(path: Path) -> str:

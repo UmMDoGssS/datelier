@@ -12,7 +12,7 @@ from datelier.application.editor import EditorController
 from datelier.gui.app import InspectionEvidence, run_gui
 from datelier.gui.components.probe import GuiProbe
 from datelier.inspection.comparison_settings import ComparisonSettings
-from datelier.workspace.session_storage import read_session_workspace
+from datelier.workspace.sessions.storage import read_session_workspace
 
 
 def main() -> None:

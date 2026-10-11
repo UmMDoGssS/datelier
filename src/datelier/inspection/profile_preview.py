@@ -10,13 +10,13 @@ from datelier.core.dataset import Dataset, DatasetRevision
 from datelier.core.jobs import JobExecutor
 from datelier.inspection.lists import flatten_elements
 from datelier.inspection.profiles import ProfileKind, Profiles, prepare_profiles
-from datelier.plotting.data import Bars, prepare_bars
 from datelier.plotting.distributions import (
     Comparison,
     DistributionSettings,
     prepare_comparison,
     prepare_series_comparison,
 )
+from datelier.plotting.scatter.prepare import Bars, prepare_bars
 
 
 def _numeric_list(dataset: Dataset, name: str) -> pl.Series:

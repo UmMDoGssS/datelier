@@ -15,9 +15,8 @@ from datelier.inspection.objects.types import (
     ObjectNode,
     node_label,
 )
-from datelier.io.json import decode_json
-from datelier.io.records import RecordValue, records_to_table
 from datelier.io.source import read_source
+from datelier.io.tabular import RecordValue, decode_json, records_to_table
 from datelier.io.types import ImportFormat, ImportResult, ObjectOptions
 
 

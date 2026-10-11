@@ -29,8 +29,8 @@ from datelier.inspection.images.profiles import (
 from datelier.inspection.images.storage import ImageStore
 from datelier.inspection.references.index import ReferenceIndex
 from datelier.inspection.references.types import ReferenceSettings
+from datelier.io.arrays import ArrayStore
 from datelier.io.arrays.metadata import inspect_arrays
-from datelier.io.arrays.storage import ArrayStore
 
 
 def dataset(root: Path, references: list[str | None]) -> Dataset:

@@ -18,7 +18,7 @@ from datelier.inspection.audio.view_types import (
 )
 from datelier.inspection.audio.waveforms import prepare_waveform
 from datelier.inspection.heatmaps import Colormap
-from datelier.io.arrays.storage import ArrayStore
+from datelier.io.arrays import ArrayStore
 
 
 def computation_settings(settings: SignalViewSettings) -> SignalViewSettings:

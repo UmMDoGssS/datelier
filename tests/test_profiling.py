@@ -7,7 +7,7 @@ import pytest
 
 from datelier.core.dataset import Dataset, SourceReference
 from datelier.inspection.profiles import ProfileKind, prepare_profiles
-from datelier.plotting.data import prepare_bars
+from datelier.plotting.scatter.prepare import prepare_bars
 
 
 def dataset(table: pl.DataFrame) -> Dataset:

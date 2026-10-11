@@ -18,7 +18,7 @@ from datelier.inspection.audio.view_types import (
     SpectrumScale,
 )
 from datelier.inspection.references.types import ReferenceSettings
-from datelier.io.arrays.storage import ArrayStore
+from datelier.io.arrays import ArrayStore
 from datelier.io.media import load_media
 
 

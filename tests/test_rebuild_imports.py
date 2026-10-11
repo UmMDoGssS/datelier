@@ -22,8 +22,8 @@ from datelier.io.types import (
     XmlOptions,
 )
 from datelier.pipeline.operations import Sort
-from datelier.workspace.session_jobs import save_snapshot
-from datelier.workspace.session_types import SourceDraft
+from datelier.workspace.sessions import SourceDraft
+from datelier.workspace.sessions.jobs import save_snapshot
 
 
 @pytest.mark.parametrize(

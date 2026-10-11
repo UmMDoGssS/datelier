@@ -10,7 +10,7 @@ from datelier.inspection.text.comparisons.settings import (
 )
 from datelier.inspection.text.types import CorpusMode, TextScope, TextSource
 from datelier.io.loading import LoadPhase
-from datelier.workspace.session_storage import read_session_workspace
+from datelier.workspace.sessions.storage import read_session_workspace
 
 
 def wait(editor: EditorController) -> None:

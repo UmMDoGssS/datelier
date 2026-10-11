@@ -35,8 +35,8 @@ from datelier.inspection.audio.comparisons.types import (
 from datelier.inspection.audio.types import AudioLocator
 from datelier.inspection.references.index import ReferenceIndex
 from datelier.inspection.references.types import ReferenceSettings
+from datelier.io.arrays import ArrayStore
 from datelier.io.arrays.metadata import inspect_arrays
-from datelier.io.arrays.storage import ArrayStore
 
 
 def prepare(

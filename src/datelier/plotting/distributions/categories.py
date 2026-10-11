@@ -8,12 +8,12 @@ import polars as pl
 from numpy.typing import NDArray
 
 from datelier.core.dataset import Dataset
-from datelier.plotting.distributions import (
+from datelier.plotting.distributions.numeric import (
     DistributionSettings,
     NumericDistribution,
     prepare_comparison,
 )
-from datelier.plotting.selection import SELECTION_LIMIT
+from datelier.plotting.scatter import SELECTION_LIMIT
 
 
 @dataclass(frozen=True)

@@ -6,7 +6,7 @@ import pytest
 from datelier.core.dataset import Dataset, SourceReference
 from datelier.pipeline.history import Pipeline, replay
 from datelier.pipeline.operations import Comparison, Filter, OperationFailure, Sort
-from datelier.pipeline.types import DerivedColumn
+from datelier.pipeline.transforms import DerivedColumn
 
 
 def start() -> Pipeline:

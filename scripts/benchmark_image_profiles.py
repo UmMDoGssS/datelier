@@ -27,8 +27,8 @@ from datelier.inspection.images.profile_types import (
 from datelier.inspection.images.profiles import prepare_image_profile
 from datelier.inspection.images.storage import ImageStore
 from datelier.inspection.references.types import AssetIdentity, ReferenceSettings
+from datelier.io.arrays import ArrayStore
 from datelier.io.arrays.metadata import inspect_arrays
-from datelier.io.arrays.storage import ArrayStore
 from datelier.io.media import load_media
 from datelier.io.types import MediaOptions
 

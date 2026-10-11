@@ -24,9 +24,9 @@ from datelier.inspection.annotations.types import AnnotationCatalog, AnnotationF
 from datelier.inspection.arrays.mapping import ArrayLayout, ArrayRecordMapping
 from datelier.inspection.images.profile_types import ImageProgress
 from datelier.inspection.references.types import ReferenceSettings
-from datelier.io.annotations.loading import load_annotations
+from datelier.io.annotations import load_annotations
+from datelier.io.arrays import ArrayStore
 from datelier.io.arrays.metadata import inspect_arrays
-from datelier.io.arrays.storage import ArrayStore
 
 
 def table(root: Path) -> Dataset:

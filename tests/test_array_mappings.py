@@ -11,9 +11,9 @@ from datelier.inspection.arrays.mapping import (
 )
 from datelier.inspection.arrays.mapping_jobs import prepare_suggestion
 from datelier.inspection.arrays.slices import prepare_slice
+from datelier.io.arrays import ArrayStore
 from datelier.io.arrays.metadata import inspect_arrays
 from datelier.io.arrays.records import prepare_array_records
-from datelier.io.arrays.storage import ArrayStore
 from datelier.pipeline.history import Pipeline
 from datelier.pipeline.operations import Sort
 

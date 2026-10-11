@@ -7,7 +7,7 @@ from datelier.application.media_input import MediaInput
 from datelier.application.sources.columns import record_mapping
 from datelier.inspection.arrays.jobs import ArrayJobs
 from datelier.inspection.arrays.mapping import ArrayRecordMapping
-from datelier.io.arrays.storage import ArrayStore
+from datelier.io.arrays import ArrayStore
 from datelier.io.types import ArrayOptions
 
 

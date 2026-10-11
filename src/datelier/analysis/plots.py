@@ -7,7 +7,7 @@ from datelier.analysis.types import ClusteringResult, EmbeddingResult
 from datelier.core.dataset import Dataset, DatasetRevision
 from datelier.core.jobs import JobExecutor
 from datelier.plotting.colors import prepare_colors
-from datelier.plotting.data import Scatter, sample_indices
+from datelier.plotting.scatter.prepare import Scatter, sample_indices
 
 
 def prepare_embedding_plot(

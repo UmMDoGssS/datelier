@@ -17,7 +17,7 @@ from datelier.inspection.audio.playback.types import (
 )
 from datelier.inspection.audio.reading import audio_blocks, check_stopped
 from datelier.inspection.audio.types import AudioRange
-from datelier.io.arrays.storage import ArrayStore
+from datelier.io.arrays import ArrayStore
 
 
 @dataclass

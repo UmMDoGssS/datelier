@@ -14,7 +14,7 @@ from datelier.inspection.audio.types import (
 )
 from datelier.inspection.references.index import ReferenceIndex, resolve
 from datelier.inspection.references.types import AssetIdentity, ReferenceSettings
-from datelier.io.arrays.storage import ArrayStore
+from datelier.io.arrays import ArrayStore
 
 
 def check_asset(asset: AssetIdentity) -> None:

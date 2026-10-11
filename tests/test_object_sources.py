@@ -5,10 +5,10 @@ import pytest
 from datelier.inspection.objects.types import node_label
 from datelier.io.importing import load_file
 from datelier.io.types import ImportFailure, ImportFormat, JsonOptions, ObjectOptions
-from datelier.workspace.codec import decode_record, encode
-from datelier.workspace.restore import restore_recipe
-from datelier.workspace.storage import reference_source
-from datelier.workspace.types import Workspace
+from datelier.workspace.recipes.codec import decode_record, encode
+from datelier.workspace.single import Workspace
+from datelier.workspace.single.restore import restore_recipe
+from datelier.workspace.single.storage import reference_source
 
 
 def test_preserved_json_hierarchy_and_record_provenance(tmp_path: Path) -> None:

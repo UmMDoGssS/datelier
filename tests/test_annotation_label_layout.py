@@ -2,7 +2,7 @@
 
 from datelier.inspection.annotations.label_layout import LabelLayout
 from datelier.inspection.annotations.overlay import OverlaySettings
-from datelier.workspace.codec import decode_record, encode
+from datelier.workspace.recipes.codec import decode_record, encode
 
 
 def test_labels_cross_cell_boundaries_and_allow_touching_neighbors() -> None:

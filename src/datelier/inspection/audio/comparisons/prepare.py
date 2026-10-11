@@ -11,7 +11,7 @@ from datelier.inspection.audio.comparisons.types import (
     PreparedAudioComparison,
 )
 from datelier.inspection.audio.reading import check_stopped
-from datelier.io.arrays.storage import ArrayStore
+from datelier.io.arrays import ArrayStore
 
 
 def prepare_comparison(

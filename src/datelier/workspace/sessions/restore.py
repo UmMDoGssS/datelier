@@ -10,12 +10,16 @@ from datelier.io.importing import load_file
 from datelier.io.objects import object_record_view
 from datelier.io.types import ArrayOptions, ImportResult, MediaOptions, ObjectOptions
 from datelier.pipeline.history import Pipeline
-from datelier.workspace.array_restore import defer_array_view
-from datelier.workspace.restore import RestoredWorkspace, SourceIssue, restore_recipe
-from datelier.workspace.session_storage import read_session_with_notice
-from datelier.workspace.session_types import SessionFile, SessionWorkspace
-from datelier.workspace.storage import reference_source
-from datelier.workspace.types import Workspace
+from datelier.workspace.sessions.storage import read_session_with_notice
+from datelier.workspace.sessions.types import SessionFile, SessionWorkspace
+from datelier.workspace.single import Workspace
+from datelier.workspace.single.arrays import defer_array_view
+from datelier.workspace.single.restore import (
+    RestoredWorkspace,
+    SourceIssue,
+    restore_recipe,
+)
+from datelier.workspace.single.storage import reference_source
 
 
 @dataclass(frozen=True)

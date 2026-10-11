@@ -19,7 +19,7 @@ from datelier.inspection.images.types import (
     ImageWindow,
     PreparedImage,
 )
-from datelier.io.arrays.storage import ArrayStore
+from datelier.io.arrays import ArrayStore
 
 
 def bounded_window(

@@ -21,7 +21,7 @@ from datelier.inspection.records.types import (
 from datelier.inspection.table import Inspection
 from datelier.inspection.text.list_records import is_text_list
 from datelier.io.types import ArrayOptions
-from datelier.plotting.selection import LinkedSelection
+from datelier.plotting.scatter import LinkedSelection
 
 
 class RecordKind(StrEnum):

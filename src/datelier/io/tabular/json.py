@@ -8,9 +8,9 @@ from typing import BinaryIO, cast
 
 import polars as pl
 
-from datelier.io.json_records import array_records
-from datelier.io.records import RecordValue, records_to_table
 from datelier.io.source import read_source
+from datelier.io.tabular.json_records import array_records
+from datelier.io.tabular.records import RecordValue, records_to_table
 from datelier.io.types import ImportFormat, ImportResult, JsonOptions
 
 

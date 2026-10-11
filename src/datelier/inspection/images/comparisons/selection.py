@@ -6,7 +6,7 @@ import polars as pl
 from datelier.core.dataset import Dataset
 from datelier.inspection.comparisons.types import ComparisonSelection, Origin
 from datelier.inspection.images.comparisons.types import PreparedImageComparison
-from datelier.plotting.selection import SELECTION_LIMIT
+from datelier.plotting.scatter import SELECTION_LIMIT
 
 
 def select_dimension_bin(

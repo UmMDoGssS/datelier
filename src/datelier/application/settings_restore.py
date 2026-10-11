@@ -7,7 +7,7 @@ from datelier.application.plot_settings import PlotState
 from datelier.core.dataset import Dataset
 from datelier.inspection.exploration import PlotSettings
 from datelier.plotting.categories import CategoryRepresentation
-from datelier.workspace.types import Workspace
+from datelier.workspace.single import Workspace
 
 
 def restore_plots(controls: PlotState, dataset: Dataset, saved: PlotSettings) -> bool:

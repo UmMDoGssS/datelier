@@ -8,9 +8,9 @@ from datelier.io.importing import load_file
 from datelier.io.types import ImportFailure, ImportFormat, MediaOptions
 from datelier.pipeline.history import Pipeline
 from datelier.pipeline.operations import Sort
-from datelier.workspace.restore import SourceIssue, restore_workspace
-from datelier.workspace.storage import reference_source, save_workspace
-from datelier.workspace.types import Workspace
+from datelier.workspace.single import Workspace
+from datelier.workspace.single.restore import SourceIssue, restore_workspace
+from datelier.workspace.single.storage import reference_source, save_workspace
 
 
 def test_direct_file_metadata_does_not_decode_and_text_lines_are_explicit(
@@ -147,8 +147,8 @@ def test_missing_or_shorter_line_members_keep_other_record_ids(tmp_path: Path) -
 def test_changed_media_session_keeps_selection_on_fixed_manifest(
     tmp_path: Path,
 ) -> None:
-    from datelier.workspace.session_restore import SourceRecovery, restore_session_file
-    from datelier.workspace.session_types import SessionFile
+    from datelier.workspace.sessions import SessionFile
+    from datelier.workspace.sessions.restore import SourceRecovery, restore_session_file
 
     folder = tmp_path / "fixed"
     folder.mkdir()

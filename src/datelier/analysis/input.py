@@ -11,7 +11,7 @@ from datelier.analysis.types import (
 )
 from datelier.core.dataset import Dataset
 from datelier.core.sampling import seeded_sample
-from datelier.plotting.data import numeric_columns
+from datelier.plotting.scatter import numeric_columns
 
 
 def prepare_input(dataset: Dataset, request: AnalysisRequest) -> PreparedInput:

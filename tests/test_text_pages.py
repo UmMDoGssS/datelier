@@ -23,8 +23,8 @@ from datelier.inspection.text.types import (
 )
 from datelier.inspection.text.viewport import TextViewport
 from datelier.io.types import ImportFormat, MediaOptions
-from datelier.workspace.codec import decode_record, encode
-from datelier.workspace.types import WorkspaceViews
+from datelier.workspace.recipes.codec import decode_record, encode
+from datelier.workspace.single import WorkspaceViews
 
 
 def document(text: str) -> TextDocument:

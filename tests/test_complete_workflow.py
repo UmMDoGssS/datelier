@@ -28,11 +28,11 @@ from datelier.io.exporting import ExportFormat, export_dataset
 from datelier.io.importing import load_file
 from datelier.pipeline.history import Pipeline
 from datelier.pipeline.operations import Comparison, Filter, Sort
-from datelier.pipeline.types import DerivedColumn
-from datelier.plotting.selection import LinkedSelection
-from datelier.workspace.restore import restore_workspace
-from datelier.workspace.storage import reference_source, save_workspace
-from datelier.workspace.types import Workspace
+from datelier.pipeline.transforms import DerivedColumn
+from datelier.plotting.scatter import LinkedSelection
+from datelier.workspace.single import Workspace
+from datelier.workspace.single.restore import restore_workspace
+from datelier.workspace.single.storage import reference_source, save_workspace
 
 
 def write_source(path: Path) -> None:

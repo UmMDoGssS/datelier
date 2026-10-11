@@ -28,7 +28,7 @@ from datelier.io.types import (
     validate_source_path,
 )
 from datelier.workspace.layout import valid_layout
-from datelier.workspace.types import Workspace
+from datelier.workspace.single import Workspace
 
 
 @dataclass(frozen=True)

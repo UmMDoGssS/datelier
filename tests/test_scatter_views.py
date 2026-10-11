@@ -9,8 +9,8 @@ from datelier.application.plot_settings import PlotState
 from datelier.application.settings_restore import restore_plots
 from datelier.core.dataset import Dataset, SourceReference
 from datelier.inspection.exploration import PlotSettings
-from datelier.workspace.codec import decode_record, encode
-from datelier.workspace.types import WorkspaceViews
+from datelier.workspace.recipes.codec import decode_record, encode
+from datelier.workspace.single import WorkspaceViews
 
 
 def data() -> Dataset:

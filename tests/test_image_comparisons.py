@@ -38,9 +38,9 @@ from datelier.inspection.images.profile_types import (
 from datelier.inspection.images.profiles import finish_image_profile
 from datelier.inspection.images.storage import ImageStore
 from datelier.inspection.references.types import ReferenceSettings
+from datelier.io.arrays import ArrayStore
 from datelier.io.arrays.metadata import inspect_arrays
-from datelier.io.arrays.storage import ArrayStore
-from datelier.plotting.selection import SELECTION_LIMIT
+from datelier.plotting.scatter import SELECTION_LIMIT
 
 
 def table(path: Path, references: list[str | None]) -> Dataset:

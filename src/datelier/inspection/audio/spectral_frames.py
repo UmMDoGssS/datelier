@@ -14,7 +14,7 @@ from datelier.inspection.audio.profile_types import AudioProgress
 from datelier.inspection.audio.reading import BLOCK_FRAMES, audio_blocks, check_stopped
 from datelier.inspection.audio.types import AudioLocator, AudioMetadata, AudioRange
 from datelier.inspection.audio.view_types import SignalViewSettings
-from datelier.io.arrays.storage import ArrayStore
+from datelier.io.arrays import ArrayStore
 
 
 @dataclass

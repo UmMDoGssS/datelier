@@ -9,20 +9,20 @@ from datelier.inspection.arrays.mapping import (
     ArrayRecordMapping,
     SupportingArray,
 )
-from datelier.io.arrays.storage import ArrayStore
+from datelier.io.arrays import ArrayStore
 from datelier.io.importing import load_file
 from datelier.io.types import ArrayOptions
 from datelier.pipeline.history import Pipeline
 from datelier.pipeline.operations import Sort
-from datelier.workspace.session_restore import (
+from datelier.workspace.sessions import SessionFile, SessionWorkspace
+from datelier.workspace.sessions.restore import (
     SourceRecovery,
     restore_session_file,
     restore_session_workspace,
 )
-from datelier.workspace.session_storage import save_session_workspace
-from datelier.workspace.session_types import SessionFile, SessionWorkspace
-from datelier.workspace.storage import reference_source
-from datelier.workspace.types import Workspace
+from datelier.workspace.sessions.storage import save_session_workspace
+from datelier.workspace.single import Workspace
+from datelier.workspace.single.storage import reference_source
 
 
 def test_mapped_workspace_opens_metadata_and_prepares_history_only_explicitly(

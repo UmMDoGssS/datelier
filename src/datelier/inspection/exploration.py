@@ -13,7 +13,14 @@ from datelier.plotting.categories import (
     CategorySettings,
     prepare_category_chart,
 )
-from datelier.plotting.data import (
+from datelier.plotting.distributions import (
+    Comparison,
+    DistributionSettings,
+    prepare_comparison,
+)
+from datelier.plotting.distributions.preview import DistributionPreview
+from datelier.plotting.relationships import Relationships, prepare_relationships
+from datelier.plotting.scatter.prepare import (
     Bars,
     Correlation,
     Scatter,
@@ -22,13 +29,6 @@ from datelier.plotting.data import (
     prepare_correlations,
     prepare_scatter,
 )
-from datelier.plotting.distribution_preview import DistributionPreview
-from datelier.plotting.distributions import (
-    Comparison,
-    DistributionSettings,
-    prepare_comparison,
-)
-from datelier.plotting.relationships import Relationships, prepare_relationships
 
 
 @dataclass(frozen=True)

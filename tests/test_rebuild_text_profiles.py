@@ -106,7 +106,7 @@ def test_training_publishes_shared_recipe_with_explicit_selected_provenance(
 
 def test_saved_text_subview_and_tokenizer_reopen_without_work(tmp_path: Path) -> None:
     from datelier.application.workspace import capture_session
-    from datelier.workspace.session_jobs import save_snapshot
+    from datelier.workspace.sessions.jobs import save_snapshot
 
     source, workspace = tmp_path / "source.csv", tmp_path / "session.json"
     source.write_text('body\n"é 中"\n')

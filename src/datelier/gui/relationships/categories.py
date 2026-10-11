@@ -14,7 +14,7 @@ from datelier.gui.profiles.colors import profile_color
 from datelier.gui.profiles.primitives import box_label, draw_box
 from datelier.gui.relationships.primitives import legend_hovered
 from datelier.plotting.categories import CategoryChart, CategoryRepresentation
-from datelier.plotting.selection import LinkedSelection
+from datelier.plotting.scatter import LinkedSelection
 
 
 class CategoryInput(Component):

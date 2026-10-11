@@ -5,8 +5,8 @@ from time import monotonic, sleep
 from datelier.analysis.types import EmbeddingResult, PreparedInput
 from datelier.application.file import FileController
 from datelier.core.jobs import SharedWorkers
-from datelier.io.csv import load_csv
 from datelier.io.loading import DatasetLoader, LoadPhase
+from datelier.io.tabular import load_csv
 from datelier.io.types import ImportOptions, ImportResult
 from datelier.pipeline.editing import HistoryAction
 from datelier.pipeline.operations import Sort

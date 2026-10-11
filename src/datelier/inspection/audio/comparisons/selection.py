@@ -12,7 +12,7 @@ from datelier.inspection.audio.comparisons.types import (
     PreparedAudioComparison,
 )
 from datelier.inspection.comparisons.types import ComparisonSelection, Origin
-from datelier.plotting.selection import SELECTION_LIMIT
+from datelier.plotting.scatter import SELECTION_LIMIT
 
 
 def select_bin(

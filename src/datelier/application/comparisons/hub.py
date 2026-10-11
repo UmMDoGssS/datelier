@@ -11,7 +11,7 @@ from datelier.application.comparisons.catalog import SourceCatalog
 from datelier.application.comparisons.columns import ColumnComparisonController
 from datelier.application.comparisons.images import ImageComparisonController
 from datelier.application.comparisons.text import TextComparisonController
-from datelier.workspace.session_types import SessionWorkspace
+from datelier.workspace.sessions import SessionWorkspace
 
 if TYPE_CHECKING:
     from datelier.application.file import FileController

@@ -9,7 +9,7 @@ from datelier.inspection.comparison_settings import (
 )
 from datelier.io.loading import LoadPhase
 from datelier.pipeline.operations import Sort
-from datelier.workspace.session_storage import read_session_workspace
+from datelier.workspace.sessions.storage import read_session_workspace
 
 
 def wait(editor: EditorController) -> None:

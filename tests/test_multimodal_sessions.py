@@ -25,10 +25,10 @@ from datelier.inspection.text.types import CorpusMode, TextScope
 from datelier.io.loading import LoadPhase
 from datelier.io.types import ArrayOptions
 from datelier.pipeline.operations import Sort
-from datelier.pipeline.types import CastColumn, TargetType
-from datelier.workspace.session_jobs import save_snapshot
-from datelier.workspace.session_restore import restore_session_workspace
-from datelier.workspace.storage import save_workspace
+from datelier.pipeline.transforms import CastColumn, TargetType
+from datelier.workspace.sessions.jobs import save_snapshot
+from datelier.workspace.sessions.restore import restore_session_workspace
+from datelier.workspace.single.storage import save_workspace
 
 
 def until(editor: EditorController, ready: Callable[[], bool]) -> None:

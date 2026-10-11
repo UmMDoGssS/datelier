@@ -8,8 +8,11 @@ from imgui_bundle import implot3d
 
 from datelier.core.dataset import Dataset, SourceReference
 from datelier.gui.relationships.scatter3d import FACE_VIEWS
-from datelier.plotting.data import prepare_scatter
-from datelier.plotting.projection import projected_nearest, projected_rectangle
+from datelier.plotting.scatter import (
+    prepare_scatter,
+    projected_nearest,
+    projected_rectangle,
+)
 
 
 @pytest.mark.parametrize(

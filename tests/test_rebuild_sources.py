@@ -131,7 +131,7 @@ def test_generic_record_slice_keeps_source_index_after_sort_and_sibling_close(
 def test_saved_numeric_views_restore_drafts_without_decoding(tmp_path: Path) -> None:
     from datelier.application.workspace import capture_session
     from datelier.inspection.arrays.settings import SliceSettings
-    from datelier.workspace.session_jobs import save_snapshot
+    from datelier.workspace.sessions.jobs import save_snapshot
 
     source, workspace = tmp_path / "arrays.npz", tmp_path / "session.json"
     np.savez_compressed(source, cube=np.arange(60).reshape(3, 4, 5), wrong=np.arange(2))

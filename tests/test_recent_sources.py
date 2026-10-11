@@ -24,7 +24,7 @@ from datelier.workspace.preferences import (
     save_preferences,
 )
 from datelier.workspace.recent import MAX_RECENT, RecentKind, RecentSource, remember
-from datelier.workspace.session_types import SourceDraft
+from datelier.workspace.sessions import SourceDraft
 
 
 def wait(editor: EditorController) -> None:

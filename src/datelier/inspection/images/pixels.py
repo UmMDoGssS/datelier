@@ -13,7 +13,7 @@ from datelier.inspection.images.geometry import orient_array
 from datelier.inspection.images.profile_types import ImageProfileSettings, PixelScope
 from datelier.inspection.images.storage import ImageStore
 from datelier.inspection.images.types import ImageLocator
-from datelier.io.arrays.storage import ArrayStore
+from datelier.io.arrays import ArrayStore
 
 
 def check_cancelled(stop: Event) -> None:

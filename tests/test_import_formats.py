@@ -4,8 +4,8 @@ import pytest
 from polars.testing import assert_frame_equal
 
 from datelier.inspection.table import prepare_inspection
-from datelier.io.csv import CsvOptions, load_csv, load_tsv
 from datelier.io.importing import load_file
+from datelier.io.tabular import CsvOptions, load_csv, load_tsv
 from datelier.io.types import ImportFailure, ImportFormat
 
 

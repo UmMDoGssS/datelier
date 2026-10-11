@@ -4,7 +4,7 @@ import polars as pl
 
 from datelier.core.scalars import Scalar
 from datelier.pipeline.operations import OperationFailure, require_columns
-from datelier.pipeline.types import (
+from datelier.pipeline.transforms.types import (
     CastColumn,
     DerivedColumn,
     DropMissing,
@@ -46,7 +46,7 @@ def apply_transform(
     table: pl.DataFrame, ids: pl.Series, operation: Transform
 ) -> tuple[pl.DataFrame, pl.Series]:
     if isinstance(operation, DerivedColumn):
-        from datelier.pipeline.expressions import derive_column
+        from datelier.pipeline.transforms.expressions import derive_column
 
         return derive_column(
             table, operation.name, operation.expression, operation.replace

@@ -3,7 +3,7 @@ from threading import Event
 from time import monotonic, sleep
 
 from datelier.inspection.table import Inspection, prepare_inspection
-from datelier.io.csv import load_csv
+from datelier.io.tabular import load_csv
 from datelier.pipeline.editing import DatasetEditor, HistoryAction
 from datelier.pipeline.history import Pipeline
 from datelier.pipeline.operations import Comparison, Filter, Sort

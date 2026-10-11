@@ -19,7 +19,7 @@ from datelier.inspection.checkpoints.types import CheckpointCatalog
 from datelier.io.checkpoints.storage import CheckpointStore
 from datelier.io.importing import load_file
 from datelier.io.loading import LoadPhase
-from datelier.workspace.session_jobs import save_snapshot
+from datelier.workspace.sessions.jobs import save_snapshot
 
 
 @pytest.fixture

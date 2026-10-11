@@ -16,14 +16,14 @@ from datelier.io.importing import load_file
 from datelier.io.loading import DatasetLoader, LoadPhase
 from datelier.io.types import ImportOptions, ImportResult
 from datelier.pipeline.operations import Sort
-from datelier.workspace.session_restore import (
+from datelier.workspace.sessions import SessionFile
+from datelier.workspace.sessions.restore import (
     RestoredSession,
     RestoredSessionFile,
     SourceRecovery,
 )
-from datelier.workspace.session_storage import read_session_workspace
-from datelier.workspace.session_types import SessionFile
-from datelier.workspace.types import WorkspaceSource
+from datelier.workspace.sessions.storage import read_session_workspace
+from datelier.workspace.single import WorkspaceSource
 
 
 def wait(editor: EditorController) -> None:
@@ -127,7 +127,7 @@ def saved_session(tmp_path: Path) -> Path:
 def test_editor_save_restore_and_partial_source_recovery(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from datelier.workspace import session_jobs
+    from datelier.workspace.sessions import jobs as session_jobs
 
     original = session_jobs.reference_source
 
@@ -177,7 +177,7 @@ def test_editor_save_restore_and_partial_source_recovery(
 def test_closed_recovery_owner_cannot_publish_into_replacement(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from datelier.workspace import session_jobs
+    from datelier.workspace.sessions import jobs as session_jobs
 
     path = saved_session(tmp_path)
     moved = tmp_path / "moved.csv"
@@ -216,7 +216,7 @@ def test_closed_recovery_owner_cannot_publish_into_replacement(
 def test_restore_is_obsolete_when_blank_owner_starts_a_new_import(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from datelier.workspace import session_jobs
+    from datelier.workspace.sessions import jobs as session_jobs
 
     path = saved_session(tmp_path)
     started, release, load_started, load_release = Event(), Event(), Event(), Event()
@@ -328,8 +328,8 @@ def test_reference_controls_restore_without_payloads(tmp_path: Path) -> None:
     from datelier.inspection.presentation import NumericScale, TablePresentation
     from datelier.inspection.records.types import InspectSettings, RecordMode
     from datelier.inspection.references.types import ReferenceMapping
-    from datelier.workspace.codec import decode_record, encode
-    from datelier.workspace.types import WorkspaceViews
+    from datelier.workspace.recipes.codec import decode_record, encode
+    from datelier.workspace.single import WorkspaceViews
 
     source = tmp_path / "media.csv"
     source.write_text("image\na.png\nb.png\n")

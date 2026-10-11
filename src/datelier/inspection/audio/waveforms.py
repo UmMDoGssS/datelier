@@ -12,7 +12,7 @@ from datelier.inspection.audio.profile_types import AudioProgress
 from datelier.inspection.audio.reading import audio_blocks
 from datelier.inspection.audio.types import AudioLocator, AudioMetadata, AudioRange
 from datelier.inspection.audio.view_types import SignalViewSettings, WaveformEnvelope
-from datelier.io.arrays.storage import ArrayStore
+from datelier.io.arrays import ArrayStore
 
 
 def compress_envelope(

@@ -9,9 +9,8 @@ from datelier.gui.components.native import help_tip, label_text, target
 from datelier.gui.components.viewport import ViewportContent
 from datelier.gui.relationships.diagonals import DiagonalContent
 from datelier.gui.relationships.scatter import ScatterInput
-from datelier.plotting.data import Scatter
 from datelier.plotting.relationships import Relationships
-from datelier.plotting.selection import LinkedSelection
+from datelier.plotting.scatter import LinkedSelection, Scatter
 
 
 class PairCell(Container):

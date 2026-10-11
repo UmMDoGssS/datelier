@@ -16,7 +16,7 @@ from datelier.inspection.audio.profile_types import (
 )
 from datelier.inspection.audio.reading import audio_blocks
 from datelier.inspection.audio.types import AudioLocator, AudioMetadata, AudioRange
-from datelier.io.arrays.storage import ArrayStore
+from datelier.io.arrays import ArrayStore
 
 type AudioScalar = np.integer | np.floating
 

@@ -12,11 +12,11 @@ from datelier.inspection.arrays.mapping import (
     SupportingArray,
 )
 from datelier.inspection.records.types import InspectSettings, RecordMode
-from datelier.io.arrays.storage import ArrayStore
+from datelier.io.arrays import ArrayStore
 from datelier.io.loading import LoadPhase
 from datelier.pipeline.editing import HistoryAction
 from datelier.pipeline.operations import Comparison, Filter, Sort
-from datelier.workspace.session_jobs import save_snapshot
+from datelier.workspace.sessions.jobs import save_snapshot
 
 
 def wait(editor: EditorController) -> None:

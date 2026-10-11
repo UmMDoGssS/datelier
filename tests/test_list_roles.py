@@ -12,12 +12,12 @@ from datelier.inspection.profiles import ProfileKind
 from datelier.io.importing import load_file
 from datelier.pipeline.history import Pipeline
 from datelier.pipeline.operations import OperationFailure, SetColumnRole, Sort
-from datelier.plotting.data import numeric_columns
 from datelier.plotting.distributions import DistributionSettings
-from datelier.workspace.codec import decode_record, encode
-from datelier.workspace.restore import restore_recipe
-from datelier.workspace.storage import reference_source
-from datelier.workspace.types import Workspace
+from datelier.plotting.scatter import numeric_columns
+from datelier.workspace.recipes.codec import decode_record, encode
+from datelier.workspace.single import Workspace
+from datelier.workspace.single.restore import restore_recipe
+from datelier.workspace.single.storage import reference_source
 
 
 def test_list_meanings_follow_leaf_type_and_bounded_text_evidence() -> None:

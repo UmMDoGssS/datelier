@@ -15,7 +15,7 @@ from datelier.inspection.exploration import (
 )
 from datelier.pipeline.history import Pipeline
 from datelier.pipeline.operations import Comparison, Filter, Sort
-from datelier.plotting.data import prepare_correlations, prepare_scatter
+from datelier.plotting.scatter.prepare import prepare_correlations, prepare_scatter
 
 
 def dataset(table: pl.DataFrame) -> Dataset:

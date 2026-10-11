@@ -21,8 +21,8 @@ from datelier.inspection.table import (
     prepare_inspection,
     prepare_page,
 )
-from datelier.io.csv import load_csv
 from datelier.io.loading import DatasetLoader, LoadPhase
+from datelier.io.tabular import load_csv
 
 CASES = ((10_000, 6), (100_000, 6), (1_000_000, 6), (100_000, 64))
 

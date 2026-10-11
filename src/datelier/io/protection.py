@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from datelier.io.media_manifest import MEDIA_EXTENSIONS, media_members
+from datelier.io.media.manifest import MEDIA_EXTENSIONS, media_members
 
 
 def destination_is_source(destination: Path, source: Path) -> bool:

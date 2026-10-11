@@ -14,7 +14,7 @@ from datelier.workspace.preferences import (
     read_preferences,
     save_preferences,
 )
-from datelier.workspace.types import WorkspaceViews
+from datelier.workspace.single import WorkspaceViews
 
 LAYOUT = (
     "[Window][Table preview]\nPos=0,0\nSize=800,600\n"

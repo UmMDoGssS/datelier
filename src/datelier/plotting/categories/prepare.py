@@ -10,9 +10,12 @@ from numpy.typing import NDArray
 from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset, DatasetRevision
 from datelier.inspection.profiles import COUNT_ROW_LIMIT
-from datelier.plotting.category_distributions import prepare_category_distributions
-from datelier.plotting.distributions import DistributionSettings, NumericDistribution
-from datelier.plotting.selection import SELECTION_LIMIT
+from datelier.plotting.distributions import (
+    DistributionSettings,
+    NumericDistribution,
+    prepare_category_distributions,
+)
+from datelier.plotting.scatter import SELECTION_LIMIT
 
 
 class CategoryRepresentation(StrEnum):

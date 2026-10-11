@@ -9,7 +9,12 @@ from numpy.typing import NDArray
 
 from datelier.core.dataset import Dataset
 from datelier.inspection.profiles import ProfileKind, prepare_range_profile
-from datelier.plotting.data import (
+from datelier.plotting.distributions import (
+    Comparison,
+    DistributionSettings,
+    prepare_comparison,
+)
+from datelier.plotting.scatter.prepare import (
     CORRELATION_ROW_LIMIT,
     Bars,
     Correlation,
@@ -17,11 +22,6 @@ from datelier.plotting.data import (
     prepare_bars,
     prepare_scatter,
     sample_indices,
-)
-from datelier.plotting.distributions import (
-    Comparison,
-    DistributionSettings,
-    prepare_comparison,
 )
 
 

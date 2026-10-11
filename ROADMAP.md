@@ -971,3 +971,18 @@ source-layout change; numerical pipelines and GUI behavior remain the same.
 - [x] Group legacy parameter exports; verify compatibility, full suite, wheel contents and native analysis/restoration workflows, then commit.
 
 [Layout and verification evidence](docs/analysis-packages.md).
+
+## Codebase package layout follow-up — authorized 2026-10-11
+
+The family export convention applies throughout the codebase. Keep meaningful
+subsystem packages, cluster flat collections by responsibility, and expose
+bounded public APIs through explicit `__init__.py` re-exports. Within packages,
+retain concrete dependencies to avoid circular imports and eager optional runtimes.
+Preserve class/recipe identifiers, data invariants, computation and GUI behavior.
+[Layout and acceptance](docs/package-layout.md) records the audited assignments.
+
+- [x] Group import adapters, workspace persistence, transforms and plot preparation; focused verification and commit.
+- [ ] Group inspection profiles, media decoding/display and annotation preparation; focused verification and commit.
+- [ ] Group application controllers and settings; focused verification and commit.
+- [ ] Group shared GUI controls, context forms, profiles, relationships and comparisons; verification and commit.
+- [ ] Audit the entire source tree, imports and wheel; full suite and native workflow/restoration acceptance.

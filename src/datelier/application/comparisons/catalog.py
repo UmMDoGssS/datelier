@@ -16,7 +16,7 @@ from datelier.inspection.references.types import ReferenceSettings
 from datelier.inspection.table import Inspection
 from datelier.inspection.text.list_records import is_text_field
 from datelier.inspection.text.types import TextSettings
-from datelier.io.arrays.storage import ArrayStore
+from datelier.io.arrays import ArrayStore
 
 if TYPE_CHECKING:
     from datelier.application.file import FileController

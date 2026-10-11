@@ -19,9 +19,9 @@ from datelier.inspection.images.sources import image_metadata, locate_image
 from datelier.inspection.images.storage import ImageStore
 from datelier.inspection.images.types import ImageDisplay, ImageMetadata, ImageWindow
 from datelier.inspection.references.types import ReferenceSettings
+from datelier.io.arrays import ArrayStore
 from datelier.io.arrays.metadata import inspect_arrays
-from datelier.io.arrays.storage import ArrayStore
-from datelier.workspace.codec import decode_record, encode
+from datelier.workspace.recipes.codec import decode_record, encode
 
 
 @pytest.mark.parametrize(

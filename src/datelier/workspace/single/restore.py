@@ -8,8 +8,8 @@ from datelier.io.importing import load_file
 from datelier.io.types import ImportResult
 from datelier.pipeline.history import Pipeline
 from datelier.pipeline.operations import apply_operation
-from datelier.workspace.storage import fingerprint, read_workspace
-from datelier.workspace.types import Workspace
+from datelier.workspace.single.storage import fingerprint, read_workspace
+from datelier.workspace.single.types import Workspace
 
 
 class SourceIssue(ValueError):

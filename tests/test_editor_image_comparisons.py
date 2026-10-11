@@ -17,9 +17,9 @@ from datelier.inspection.images.comparisons.settings import (
 from datelier.inspection.images.profile_types import ImageProfileSettings
 from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.loading import LoadPhase
-from datelier.workspace.codec import decode_record, encode
-from datelier.workspace.session_storage import read_session_workspace
-from datelier.workspace.session_types import SessionFile, SessionWorkspace
+from datelier.workspace.recipes.codec import decode_record, encode
+from datelier.workspace.sessions import SessionFile, SessionWorkspace
+from datelier.workspace.sessions.storage import read_session_workspace
 
 
 def wait(editor: EditorController, root: Path) -> None:

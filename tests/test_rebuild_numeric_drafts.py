@@ -11,7 +11,7 @@ from datelier.application.editor import EditorController
 from datelier.application.workspace import capture_session
 from datelier.io.types import ArrayOptions
 from datelier.pipeline.operations import Sort
-from datelier.workspace.session_jobs import save_snapshot
+from datelier.workspace.sessions.jobs import save_snapshot
 
 
 def test_supports_project_other_axes_and_structured_fields_without_truncation(

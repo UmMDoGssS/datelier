@@ -21,9 +21,9 @@ from datelier.inspection.audio.reading import audio_blocks, prepare_window
 from datelier.inspection.audio.sources import audio_metadata, locate_audio
 from datelier.inspection.audio.types import AudioRange
 from datelier.inspection.references.types import ReferenceMapping, ReferenceSettings
+from datelier.io.arrays import ArrayStore
 from datelier.io.arrays.metadata import inspect_arrays
 from datelier.io.arrays.records import prepare_array_records
-from datelier.io.arrays.storage import ArrayStore
 
 
 def dataset(root: Path, paths: list[str | None]) -> Dataset:

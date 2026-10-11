@@ -165,7 +165,7 @@ def test_xml_options_validation() -> None:
 def test_xml_batches_preserve_order_late_types_and_empty_records(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    import datelier.io.records as batches
+    import datelier.io.tabular.records as batches
 
     monkeypatch.setattr(batches, "BATCH_RECORDS", 2)
     monkeypatch.setattr(batches, "BLOCK_BATCHES", 2)

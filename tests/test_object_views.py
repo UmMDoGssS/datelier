@@ -12,7 +12,7 @@ from datelier.io.loading import LoadPhase
 from datelier.io.types import ImportFormat
 from datelier.pipeline.editing import HistoryAction
 from datelier.pipeline.operations import Sort
-from datelier.workspace.session_jobs import save_snapshot
+from datelier.workspace.sessions.jobs import save_snapshot
 
 
 def wait(editor: EditorController) -> None:

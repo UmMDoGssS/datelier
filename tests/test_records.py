@@ -62,7 +62,7 @@ def test_supporting_columns_are_not_limited_by_table_page_width() -> None:
 def test_restored_inspect_fields_recover_against_already_bound_columns() -> None:
     from datelier.application.records import RecordController
     from datelier.core.jobs import SharedWorkers
-    from datelier.plotting.selection import LinkedSelection
+    from datelier.plotting.scatter import LinkedSelection
 
     source = data()
     workers = SharedWorkers()

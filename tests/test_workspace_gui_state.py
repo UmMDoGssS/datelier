@@ -19,9 +19,9 @@ from datelier.inspection.exploration import PlotSettings
 from datelier.inspection.profiles import prepare_profiles
 from datelier.io.importing import load_file
 from datelier.plotting.distributions import DistributionSettings
-from datelier.workspace.codec import decode_record, encode
-from datelier.workspace.storage import reference_source
-from datelier.workspace.types import Workspace, WorkspaceViews
+from datelier.workspace.recipes.codec import decode_record, encode
+from datelier.workspace.single import Workspace, WorkspaceViews
+from datelier.workspace.single.storage import reference_source
 
 
 def test_plot_names_restore_independently_of_column_order(tmp_path: Path) -> None:

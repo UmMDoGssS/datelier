@@ -13,7 +13,7 @@ from datelier.inspection.annotations.types import (
 )
 from datelier.io.annotations.source import annotation_source
 from datelier.io.annotations.values import integer, mapping, number, sequence, text
-from datelier.io.json import decode_json
+from datelier.io.tabular import decode_json
 
 
 def read_coco(path: Path) -> AnnotationCatalog:

@@ -30,7 +30,7 @@ from datelier.inspection.images.sources import (
 from datelier.inspection.images.storage import ImageStore
 from datelier.inspection.references.index import ReferenceIndex
 from datelier.inspection.references.types import ReferenceSettings
-from datelier.io.arrays.storage import ArrayStore
+from datelier.io.arrays import ArrayStore
 
 
 @dataclass(frozen=True)

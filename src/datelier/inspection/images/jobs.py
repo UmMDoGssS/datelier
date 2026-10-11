@@ -19,7 +19,7 @@ from datelier.inspection.images.types import (
 )
 from datelier.inspection.references.index import ReferenceIndex
 from datelier.inspection.references.types import ReferenceSettings
-from datelier.io.arrays.storage import ArrayStore
+from datelier.io.arrays import ArrayStore
 
 
 class ImageJobs:

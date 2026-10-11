@@ -9,17 +9,17 @@ from datelier.application.dataset import DatasetRuntime
 from datelier.core.jobs import SharedWorkers
 from datelier.inspection.exploration import Explorer
 from datelier.inspection.preview import PreviewCache
-from datelier.io.csv import CsvImport, load_csv
 from datelier.io.exporting import DatasetExporter
 from datelier.io.loading import DatasetLoader
+from datelier.io.tabular import CsvImport, load_csv
 from datelier.io.types import CsvOptions, ImportOptions
 from datelier.pipeline.editing import DatasetEditor, HistoryAction
 from datelier.pipeline.operations import Sort
-from datelier.plotting.selection import LinkedSelection
-from datelier.workspace.jobs import WorkspaceJobs
-from datelier.workspace.restore import restore_workspace
-from datelier.workspace.storage import reference_source, save_workspace
-from datelier.workspace.types import Workspace
+from datelier.plotting.scatter import LinkedSelection
+from datelier.workspace.single import Workspace
+from datelier.workspace.single.jobs import WorkspaceJobs
+from datelier.workspace.single.restore import restore_workspace
+from datelier.workspace.single.storage import reference_source, save_workspace
 
 
 def runtime(

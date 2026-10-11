@@ -24,8 +24,8 @@ from datelier.feasibility.fixtures import make_table
 from datelier.gui.app import InspectionEvidence, run_gui
 from datelier.gui.components.probe import GuiProbe
 from datelier.inspection.table import prepare_inspection, prepare_page
-from datelier.io.csv import load_csv
 from datelier.io.exporting import ExportFormat, export_dataset
+from datelier.io.tabular import load_csv
 from datelier.pipeline.editing import HistoryAction
 from datelier.pipeline.history import Pipeline, replay
 from datelier.pipeline.operations import (
@@ -35,7 +35,7 @@ from datelier.pipeline.operations import (
     Sort,
     describe_operation,
 )
-from datelier.pipeline.types import (
+from datelier.pipeline.transforms import (
     DerivedColumn,
     FillMissing,
     Lookup,

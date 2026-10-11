@@ -17,7 +17,7 @@ from datelier.inspection.exploration import PlotSettings, prepare_dashboard
 from datelier.io.importing import load_file
 from datelier.pipeline.history import Pipeline
 from datelier.pipeline.operations import Comparison, Filter, Sort
-from datelier.plotting.selection import LinkedSelection
+from datelier.plotting.scatter import LinkedSelection
 
 
 @pytest.mark.parametrize("suffix", ["csv", "tsv", "json", "jsonl", "parquet", "xml"])

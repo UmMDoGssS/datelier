@@ -6,16 +6,16 @@ from pathlib import Path
 
 from datelier.core.dataset import DatasetRevision, SourceReference
 from datelier.core.jobs import JobExecutor
-from datelier.workspace.session_restore import (
+from datelier.workspace.sessions.restore import (
     RestoredSession,
     RestoredSessionFile,
     SourceRecovery,
     restore_session_file,
     restore_session_workspace,
 )
-from datelier.workspace.session_storage import save_session_workspace
-from datelier.workspace.session_types import SessionFile, SessionWorkspace
-from datelier.workspace.storage import protect_sources, reference_source
+from datelier.workspace.sessions.storage import save_session_workspace
+from datelier.workspace.sessions.types import SessionFile, SessionWorkspace
+from datelier.workspace.single.storage import protect_sources, reference_source
 
 type FileStamp = tuple[DatasetRevision | None, int, bool]
 type SessionStamp = tuple[tuple[str, FileStamp], ...]

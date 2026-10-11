@@ -8,7 +8,7 @@ from test_rebuild_comparisons import until
 from datelier.application.editor import EditorController
 from datelier.application.workspace import capture_session
 from datelier.core.column_roles import ColumnRole
-from datelier.workspace.session_jobs import save_snapshot
+from datelier.workspace.sessions.jobs import save_snapshot
 
 
 def test_list_density_drafts_preserve_source_and_restore_without_explicit_jobs(

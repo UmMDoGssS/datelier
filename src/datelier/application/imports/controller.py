@@ -19,7 +19,7 @@ from datelier.application.imports.tabular import (
 )
 from datelier.io.importing import detect_format
 from datelier.io.types import ImportFailure, ImportFormat, validate_source_path
-from datelier.workspace.session_types import SourceDraft
+from datelier.workspace.sessions import SourceDraft
 
 
 class ImportController:

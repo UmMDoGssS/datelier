@@ -12,7 +12,7 @@ from datelier.inspection.table import (
     PreviewPage,
     prepare_inspection,
 )
-from datelier.io.csv import CsvImport, CsvOptions
+from datelier.io.tabular import CsvImport, CsvOptions
 
 
 def test_closing_cache_releases_pages_and_rejects_executing_page(

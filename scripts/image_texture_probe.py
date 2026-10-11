@@ -17,7 +17,7 @@ from datelier.inspection.images.sources import prepare_metadata
 from datelier.inspection.images.storage import ImageStore
 from datelier.inspection.images.types import ImageDisplay, ImageWindow
 from datelier.inspection.references.types import ReferenceSettings
-from datelier.io.arrays.storage import ArrayStore
+from datelier.io.arrays import ArrayStore
 
 
 def main() -> None:

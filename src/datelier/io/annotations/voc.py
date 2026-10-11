@@ -13,7 +13,7 @@ from datelier.inspection.annotations.types import (
     BoxRecord,
 )
 from datelier.io.annotations.source import annotation_source, coordinates, finite_number
-from datelier.io.xml_records import validate_xml_source
+from datelier.io.tabular.xml_records import validate_xml_source
 
 
 def _text(node: ET.Element, name: str) -> str:

@@ -14,7 +14,7 @@ from datelier.analysis.algorithms import ALGORITHMS
 from datelier.analysis.parameters import MeanShiftParameters
 from datelier.analysis.types import Algorithm, AnalysisRequest, TSNEParameters
 from datelier.application.analysis_settings import AnalysisSettings
-from datelier.workspace.codec import decode_record, encode
+from datelier.workspace.recipes.codec import decode_record, encode
 
 
 def test_catalog_import_and_default_validation_never_import_estimators() -> None:

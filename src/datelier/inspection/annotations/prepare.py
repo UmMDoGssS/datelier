@@ -21,8 +21,8 @@ from datelier.inspection.images.profile_types import ImageProgress
 from datelier.inspection.images.types import ImageLocator, ImageMetadata, ImageOrigin
 from datelier.inspection.references.index import ReferenceIndex
 from datelier.inspection.references.types import ReferenceSettings
-from datelier.io.annotations.loading import load_annotations
-from datelier.io.arrays.storage import ArrayStore
+from datelier.io.annotations import load_annotations
+from datelier.io.arrays import ArrayStore
 
 
 def prepare_annotations(

@@ -17,7 +17,7 @@ from datelier.io.types import (
     ParquetOptions,
     XmlOptions,
 )
-from datelier.workspace.session_types import SourceDraft
+from datelier.workspace.sessions import SourceDraft
 
 DEFAULTS: dict[ImportFormat, Callable[[], ImportOptions]] = {
     ImportFormat.CSV: CsvOptions,

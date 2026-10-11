@@ -13,7 +13,7 @@ from datelier.core.column_roles import ColumnRole
 from datelier.inspection.presentation import NumericScale, cell_style
 from datelier.inspection.references.types import ReferenceMapping, Resolution
 from datelier.pipeline.operations import Sort
-from datelier.workspace.session_jobs import save_snapshot
+from datelier.workspace.sessions.jobs import save_snapshot
 
 
 def test_table_styles_reference_mapping_and_idle_restoration(tmp_path: Path) -> None:

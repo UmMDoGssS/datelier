@@ -39,17 +39,17 @@ from datelier.inspection.preview import PreviewCache
 from datelier.inspection.references.jobs import ReferenceJobs
 from datelier.inspection.table import Inspection
 from datelier.inspection.text.list_records import is_text_field
-from datelier.io.arrays.storage import ArrayStore
+from datelier.io.arrays import ArrayStore
 from datelier.io.exporting import DatasetExporter
 from datelier.io.loading import DatasetLoader, LoadPhase
 from datelier.io.types import ArrayOptions, ImportFormat, ImportOptions, MediaOptions
 from datelier.pipeline.editing import DatasetEditor
-from datelier.plotting.selection import LinkedSelection
-from datelier.workspace.jobs import WorkspaceJobs
-from datelier.workspace.restore import RestoredWorkspace
-from datelier.workspace.session_restore import RestoredSessionFile
-from datelier.workspace.session_types import SourceDraft
-from datelier.workspace.types import WorkspaceViews
+from datelier.plotting.scatter import LinkedSelection
+from datelier.workspace.sessions import SourceDraft
+from datelier.workspace.sessions.restore import RestoredSessionFile
+from datelier.workspace.single import WorkspaceViews
+from datelier.workspace.single.jobs import WorkspaceJobs
+from datelier.workspace.single.restore import RestoredWorkspace
 
 
 class FileController:

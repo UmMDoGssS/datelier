@@ -17,9 +17,12 @@ from datelier.gui.relationships.primitives import (
     with_color_scale,
 )
 from datelier.gui.relationships.summary import ScatterSummary
-from datelier.plotting.data import Scatter
-from datelier.plotting.projection import projected_nearest, projected_rectangle
-from datelier.plotting.selection import LinkedSelection
+from datelier.plotting.scatter import (
+    LinkedSelection,
+    Scatter,
+    projected_nearest,
+    projected_rectangle,
+)
 
 FACE_VIEWS: dict[str, tuple[float, float]] = {
     "Isometric": (30, -45),

@@ -65,9 +65,9 @@ from datelier.inspection.text.comparisons.settings import (
 from datelier.inspection.text.comparisons.types import TextComparisonInput
 from datelier.inspection.text.corpus import TextProgress
 from datelier.inspection.text.types import CorpusMode, TextScope, TextSource
+from datelier.io.arrays import ArrayStore
 from datelier.io.arrays.metadata import inspect_arrays
 from datelier.io.arrays.records import prepare_array_records
-from datelier.io.arrays.storage import ArrayStore
 from datelier.io.checkpoints.storage import CheckpointStore
 from datelier.io.importing import load_file
 

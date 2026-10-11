@@ -15,8 +15,8 @@ from datelier.workspace.preferences import (
     read_preferences,
     save_preferences,
 )
-from datelier.workspace.storage import save_workspace
-from datelier.workspace.types import Workspace
+from datelier.workspace.single import Workspace
+from datelier.workspace.single.storage import save_workspace
 
 
 def wait(editor: EditorController) -> None:
@@ -97,7 +97,7 @@ def test_old_panel_layout_recovers_other_preferences(tmp_path: Path) -> None:
 
 def test_workspace_save_protects_another_file_and_aliases(tmp_path: Path) -> None:
     from datelier.io.importing import load_file
-    from datelier.workspace.storage import reference_source
+    from datelier.workspace.single.storage import reference_source
 
     source, other = tmp_path / "a.csv", tmp_path / "b.csv"
     source.write_text("x\n1\n")

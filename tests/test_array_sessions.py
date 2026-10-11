@@ -14,11 +14,11 @@ from datelier.core.dataset import DatasetRevision
 from datelier.inspection.arrays.jobs import ArrayJobs
 from datelier.inspection.arrays.slices import PreparedSlice, SliceSettings
 from datelier.inspection.arrays.types import ArrayCatalog
+from datelier.io.arrays import ArrayStore
 from datelier.io.arrays.metadata import inspect_arrays
-from datelier.io.arrays.storage import ArrayStore
 from datelier.io.loading import LoadPhase
 from datelier.io.types import ArrayOptions, ImportFormat
-from datelier.workspace.session_jobs import save_snapshot
+from datelier.workspace.sessions.jobs import save_snapshot
 
 
 def wait(editor: EditorController) -> None:

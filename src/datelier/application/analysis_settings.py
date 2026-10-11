@@ -11,7 +11,7 @@ from datelier.analysis.types import (
     Preprocessing,
 )
 from datelier.core.dataset import Dataset
-from datelier.plotting.data import feature_columns
+from datelier.plotting.scatter.prepare import feature_columns
 
 
 @dataclass

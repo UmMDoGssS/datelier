@@ -12,7 +12,7 @@ from datelier.core.column_roles import (
     ColumnRole,
 )
 from datelier.core.dataset import Dataset, SourceReference
-from datelier.io.media_manifest import directory_signature, media_members
+from datelier.io.media.manifest import directory_signature, media_members
 from datelier.io.types import ImportFailure, ImportFormat, ImportResult, MediaOptions
 
 

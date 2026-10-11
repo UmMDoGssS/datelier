@@ -6,15 +6,15 @@ from collections.abc import Callable
 from dataclasses import replace
 from pathlib import Path
 
-from datelier.workspace.codec import decode_record, encode
-from datelier.workspace.session_types import SessionFile, SessionWorkspace
-from datelier.workspace.storage import (
+from datelier.workspace.recipes.codec import decode_record, encode
+from datelier.workspace.sessions.types import SessionFile, SessionWorkspace
+from datelier.workspace.single import Workspace
+from datelier.workspace.single.storage import (
     MAX_WORKSPACE_BYTES,
     atomic_write,
     protect_sources,
     read_recipe,
 )
-from datelier.workspace.types import Workspace
 
 
 def map_paths(file: SessionFile, convert: Callable[[str], str]) -> SessionFile:

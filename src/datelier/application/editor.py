@@ -17,9 +17,9 @@ from datelier.io.exporting import DatasetExporter
 from datelier.io.loading import LoadPhase
 from datelier.io.opening import OpeningJobs
 from datelier.workspace.recent import RecentKind, RecentSource
-from datelier.workspace.session_jobs import SessionJobs, SessionStamp
-from datelier.workspace.session_restore import SourceRecovery
-from datelier.workspace.session_types import SessionFile, SessionWorkspace
+from datelier.workspace.sessions import SessionFile, SessionWorkspace
+from datelier.workspace.sessions.jobs import SessionJobs, SessionStamp
+from datelier.workspace.sessions.restore import SourceRecovery
 
 
 class EditorController:

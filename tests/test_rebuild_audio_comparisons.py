@@ -17,7 +17,7 @@ from datelier.inspection.audio.collections.settings import (
 from datelier.inspection.audio.comparisons.settings import AudioComparisonViewSettings
 from datelier.inspection.audio.playback.controller import PlaybackPhase
 from datelier.inspection.audio.profile_types import AudioThresholds
-from datelier.workspace.session_jobs import save_snapshot
+from datelier.workspace.sessions.jobs import save_snapshot
 
 
 def test_linked_scope_thresholds_drafts_and_idle_restore(tmp_path: Path) -> None:

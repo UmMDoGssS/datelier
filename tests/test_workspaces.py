@@ -25,7 +25,7 @@ from datelier.io.types import (
 )
 from datelier.pipeline.history import replay
 from datelier.pipeline.operations import Comparison, Filter, SelectColumns, Sort
-from datelier.pipeline.types import (
+from datelier.pipeline.transforms import (
     CastColumn,
     DerivedColumn,
     DropMissing,
@@ -34,8 +34,12 @@ from datelier.pipeline.types import (
     TargetType,
     Unmatched,
 )
-from datelier.workspace.storage import read_workspace, reference_source, save_workspace
-from datelier.workspace.types import Workspace, WorkspaceViews
+from datelier.workspace.single import Workspace, WorkspaceViews
+from datelier.workspace.single.storage import (
+    read_workspace,
+    reference_source,
+    save_workspace,
+)
 
 
 def recipe(tmp_path: Path) -> Workspace:
@@ -224,7 +228,7 @@ def test_incompatible_shared_analysis_inputs_are_rejected(tmp_path: Path) -> Non
 
 
 def test_oversized_recipe_is_rejected_before_json_parsing(tmp_path: Path) -> None:
-    from datelier.workspace.storage import MAX_WORKSPACE_BYTES
+    from datelier.workspace.single.storage import MAX_WORKSPACE_BYTES
 
     path = tmp_path / "large.datelier"
     path.write_bytes(b" " * (MAX_WORKSPACE_BYTES + 1))

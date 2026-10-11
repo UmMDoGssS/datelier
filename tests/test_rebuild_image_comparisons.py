@@ -16,7 +16,7 @@ from datelier.inspection.arrays.mapping import (
 )
 from datelier.inspection.images.profile_types import PixelScope
 from datelier.pipeline.operations import Sort
-from datelier.workspace.session_jobs import save_snapshot
+from datelier.workspace.sessions.jobs import save_snapshot
 
 
 def test_mapped_image_comparison_and_original_record_navigation(tmp_path: Path) -> None:

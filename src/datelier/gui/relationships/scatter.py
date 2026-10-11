@@ -15,9 +15,7 @@ from datelier.gui.relationships.primitives import (
     with_color_scale,
 )
 from datelier.gui.relationships.summary import ScatterSummary
-from datelier.plotting.data import Scatter
-from datelier.plotting.projection import projected_nearest
-from datelier.plotting.selection import LinkedSelection
+from datelier.plotting.scatter import LinkedSelection, Scatter, projected_nearest
 
 
 class ScatterInput(Component):

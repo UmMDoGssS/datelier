@@ -7,10 +7,10 @@ from typing import TYPE_CHECKING
 from datelier.analysis.types import Algorithm
 from datelier.core.dataset import SourceReference
 from datelier.io.loading import LoadPhase, LoadStatus
-from datelier.workspace.session_jobs import SessionSnapshot
-from datelier.workspace.session_restore import RestoredSessionFile
-from datelier.workspace.session_types import SessionFile, SourceDraft
-from datelier.workspace.types import Workspace, WorkspaceSource, WorkspaceViews
+from datelier.workspace.sessions import SessionFile, SourceDraft
+from datelier.workspace.sessions.jobs import SessionSnapshot
+from datelier.workspace.sessions.restore import RestoredSessionFile
+from datelier.workspace.single import Workspace, WorkspaceSource, WorkspaceViews
 
 if TYPE_CHECKING:
     from datelier.application.editor import EditorController

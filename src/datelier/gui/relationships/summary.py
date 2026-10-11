@@ -6,8 +6,7 @@ from imgui_bundle import imgui
 
 from datelier.gui.components.base import Component, FrameContext
 from datelier.gui.components.native import target
-from datelier.plotting.data import Scatter
-from datelier.plotting.selection import LinkedSelection
+from datelier.plotting.scatter import LinkedSelection, Scatter
 
 
 class ScatterSummary(Component):

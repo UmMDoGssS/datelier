@@ -7,8 +7,8 @@ from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset
 from datelier.inspection.exploration import PlotSettings
 from datelier.plotting.categories import CategoryRepresentation, CategorySettings
-from datelier.plotting.data import feature_columns
 from datelier.plotting.distributions import DistributionSettings
+from datelier.plotting.scatter.prepare import feature_columns
 
 
 @dataclass

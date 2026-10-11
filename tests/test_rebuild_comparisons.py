@@ -30,7 +30,7 @@ from datelier.inspection.text.comparisons.settings import (
 )
 from datelier.io.types import ImportFormat, ObjectOptions
 from datelier.pipeline.operations import Sort
-from datelier.workspace.session_jobs import save_snapshot
+from datelier.workspace.sessions.jobs import save_snapshot
 
 
 def until(editor: EditorController, condition: Callable[[], bool]) -> None:

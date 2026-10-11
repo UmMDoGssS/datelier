@@ -17,7 +17,7 @@ from datelier.inspection.text.types import (
 )
 from datelier.io.types import ImportFormat, ObjectOptions
 from datelier.pipeline.operations import Sort
-from datelier.workspace.session_jobs import save_snapshot
+from datelier.workspace.sessions.jobs import save_snapshot
 
 
 def test_named_list_corpus_shared_tokenizer_and_stale_selection_scope(

@@ -7,8 +7,8 @@ from zipfile import ZipExtFile
 import numpy as np
 import pytest
 
+from datelier.io.arrays import ArrayStore
 from datelier.io.arrays.metadata import inspect_arrays
-from datelier.io.arrays.storage import ArrayStore
 
 
 @pytest.mark.parametrize("compressed", [False, True])

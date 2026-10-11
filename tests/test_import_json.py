@@ -102,8 +102,8 @@ def test_batches_preserve_empty_rows_late_fields_and_type_changes(
 ) -> None:
     import json
 
-    import datelier.io.json_records as arrays
-    import datelier.io.records as batches
+    import datelier.io.tabular.json_records as arrays
+    import datelier.io.tabular.records as batches
 
     monkeypatch.setattr(batches, "BATCH_RECORDS", 2)
     monkeypatch.setattr(batches, "BLOCK_BATCHES", 2)
@@ -158,7 +158,7 @@ def test_batches_preserve_empty_rows_late_fields_and_type_changes(
 def test_streaming_json_rejects_bad_array_grammar(
     tmp_path: Path, text: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    import datelier.io.json_records as arrays
+    import datelier.io.tabular.json_records as arrays
 
     monkeypatch.setattr(arrays, "CHUNK_CHARACTERS", 3)
     path = tmp_path / "bad.json"

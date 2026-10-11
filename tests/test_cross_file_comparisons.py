@@ -17,7 +17,7 @@ from datelier.inspection.comparison_settings import (
 from datelier.inspection.comparisons.prepare import prepare_comparison, select_bin
 from datelier.inspection.comparisons.types import ComparisonInput, PreparedComparison
 from datelier.pipeline.operations import Sort, apply_operation
-from datelier.plotting.selection import LinkedSelection
+from datelier.plotting.scatter import LinkedSelection
 
 
 def data(

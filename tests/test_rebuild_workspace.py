@@ -8,7 +8,7 @@ from time import monotonic, sleep
 from datelier.application.editor import EditorController
 from datelier.application.workspace import capture_session
 from datelier.pipeline.operations import Sort
-from datelier.workspace.session_storage import read_session_workspace
+from datelier.workspace.sessions.storage import read_session_workspace
 
 
 def until(editor: EditorController, condition: Callable[[], bool]) -> None:

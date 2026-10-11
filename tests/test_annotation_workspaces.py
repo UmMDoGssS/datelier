@@ -20,10 +20,10 @@ from datelier.inspection.annotations.settings import (
 )
 from datelier.inspection.annotations.types import AnnotationClass, AnnotationFormat
 from datelier.inspection.annotations.view_settings import AnnotationViewSettings
-from datelier.plotting.selection import SELECTION_LIMIT
-from datelier.workspace.codec import decode_record, encode
-from datelier.workspace.session_jobs import save_snapshot
-from datelier.workspace.types import WorkspaceViews
+from datelier.plotting.scatter import SELECTION_LIMIT
+from datelier.workspace.recipes.codec import decode_record, encode
+from datelier.workspace.sessions.jobs import save_snapshot
+from datelier.workspace.single import WorkspaceViews
 
 
 def wait(editor: EditorController) -> None:

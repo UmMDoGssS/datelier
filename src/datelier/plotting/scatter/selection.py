@@ -8,7 +8,7 @@ import numpy as np
 from numpy.typing import NDArray
 
 from datelier.core.dataset import DatasetRevision
-from datelier.plotting.data import Scatter
+from datelier.plotting.scatter.prepare import Scatter
 
 SELECTION_LIMIT = 10_000
 Coordinates = tuple[NDArray[np.float64], NDArray[np.float64]]

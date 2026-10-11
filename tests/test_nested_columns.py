@@ -12,17 +12,17 @@ from datelier.io.importing import load_file, load_inspectable_file
 from datelier.io.types import ImportFailure, ImportFormat, JsonOptions, ObjectOptions
 from datelier.pipeline.history import Pipeline
 from datelier.pipeline.operations import Sort
-from datelier.workspace.codec import decode_record, encode
-from datelier.workspace.restore import restore_recipe
-from datelier.workspace.storage import reference_source
-from datelier.workspace.types import Workspace
+from datelier.workspace.recipes.codec import decode_record, encode
+from datelier.workspace.single import Workspace
+from datelier.workspace.single.restore import restore_recipe
+from datelier.workspace.single.storage import reference_source
 
 
 @pytest.mark.parametrize("suffix", ["json", "jsonl"])
 def test_nested_batches_preserve_null_empty_late_fields_and_types(
     tmp_path: Path, suffix: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from datelier.io import records
+    from datelier.io.tabular import records
 
     monkeypatch.setattr(records, "BATCH_RECORDS", 1)
     monkeypatch.setattr(records, "BLOCK_BATCHES", 2)

@@ -11,7 +11,7 @@ from datelier.inspection.arrays.slices import (
     prepare_slice,
 )
 from datelier.inspection.arrays.types import ArrayCatalog
-from datelier.io.arrays.storage import ArrayStore
+from datelier.io.arrays import ArrayStore
 
 
 class ArrayJobs:

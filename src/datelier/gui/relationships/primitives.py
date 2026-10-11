@@ -8,7 +8,7 @@ from numpy.typing import NDArray
 
 from datelier.gui.components.native import label_text
 from datelier.plotting.colors import ColorSeries
-from datelier.plotting.data import Scatter
+from datelier.plotting.scatter import Scatter
 
 
 def rgba_color(rgba: int) -> imgui.ImVec4:

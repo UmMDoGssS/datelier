@@ -9,7 +9,7 @@ from datelier.analysis.types import Algorithm
 from datelier.application.editor import EditorController
 from datelier.application.workspace import capture_session
 from datelier.pipeline.operations import Sort
-from datelier.workspace.session_jobs import save_snapshot
+from datelier.workspace.sessions.jobs import save_snapshot
 
 
 def test_raw_scatter_refreshes_cluster_colors_on_fit_refit_and_clear(

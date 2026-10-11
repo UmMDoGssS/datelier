@@ -15,7 +15,7 @@ from datelier.inspection.audio.view_types import (
     SignalViewSettings,
     SpectralView,
 )
-from datelier.io.arrays.storage import ArrayStore
+from datelier.io.arrays import ArrayStore
 
 
 def prepare_spectrogram(

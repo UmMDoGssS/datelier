@@ -20,7 +20,7 @@ from datelier.inspection.audio.playback.types import PlaybackRequest
 from datelier.inspection.audio.sources import prepare_metadata
 from datelier.inspection.audio.types import AudioRange
 from datelier.inspection.references.types import ReferenceSettings
-from datelier.io.arrays.storage import ArrayStore
+from datelier.io.arrays import ArrayStore
 from datelier.io.media import load_media
 
 

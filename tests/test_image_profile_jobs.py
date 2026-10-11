@@ -19,7 +19,7 @@ from datelier.inspection.images.profile_types import (
     ImageScopeMode,
 )
 from datelier.inspection.references.types import ReferenceSettings
-from datelier.io.arrays.storage import ArrayStore
+from datelier.io.arrays import ArrayStore
 
 
 def dataset(root: Path) -> Dataset:

@@ -9,8 +9,7 @@ from datelier.core.dataset import Dataset, SourceReference
 from datelier.inspection.exploration import prepare_dashboard
 from datelier.pipeline.history import Pipeline
 from datelier.pipeline.operations import Comparison, Filter, SelectColumns, Sort
-from datelier.plotting.data import prepare_scatter
-from datelier.plotting.selection import LinkedSelection
+from datelier.plotting.scatter import LinkedSelection, prepare_scatter
 
 
 def data() -> Dataset:

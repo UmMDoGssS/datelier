@@ -26,7 +26,7 @@ from datelier.inspection.images.profile_types import (
 from datelier.inspection.images.profiles import finish_image_profile, image_positions
 from datelier.inspection.images.sources import check_asset
 from datelier.inspection.images.storage import ImageStore
-from datelier.io.arrays.storage import ArrayStore
+from datelier.io.arrays import ArrayStore
 
 
 def include_bounds(

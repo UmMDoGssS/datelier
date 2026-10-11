@@ -6,7 +6,7 @@ import pytest
 from datelier.core.dataset import Dataset, SourceReference
 from datelier.pipeline.history import Pipeline, replay
 from datelier.pipeline.operations import OperationFailure, Sort
-from datelier.pipeline.types import (
+from datelier.pipeline.transforms import (
     CastColumn,
     DropMissing,
     FillMissing,

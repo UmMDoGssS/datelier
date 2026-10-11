@@ -7,7 +7,7 @@ from datelier.gui.components.viewport import ViewportContent
 from datelier.gui.relationships.correlations import CorrelationPlot
 from datelier.gui.relationships.pairs import PairGrid
 from datelier.plotting.relationships import Relationships
-from datelier.plotting.selection import LinkedSelection
+from datelier.plotting.scatter import LinkedSelection
 
 
 class CorrelationContent(ViewportContent):

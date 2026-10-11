@@ -5,8 +5,8 @@ from time import monotonic, sleep
 import polars as pl
 
 from datelier.core.dataset import Dataset, SourceReference
-from datelier.plotting.distribution_preview import DistributionPreview
 from datelier.plotting.distributions import Comparison, DistributionSettings
+from datelier.plotting.distributions.preview import DistributionPreview
 
 
 def dataset(values: list[float]) -> Dataset:
@@ -51,7 +51,7 @@ def test_reuse_failure_recovery_and_revision_invalidation() -> None:
 
 
 def test_obsolete_and_abandoned_preparation_cannot_publish(monkeypatch) -> None:
-    import datelier.plotting.distribution_preview as module
+    import datelier.plotting.distributions.preview as module
 
     old, new = dataset([1, 2, 3]), dataset([5, 6, 7])
     original = module.prepare_comparison

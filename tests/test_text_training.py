@@ -28,8 +28,8 @@ from datelier.inspection.text.types import (
     TrainingSettings,
 )
 from datelier.io.importing import load_file
-from datelier.workspace.codec import decode_record, encode
-from datelier.workspace.types import WorkspaceViews
+from datelier.workspace.recipes.codec import decode_record, encode
+from datelier.workspace.single import WorkspaceViews
 
 
 @pytest.mark.parametrize("mode", [TokenMode.BPE, TokenMode.UNIGRAM])

@@ -22,8 +22,8 @@ from datelier.inspection.images.sources import image_metadata, locate_image
 from datelier.inspection.images.storage import ImageStore
 from datelier.inspection.images.types import ImageDisplay, ImageLocator, ImageWindow
 from datelier.inspection.references.types import ReferenceSettings
+from datelier.io.arrays import ArrayStore
 from datelier.io.arrays.metadata import inspect_arrays
-from datelier.io.arrays.storage import ArrayStore
 
 
 def dataset(root: Path, paths: list[str | None]) -> Dataset:

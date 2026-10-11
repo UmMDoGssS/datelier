@@ -16,8 +16,7 @@ from datelier.plotting.colors import (
     continuous_colors,
     prepare_colors,
 )
-from datelier.plotting.data import prepare_scatter
-from datelier.plotting.selection import LinkedSelection
+from datelier.plotting.scatter import LinkedSelection, prepare_scatter
 
 
 def data(table: pl.DataFrame) -> Dataset:

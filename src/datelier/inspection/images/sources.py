@@ -124,7 +124,7 @@ def image_metadata(locator: ImageLocator) -> ImageMetadata:
     catalog, mapping = locator.catalog, locator.mapping
     if catalog is None or mapping is None:
         raise ValueError("Image source is unavailable")
-    from datelier.io.arrays.storage import ArrayStore
+    from datelier.io.arrays import ArrayStore
 
     ArrayStore.check_source(catalog)
     member = catalog.member(mapping.member)

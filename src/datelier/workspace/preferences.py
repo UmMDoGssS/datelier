@@ -8,15 +8,15 @@ from pathlib import Path
 from typing import cast
 
 from datelier.inspection.exploration import PlotSettings
-from datelier.workspace.codec import decode_record, encode
 from datelier.workspace.layout import valid_layout
 from datelier.workspace.recent import MAX_RECENT, RecentSource, remember
-from datelier.workspace.storage import (
+from datelier.workspace.recipes.codec import decode_record, encode
+from datelier.workspace.single import WorkspaceViews
+from datelier.workspace.single.storage import (
     MAX_WORKSPACE_BYTES,
     atomic_write,
     protect_sources,
 )
-from datelier.workspace.types import WorkspaceViews
 
 
 class Theme(StrEnum):

@@ -4,8 +4,8 @@ import numpy as np
 import pytest
 
 from datelier.inspection.arrays.slices import SliceSettings, prepare_slice
+from datelier.io.arrays import ArrayStore
 from datelier.io.arrays.metadata import inspect_arrays
-from datelier.io.arrays.storage import ArrayStore
 
 
 def test_higher_dimensional_axis_order_and_fixed_indices_preserve_exact_values(

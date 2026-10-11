@@ -10,7 +10,7 @@ from datelier.application.workspace import capture_session
 from datelier.core.column_roles import ColumnRole
 from datelier.pipeline.operations import SetColumnRole, Sort
 from datelier.plotting.categories import CategoryRepresentation
-from datelier.workspace.session_jobs import save_snapshot
+from datelier.workspace.sessions.jobs import save_snapshot
 
 
 def test_all_category_relationship_modes_original_rows_and_profile_routing(
@@ -145,7 +145,7 @@ def test_legacy_count_workspace_opens_profiles_without_redirecting_inspect(
 
     from datelier.inspection.exploration import PlotSettings
     from datelier.plotting.categories import CategorySettings
-    from datelier.workspace.session_storage import (
+    from datelier.workspace.sessions.storage import (
         read_session_workspace,
         save_session_workspace,
     )

@@ -36,8 +36,8 @@ from datelier.inspection.text.types import (
     TokenSettings,
 )
 from datelier.io.importing import load_file
-from datelier.workspace.codec import decode_record, encode
-from datelier.workspace.session_types import SessionFile, SessionWorkspace
+from datelier.workspace.recipes.codec import decode_record, encode
+from datelier.workspace.sessions import SessionFile, SessionWorkspace
 
 
 def inputs(root: Path) -> tuple[TextComparisonInput, ...]:

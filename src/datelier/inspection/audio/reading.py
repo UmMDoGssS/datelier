@@ -17,7 +17,7 @@ from datelier.inspection.audio.types import (
     AudioRange,
     PreparedAudio,
 )
-from datelier.io.arrays.storage import ArrayStore
+from datelier.io.arrays import ArrayStore
 
 BLOCK_FRAMES = 65536
 BLOCK_BYTES = 1024 * 1024

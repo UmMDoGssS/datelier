@@ -8,9 +8,9 @@ from datelier.inspection.table import Inspection
 from datelier.io.exporting import DatasetExporter
 from datelier.io.loading import DatasetLoader, LoadPhase, LoadStatus
 from datelier.pipeline.editing import DatasetEditor
-from datelier.plotting.selection import LinkedSelection
-from datelier.workspace.jobs import WorkspaceJobs
-from datelier.workspace.restore import RestoredWorkspace
+from datelier.plotting.scatter import LinkedSelection
+from datelier.workspace.single.jobs import WorkspaceJobs
+from datelier.workspace.single.restore import RestoredWorkspace
 
 
 @dataclass(frozen=True)

@@ -6,8 +6,7 @@ from datelier.gui.components.base import FrameContext
 from datelier.gui.components.viewport import ViewportContent
 from datelier.gui.relationships.scatter import ScatterPlot
 from datelier.gui.relationships.scatter3d import Scatter3DPlot
-from datelier.plotting.data import Scatter
-from datelier.plotting.selection import LinkedSelection
+from datelier.plotting.scatter import LinkedSelection, Scatter
 
 
 class ScatterRouter(ViewportContent):

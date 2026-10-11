@@ -14,7 +14,7 @@ from datelier.inspection.audio.playback.worker import (
     PlaybackRun,
     execute_playback,
 )
-from datelier.io.arrays.storage import ArrayStore
+from datelier.io.arrays import ArrayStore
 
 
 class PlaybackPhase(StrEnum):

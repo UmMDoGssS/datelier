@@ -23,9 +23,9 @@ from datelier.inspection.audio.sources import (
 )
 from datelier.inspection.audio.types import AudioRange
 from datelier.inspection.references.types import ReferenceSettings
+from datelier.io.arrays import ArrayStore
 from datelier.io.arrays.metadata import inspect_arrays
 from datelier.io.arrays.records import prepare_array_records
-from datelier.io.arrays.storage import ArrayStore
 from datelier.io.media import load_media
 
 

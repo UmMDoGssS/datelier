@@ -10,9 +10,17 @@ from datelier.core.jobs import JobExecutor
 from datelier.inspection.exploration import PlotSettings
 from datelier.io.types import ImportResult
 from datelier.pipeline.history import Pipeline
-from datelier.workspace.restore import RestoredWorkspace, SourceIssue, restore_workspace
-from datelier.workspace.storage import protect_sources, reference_source, save_workspace
-from datelier.workspace.types import Workspace, WorkspaceViews
+from datelier.workspace.single.restore import (
+    RestoredWorkspace,
+    SourceIssue,
+    restore_workspace,
+)
+from datelier.workspace.single.storage import (
+    protect_sources,
+    reference_source,
+    save_workspace,
+)
+from datelier.workspace.single.types import Workspace, WorkspaceViews
 
 
 @dataclass(frozen=True)

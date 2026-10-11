@@ -24,7 +24,7 @@ from datelier.inspection.audio.types import (
 )
 from datelier.inspection.references.index import ReferenceIndex
 from datelier.inspection.references.types import ReferenceSettings
-from datelier.io.arrays.storage import ArrayStore
+from datelier.io.arrays import ArrayStore
 
 
 class AudioJobs:

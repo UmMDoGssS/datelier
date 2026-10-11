@@ -6,9 +6,9 @@ from pathlib import Path
 from datelier.inspection.arrays.types import ArrayCatalog
 from datelier.inspection.exploration import PlotSettings
 from datelier.io.types import ArrayOptions, ImportResult
-from datelier.workspace.restore import restore_recipe
-from datelier.workspace.session_types import SessionFile
-from datelier.workspace.types import WorkspaceViews
+from datelier.workspace.sessions import SessionFile
+from datelier.workspace.single.restore import restore_recipe
+from datelier.workspace.single.types import WorkspaceViews
 
 
 @dataclass(frozen=True)

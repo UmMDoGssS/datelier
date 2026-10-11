@@ -11,8 +11,8 @@ from datelier.inspection.arrays.slices import (
     prepare_slice,
 )
 from datelier.inspection.checkpoints.slices import prepare_tensor_slice
+from datelier.io.arrays import ArrayStore
 from datelier.io.arrays.metadata import inspect_arrays
-from datelier.io.arrays.storage import ArrayStore
 from datelier.io.checkpoints.storage import CheckpointStore
 from datelier.io.importing import load_file
 

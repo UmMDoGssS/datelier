@@ -41,8 +41,8 @@ from datelier.gui.sources.columns import ColumnCatalog
 from datelier.gui.sources.imports.view import ImportSettings
 from datelier.gui.table.view import TableView
 from datelier.io.loading import LoadPhase
-from datelier.plotting.data import Scatter
 from datelier.plotting.relationships import Relationships
+from datelier.plotting.scatter import Scatter
 
 
 @dataclass

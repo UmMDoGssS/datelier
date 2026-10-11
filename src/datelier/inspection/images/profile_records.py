@@ -10,7 +10,7 @@ from datelier.inspection.images.pixels import original_pixels, pixel_batches
 from datelier.inspection.images.profile_types import ImageProfileSettings
 from datelier.inspection.images.storage import ImageStore
 from datelier.inspection.images.types import ImageLocator, ImageMetadata
-from datelier.io.arrays.storage import ArrayStore
+from datelier.io.arrays import ArrayStore
 
 RECORD_SCHEMA = {
     "row_id": pl.UInt64,

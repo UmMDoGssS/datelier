@@ -9,18 +9,17 @@ from datelier.core.column_roles import ColumnRole
 from datelier.inspection.arrays.mapping import ArrayLayout
 from datelier.inspection.images.sources import image_metadata, locate_image
 from datelier.inspection.references.types import ReferenceSettings
+from datelier.io.arrays import ArrayStore, load_arrays
 from datelier.io.arrays.aligned import (
     aligned_record_count,
     column_mapping,
     prepare_aligned_records,
 )
-from datelier.io.arrays.importing import load_arrays
 from datelier.io.arrays.metadata import inspect_arrays
-from datelier.io.arrays.storage import ArrayStore
 from datelier.io.types import ArrayOptions
 from datelier.pipeline.history import Pipeline
 from datelier.pipeline.operations import Sort
-from datelier.workspace.codec import decode_record, encode
+from datelier.workspace.recipes.codec import decode_record, encode
 
 
 def test_heatmap_members_become_columns_without_loading_grids(tmp_path: Path) -> None:

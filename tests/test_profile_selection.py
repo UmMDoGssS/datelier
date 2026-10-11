@@ -8,8 +8,8 @@ from datelier.core.dataset import Dataset, SourceReference
 from datelier.inspection.profile_preview import ProfileRequest, prepare_profile_group
 from datelier.inspection.profile_selection import ProfileSelection
 from datelier.plotting.distributions import DistributionSettings
-from datelier.workspace.codec import decode_record, encode
-from datelier.workspace.types import WorkspaceViews
+from datelier.workspace.recipes.codec import decode_record, encode
+from datelier.workspace.single import WorkspaceViews
 
 
 def data() -> Dataset:

@@ -16,18 +16,18 @@ from datelier.inspection.exploration import PlotSettings
 from datelier.io.importing import load_file
 from datelier.io.types import CsvOptions, ImportFormat
 from datelier.pipeline.operations import Sort
-from datelier.workspace.session_restore import (
+from datelier.workspace.sessions import SessionFile, SessionWorkspace, SourceDraft
+from datelier.workspace.sessions.restore import (
     SourceRecovery,
     restore_session_file,
     restore_session_workspace,
 )
-from datelier.workspace.session_storage import (
+from datelier.workspace.sessions.storage import (
     read_session_workspace,
     save_session_workspace,
 )
-from datelier.workspace.session_types import SessionFile, SessionWorkspace, SourceDraft
-from datelier.workspace.storage import reference_source, save_workspace
-from datelier.workspace.types import Workspace, WorkspaceViews
+from datelier.workspace.single import Workspace, WorkspaceViews
+from datelier.workspace.single.storage import reference_source, save_workspace
 
 
 def fixture(tmp_path: Path) -> SessionWorkspace:
@@ -211,7 +211,7 @@ def test_bad_session_topology_is_rejected_before_import(
     raw = json.loads(path.read_text())
     raw.update(edit)
     path.write_text(json.dumps(raw))
-    from datelier.workspace import session_restore
+    from datelier.workspace.sessions import restore as session_restore
 
     def forbidden(*args: object, **kwargs: object) -> None:
         raise AssertionError("Invalid session started an import")
@@ -224,7 +224,7 @@ def test_bad_session_topology_is_rejected_before_import(
 def test_session_save_is_atomic_and_protects_every_source_and_alias(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from datelier.workspace import storage
+    from datelier.workspace.single import storage
 
     session = fixture(tmp_path)
     path = tmp_path / "session.datelier"
@@ -280,7 +280,7 @@ def test_session_sources_can_move_with_workspace_and_stale_selection_is_pruned(
 def test_oversized_session_and_duplicate_recoveries_leave_previous_recipe_usable(
     tmp_path: Path,
 ) -> None:
-    from datelier.workspace.storage import MAX_WORKSPACE_BYTES
+    from datelier.workspace.single.storage import MAX_WORKSPACE_BYTES
 
     session = fixture(tmp_path)
     path = tmp_path / "session.datelier"
@@ -303,7 +303,7 @@ def test_oversized_session_and_duplicate_recoveries_leave_previous_recipe_usable
 def test_version_two_migration_preserves_recipes_and_resets_only_old_layout(
     tmp_path: Path,
 ) -> None:
-    from datelier.workspace.session_storage import read_session_with_notice
+    from datelier.workspace.sessions.storage import read_session_with_notice
 
     session = fixture(tmp_path)
     path = tmp_path / "old.datelier"

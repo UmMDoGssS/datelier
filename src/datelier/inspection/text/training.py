@@ -30,7 +30,11 @@ from datelier.inspection.text.types import (
     TokenizerReference,
     TokenMode,
 )
-from datelier.workspace.storage import fingerprint, protect_sources, reference_source
+from datelier.workspace.single.storage import (
+    fingerprint,
+    protect_sources,
+    reference_source,
+)
 
 
 @dataclass(frozen=True)

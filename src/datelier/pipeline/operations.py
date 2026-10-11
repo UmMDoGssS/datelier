@@ -8,7 +8,7 @@ import polars as pl
 from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset
 from datelier.core.scalars import Scalar
-from datelier.pipeline.types import (
+from datelier.pipeline.transforms import (
     CastColumn,
     DerivedColumn,
     DropMissing,
@@ -139,7 +139,7 @@ def apply_operation(dataset: Dataset, operation: Operation) -> Dataset:
                 | Lookup()
                 | DerivedColumn()
             ):
-                from datelier.pipeline.transforms import apply_transform
+                from datelier.pipeline.transforms.apply import apply_transform
 
                 table, ids = apply_transform(table, ids, operation)
         return dataset.with_rows(table, ids)

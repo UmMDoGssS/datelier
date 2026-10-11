@@ -7,13 +7,11 @@ from datelier.core.column_roles import (
     IMAGE_EXTENSIONS,
     TEXT_EXTENSIONS,
 )
-from datelier.io.arrays.importing import load_arrays
-from datelier.io.checkpoints.importing import load_checkpoint
-from datelier.io.csv import load_csv, load_tsv
-from datelier.io.json import load_json
+from datelier.io.arrays import load_arrays
+from datelier.io.checkpoints import load_checkpoint
 from datelier.io.media import load_media
 from datelier.io.objects import load_object
-from datelier.io.parquet import load_parquet
+from datelier.io.tabular import load_csv, load_json, load_parquet, load_tsv, load_xml
 from datelier.io.types import (
     ArrayOptions,
     CheckpointOptions,
@@ -28,7 +26,6 @@ from datelier.io.types import (
     ParquetOptions,
     XmlOptions,
 )
-from datelier.io.xml import load_xml
 
 
 def detect_format(path: Path) -> ImportFormat:

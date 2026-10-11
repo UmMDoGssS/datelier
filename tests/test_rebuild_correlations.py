@@ -8,7 +8,7 @@ from test_rebuild_comparisons import until
 from datelier.application.editor import EditorController
 from datelier.application.workspace import capture_session
 from datelier.pipeline.operations import Sort
-from datelier.workspace.session_jobs import save_snapshot
+from datelier.workspace.sessions.jobs import save_snapshot
 
 
 def test_sorted_pair_identity_and_all_diagonals_reopen_without_analysis(

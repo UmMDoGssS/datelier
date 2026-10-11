@@ -15,7 +15,7 @@ from datelier.inspection.comparisons.types import (
     ComparisonSelection,
     PreparedComparison,
 )
-from datelier.plotting.selection import SELECTION_LIMIT
+from datelier.plotting.scatter import SELECTION_LIMIT
 
 
 def prepare_comparison(

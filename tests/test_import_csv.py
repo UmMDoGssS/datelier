@@ -5,7 +5,7 @@ from pathlib import Path
 import polars as pl
 import pytest
 
-from datelier.io.csv import CsvOptions, ImportFailure, load_csv
+from datelier.io.tabular.csv import CsvOptions, ImportFailure, load_csv
 
 
 def write_csv(tmp_path: Path, content: bytes) -> Path:

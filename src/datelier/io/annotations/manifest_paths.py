@@ -5,7 +5,7 @@ from pathlib import Path
 from datelier.core.column_roles import IMAGE_EXTENSIONS
 from datelier.inspection.references.types import AssetIdentity
 from datelier.io.annotations.source import annotation_source
-from datelier.io.media_manifest import media_members
+from datelier.io.media import media_members
 
 
 def local_path(value: str, base: Path) -> Path:

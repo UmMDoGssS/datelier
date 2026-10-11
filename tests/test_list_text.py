@@ -39,7 +39,7 @@ from datelier.io.importing import load_file
 from datelier.pipeline.history import Pipeline
 from datelier.pipeline.operations import SetColumnRole, Sort
 from datelier.plotting.distributions import DistributionSettings
-from datelier.workspace.codec import decode_record, encode
+from datelier.workspace.recipes.codec import decode_record, encode
 
 
 def data(tmp_path: Path) -> Dataset:

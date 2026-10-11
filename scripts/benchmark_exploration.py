@@ -26,11 +26,11 @@ from datelier.gui.components.probe import GuiProbe
 from datelier.inspection.exploration import PlotSettings, prepare_dashboard
 from datelier.inspection.profiles import prepare_profiles
 from datelier.inspection.table import prepare_inspection, prepare_page
-from datelier.io.csv import load_csv
+from datelier.io.tabular import load_csv
 from datelier.pipeline.history import Pipeline
 from datelier.pipeline.operations import Comparison, Filter, Sort
 from datelier.plotting.distributions import DistributionSettings, prepare_comparison
-from datelier.plotting.selection import LinkedSelection
+from datelier.plotting.scatter import LinkedSelection
 
 CASES = ((10_000, 6), (100_000, 6), (1_000_000, 6), (100_000, 64))
 # Declared before measurement; existing frame/page/memory budgets are retained.

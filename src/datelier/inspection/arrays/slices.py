@@ -13,7 +13,7 @@ from datelier.inspection.arrays.windows import MAX_SLICE_BYTES as MAX_SLICE_BYTE
 from datelier.inspection.arrays.windows import MAX_SLICE_CELLS as MAX_SLICE_CELLS
 from datelier.inspection.arrays.windows import plan_window
 from datelier.inspection.heatmaps import normalize
-from datelier.io.arrays.storage import ArrayStore
+from datelier.io.arrays import ArrayStore
 
 
 @dataclass(frozen=True)

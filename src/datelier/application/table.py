@@ -10,7 +10,7 @@ from datelier.core.dataset import DatasetRevision
 from datelier.inspection.presentation import NumericBounds
 from datelier.inspection.preview import PreviewCache
 from datelier.inspection.table import Inspection
-from datelier.plotting.selection import LinkedSelection
+from datelier.plotting.scatter import LinkedSelection
 
 
 @dataclass(frozen=True)

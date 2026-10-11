@@ -23,7 +23,7 @@ from datelier.inspection.audio.view_types import (
 )
 from datelier.inspection.heatmaps import Colormap
 from datelier.inspection.references.types import ReferenceSettings
-from datelier.io.arrays.storage import ArrayStore
+from datelier.io.arrays import ArrayStore
 from datelier.io.media import load_media
 
 

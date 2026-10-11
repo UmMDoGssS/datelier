@@ -12,9 +12,9 @@ from datelier.application.workspace import capture_session
 from datelier.inspection.images.settings import ImageSettings
 from datelier.inspection.images.types import ImageDisplay, ImageWindow
 from datelier.inspection.images.viewport import ImageViewport
-from datelier.workspace.codec import decode, encode
-from datelier.workspace.session_jobs import save_snapshot
-from datelier.workspace.types import WorkspaceViews
+from datelier.workspace.recipes.codec import decode, encode
+from datelier.workspace.sessions.jobs import save_snapshot
+from datelier.workspace.single import WorkspaceViews
 
 
 def test_zoom_keeps_pixel_under_pointer_and_pan_uses_image_units() -> None:

@@ -10,7 +10,7 @@ from datelier.io.exporting import ExportFormat, export_dataset
 from datelier.io.importing import load_file
 from datelier.pipeline.history import Pipeline, replay
 from datelier.pipeline.operations import Comparison, Filter, SelectColumns, Sort
-from datelier.pipeline.types import (
+from datelier.pipeline.transforms import (
     CastColumn,
     DerivedColumn,
     FillMissing,

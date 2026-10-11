@@ -9,10 +9,10 @@ from tempfile import NamedTemporaryFile
 from typing import cast
 
 from datelier.core.dataset import SourceReference
-from datelier.io.media_manifest import directory_signature
+from datelier.io.media import directory_signature
 from datelier.io.protection import destination_is_source
-from datelier.workspace.codec import decode_record, encode
-from datelier.workspace.types import Workspace, WorkspaceSource
+from datelier.workspace.recipes.codec import decode_record, encode
+from datelier.workspace.single.types import Workspace, WorkspaceSource
 
 MAX_WORKSPACE_BYTES = 2 * 1024 * 1024
 

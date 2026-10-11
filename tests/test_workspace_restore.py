@@ -11,10 +11,14 @@ from datelier.io.importing import load_file
 from datelier.io.types import ImportFormat, ImportOptions, ImportResult
 from datelier.pipeline.history import Pipeline
 from datelier.pipeline.operations import Comparison, Filter, Sort
-from datelier.workspace.jobs import WorkspaceJobs
-from datelier.workspace.restore import RestoredWorkspace, SourceIssue, restore_workspace
-from datelier.workspace.storage import reference_source, save_workspace
-from datelier.workspace.types import Workspace
+from datelier.workspace.single import Workspace
+from datelier.workspace.single.jobs import WorkspaceJobs
+from datelier.workspace.single.restore import (
+    RestoredWorkspace,
+    SourceIssue,
+    restore_workspace,
+)
+from datelier.workspace.single.storage import reference_source, save_workspace
 
 
 def saved_recipe(tmp_path: Path) -> tuple[Path, Path]:
@@ -136,7 +140,7 @@ def test_failed_and_obsolete_jobs_cannot_replace_active_workspace(
 def test_background_save_captures_recipe_without_ml_results(tmp_path: Path) -> None:
     from datelier.analysis.types import AnalysisRequest
     from datelier.inspection.exploration import PlotSettings
-    from datelier.workspace.types import WorkspaceViews
+    from datelier.workspace.single import WorkspaceViews
 
     path, source = saved_recipe(tmp_path)
     imported = load_file(source)
@@ -174,7 +178,7 @@ def test_background_save_captures_recipe_without_ml_results(tmp_path: Path) -> N
 def test_source_mutation_during_restore_is_rejected(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    import datelier.workspace.restore as restoring
+    import datelier.workspace.single.restore as restoring
 
     path, source = saved_recipe(tmp_path)
     original = restoring.load_file
@@ -199,7 +203,7 @@ def test_newer_restore_bypasses_abandoned_work(
 ) -> None:
     from threading import Event
 
-    import datelier.workspace.jobs as background
+    import datelier.workspace.single.jobs as background
 
     path, _ = saved_recipe(tmp_path)
     original = background.restore_workspace
@@ -249,7 +253,7 @@ def test_each_tabular_format_reopens_with_exact_options_and_replay(
         ParquetOptions,
         XmlOptions,
     )
-    from datelier.pipeline.types import DerivedColumn
+    from datelier.pipeline.transforms import DerivedColumn
 
     table = pl.DataFrame({"x": [3, 1, 2], "y": [9, 5, 7]})
     source = tmp_path / "source.data"  # saved format overrides extension

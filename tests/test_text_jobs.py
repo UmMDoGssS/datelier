@@ -23,8 +23,8 @@ from datelier.inspection.text.types import (
     TokenMode,
     TokenSettings,
 )
-from datelier.workspace.codec import decode_record, encode
-from datelier.workspace.types import WorkspaceViews
+from datelier.workspace.recipes.codec import decode_record, encode
+from datelier.workspace.single import WorkspaceViews
 
 
 def wait(jobs: TextJobs) -> None:
