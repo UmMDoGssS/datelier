@@ -8,8 +8,8 @@ from time import monotonic, sleep
 import numpy as np
 from PIL import Image
 
-from datelier.application.editor import EditorController
-from datelier.application.profiles import ProfileFamily
+from datelier.application.exploration import ProfileFamily
+from datelier.application.sessions import EditorController
 from datelier.inspection.arrays.mapping import (
     ArrayLayout,
     ArrayRecordMapping,

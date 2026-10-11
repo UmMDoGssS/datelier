@@ -12,9 +12,9 @@ from datelier.analysis.types import (
     TSNEParameters,
     UMAPParameters,
 )
-from datelier.application.analysis_settings import AnalysisSettings
-from datelier.application.plot_settings import PlotState
-from datelier.application.settings_restore import restore_analysis, restore_plots
+from datelier.application.analysis import AnalysisSettings
+from datelier.application.exploration import PlotState
+from datelier.application.exploration.restore import restore_analysis, restore_plots
 from datelier.inspection.exploration import PlotSettings
 from datelier.inspection.profiles import prepare_profiles
 from datelier.io.importing import load_file
@@ -296,7 +296,7 @@ def test_coordinate_dimension_changes_do_not_invalidate_clustering_settings() ->
 def test_pending_correlations_preserve_saved_pair_grid(tmp_path: Path) -> None:
     from test_rebuild_sources import until
 
-    from datelier.application.editor import EditorController
+    from datelier.application.sessions import EditorController
 
     source = tmp_path / "data.csv"
     source.write_text("x,y\n1.0,2\n3.0,4\n5.0,6\n")

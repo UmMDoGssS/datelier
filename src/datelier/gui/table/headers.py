@@ -4,7 +4,7 @@ from hashlib import blake2b
 
 from imgui_bundle import imgui
 
-from datelier.application.table import TableColumn
+from datelier.application.tabular import TableColumn
 from datelier.gui.components.base import Component, FrameContext
 from datelier.gui.components.native import label_text
 

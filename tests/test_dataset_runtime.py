@@ -5,7 +5,7 @@ from pathlib import Path
 from threading import Event
 from time import monotonic, sleep
 
-from datelier.application.dataset import DatasetRuntime
+from datelier.application.sessions.dataset import DatasetRuntime
 from datelier.core.jobs import SharedWorkers
 from datelier.inspection.exploration import Explorer
 from datelier.inspection.preview import PreviewCache

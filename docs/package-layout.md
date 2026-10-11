@@ -49,3 +49,14 @@ discovery completed. The later reference-index change correctly invalidated its
 result. The same failure was reproduced against the preceding commit `bf018ec`;
 the harness now waits for preferences/reference discovery before its explicit
 command. Application cancellation and publication behavior were unchanged.
+
+Stage 3 passes: **28 application modules** moved into sessions, analysis,
+exploration, tabular and media packages; import drafts join their existing import
+controller family. Package APIs expose narrower state/controller families.
+**123 focused tests** and **14 boundary/checkpoint tests** pass, including optional
+Torch isolation and controller/rendering boundaries. The boundary audit now
+recognizes whole-controller imports through the public sessions facade.
+Pyrefly reports zero errors; Ruff and diff checks pass. The
+[native workflow](evidence/package-layout/application.json) verifies sort,
+undo/redo, literal-name selectors, explicit export/source protection and closure,
+with no implicit analysis or playback.

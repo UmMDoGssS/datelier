@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 
-from datelier.application.profiles import ProfileFamily
+from datelier.application.exploration import ProfileFamily
 from datelier.gui.components.base import Container
 
 

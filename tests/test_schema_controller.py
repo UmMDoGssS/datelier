@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from datelier.application.schema import SchemaController
+from datelier.application.tabular import SchemaController
 from datelier.core.column_roles import ColumnRole
 from datelier.inspection.table import prepare_inspection
 from datelier.io.importing import load_file

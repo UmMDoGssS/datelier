@@ -6,8 +6,8 @@ from pathlib import Path
 
 from test_rebuild_comparisons import until
 
-from datelier.application.editor import EditorController
-from datelier.application.workspace import capture_session
+from datelier.application.sessions import EditorController
+from datelier.application.sessions.workspace import capture_session
 from datelier.inspection.text.comparisons import TextComparisonViewSettings
 from datelier.inspection.text.types import (
     CorpusMode,

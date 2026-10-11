@@ -7,8 +7,8 @@ from time import monotonic, sleep
 import pytest
 from PIL import Image
 
-from datelier.application.editor import EditorController
-from datelier.application.workspace import capture_session
+from datelier.application.sessions import EditorController
+from datelier.application.sessions.workspace import capture_session
 from datelier.inspection.images.settings import ImageSettings
 from datelier.inspection.images.types import ImageDisplay, ImageWindow
 from datelier.inspection.images.viewport import ImageViewport

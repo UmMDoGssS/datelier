@@ -12,8 +12,7 @@ from datelier.analysis.types import (
     PreparedInput,
     Provenance,
 )
-from datelier.application.editor import EditorController
-from datelier.application.navigation import WorkbenchNavigation
+from datelier.application.sessions import EditorController, WorkbenchNavigation
 from datelier.inspection.comparison_settings import ComparisonSettings
 from datelier.io.loading import LoadPhase
 

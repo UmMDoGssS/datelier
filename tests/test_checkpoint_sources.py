@@ -182,7 +182,7 @@ def test_missing_optional_extra_is_actionable_and_app_import_stays_lazy(
         [
             sys.executable,
             "-c",
-            "import sys; from datelier.application.editor import EditorController; "
+            "import sys; from datelier.application.sessions import EditorController; "
             "editor = EditorController(); assert 'torch' not in sys.modules; "
             "editor.close(); print('lazy')",
         ],

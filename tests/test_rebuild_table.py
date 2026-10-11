@@ -7,8 +7,8 @@ import numpy as np
 import pytest
 from test_rebuild_comparisons import until
 
-from datelier.application.editor import EditorController
-from datelier.application.workspace import capture_session
+from datelier.application.sessions import EditorController
+from datelier.application.sessions.workspace import capture_session
 from datelier.core.column_roles import ColumnRole
 from datelier.inspection.presentation import NumericScale, cell_style
 from datelier.inspection.references.types import ReferenceMapping, Resolution

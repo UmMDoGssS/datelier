@@ -14,8 +14,7 @@ import numpy as np
 import polars as pl
 from imgui_bundle import hello_imgui
 
-from datelier.application.editor import EditorController
-from datelier.application.file import FileController
+from datelier.application.sessions import EditorController, FileController
 from datelier.gui.app import InspectionEvidence, run_gui
 from datelier.gui.components.probe import GuiProbe
 

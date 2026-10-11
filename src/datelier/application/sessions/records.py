@@ -19,7 +19,7 @@ from datelier.io.types import (
 )
 
 if TYPE_CHECKING:
-    from datelier.application.file import FileController
+    from datelier.application.sessions.file import FileController
 
 
 class RecordViews:
@@ -52,7 +52,7 @@ class RecordViews:
     def open(
         self, owner: FileController, path: NodePath, *, as_text: bool = False
     ) -> FileController:
-        from datelier.application.file import FileController
+        from datelier.application.sessions.file import FileController
 
         active = owner.inspection
         if active is None or active.imported.object_root is None:
@@ -95,7 +95,7 @@ class RecordViews:
     def open_array(
         self, owner: FileController, mapping: ArrayRecordMapping
     ) -> FileController:
-        from datelier.application.file import FileController
+        from datelier.application.sessions.file import FileController
 
         active = owner.inspection
         if active is None or active.imported.array_catalog is None:

@@ -7,7 +7,7 @@ import numpy as np
 from PIL import Image
 from test_rebuild_sources import until
 
-from datelier.application.editor import EditorController
+from datelier.application.sessions import EditorController
 from datelier.inspection.records.types import RecordCard, RecordField
 from datelier.pipeline.operations import Sort
 

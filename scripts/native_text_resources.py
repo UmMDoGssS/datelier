@@ -12,8 +12,8 @@ from weakref import ReferenceType, ref
 import numpy as np
 from imgui_bundle import hello_imgui
 
-from datelier.application.comparisons.base import ComparisonFamily
-from datelier.application.editor import EditorController
+from datelier.application.comparisons import ComparisonFamily
+from datelier.application.sessions import EditorController
 from datelier.gui.app import InspectionEvidence, run_gui
 from datelier.gui.components.probe import GuiProbe
 from datelier.inspection.text.comparisons import (

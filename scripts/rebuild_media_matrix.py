@@ -21,8 +21,8 @@ from numpy.typing import NDArray
 from PIL import Image
 from rebuild_input import NativeInput
 
-from datelier.application.comparisons.base import ComparisonFamily
-from datelier.application.editor import EditorController
+from datelier.application.comparisons import ComparisonFamily
+from datelier.application.sessions import EditorController
 from datelier.gui.app import InspectionEvidence, run_gui
 from datelier.gui.components.probe import GuiProbe
 from datelier.inspection.audio.collections import AudioCollectionSettings

@@ -5,7 +5,7 @@ from collections.abc import Callable
 
 from imgui_bundle import imgui
 
-from datelier.application.references import ReferenceController
+from datelier.application.media.records import ReferenceController
 from datelier.gui.components.actions import CommandButton
 from datelier.gui.components.base import Component, Container, FrameContext
 from datelier.gui.components.fields import TextField

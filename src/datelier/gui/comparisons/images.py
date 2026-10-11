@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from imgui_bundle import imgui
 
-from datelier.application.comparisons.base import ComparisonFamily
+from datelier.application.comparisons import ComparisonFamily
 from datelier.application.comparisons.images import ImageComparisonController
 from datelier.gui.comparisons.base import ComparisonContent
 from datelier.gui.comparisons.histograms import ComparisonHistogram

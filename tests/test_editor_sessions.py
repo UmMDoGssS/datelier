@@ -3,8 +3,7 @@ from time import monotonic, sleep
 
 import pytest
 
-from datelier.application.editor import EditorController
-from datelier.application.file import FileController
+from datelier.application.sessions import EditorController, FileController
 from datelier.gui.shell.navigation import FileTab
 from datelier.io.loading import LoadPhase
 

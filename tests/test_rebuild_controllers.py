@@ -3,8 +3,7 @@
 from pathlib import Path
 from time import monotonic, sleep
 
-from datelier.application.editor import EditorController
-from datelier.application.file import FileController
+from datelier.application.sessions import EditorController, FileController
 from datelier.pipeline.operations import Sort
 
 

@@ -2,8 +2,8 @@
 
 import polars as pl
 
-from datelier.application.columns import ColumnChoice
 from datelier.application.sources.columns import record_mapping
+from datelier.application.tabular import ColumnChoice
 from datelier.inspection.arrays.mapping import ArrayLayout
 from datelier.inspection.table import Inspection
 from datelier.io.types import ArrayOptions

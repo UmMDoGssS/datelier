@@ -1,9 +1,9 @@
 """Contextual inspect controls over narrow media state."""
 
-from datelier.application.audio import AudioController
-from datelier.application.images import ImageController
-from datelier.application.records import RecordController
-from datelier.application.text import TextController
+from datelier.application.media.audio import AudioController
+from datelier.application.media.images import ImageController
+from datelier.application.media.records import RecordController
+from datelier.application.media.text import TextController
 from datelier.gui.components.base import Container, FrameContext
 from datelier.gui.context.media.audio import AudioSettings
 from datelier.gui.context.media.images import ImageSettings

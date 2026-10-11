@@ -2,7 +2,7 @@ import math
 
 import pytest
 
-from datelier.application.axes import AxisState, validate_range
+from datelier.application.exploration import AxisState, validate_range
 from datelier.workspace.single import WorkspaceViews
 
 

@@ -5,8 +5,8 @@ from time import monotonic, sleep
 import polars as pl
 import pytest
 
-from datelier.application.editor import EditorController
-from datelier.application.workspace import capture_session
+from datelier.application.sessions import EditorController
+from datelier.application.sessions.workspace import capture_session
 from datelier.inspection.objects.types import ObjectNode
 from datelier.io.loading import LoadPhase
 from datelier.io.types import ImportFormat

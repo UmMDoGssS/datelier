@@ -10,7 +10,7 @@ from tempfile import TemporaryDirectory
 import numpy as np
 from imgui_bundle import hello_imgui, imgui
 
-from datelier.application.editor import EditorController
+from datelier.application.sessions import EditorController
 from datelier.gui.app import InspectionEvidence, run_gui
 from datelier.gui.components.probe import GuiProbe
 from datelier.workspace.preferences import Preferences, save_preferences

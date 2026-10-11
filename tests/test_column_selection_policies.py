@@ -1,6 +1,6 @@
 """Domain limits/order remain independent when tools share picker rendering."""
 
-from datelier.application.columns import (
+from datelier.application.tabular import (
     ColumnChoice,
     MultiSelection,
     ProfileSelectionPolicy,

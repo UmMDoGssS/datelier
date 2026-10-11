@@ -3,8 +3,13 @@
 from abc import ABC, abstractmethod
 from collections.abc import Callable
 
-from datelier.application.columns import ColumnChoice, MultiSelection, SingleSelection
-from datelier.application.edit_values import lookup_entries, scalar_input
+from datelier.application.tabular import (
+    ColumnChoice,
+    MultiSelection,
+    SingleSelection,
+    lookup_entries,
+    scalar_input,
+)
 from datelier.gui.components.actions import CommandButton, JobFeedback, JobSnapshot
 from datelier.gui.components.base import Component, Container, FrameContext
 from datelier.gui.components.columns import ColumnPicker

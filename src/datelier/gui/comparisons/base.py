@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 
-from datelier.application.comparisons.base import ComparisonFamily
+from datelier.application.comparisons import ComparisonFamily
 from datelier.gui.components.base import Container
 
 

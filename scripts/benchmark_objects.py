@@ -10,7 +10,7 @@ from time import perf_counter
 import numpy as np
 from imgui_bundle import hello_imgui
 
-from datelier.application.editor import EditorController
+from datelier.application.sessions import EditorController
 from datelier.gui.app import InspectionEvidence, run_gui
 from datelier.gui.components.probe import GuiProbe
 

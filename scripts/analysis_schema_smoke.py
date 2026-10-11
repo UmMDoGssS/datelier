@@ -15,7 +15,7 @@ from datelier.analysis.types import (
     PCAParameters,
     TSNEParameters,
 )
-from datelier.application.editor import EditorController
+from datelier.application.sessions import EditorController
 from datelier.gui.app import InspectionEvidence, run_gui
 from datelier.gui.components.probe import GuiProbe
 

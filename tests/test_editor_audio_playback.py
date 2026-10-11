@@ -8,8 +8,7 @@ import numpy as np
 import soundfile as sf
 from audio_playback_fixtures import Devices
 
-from datelier.application.editor import EditorController
-from datelier.application.file import FileController
+from datelier.application.sessions import EditorController, FileController
 from datelier.inspection.arrays.mapping import ArrayLayout, ArrayRecordMapping
 from datelier.inspection.audio.playback.controller import PlaybackPhase
 from datelier.inspection.audio.playback.requests import playback_request

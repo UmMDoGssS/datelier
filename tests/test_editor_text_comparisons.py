@@ -3,7 +3,7 @@
 from pathlib import Path
 from time import monotonic, sleep
 
-from datelier.application.editor import EditorController
+from datelier.application.sessions import EditorController
 from datelier.inspection.text.comparisons import (
     TextComparisonSettings,
     TextComparisonSource,

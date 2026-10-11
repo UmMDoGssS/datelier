@@ -4,8 +4,8 @@ from collections.abc import Callable
 
 from datelier.analysis.types import Algorithm, EmbeddingResult
 from datelier.application.analysis import AnalysisController
-from datelier.application.columns import ColumnChoice, MultiSelection, SingleSelection
-from datelier.application.plot_settings import PlotState
+from datelier.application.exploration import PlotState
+from datelier.application.tabular import ColumnChoice, MultiSelection, SingleSelection
 from datelier.gui.components.actions import JobFeedback, JobSnapshot
 from datelier.gui.components.base import Container
 from datelier.gui.components.columns import ColumnPicker

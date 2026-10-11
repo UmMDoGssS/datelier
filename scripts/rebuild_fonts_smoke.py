@@ -7,7 +7,7 @@ from tempfile import TemporaryDirectory
 from imgui_bundle import hello_imgui, imgui
 from PIL import Image
 
-from datelier.application.editor import EditorController
+from datelier.application.sessions import EditorController
 from datelier.gui.app import InspectionEvidence, run_gui
 from datelier.gui.components.probe import GuiProbe
 

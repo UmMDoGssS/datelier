@@ -8,9 +8,8 @@ from unittest.mock import patch
 
 from audio_playback_fixtures import Devices
 
-from datelier.application.editor import EditorController
-from datelier.application.file import FileController
-from datelier.application.workspace import capture_session, install_file
+from datelier.application.sessions import EditorController, FileController
+from datelier.application.sessions.workspace import capture_session, install_file
 from datelier.feasibility.multimodal import make_multimodal
 from datelier.inspection.arrays.mapping import (
     ArrayLayout,

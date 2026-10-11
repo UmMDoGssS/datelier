@@ -3,7 +3,7 @@ from threading import Event
 from time import monotonic, sleep
 
 from datelier.analysis.types import EmbeddingResult, PreparedInput
-from datelier.application.file import FileController
+from datelier.application.sessions import FileController
 from datelier.core.jobs import SharedWorkers
 from datelier.io.loading import DatasetLoader, LoadPhase
 from datelier.io.tabular import load_csv
@@ -101,7 +101,7 @@ def test_closing_analyzing_tab_is_nonblocking_and_reaps_its_worker(
 
     from datelier.analysis.jobs import AnalysisJobs
     from datelier.analysis.types import AnalysisRequest
-    from datelier.application.editor import EditorController
+    from datelier.application.sessions import EditorController
 
     source = tmp_path / "source.csv"
     source.write_text("x,y\n1,2\n3,4\n5,6\n7,8\n")

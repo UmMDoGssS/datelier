@@ -2,8 +2,8 @@
 
 from dataclasses import replace
 
-from datelier.application.analysis_settings import AnalysisSettings
-from datelier.application.plot_settings import PlotState
+from datelier.application.analysis import AnalysisSettings
+from datelier.application.exploration.plots import PlotState
 from datelier.core.dataset import Dataset
 from datelier.inspection.exploration import PlotSettings
 from datelier.plotting.categories import CategoryRepresentation

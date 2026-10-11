@@ -8,8 +8,8 @@ from time import monotonic, sleep
 
 import polars as pl
 
-from datelier.application.editor import EditorController
-from datelier.application.profiles import ProfileFamily
+from datelier.application.exploration import ProfileFamily
+from datelier.application.sessions import EditorController
 from datelier.inspection.text.types import (
     CorpusMode,
     TextScope,
@@ -105,7 +105,7 @@ def test_training_publishes_shared_recipe_with_explicit_selected_provenance(
 
 
 def test_saved_text_subview_and_tokenizer_reopen_without_work(tmp_path: Path) -> None:
-    from datelier.application.workspace import capture_session
+    from datelier.application.sessions.workspace import capture_session
     from datelier.workspace.sessions.jobs import save_snapshot
 
     source, workspace = tmp_path / "source.csv", tmp_path / "session.json"

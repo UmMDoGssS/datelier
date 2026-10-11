@@ -3,7 +3,7 @@
 from collections.abc import Callable
 from dataclasses import replace
 
-from datelier.application.images import ImageController
+from datelier.application.media.images import ImageController
 from datelier.gui.components.actions import CommandButton, JobFeedback, JobSnapshot
 from datelier.gui.components.base import Container
 from datelier.gui.components.bindings import StateFields

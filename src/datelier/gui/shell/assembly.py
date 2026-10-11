@@ -4,9 +4,8 @@ from collections.abc import Callable
 from dataclasses import dataclass, replace
 
 from datelier.analysis.types import Algorithm
-from datelier.application.editor import EditorController
-from datelier.application.file import FileController
-from datelier.application.profiles import ProfileFamily
+from datelier.application.exploration import ProfileFamily
+from datelier.application.sessions import EditorController, FileController
 from datelier.gui.analysis.view import AnalysisSettingsView
 from datelier.gui.comparisons.assembly import CompareComponents
 from datelier.gui.components.base import Component, Group, SharedView

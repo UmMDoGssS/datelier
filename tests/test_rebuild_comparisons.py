@@ -6,9 +6,9 @@ from dataclasses import replace
 from pathlib import Path
 from time import monotonic, sleep
 
-from datelier.application.comparisons.base import ComparisonFamily
-from datelier.application.editor import EditorController
-from datelier.application.workspace import capture_session
+from datelier.application.comparisons import ComparisonFamily
+from datelier.application.sessions import EditorController
+from datelier.application.sessions.workspace import capture_session
 from datelier.inspection.audio.collections import AudioCollectionSettings
 from datelier.inspection.audio.comparisons import (
     AudioComparisonSettings,

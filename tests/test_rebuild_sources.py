@@ -7,7 +7,7 @@ from time import monotonic, sleep
 import numpy as np
 import pytest
 
-from datelier.application.editor import EditorController
+from datelier.application.sessions import EditorController
 from datelier.inspection.arrays.mapping import (
     ArrayLayout,
     SupportingArray,
@@ -129,7 +129,7 @@ def test_generic_record_slice_keeps_source_index_after_sort_and_sibling_close(
 
 
 def test_saved_numeric_views_restore_drafts_without_decoding(tmp_path: Path) -> None:
-    from datelier.application.workspace import capture_session
+    from datelier.application.sessions.workspace import capture_session
     from datelier.inspection.arrays.settings import SliceSettings
     from datelier.workspace.sessions.jobs import save_snapshot
 

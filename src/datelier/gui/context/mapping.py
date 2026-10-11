@@ -4,9 +4,9 @@ from collections.abc import Callable
 
 from imgui_bundle import imgui
 
-from datelier.application.columns import SingleSelection
 from datelier.application.sources.mapping import RecordMappingDraft, SupportingDraft
 from datelier.application.sources.numeric import NumericSourceController
+from datelier.application.tabular import SingleSelection
 from datelier.gui.components.actions import CommandButton
 from datelier.gui.components.base import Container, FrameContext
 from datelier.gui.components.columns import ColumnPicker

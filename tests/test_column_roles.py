@@ -3,8 +3,8 @@ from pathlib import Path
 import polars as pl
 import pytest
 
-from datelier.application.analysis_settings import AnalysisSettings
-from datelier.application.plot_settings import PlotState
+from datelier.application.analysis import AnalysisSettings
+from datelier.application.exploration import PlotState
 from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset, SourceReference
 from datelier.inspection.profiles import ProfileKind, prepare_profiles

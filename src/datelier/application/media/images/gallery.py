@@ -3,7 +3,7 @@
 from collections import OrderedDict
 from concurrent.futures import Executor, Future
 
-from datelier.application.media_input import MediaController, MediaInput
+from datelier.application.media.base import MediaController, MediaInput
 from datelier.application.sources.columns import record_mapping
 from datelier.core.jobs import JobExecutor
 from datelier.inspection.arrays.mapping import ArrayLayout

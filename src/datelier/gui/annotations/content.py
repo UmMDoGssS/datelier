@@ -6,7 +6,7 @@ from dataclasses import replace
 from imgui_bundle import imgui
 
 from datelier.application.annotations.controller import AnnotationController
-from datelier.application.columns import SingleSelection
+from datelier.application.tabular import SingleSelection
 from datelier.gui.annotations.profiles import AnnotationProfileContent
 from datelier.gui.components.base import Container, FrameContext
 from datelier.gui.components.columns import ColumnPicker

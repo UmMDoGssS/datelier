@@ -4,9 +4,9 @@ from collections.abc import Callable
 from concurrent.futures import Executor
 from dataclasses import replace
 
-from datelier.application.columns import ColumnChoice
-from datelier.application.media_input import MediaInput
+from datelier.application.media import MediaInput
 from datelier.application.sources.columns import record_mapping
+from datelier.application.tabular import ColumnChoice
 from datelier.inspection.annotations.association import (
     AssociatedBox,
     AssociatedSource,

@@ -2,8 +2,8 @@
 
 from collections.abc import Callable
 
-from datelier.application.columns import ColumnChoice, MultiSelection
 from datelier.application.comparisons.catalog import ComparisonFile, SourceCatalog
+from datelier.application.tabular import ColumnChoice, MultiSelection
 from datelier.gui.components.base import Component, Container, FrameContext
 from datelier.gui.components.columns import ColumnPicker
 

@@ -5,8 +5,8 @@ from typing import cast
 
 import numpy as np
 
-from datelier.application.columns import ColumnChoice
 from datelier.application.sources.slicing import indices
+from datelier.application.tabular import ColumnChoice
 from datelier.inspection.arrays.mapping import (
     ArrayLayout,
     ArrayRecordMapping,

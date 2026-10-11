@@ -5,7 +5,7 @@ from uuid import uuid4
 
 from datelier.application.annotations.controller import AnnotationController
 from datelier.application.annotations.recipes import class_names, confirm_mapping
-from datelier.application.columns import ColumnChoice, SingleSelection
+from datelier.application.tabular import ColumnChoice, SingleSelection
 from datelier.gui.components.actions import CommandButton
 from datelier.gui.components.base import Container, FrameContext
 from datelier.gui.components.bindings import StateFields

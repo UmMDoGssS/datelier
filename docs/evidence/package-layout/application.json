@@ -1,0 +1,19 @@
+{
+  "modules_moved": 28,
+  "focused_tests": 123,
+  "boundary_checkpoint_tests": 14,
+  "pyrefly_errors": 0,
+  "ruff": "passed",
+  "native": {
+    "frames": 252,
+    "p95_ms": 14.532597495417576,
+    "native_sort_undo_redo": true,
+    "native_literal_hash_column_picker": true,
+    "native_keyboard_export_path": true,
+    "source_overwrite_rejected": true,
+    "export_retains_captured_source_after_activation": true,
+    "native_titlebar_close": true,
+    "source_preserved": true,
+    "implicit_ml_playback": 0
+  }
+}

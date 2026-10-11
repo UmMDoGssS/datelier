@@ -7,8 +7,8 @@ import numpy as np
 import pytest
 from test_rebuild_sources import until
 
-from datelier.application.editor import EditorController
-from datelier.application.workspace import capture_session
+from datelier.application.sessions import EditorController
+from datelier.application.sessions.workspace import capture_session
 from datelier.io.types import ArrayOptions
 from datelier.pipeline.operations import Sort
 from datelier.workspace.sessions.jobs import save_snapshot

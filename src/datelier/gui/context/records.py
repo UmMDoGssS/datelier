@@ -2,8 +2,8 @@
 
 from dataclasses import replace
 
-from datelier.application.columns import MultiSelection, SingleSelection
-from datelier.application.records import RecordController
+from datelier.application.media.records import RecordController
+from datelier.application.tabular import MultiSelection, SingleSelection
 from datelier.gui.components.base import Container
 from datelier.gui.components.columns import ColumnPicker
 from datelier.gui.components.fields import BooleanField, ChoiceField, IntegerField

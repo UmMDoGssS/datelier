@@ -7,9 +7,8 @@ from time import monotonic, sleep
 
 import pytest
 
-from datelier.application.editor import EditorController
-from datelier.application.file import FileController
-from datelier.application.profiles import ProfileFamily
+from datelier.application.exploration import ProfileFamily
+from datelier.application.sessions import EditorController, FileController
 from datelier.core.dataset import SourceReference
 from datelier.inspection.comparison_settings import ComparisonSettings, ComparisonSource
 from datelier.io.importing import load_file

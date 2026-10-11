@@ -3,8 +3,8 @@
 from dataclasses import replace
 from enum import StrEnum
 
-from datelier.application.columns import ColumnChoice, ProfileSelectionPolicy
 from datelier.application.sources.columns import record_mapping
+from datelier.application.tabular import ColumnChoice, ProfileSelectionPolicy
 from datelier.core.column_roles import ColumnRole, list_element_role
 from datelier.core.dataset import Dataset
 from datelier.inspection.arrays.mapping import ArrayLayout

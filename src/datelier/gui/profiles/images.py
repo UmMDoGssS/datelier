@@ -5,8 +5,8 @@ from dataclasses import replace
 
 from imgui_bundle import imgui
 
-from datelier.application.images import ImageController
-from datelier.application.profiles import ProfileFamily
+from datelier.application.exploration import ProfileFamily
+from datelier.application.media.images import ImageController
 from datelier.gui.components.base import FrameContext
 from datelier.gui.components.dataframe import DataFrameTable
 from datelier.gui.components.facts import FactsTable

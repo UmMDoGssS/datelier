@@ -1,7 +1,6 @@
 """Profile settings compose shared selectors and typed fields."""
 
-from datelier.application.plot_settings import PlotState
-from datelier.application.profiles import ProfileController, ProfileFamily
+from datelier.application.exploration import PlotState, ProfileController, ProfileFamily
 from datelier.gui.components.base import Container
 from datelier.gui.components.columns import ColumnPicker
 from datelier.gui.components.fields import BooleanField, ChoiceField, IntegerField

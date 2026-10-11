@@ -7,9 +7,9 @@ from time import monotonic, sleep
 import polars as pl
 import pytest
 
-from datelier.application.editor import EditorController
-from datelier.application.profiles import ProfileFamily
-from datelier.application.records import RecordKind
+from datelier.application.exploration import ProfileFamily
+from datelier.application.media.records import RecordKind
+from datelier.application.sessions import EditorController
 from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset, SourceReference
 from datelier.inspection.profiles import ProfileSelection

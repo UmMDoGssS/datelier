@@ -50,7 +50,12 @@ def test_whole_controllers_are_only_injected_at_gui_composition() -> None:
         if path.relative_to(root).as_posix() in composition:
             continue
         assert not any(
-            module in ("datelier.application.editor", "datelier.application.file")
+            module
+            in (
+                "datelier.application.sessions",
+                "datelier.application.sessions.editor",
+                "datelier.application.sessions.file",
+            )
             for module in imports(path)
         ), path
 

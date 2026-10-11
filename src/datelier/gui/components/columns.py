@@ -4,7 +4,7 @@ from collections.abc import Callable
 
 from imgui_bundle import imgui
 
-from datelier.application.columns import ColumnChoice, SelectionPolicy
+from datelier.application.tabular import ColumnChoice, SelectionPolicy
 from datelier.gui.components.base import Component, Container, FrameContext
 from datelier.gui.components.native import label_text, target
 

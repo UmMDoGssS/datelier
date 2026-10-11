@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass, replace
 
-from datelier.application.columns import ColumnChoice
+from datelier.application.tabular import ColumnChoice
 from datelier.core.dataset import DatasetRevision
 from datelier.inspection.references.jobs import ReferenceJobs
 from datelier.inspection.references.types import (

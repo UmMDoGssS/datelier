@@ -3,8 +3,8 @@
 from concurrent.futures import Executor
 from dataclasses import replace
 
-from datelier.application.audio_collection import AudioCollectionController
-from datelier.application.media_input import MediaController, MediaInput
+from datelier.application.media.audio.collection import AudioCollectionController
+from datelier.application.media.base import MediaController, MediaInput
 from datelier.application.sources.columns import record_mapping
 from datelier.inspection.audio.jobs import AudioJobs
 from datelier.inspection.audio.playback.controller import AudioPlayback, PlaybackPhase

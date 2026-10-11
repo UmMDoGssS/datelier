@@ -6,8 +6,8 @@ from pathlib import Path
 from test_rebuild_comparisons import until
 
 from datelier.analysis.types import Algorithm
-from datelier.application.editor import EditorController
-from datelier.application.workspace import capture_session
+from datelier.application.sessions import EditorController
+from datelier.application.sessions.workspace import capture_session
 from datelier.pipeline.operations import Sort
 from datelier.workspace.sessions.jobs import save_snapshot
 

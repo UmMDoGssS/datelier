@@ -8,8 +8,8 @@ from uuid import uuid4
 import numpy as np
 import pytest
 
-from datelier.application.editor import EditorController
-from datelier.application.workspace import capture_session
+from datelier.application.sessions import EditorController
+from datelier.application.sessions.workspace import capture_session
 from datelier.core.dataset import DatasetRevision
 from datelier.core.jobs import SharedWorkers
 from datelier.inspection.arrays.settings import SliceSettings

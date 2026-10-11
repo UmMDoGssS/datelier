@@ -9,7 +9,7 @@ from time import monotonic, sleep
 from PIL import Image
 
 from datelier.application.annotations.navigation import open_rows
-from datelier.application.editor import EditorController
+from datelier.application.sessions import EditorController
 from datelier.inspection.annotations.overlay import OverlayClass, OverlaySettings
 from datelier.inspection.annotations.settings import AnnotationSource
 from datelier.inspection.annotations.types import AnnotationFormat

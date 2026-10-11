@@ -4,7 +4,7 @@ from collections.abc import Callable
 
 from imgui_bundle import imgui
 
-from datelier.application.imports.controller import ImportController
+from datelier.application.imports import ImportController
 from datelier.gui.components.actions import CommandButton, JobFeedback, JobSnapshot
 from datelier.gui.components.base import Component, Container, FrameContext
 from datelier.gui.components.fields import ChoiceField, TextField

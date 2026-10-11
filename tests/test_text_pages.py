@@ -7,7 +7,7 @@ from time import monotonic, sleep
 from unittest.mock import patch
 from uuid import uuid4
 
-from datelier.application.editor import EditorController
+from datelier.application.sessions import EditorController
 from datelier.core.dataset import DatasetRevision
 from datelier.core.jobs import SharedWorkers
 from datelier.inspection.text.display import TextViewport

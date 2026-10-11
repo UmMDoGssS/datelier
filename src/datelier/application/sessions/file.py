@@ -9,26 +9,20 @@ from datelier.analysis.jobs import AnalysisJobs
 from datelier.analysis.plots import AnalysisPlots
 from datelier.analysis.types import Algorithm, EmbeddingResult
 from datelier.application.analysis import AnalysisController
-from datelier.application.audio import AudioController
-from datelier.application.columns import ColumnChoice
-from datelier.application.dataset import DatasetRuntime
-from datelier.application.gallery import ArrayGalleryController
-from datelier.application.images import ImageController
-from datelier.application.import_settings import DEFAULTS, import_draft
-from datelier.application.imports.controller import ImportController
-from datelier.application.media_input import MediaInput
-from datelier.application.plot_settings import PlotState
-from datelier.application.profiles import ProfileController
-from datelier.application.record_views import RecordViews
-from datelier.application.records import RecordController
-from datelier.application.references import ReferenceController
-from datelier.application.schema import SchemaController
-from datelier.application.settings_restore import restore_analysis, restore_plots
+from datelier.application.exploration import PlotState, ProfileController
+from datelier.application.exploration.restore import restore_analysis, restore_plots
+from datelier.application.imports import DEFAULTS, ImportController, import_draft
+from datelier.application.media import MediaInput
+from datelier.application.media.audio import AudioController
+from datelier.application.media.images import ArrayGalleryController, ImageController
+from datelier.application.media.records import RecordController, ReferenceController
+from datelier.application.media.text import TextController
+from datelier.application.sessions.dataset import DatasetRuntime
+from datelier.application.sessions.records import RecordViews
 from datelier.application.sources.numeric import NumericSourceController
 from datelier.application.sources.objects import ObjectController
 from datelier.application.sources.records import ArrayRecordController
-from datelier.application.table import TableController
-from datelier.application.text import TextController
+from datelier.application.tabular import ColumnChoice, SchemaController, TableController
 from datelier.core.column_roles import ColumnRole
 from datelier.inspection.arrays.jobs import ArrayJobs
 from datelier.inspection.arrays.slices import SliceSettings

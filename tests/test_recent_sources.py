@@ -6,8 +6,8 @@ from time import monotonic, sleep
 
 import pytest
 
-from datelier.application.editor import EditorController
-from datelier.application.imports.controller import ImportController
+from datelier.application.imports import ImportController
+from datelier.application.sessions import EditorController
 from datelier.io.loading import LoadPhase
 from datelier.io.types import (
     CsvOptions,

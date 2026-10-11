@@ -9,7 +9,7 @@ import numpy as np
 from datelier.application.comparisons.base import ComparisonFamily, RecipeController
 from datelier.application.comparisons.catalog import SourceCatalog
 from datelier.application.comparisons.histograms import HistogramPlot, HistogramSeries
-from datelier.application.images import summary_row
+from datelier.application.media.images import summary_row
 from datelier.application.sources.columns import record_mapping
 from datelier.inspection.images.comparisons.jobs import ImageComparisonJobs
 from datelier.inspection.images.comparisons.settings import (

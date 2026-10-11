@@ -6,8 +6,8 @@ from enum import StrEnum
 
 import polars as pl
 
-from datelier.application.columns import ColumnChoice
 from datelier.application.sources.columns import record_mapping
+from datelier.application.tabular import ColumnChoice
 from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset, DatasetRevision
 from datelier.inspection.arrays.mapping import ArrayLayout

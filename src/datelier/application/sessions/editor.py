@@ -4,12 +4,12 @@ from dataclasses import replace
 from pathlib import Path
 
 from datelier.application.browser import DirectoryController
-from datelier.application.comparisons.hub import ComparisonHub
-from datelier.application.file import FileController
-from datelier.application.navigation import WorkbenchNavigation
-from datelier.application.preferences import PreferenceController
-from datelier.application.settings_restore import restore_plots
-from datelier.application.workspace import capture_session, install_file
+from datelier.application.comparisons import ComparisonHub
+from datelier.application.exploration.restore import restore_plots
+from datelier.application.sessions.file import FileController
+from datelier.application.sessions.navigation import WorkbenchNavigation
+from datelier.application.sessions.preferences import PreferenceController
+from datelier.application.sessions.workspace import capture_session, install_file
 from datelier.core.jobs import SharedWorkers
 from datelier.inspection.audio.playback.controller import AudioPlayback, PlaybackPhase
 from datelier.inspection.audio.playback.device import DeviceFactory, SoundDeviceOutput

@@ -3,8 +3,8 @@
 from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING
 
-from datelier.application.columns import ColumnChoice
 from datelier.application.comparisons.choices import media_choices
+from datelier.application.tabular import ColumnChoice
 from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset, DatasetRevision
 from datelier.inspection.arrays.mapping import ArrayLayout
@@ -19,7 +19,7 @@ from datelier.inspection.text.types import TextSettings
 from datelier.io.arrays import ArrayStore
 
 if TYPE_CHECKING:
-    from datelier.application.file import FileController
+    from datelier.application.sessions import FileController
 
 
 @dataclass(frozen=True)

@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from imgui_bundle import imgui
 
-from datelier.application.audio import AudioController
+from datelier.application.media.audio import AudioController
 from datelier.gui.components.actions import CommandButton
 from datelier.gui.components.base import Container, FrameContext
 from datelier.gui.components.fields import (

@@ -2,8 +2,8 @@
 
 from imgui_bundle import imgui, implot
 
-from datelier.application.profiles import ProfileController, ProfileFamily
-from datelier.application.text import TextController
+from datelier.application.exploration import ProfileController, ProfileFamily
+from datelier.application.media.text import TextController
 from datelier.gui.components.base import FrameContext, Group
 from datelier.gui.components.dataframe import DataFrameTable
 from datelier.gui.components.facts import FactsTable

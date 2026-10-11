@@ -2,8 +2,8 @@
 
 from dataclasses import replace
 
-from datelier.application.records import RecordKind
-from datelier.application.text import TextController
+from datelier.application.media.records import RecordKind
+from datelier.application.media.text import TextController
 from datelier.gui.components.bindings import StateFields
 from datelier.gui.components.groups import Conditional
 from datelier.gui.context.media.base import MediaSettings

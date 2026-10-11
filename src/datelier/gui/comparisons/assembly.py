@@ -2,8 +2,7 @@
 
 from dataclasses import dataclass
 
-from datelier.application.comparisons.base import ComparisonFamily
-from datelier.application.comparisons.hub import ComparisonHub
+from datelier.application.comparisons import ComparisonFamily, ComparisonHub
 from datelier.gui.comparisons.audio import AudioComparisonContent
 from datelier.gui.comparisons.audio_tools import AudioComparisonTools
 from datelier.gui.comparisons.column_tools import ColumnComparisonTools

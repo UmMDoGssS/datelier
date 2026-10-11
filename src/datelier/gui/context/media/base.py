@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 
-from datelier.application.records import RecordKind
+from datelier.application.media.records import RecordKind
 from datelier.gui.components.base import Container
 
 

@@ -1,6 +1,6 @@
 """Shared, validated density preparation controls for Profiles and Relationships."""
 
-from datelier.application.plot_settings import PlotState
+from datelier.application.exploration import PlotState
 from datelier.gui.components.base import Container
 from datelier.gui.components.fields import FloatField, IntegerField
 

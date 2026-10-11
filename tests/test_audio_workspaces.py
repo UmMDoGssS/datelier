@@ -8,8 +8,8 @@ import numpy as np
 import pytest
 import soundfile as sf
 
-from datelier.application.editor import EditorController
-from datelier.application.workspace import capture_session
+from datelier.application.sessions import EditorController
+from datelier.application.sessions.workspace import capture_session
 from datelier.core.column_roles import ColumnRole
 from datelier.inspection.audio.playback.settings import PlaybackSettings
 from datelier.inspection.audio.profiles import AudioThresholds

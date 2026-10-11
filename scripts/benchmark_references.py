@@ -18,7 +18,7 @@ import polars as pl
 from imgui_bundle import hello_imgui
 from PIL import Image
 
-from datelier.application.editor import EditorController
+from datelier.application.sessions import EditorController
 from datelier.gui.app import InspectionEvidence, run_gui
 from datelier.gui.components.probe import GuiProbe
 from datelier.inspection.records.types import RecordMode

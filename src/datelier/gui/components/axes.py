@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 
 from imgui_bundle import imgui, implot
 
-from datelier.application.axes import AxisScale, AxisState
+from datelier.application.exploration import AxisScale, AxisState
 from datelier.gui.components.actions import CommandButton
 from datelier.gui.components.base import Container, FrameContext
 from datelier.gui.components.fields import ChoiceField, FloatField

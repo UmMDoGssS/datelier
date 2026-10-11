@@ -5,7 +5,7 @@ from collections.abc import Callable
 import numpy as np
 from imgui_bundle import imgui, implot
 
-from datelier.application.axes import AxisState
+from datelier.application.exploration import AxisState
 from datelier.gui.components.axes import AxisPlot, apply_axes, observe_axes
 from datelier.gui.components.base import Component, Container, FrameContext
 from datelier.gui.components.native import help_tip, target

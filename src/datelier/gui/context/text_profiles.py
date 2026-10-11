@@ -6,7 +6,7 @@ from pathlib import Path
 
 from imgui_bundle import imgui
 
-from datelier.application.text import TextController
+from datelier.application.media.text import TextController
 from datelier.gui.components.actions import CommandButton, JobFeedback, JobSnapshot
 from datelier.gui.components.base import Container, FrameContext
 from datelier.gui.components.fields import ChoiceField, TextField

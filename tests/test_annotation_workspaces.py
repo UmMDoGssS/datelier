@@ -8,8 +8,8 @@ from unittest.mock import patch
 from PIL import Image
 
 from datelier.application.annotations.navigation import open_rows
-from datelier.application.editor import EditorController
-from datelier.application.workspace import capture_session
+from datelier.application.sessions import EditorController
+from datelier.application.sessions.workspace import capture_session
 from datelier.inspection.annotations.association import PreparedAnnotations
 from datelier.inspection.annotations.overlay import OverlayClass, OverlaySettings
 from datelier.inspection.annotations.settings import (

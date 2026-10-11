@@ -7,7 +7,7 @@ from time import perf_counter
 
 from imgui_bundle import hello_imgui, imgui, immapp
 
-from datelier.application.editor import EditorController
+from datelier.application.sessions import EditorController
 from datelier.gui.components.base import FrameContext
 from datelier.gui.components.probe import GuiProbe, ViewScope
 from datelier.gui.fonts import load_fonts

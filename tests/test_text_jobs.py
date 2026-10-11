@@ -10,7 +10,7 @@ from unittest.mock import patch
 import polars as pl
 from tokenizers import Tokenizer, models
 
-from datelier.application.editor import EditorController
+from datelier.application.sessions import EditorController
 from datelier.core.dataset import Dataset, SourceReference
 from datelier.core.jobs import SharedWorkers
 from datelier.inspection.references.types import ReferenceSettings
@@ -126,7 +126,7 @@ def test_obsolete_or_closed_work_cannot_publish(tmp_path: Path) -> None:
 def test_saved_configuration_and_legacy_defaults_restore_without_work(
     tmp_path: Path,
 ) -> None:
-    from datelier.application.workspace import capture_views
+    from datelier.application.sessions.workspace import capture_views
 
     path = tmp_path / "source.csv"
     path.write_text("id,text\n1,Hello world\n2,你好\n")

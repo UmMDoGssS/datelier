@@ -5,8 +5,8 @@ from dataclasses import dataclass, field
 from datelier.analysis.jobs import AnalysisJobs
 from datelier.analysis.plots import AnalysisPlots
 from datelier.analysis.types import Algorithm, ClusteringResult, EmbeddingResult
-from datelier.application.analysis_settings import AnalysisSettings
-from datelier.application.plot_settings import PlotState
+from datelier.application.analysis.settings import AnalysisSettings
+from datelier.application.exploration import PlotState
 from datelier.core.dataset import Dataset
 
 

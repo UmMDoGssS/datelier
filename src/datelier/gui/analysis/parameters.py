@@ -5,7 +5,7 @@ from typing import cast
 
 from datelier.analysis.schema import Parameter, ParameterKind, ParameterValue
 from datelier.analysis.types import Algorithm
-from datelier.application.analysis_settings import AnalysisSettings
+from datelier.application.analysis import AnalysisSettings
 from datelier.gui.components.base import Component, Container, FrameContext
 from datelier.gui.components.fields import (
     BooleanField,

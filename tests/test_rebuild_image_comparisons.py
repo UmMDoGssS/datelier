@@ -7,8 +7,8 @@ import numpy as np
 from PIL import Image
 from test_rebuild_comparisons import until
 
-from datelier.application.editor import EditorController
-from datelier.application.workspace import capture_session
+from datelier.application.sessions import EditorController
+from datelier.application.sessions.workspace import capture_session
 from datelier.inspection.arrays.mapping import (
     ArrayLayout,
     ArrayRecordMapping,

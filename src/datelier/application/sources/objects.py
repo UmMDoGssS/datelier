@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 
-from datelier.application.record_views import RecordViews
+from datelier.application.sessions.records import RecordViews
 from datelier.inspection.objects.types import NodePath, ObjectNode, node_label
 
 

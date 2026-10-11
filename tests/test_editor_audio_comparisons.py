@@ -9,8 +9,8 @@ import numpy as np
 import pytest
 import soundfile as sf
 
-from datelier.application.comparisons.base import ComparisonFamily
-from datelier.application.editor import EditorController
+from datelier.application.comparisons import ComparisonFamily
+from datelier.application.sessions import EditorController
 from datelier.inspection.arrays.mapping import (
     ArrayLayout,
     ArrayRecordMapping,

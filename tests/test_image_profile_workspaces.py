@@ -6,8 +6,8 @@ from time import monotonic, sleep
 
 from PIL import Image
 
-from datelier.application.editor import EditorController
-from datelier.application.workspace import capture_session
+from datelier.application.sessions import EditorController
+from datelier.application.sessions.workspace import capture_session
 from datelier.inspection.images.profiles import (
     ImageProfileSettings,
     ImageScope,

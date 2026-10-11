@@ -2,8 +2,8 @@
 
 from dataclasses import replace
 
-from datelier.application.images import ImageController
-from datelier.application.records import RecordKind
+from datelier.application.media.images import ImageController
+from datelier.application.media.records import RecordKind
 from datelier.gui.annotations.settings import AnnotationSettings
 from datelier.gui.components.base import Container, FrameContext
 from datelier.gui.components.bindings import StateFields

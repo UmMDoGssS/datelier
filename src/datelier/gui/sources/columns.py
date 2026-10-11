@@ -4,7 +4,7 @@ from collections.abc import Callable
 
 from imgui_bundle import imgui
 
-from datelier.application.schema import SchemaColumn, SchemaController
+from datelier.application.tabular import SchemaColumn, SchemaController
 from datelier.core.column_roles import ColumnRole
 from datelier.gui.components.base import Component, Container, FrameContext
 from datelier.gui.components.native import target

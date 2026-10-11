@@ -5,8 +5,8 @@ import numpy as np
 import polars as pl
 import pytest
 
-from datelier.application.plot_settings import PlotState
-from datelier.application.settings_restore import restore_plots
+from datelier.application.exploration import PlotState
+from datelier.application.exploration.restore import restore_plots
 from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset, SourceReference
 from datelier.inspection.exploration import PlotSettings

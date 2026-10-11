@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from imgui_bundle import imgui
 
-from datelier.application.text import TextController
+from datelier.application.media.text import TextController
 from datelier.gui.components.base import Component, FrameContext
 from datelier.gui.components.native import label_text, target
 from datelier.gui.components.viewport import ResizableViewport, ViewportContent

@@ -7,7 +7,7 @@ from imgui_bundle import imgui
 
 from datelier.analysis.types import Algorithm, AnalysisResult, ClusteringResult
 from datelier.application.analysis import AnalysisController
-from datelier.application.columns import ColumnChoice, MultiSelection
+from datelier.application.tabular import ColumnChoice, MultiSelection
 from datelier.gui.analysis.parameters import AlgorithmEditors, boolean, integer
 from datelier.gui.components.actions import CommandButton, JobFeedback, JobSnapshot
 from datelier.gui.components.base import Component, Container, FrameContext

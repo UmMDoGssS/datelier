@@ -5,9 +5,9 @@ from pathlib import Path
 import pytest
 from test_rebuild_comparisons import until
 
-from datelier.application.editor import EditorController
-from datelier.application.imports.controller import ImportController
-from datelier.application.workspace import capture_session
+from datelier.application.imports import ImportController
+from datelier.application.sessions import EditorController
+from datelier.application.sessions.workspace import capture_session
 from datelier.io.loading import LoadPhase
 from datelier.io.types import (
     ArrayOptions,

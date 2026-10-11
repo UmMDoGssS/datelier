@@ -2,7 +2,7 @@
 
 from dataclasses import replace
 
-from datelier.application.presentation import PresentationController
+from datelier.application.tabular import PresentationController
 from datelier.gui.components.actions import CommandButton
 from datelier.gui.components.base import Container
 from datelier.gui.components.fields import BooleanField, ChoiceField, FloatField

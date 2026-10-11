@@ -9,7 +9,7 @@ import numpy as np
 import soundfile as sf
 from audio_playback_fixtures import Devices
 
-from datelier.application.editor import EditorController
+from datelier.application.sessions import EditorController
 from datelier.inspection.audio.collections.settings import AudioProfileMode
 from datelier.inspection.audio.playback.controller import PlaybackPhase
 from datelier.inspection.audio.signal import AudioViewKind, SpectralView
@@ -131,7 +131,7 @@ def test_shared_output_injection_and_view_switch_release_original_stream(
 def test_confirmed_payload_survives_removing_display_identity_column(
     tmp_path: Path,
 ) -> None:
-    from datelier.application.records import RecordKind
+    from datelier.application.media.records import RecordKind
     from datelier.inspection.arrays.mapping import (
         ArrayLayout,
         ArrayRecordMapping,

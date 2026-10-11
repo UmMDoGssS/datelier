@@ -13,8 +13,8 @@ from datelier.workspace.sessions.restore import RestoredSessionFile
 from datelier.workspace.single import Workspace, WorkspaceSource, WorkspaceViews
 
 if TYPE_CHECKING:
-    from datelier.application.editor import EditorController
-    from datelier.application.file import FileController
+    from datelier.application.sessions.editor import EditorController
+    from datelier.application.sessions.file import FileController
 
 
 def capture_views(file: FileController) -> WorkspaceViews:
@@ -125,7 +125,7 @@ def capture_session(
 
 
 def install_file(file: FileController, result: RestoredSessionFile) -> None:
-    from datelier.application.file import FileController
+    from datelier.application.sessions.file import FileController
 
     file.view_name = result.file.name
     file.recovery = None

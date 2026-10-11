@@ -5,7 +5,7 @@ from dataclasses import fields
 import numpy as np
 from imgui_bundle import imgui, implot
 
-from datelier.application.profiles import ProfileController, ProfileFamily
+from datelier.application.exploration import ProfileController, ProfileFamily
 from datelier.gui.components.axes import AxisPlot, apply_axes, observe_axes
 from datelier.gui.components.base import Component, FrameContext
 from datelier.gui.components.facts import FactsTable

@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from imgui_bundle import imgui
 
-from datelier.application.audio import AudioController
+from datelier.application.media.audio import AudioController
 from datelier.gui.audio.charts import SignalContent
 from datelier.gui.audio.playback import PlaybackControls
 from datelier.gui.components.actions import CommandButton, JobFeedback, JobSnapshot

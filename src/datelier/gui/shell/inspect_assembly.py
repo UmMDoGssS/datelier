@@ -3,9 +3,8 @@
 from dataclasses import dataclass, replace
 
 from datelier.application.annotations.navigation import open_rows
-from datelier.application.editor import EditorController
-from datelier.application.file import FileController
-from datelier.application.records import RecordKind
+from datelier.application.media.records import RecordKind
+from datelier.application.sessions import EditorController, FileController
 from datelier.gui.components.base import Component, Group
 from datelier.gui.components.routing import RoutedContent
 from datelier.gui.components.viewport import ResizableViewport

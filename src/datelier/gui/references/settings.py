@@ -2,8 +2,8 @@
 
 from imgui_bundle import imgui
 
-from datelier.application.columns import SingleSelection
-from datelier.application.references import ReferenceController
+from datelier.application.media.records import ReferenceController
+from datelier.application.tabular import SingleSelection
 from datelier.gui.components.actions import CommandButton, JobFeedback, JobSnapshot
 from datelier.gui.components.base import Component, Container, FrameContext
 from datelier.gui.components.columns import ColumnPicker

@@ -2,7 +2,7 @@
 
 from imgui_bundle import imgui
 
-from datelier.application.gallery import ArrayGalleryController
+from datelier.application.media.images import ArrayGalleryController
 from datelier.gui.components.base import FrameContext
 from datelier.gui.components.native import target
 from datelier.gui.records.base import RecordContent

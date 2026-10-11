@@ -7,8 +7,8 @@ from unittest.mock import patch
 import pytest
 from PIL import Image
 
-from datelier.application.comparisons.base import ComparisonFamily
-from datelier.application.editor import EditorController
+from datelier.application.comparisons import ComparisonFamily
+from datelier.application.sessions import EditorController
 from datelier.inspection.images.comparisons.settings import (
     ImageComparisonSettings,
     ImageComparisonSource,

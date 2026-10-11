@@ -4,8 +4,8 @@ from dataclasses import replace
 
 from imgui_bundle import imgui
 
-from datelier.application.audio import AudioController
-from datelier.application.profiles import ProfileFamily
+from datelier.application.exploration import ProfileFamily
+from datelier.application.media.audio import AudioController
 from datelier.gui.components.base import FrameContext
 from datelier.gui.components.dataframe import DataFrameTable
 from datelier.gui.profiles.base import ProfileContent

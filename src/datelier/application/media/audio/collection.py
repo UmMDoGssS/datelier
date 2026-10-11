@@ -3,7 +3,7 @@
 from concurrent.futures import Executor, Future
 from threading import Event
 
-from datelier.application.media_input import MediaInput
+from datelier.application.media.base import MediaInput
 from datelier.application.sources.columns import record_mapping
 from datelier.core.jobs import JobExecutor
 from datelier.inspection.audio.collections.scan import scan_collection

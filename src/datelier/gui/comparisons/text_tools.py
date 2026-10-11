@@ -4,9 +4,9 @@ from dataclasses import replace
 
 from imgui_bundle import imgui
 
-from datelier.application.columns import SingleSelection
-from datelier.application.comparisons.base import ComparisonFamily
+from datelier.application.comparisons import ComparisonFamily
 from datelier.application.comparisons.text import TextComparisonController
+from datelier.application.tabular import SingleSelection
 from datelier.gui.comparisons.base import ComparisonTools
 from datelier.gui.comparisons.recipe_controls import (
     RecipeControls,

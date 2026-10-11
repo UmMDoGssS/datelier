@@ -2,7 +2,7 @@
 
 from imgui_bundle import imgui
 
-from datelier.application.comparisons.base import ComparisonFamily
+from datelier.application.comparisons import ComparisonFamily
 from datelier.application.comparisons.columns import ColumnComparisonController
 from datelier.gui.comparisons.base import ComparisonContent
 from datelier.gui.comparisons.charts import ColumnChart

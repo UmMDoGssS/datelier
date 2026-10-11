@@ -5,7 +5,7 @@ from dataclasses import replace
 
 from imgui_bundle import imgui
 
-from datelier.application.images import ImageController
+from datelier.application.media.images import ImageController
 from datelier.gui.annotations.content import AnnotationContent
 from datelier.gui.annotations.overlay import AnnotationOverlay
 from datelier.gui.components.base import FrameContext

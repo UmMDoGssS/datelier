@@ -5,8 +5,8 @@ from pathlib import Path
 
 from imgui_bundle import hello_imgui, imgui
 
-from datelier.application.editor import EditorController
-from datelier.application.workspace import capture_views
+from datelier.application.sessions import EditorController
+from datelier.application.sessions.workspace import capture_views
 from datelier.gui.comparisons.assembly import assemble_comparisons
 from datelier.gui.components.actions import JobSnapshot
 from datelier.gui.components.base import FrameContext, Group, Page

@@ -14,7 +14,7 @@ from datelier.application.comparisons.text import TextComparisonController
 from datelier.workspace.sessions import SessionWorkspace
 
 if TYPE_CHECKING:
-    from datelier.application.file import FileController
+    from datelier.application.sessions import FileController
 
 
 class ComparisonHub:

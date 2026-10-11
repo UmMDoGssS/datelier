@@ -3,7 +3,7 @@
 from collections.abc import Callable
 from dataclasses import replace
 
-from datelier.application.audio import AudioController
+from datelier.application.media.audio import AudioController
 from datelier.gui.components.actions import CommandButton, JobFeedback, JobSnapshot
 from datelier.gui.components.base import Container
 from datelier.gui.context.audio_sampling import AudioSamplingFields

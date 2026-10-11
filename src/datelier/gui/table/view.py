@@ -5,8 +5,8 @@ from math import ceil
 
 from imgui_bundle import imgui
 
-from datelier.application.references import ReferenceController
-from datelier.application.table import TableColumn, TableController
+from datelier.application.media.records import ReferenceController
+from datelier.application.tabular import TableColumn, TableController
 from datelier.gui.components.base import Component, Container, FrameContext
 from datelier.gui.components.groups import Conditional
 from datelier.gui.components.native import help_tip, target

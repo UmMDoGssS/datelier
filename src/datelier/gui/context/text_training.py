@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Callable
 from dataclasses import replace
 
-from datelier.application.text import TextController
+from datelier.application.media.text import TextController
 from datelier.gui.components.actions import CommandButton
 from datelier.gui.components.base import Container, FrameContext
 from datelier.gui.components.fields import (

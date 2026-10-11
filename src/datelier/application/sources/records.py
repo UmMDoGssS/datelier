@@ -3,7 +3,7 @@
 from concurrent.futures import Executor
 from dataclasses import replace
 
-from datelier.application.media_input import MediaInput
+from datelier.application.media import MediaInput
 from datelier.application.sources.columns import record_mapping
 from datelier.inspection.arrays.jobs import ArrayJobs
 from datelier.inspection.arrays.mapping import ArrayRecordMapping
