@@ -25,6 +25,7 @@ type SessionStamp = tuple[tuple[str, FileStamp], ...]
 class SessionSnapshot:
     workspace: SessionWorkspace
     sources: tuple[tuple[str, SourceReference], ...] = ()
+    protected_paths: tuple[Path, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -37,7 +38,10 @@ def save_snapshot(
     path: Path, snapshot: SessionSnapshot, overwrite: bool
 ) -> SavedSession:
     path = path.expanduser().resolve()
-    protect_sources(path, tuple(source.path for _, source in snapshot.sources))
+    protect_sources(
+        path,
+        (*snapshot.protected_paths, *(source.path for _, source in snapshot.sources)),
+    )
     if path.exists() and not overwrite:
         raise ValueError("Workspace exists; enable Replace existing workspace")
     ready = {

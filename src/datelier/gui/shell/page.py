@@ -50,15 +50,7 @@ class WorkbenchPage(Page):
                     path,
                     format,
                     overwrite=overwrite,
-                    sources=tuple(
-                        source
-                        for f in editor.all_files
-                        for source in (
-                            f.loader.status.path,
-                            f.inspection.dataset.source.path if f.inspection else None,
-                        )
-                        if source is not None
-                    ),
+                    sources=editor.source_paths,
                 )
                 editor.watch_export(file.exporter)
 
@@ -220,12 +212,7 @@ class WorkbenchPage(Page):
             plots=replace(file.plots.settings(), clusters=None),
             views=capture_views(file),
         )
-        sources = tuple(
-            file.inspection.dataset.source.path
-            for file in self.editor.all_files
-            if file.inspection
-        )
-        self.editor.preferences.save(value, sources)
+        self.editor.preferences.save(value, self.editor.source_paths)
 
     def _history(self, action: HistoryAction) -> None:
         if (
@@ -236,6 +223,7 @@ class WorkbenchPage(Page):
             self.editor.current.editor.request(action)
 
     def prepare(self) -> FrameContext:
+        self.open_dialog.prepare()
         preferences = self.editor.preferences
         if preferences.ready and preferences.changed != self._preference_revision:
             self._preference_revision = preferences.changed

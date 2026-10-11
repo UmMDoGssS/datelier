@@ -41,6 +41,7 @@ class EditorController:
         self.notice = ""
         self._defaults_applied: set[str] = set()
         self._recent: dict[str, RecentSource] = {}
+        self._workspace_completed = 0
         self.navigation = WorkbenchNavigation()
         self.files: list[FileController] = []
         self.active_id = ""
@@ -64,6 +65,21 @@ class EditorController:
             file
             for owner in self.files
             for file in (owner, *owner.record_views.files, *owner.record_views.pending)
+        )
+
+    @property
+    def source_paths(self) -> tuple[Path, ...]:
+        """Protect ready, attempted and recoverable sources across every view."""
+        return tuple(
+            dict.fromkeys(
+                path
+                for file in self.all_files
+                for path in (
+                    file.loader.status.path,
+                    file.inspection.dataset.source.path if file.inspection else None,
+                )
+                if path is not None
+            )
         )
 
     @property
@@ -235,9 +251,28 @@ class EditorController:
         for request, paths in self.opening.poll({f.identity for f in self.files}):
             for path in paths:
                 existing = next(
-                    (f for f in self.files if f.loader.status.path == path), None
+                    (
+                        f
+                        for f in self.files
+                        if f.loader.status.path == path
+                        or (f.inspection and f.inspection.dataset.source.path == path)
+                    ),
+                    None,
                 )
                 if existing:
+                    if request.retry:
+                        if (
+                            existing.imports.busy
+                            or existing.editor.busy
+                            or existing.recovery is not None
+                        ):
+                            self.opening.message = (
+                                "Finish loading, edits or source recovery "
+                                "before retrying."
+                            )
+                        else:
+                            existing.open(path, request.options, format=request.format)
+                            self._recent.pop(existing.identity, None)
                     self.activate(existing.identity)
                     continue
                 owner = next(f for f in self.files if f.identity == request.owner)
@@ -292,7 +327,7 @@ class EditorController:
                             defaults.views.profile_selection or file.profiles.selected
                         )
                         self._defaults_applied.add(file.identity)
-                if file.inspection:
+                if file.inspection and file.loader.status.phase == LoadPhase.READY:
                     imported = file.inspection.imported
                     entry = RecentSource(
                         str(imported.dataset.source.path),
@@ -303,6 +338,17 @@ class EditorController:
                     if self._recent.get(file.identity) != entry:
                         self.preferences.remember(entry)
                         self._recent[file.identity] = entry
+            if self._workspace_completed != self.workspace.completed:
+                self._workspace_completed = self.workspace.completed
+                path = (
+                    self.workspace.saved.path
+                    if self.workspace.saved
+                    else self.workspace.opened
+                )
+                if path:
+                    self.preferences.remember(
+                        RecentSource(str(path), RecentKind.WORKSPACE)
+                    )
 
     def close(self) -> None:
         if self.closed:

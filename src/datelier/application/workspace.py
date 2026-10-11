@@ -121,7 +121,7 @@ def capture_session(
         canvas_mode="Compare files" if editor.navigation.comparing else "Inspection",
         context_tab=editor.navigation.context_tab,
     )
-    return SessionSnapshot(workspace, tuple(sources))
+    return SessionSnapshot(workspace, tuple(sources), editor.source_paths)
 
 
 def install_file(file: FileController, result: RestoredSessionFile) -> None:

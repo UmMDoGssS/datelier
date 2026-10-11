@@ -20,6 +20,16 @@ class Conditional(Container):
             super().render(frame)
 
 
+class Row(Container):
+    """Immediate children share one row of compact commands."""
+
+    def render(self, frame: FrameContext) -> None:
+        for index, child in enumerate(self.children):
+            if index:
+                imgui.same_line()
+            child.render(frame.child(child.key))
+
+
 class Collapsible(Container):
     def __init__(self, key: str, label: str, children: tuple[Component, ...]) -> None:
         super().__init__(key, children)

@@ -27,9 +27,12 @@ class MenuAction(Component):
         )
 
     def render(self, frame: FrameContext) -> None:
-        if imgui.menu_item(self.label, self.shortcut, self.selected())[0]:
+        label = self.label.replace("##", "# #") + "###" + self.key
+        if imgui.menu_item(label, self.shortcut, self.selected())[0]:
             self.command()
         target(frame, "run")
+        if imgui.is_item_hovered() and len(self.label) > 80:
+            imgui.set_tooltip(self.label)
 
 
 class Menu(Container):

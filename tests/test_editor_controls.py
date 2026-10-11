@@ -5,8 +5,7 @@ from time import monotonic, sleep
 
 import pytest
 
-from datelier.gui.editor_controls import EditorControls
-from datelier.gui.editor_session import EditorSession
+from datelier.application.editor import EditorController
 from datelier.io.loading import LoadPhase
 from datelier.io.types import CsvOptions, ImportFormat
 from datelier.pipeline.operations import Sort
@@ -20,15 +19,17 @@ from datelier.workspace.storage import save_workspace
 from datelier.workspace.types import Workspace
 
 
-def wait(editor: EditorSession) -> None:
+def wait(editor: EditorController) -> None:
     deadline = monotonic() + 5
     while monotonic() < deadline:
         editor.poll()
-        if not editor.opening.busy and all(
-            file.loader.status.phase != LoadPhase.LOADING
-            and not file.workspace.jobs.busy
-            and not file.editor.busy
-            for file in editor.files
+        if (
+            not editor.opening.busy
+            and not editor.workspace.busy
+            and all(
+                file.loader.status.phase != LoadPhase.LOADING and not file.editor.busy
+                for file in editor.files
+            )
         ):
             return
         sleep(0.001)
@@ -41,46 +42,43 @@ def test_contextual_import_changes_only_owner_and_failed_reload_retains_recipe(
     custom, sibling = tmp_path / "custom.csv", tmp_path / "sibling.csv"
     custom.write_text("x;y\n3;6\n1;2\n")
     sibling.write_text("x,y\n10,20\n")
-    editor = EditorSession()
-    controls = EditorControls()
+    editor = EditorController()
     try:
         file = editor.active
-        file.controls.path, file.controls.separator = str(custom), ";"
-        controls.open_dialog("Import settings", file)
-        controls.request_import(editor, file)
+        file.imports.path, file.imports.csv.separator = str(custom), ";"
+        file.imports.request()
         wait(editor)
         assert (
             file.loader.active is not None
             and file.loader.active.dataset.table.columns == ["x", "y"]
         )
-        other = editor.new_tab(sibling)
+        other = editor.new_file(sibling)
         wait(editor)
         other_revision = other.loader.revision
         file.editor.request(Sort(("x",)))
         wait(editor)
         assert file.editor.pipeline is not None and file.editor.pipeline.cursor == 1
-        file.controls.text_only = True
-        controls.request_import(editor, file)
+        file.imports.csv.text_only = True
+        file.imports.request()
         wait(editor)
         assert file.editor.pipeline is not None and file.editor.pipeline.cursor == 0
         assert file.loader.active.dataset.table["x"].to_list() == ["3", "1"]
         custom.write_text('x;y\n"unclosed;2\n')
         revision = file.loader.revision
-        controls.request_import(editor, file)
+        file.imports.request()
         wait(editor)
         assert (
             file.loader.revision == revision and other.loader.revision == other_revision
         )
-        assert controls.owner == file.identity and editor.active is other
-        file.workspace.path = str(sibling)
-        file.workspace.overwrite = True
+        assert editor.active is other
         before = sibling.read_bytes()
-        file.workspace.save(file, sources=editor.source_paths)
+        editor.save_workspace(sibling, "", (), False, True)
         wait(editor)
-        assert "source data" in file.workspace.jobs.message
+        assert "source data" in editor.workspace.message
         assert sibling.read_bytes() == before
-        with pytest.raises(ValueError, match="Unknown"):
-            controls.open_dialog("unknown", file)
+        editor.close_file(file.identity)
+        with pytest.raises(ValueError, match="Finish"):
+            file.imports.request()
     finally:
         editor.close()
 

@@ -667,6 +667,36 @@ check previously passed 64 frames at 15.75 ms p95. Remaining browser/import/sess
 caller migration, obsolete native scripts and final integrated resource/size/theme
 acceptance remain open.
 
+## Fresh Stage E14 — Prepared browser and recent-source recovery
+
+The file dialog composes navigation, a virtual listing, selection actions and a
+separate direct-path form. Folder/file rows inherit a shared entry parent with
+injected commands. Directory metadata and cached case-insensitive search live in
+the application controller; polling publishes only the latest listing. Navigation
+and closure abandon obsolete jobs and clear selection. Select shown files respects
+search and deduplicates aliases. Literal filename separators keep distinct native
+identities. Search/direct-path drafts survive dismissal.
+
+Recent-source retry now reloads its exact recipe in the owning tab, retains usable
+siblings and refuses to replace an executing import/edit or unresolved recovery.
+Ordinary duplicate opening preserves history, including after a failed reload of a
+different path. Successful session saves/restores enter the recent list. Export,
+preferences and whole-session destinations share protection for ready, attempted
+and recoverable source paths; worker fingerprinting stays outside rendering.
+
+Three more legacy test modules now exercise GUI-free opening/import/recent
+controllers, preserving the original independent retry, source protection and
+stale-job gates. Verification: scoped Pyrefly zero errors; **52 focused checks**,
+full Ruff lint/format (752 files) and whitespace checks pass. Native search through
+515 metadata rows renders fewer than 25 visible entries; native alias selection,
+multi-open, duplicate direct opening, failed-folder retry, media collection opening
+and modal X closure/reopening pass in 281 frames at **26.40 ms p95**. The final
+640×520 dialog was visually inspected. Source bytes and zero implicit
+analysis/playback pass. [Browser report](evidence/gui-overhaul/fresh-browser.json).
+Full-project Pyrefly still reports 346 errors from obsolete callers. The remaining
+two session/multimodal test modules, old native scripts and integrated resource,
+size/theme and capability acceptance remain open.
+
 ## Baseline evidence
 
 Before implementation, 38 targeted editor/session/schema-role/profile-selection/

@@ -6,8 +6,8 @@ from time import monotonic, sleep
 
 import pytest
 
-from datelier.gui.data.import_controls import ImportControls
-from datelier.gui.editor_session import EditorSession
+from datelier.application.editor import EditorController
+from datelier.application.imports.controller import ImportController
 from datelier.io.loading import LoadPhase
 from datelier.io.types import (
     CsvOptions,
@@ -24,19 +24,19 @@ from datelier.workspace.preferences import (
     save_preferences,
 )
 from datelier.workspace.recent import MAX_RECENT, RecentKind, RecentSource, remember
+from datelier.workspace.session_types import SourceDraft
 
 
-def wait(editor: EditorSession) -> None:
+def wait(editor: EditorController) -> None:
     deadline = monotonic() + 5
     while monotonic() < deadline:
         editor.poll()
         if (
             not editor.opening.busy
-            and not editor.workspace_jobs.busy
+            and not editor.workspace.busy
+            and editor.preferences.ready
             and all(
-                file.loader.status.phase != LoadPhase.LOADING
-                and not file.workspace.jobs.busy
-                and not file.editor.busy
+                file.loader.status.phase != LoadPhase.LOADING and not file.editor.busy
                 for file in editor.files
             )
         ):
@@ -82,8 +82,9 @@ def test_recent_reopen_uses_exact_recipe_and_failure_retry_preserves_siblings(
     entry = RecentSource(str(source), format=ImportFormat.CSV, options=options)
     prefs = tmp_path / "preferences.json"
     save_preferences(prefs, Preferences(recent=(entry,)))
-    editor = EditorSession(prefs)
+    editor = EditorController(prefs)
     try:
+        wait(editor)
         editor.open_recent(editor.preferences.value.recent[0])
         wait(editor)
         good = editor.active
@@ -92,15 +93,15 @@ def test_recent_reopen_uses_exact_recipe_and_failure_retry_preserves_siblings(
             and good.loader.active.dataset.table.columns == ["x", "y"]
         )
         revision = good.loader.revision
-        editor.new_tab()
+        editor.new_file()
         failure = RecentSource(str(missing), format=ImportFormat.CSV, options=options)
         editor.open_recent(failure)
         wait(editor)
         failed = editor.active
         assert failed.loader.status.phase == LoadPhase.FAILED
         assert "missing" in failed.loader.status.message.lower()
-        assert failed.controls.path == str(missing)
-        assert failed.controls.options(failed.controls.selected_format()) == options
+        assert failed.imports.path == str(missing)
+        assert failed.imports.csv.build() == options
         missing.write_text("x;y\n5;6\n")
         editor.open_recent(failure)
         wait(editor)
@@ -136,32 +137,32 @@ def test_saved_and_reopened_workspace_is_recent_and_can_recover_source(
         tmp_path / "session.json",
     )
     source.write_text("x,y\n1,2\n3,4\n")
-    editor = EditorSession()
+    editor = EditorController()
     try:
         editor.opening.request((source,), editor.active_id)
         wait(editor)
-        editor.active.workspace.path = str(workspace)
-        editor.active.workspace.save(editor.active)
+        identity = editor.active.identity
+        editor.save_workspace(workspace, "", (), False, False)
         wait(editor)
         recent = editor.preferences.value.recent[0]
         assert recent == RecentSource(str(workspace), RecentKind.WORKSPACE)
-        editor.close_tab(editor.active_id)
+        editor.close_file(editor.active_id)
         source.rename(moved)
         editor.open_recent(recent)
         wait(editor)
         file = editor.active
         assert file.recovery is not None and file.loader.active is None
-        editor.recover_source(file.identity, relink=moved)
+        editor.recover(file.identity, moved, False)
         wait(editor)
         assert (
             file.loader.active is not None
             and file.loader.active.dataset.source.path == moved
         )
         assert not file.analysis.jobs.busy and not file.analysis.jobs.results
-        editor.new_tab()
+        editor.new_file()
         editor.open_recent(recent)
         wait(editor)
-        assert len(editor.files) == 1 and editor.active.identity == "legacy-source"
+        assert len(editor.files) == 1 and editor.active.identity == identity
         assert editor.active.recovery is not None
     finally:
         editor.close()
@@ -200,10 +201,32 @@ def test_import_controls_retain_exact_bound_recipe_until_edited(
     format: ImportFormat,
     options: CsvOptions | JsonOptions | ParquetOptions | XmlOptions,
 ) -> None:
-    controls = ImportControls()
-    controls.bind_settings(format, options)
-    assert controls.selected_format() == format and controls.options(format) == options
+    controls = ImportController(lambda _: None)
+    controls.bind(SourceDraft("source.csv", format, options))
+    assert controls.selected == format and controls.drafts[format].build() == options
     if isinstance(options, CsvOptions):
-        controls.separator = ","
-        changed = controls.options(format)
+        controls.csv.separator = ","
+        changed = controls.drafts[format].build()
         assert isinstance(changed, CsvOptions) and changed.separator == ","
+
+
+def test_failed_source_becomes_protected_before_retry(tmp_path: Path) -> None:
+    source = tmp_path / "failed.json"
+    editor = EditorController()
+    try:
+        editor.active.open(source, JsonOptions())
+        wait(editor)
+        assert editor.active.loader.status.phase == LoadPhase.FAILED
+        source.write_text('[{"x":1}]')
+        original = source.read_bytes()
+        assert editor.source_paths == (source,)
+        editor.save_workspace(source, "", (), False, True)
+        wait(editor)
+        assert "source data" in editor.workspace.message
+        with pytest.raises(ValueError, match="source data"):
+            save_preferences(
+                source, editor.preferences.value, sources=editor.source_paths
+            )
+        assert source.read_bytes() == original
+    finally:
+        editor.close()
