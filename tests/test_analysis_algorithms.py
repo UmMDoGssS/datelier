@@ -142,3 +142,61 @@ def test_umap_finite_dimensions_seed_and_metric() -> None:
         np.testing.assert_array_equal(first.values, second.values)
         assert first.provenance.request == request
         assert "umap-learn" in dict(first.provenance.versions)
+
+
+def test_builder_rejects_different_prepared_settings_before_fit() -> None:
+    import pytest
+
+    from datelier.analysis.algorithms.pca import PCAAlgorithm
+
+    dataset = Dataset.from_source(
+        pl.DataFrame({"x": [1.0, 2.0, 3.0], "y": [2.0, 4.0, 5.0]}),
+        SourceReference(Path("unused"), 0, 0),
+    )
+    prepared = prepare_input(dataset, AnalysisRequest(("x", "y")))
+    with pytest.raises(ValueError, match="does not match"):
+        PCAAlgorithm(PCAParameters(whiten=True)).run(prepared)
+
+
+def test_clustering_family_uses_its_fitted_space_predictor() -> None:
+    from dataclasses import replace
+
+    import pytest
+    from numpy.typing import NDArray
+
+    from datelier.analysis.algorithms.kmeans import KMeansAlgorithm
+    from datelier.analysis.types import ClusteringResult, KMeansFit, KMeansParameters
+
+    class ConstantPredictor(KMeansAlgorithm):
+        def predict_values(
+            self, values: NDArray[np.float64], fit: KMeansFit
+        ) -> NDArray[np.int64]:
+            return np.ones(len(values), dtype=np.int64)
+
+    dataset = Dataset.from_source(
+        pl.DataFrame({"x": [1.0, 2.0, 3.0, None], "y": [2.0, 4.0, 5.0, 1.0]}),
+        SourceReference(Path("unused"), 0, 0),
+    )
+    parameters = KMeansParameters(clusters=2)
+    prepared = prepare_input(dataset, AnalysisRequest(("x", "y"), parameters))
+    result = run_analysis(prepared)
+    assert isinstance(result, ClusteringResult)
+    predictor = ConstantPredictor(parameters)
+    labels = predictor.predict(dataset, np.arange(4, dtype=np.uint64), result)
+    assert labels.tolist() == [1, 1, 1, -2] and not labels.flags.writeable
+    # Label-only recipes retain known row assignments, without inventing predictions.
+    sampled = predictor.predict(
+        dataset, np.arange(4, dtype=np.uint64), replace(result, fit=None)
+    )
+    assert sampled[-1] == -2
+    np.testing.assert_array_equal(sampled[:3], result.labels)
+    with pytest.raises(ValueError, match="revision"):
+        predictor.predict(
+            dataset.with_rows(dataset.table.reverse(), dataset.row_ids.reverse()),
+            np.arange(4, dtype=np.uint64),
+            result,
+        )
+    with pytest.raises(ValueError, match="match"):
+        KMeansAlgorithm(KMeansParameters(clusters=1)).predict(
+            dataset, np.arange(4, dtype=np.uint64), result
+        )

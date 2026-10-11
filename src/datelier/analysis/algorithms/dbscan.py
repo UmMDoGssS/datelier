@@ -1,4 +1,4 @@
-"DBSCANAlgorithm: parameter ownership, fitting and input constraints."
+"""DBSCANAlgorithm: parameter ownership, fitting and input constraints."""
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar
@@ -34,11 +34,10 @@ class DBSCANAlgorithm(ClusteringAlgorithm[DBSCANParameters]):
 
         values = prepared.values
         params = self.parameters
-        details: list[tuple[str, str]] = []
         estimator = DBSCAN(
             eps=params.epsilon,
             min_samples=params.min_samples,
             metric=params.metric,
             n_jobs=1,
         )
-        return (estimator, values, tuple(details))
+        return estimator, values, ()

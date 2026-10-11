@@ -1,4 +1,4 @@
-"MDSAlgorithm: parameter ownership, fitting and input constraints."
+"""MDSAlgorithm: parameter ownership, fitting and input constraints."""
 
 from collections.abc import Callable
 from dataclasses import dataclass, field

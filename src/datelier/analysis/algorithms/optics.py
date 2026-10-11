@@ -1,4 +1,4 @@
-"OPTICSAlgorithm: parameter ownership, fitting and input constraints."
+"""OPTICSAlgorithm: parameter ownership, fitting and input constraints."""
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar
@@ -35,7 +35,6 @@ class OPTICSAlgorithm(ClusteringAlgorithm[OPTICSParameters]):
 
         values = prepared.values
         params = self.parameters
-        details: list[tuple[str, str]] = []
         estimator = OPTICS(
             min_samples=params.min_samples,
             min_cluster_size=params.min_cluster_size,
@@ -43,13 +42,13 @@ class OPTICSAlgorithm(ClusteringAlgorithm[OPTICSParameters]):
             metric=params.metric,
             n_jobs=1,
         )
-        return (estimator, values, tuple(details))
+        return estimator, values, ()
 
     def validate_input(
         self, values: NDArray[np.float64], request: AnalysisRequest
     ) -> None:
         params = self.parameters
-        rows, width = values.shape
+        rows = len(values)
         if max(params.min_samples, params.min_cluster_size) > rows:
             raise ValueError(
                 "Minimum neighbors and cluster size exceed the sampled rows"

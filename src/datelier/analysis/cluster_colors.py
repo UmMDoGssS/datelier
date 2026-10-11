@@ -1,9 +1,10 @@
 """Cluster assignments and predictions for bounded displayed rows."""
 
 import numpy as np
-import polars as pl
 from numpy.typing import NDArray
 
+from datelier.analysis.algorithms.base import ClusteringAlgorithm
+from datelier.analysis.algorithms.registry import build_algorithm
 from datelier.analysis.types import ClusteringResult
 from datelier.core.dataset import Dataset
 from datelier.plotting.colors import NEUTRAL, PALETTE, PointColors, color_series
@@ -12,56 +13,10 @@ from datelier.plotting.colors import NEUTRAL, PALETTE, PointColors, color_series
 def predict_clusters(
     dataset: Dataset, positions: NDArray[np.uint64], result: ClusteringResult
 ) -> NDArray[np.int64]:
-    if dataset.revision != result.revision or len(positions) > 10_000:
-        raise ValueError(
-            "Cluster colors require current revision and at most 10,000 displayed rows"
-        )
-    fit = result.fit
-    if fit is None:
-        # A label-only clustering result colors known identities; unseen rows
-        # remain excluded rather than inventing a prediction rule.
-        known = dict(zip(result.row_ids.tolist(), result.labels.tolist(), strict=True))
-        labels = np.array(
-            [known.get(int(i), -2) for i in dataset.row_ids.gather(positions)],
-            dtype=np.int64,
-        )
-        labels.flags.writeable = False
-        return labels
-    # Resolve literal names as Series, never as regex expressions.
-    raw = pl.DataFrame(
-        {
-            f"f{i}": dataset.table.get_column(name).gather(positions).cast(pl.Float64)
-            for i, name in enumerate(fit.model.features)
-        }
-    ).to_numpy()
-    values, eligible = fit.model.transform(raw)
-    if not fit.model.settings.impute:
-        original_valid = np.ones(len(positions), dtype=bool)
-        for name in result.provenance.input.removed_constants:
-            original_valid &= (
-                dataset.table.get_column(name)
-                .gather(positions)
-                .cast(pl.Float64)
-                .is_finite()
-                .fill_null(False)
-                .to_numpy()
-            )
-        keep = original_valid[eligible]
-        values = values[keep]
-        eligible &= original_valid
-    labels = np.full(len(positions), -2, dtype=np.int64)
-    # Bounded n×k distances rather than n×k×features temporary copies.
-    with np.errstate(over="ignore", invalid="ignore"):
-        distances = (
-            (values * values).sum(axis=1)[:, None]
-            + (fit.centers * fit.centers).sum(axis=1)[None, :]
-            - 2 * values @ fit.centers.T
-        )
-    if not np.isfinite(distances).all():
-        raise ValueError("Cluster distance overflow; fit with standardization")
-    labels[eligible] = np.argmin(distances, axis=1)
-    labels.flags.writeable = False
-    return labels
+    builder = build_algorithm(result.provenance.request.parameters)
+    if not isinstance(builder, ClusteringAlgorithm):
+        raise ValueError("Cluster prediction requires a clustering algorithm")
+    return builder.predict(dataset, positions, result)
 
 
 def prepare_cluster_colors(

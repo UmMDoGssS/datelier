@@ -1,4 +1,4 @@
-"UMAPAlgorithm: parameter ownership, fitting and input constraints."
+"""UMAPAlgorithm: parameter ownership, fitting and input constraints."""
 
 from dataclasses import dataclass
 from time import perf_counter
@@ -34,6 +34,7 @@ class UMAPAlgorithm(DecompositionAlgorithm[UMAPParameters]):
 
         from datelier.analysis.embedding_result import embedding_result
 
+        self.check_input(prepared)
         started = perf_counter()
         request = prepared.request
         params = self.parameters

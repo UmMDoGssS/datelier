@@ -1,4 +1,4 @@
-"ICAAlgorithm: parameter ownership, fitting and input constraints."
+"""ICAAlgorithm: parameter ownership, fitting and input constraints."""
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar, Literal, cast

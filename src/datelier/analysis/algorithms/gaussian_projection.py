@@ -1,4 +1,4 @@
-"GaussianProjectionAlgorithm: parameter ownership, fitting and input constraints."
+"""GaussianProjectionAlgorithm: parameter ownership, fitting and input constraints."""
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar
@@ -36,6 +36,5 @@ class GaussianProjectionAlgorithm(
         request = prepared.request
         values = prepared.values
         dims, seed = (request.dimensions, request.seed)
-        details: list[tuple[str, str]] = []
         estimator = GaussianRandomProjection(n_components=dims, random_state=seed)
-        return (estimator, values, tuple(details))
+        return estimator, values, ()

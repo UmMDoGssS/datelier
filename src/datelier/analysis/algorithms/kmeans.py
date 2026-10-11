@@ -1,4 +1,4 @@
-"KMeansAlgorithm: parameter ownership, fitting and input constraints."
+"""KMeansAlgorithm: parameter ownership, fitting and input constraints."""
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar, cast
@@ -7,7 +7,10 @@ import numpy as np
 from numpy.typing import NDArray
 
 from datelier.analysis.algorithm import Algorithm as AlgorithmId
-from datelier.analysis.algorithms.base import ClusterEstimator, ClusteringAlgorithm
+from datelier.analysis.algorithms.base import (
+    ClusterEstimator,
+    NearestCenterClusteringAlgorithm,
+)
 from datelier.analysis.parameter_fields import setting
 
 if TYPE_CHECKING:
@@ -22,7 +25,7 @@ class KMeansParameters:
     iterations: int = setting(300, "Iterations", 1)
 
 
-class KMeansAlgorithm(ClusteringAlgorithm[KMeansParameters]):
+class KMeansAlgorithm(NearestCenterClusteringAlgorithm[KMeansParameters]):
     parameter_type = KMeansParameters
     row_limit = 100000
     default_row_limit = 10000
@@ -35,15 +38,14 @@ class KMeansAlgorithm(ClusteringAlgorithm[KMeansParameters]):
         request = prepared.request
         values = prepared.values
         params = self.parameters
-        _dims, seed = (request.dimensions, request.seed)
-        details: list[tuple[str, str]] = []
+        seed = request.seed
         estimator = KMeans(
             n_clusters=params.clusters,
             n_init=params.initializations,
             max_iter=params.iterations,
             random_state=seed,
         )
-        return (estimator, values, tuple(details))
+        return estimator, values, ()
 
     def fitted_centers(
         self, estimator: ClusterEstimator, prepared: PreparedInput
@@ -59,6 +61,5 @@ class KMeansAlgorithm(ClusteringAlgorithm[KMeansParameters]):
         self, values: NDArray[np.float64], request: AnalysisRequest
     ) -> None:
         params = self.parameters
-        rows, width = values.shape
         if params.clusters > len(np.unique(values, axis=0)):
             raise ValueError("Cluster count exceeds distinct sampled inputs")

@@ -1,6 +1,6 @@
 {
-  "frames": 307,
-  "frame_p95_ms": 15.219159198750276,
+  "frames": 381,
+  "frame_p95_ms": 15.66774850289221,
   "schemas_rendered": [
     "PCA",
     "t-SNE",
@@ -30,6 +30,7 @@
     "Locally linear embedding"
   ],
   "native_boolean_and_numeric_edits": true,
+  "native_integer_and_choice_edits": true,
   "automatic_manual_draft_retained": true,
   "conditional_visibility": true,
   "no_implicit_analysis": true,

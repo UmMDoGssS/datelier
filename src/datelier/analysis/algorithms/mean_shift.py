@@ -1,4 +1,4 @@
-"MeanShiftAlgorithm: parameter ownership, fitting and input constraints."
+"""MeanShiftAlgorithm: parameter ownership, fitting and input constraints."""
 
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, ClassVar
@@ -58,7 +58,7 @@ class MeanShiftAlgorithm(ClusteringAlgorithm[MeanShiftParameters]):
         request = prepared.request
         values = prepared.values
         params = self.parameters
-        _dims, seed = (request.dimensions, request.seed)
+        seed = request.seed
         details: list[tuple[str, str]] = []
         with threadpool_limits(limits=1):
             bandwidth = (

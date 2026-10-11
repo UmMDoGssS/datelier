@@ -1,4 +1,4 @@
-"NMFAlgorithm: parameter ownership, fitting and input constraints."
+"""NMFAlgorithm: parameter ownership, fitting and input constraints."""
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar, cast

@@ -1,4 +1,4 @@
-"SparseProjectionAlgorithm: parameter ownership, fitting and input constraints."
+"""SparseProjectionAlgorithm: parameter ownership, fitting and input constraints."""
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar
@@ -39,11 +39,10 @@ class SparseProjectionAlgorithm(
         values = prepared.values
         params = self.parameters
         dims, seed = (request.dimensions, request.seed)
-        details: list[tuple[str, str]] = []
         estimator = SparseRandomProjection(
             n_components=dims,
             density=params.density,
             dense_output=True,
             random_state=seed,
         )
-        return (estimator, values, tuple(details))
+        return estimator, values, ()

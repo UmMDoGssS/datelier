@@ -1,4 +1,4 @@
-"IsomapAlgorithm: parameter ownership, fitting and input constraints."
+"""IsomapAlgorithm: parameter ownership, fitting and input constraints."""
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar
@@ -38,7 +38,6 @@ class IsomapAlgorithm(FittedDecompositionAlgorithm[IsomapParameters]):
         values = prepared.values
         params = self.parameters
         dims, _seed = (request.dimensions, request.seed)
-        details: list[tuple[str, str]] = []
         estimator = Isomap(
             n_neighbors=params.neighbors,
             n_components=dims,
@@ -47,7 +46,7 @@ class IsomapAlgorithm(FittedDecompositionAlgorithm[IsomapParameters]):
             path_method="D",
             n_jobs=1,
         )
-        return (estimator, values, tuple(details))
+        return estimator, values, ()
 
     def validate_input(
         self, values: NDArray[np.float64], request: AnalysisRequest

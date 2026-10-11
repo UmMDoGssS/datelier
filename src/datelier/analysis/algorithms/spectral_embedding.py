@@ -1,4 +1,4 @@
-"SpectralEmbeddingAlgorithm: parameter ownership, fitting and input constraints."
+"""SpectralEmbeddingAlgorithm: parameter ownership, fitting and input constraints."""
 
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, ClassVar, Literal, cast
@@ -59,7 +59,6 @@ class SpectralEmbeddingAlgorithm(
         values = prepared.values
         params = self.parameters
         dims, seed = (request.dimensions, request.seed)
-        details: list[tuple[str, str]] = []
         estimator = SpectralEmbedding(
             n_components=dims,
             affinity=cast(Literal["nearest_neighbors", "rbf"], params.affinity),
@@ -71,7 +70,7 @@ class SpectralEmbeddingAlgorithm(
             random_state=seed,
             n_jobs=1,
         )
-        return (estimator, values, tuple(details))
+        return estimator, values, ()
 
     def validate_input(
         self, values: NDArray[np.float64], request: AnalysisRequest

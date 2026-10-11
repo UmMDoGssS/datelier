@@ -9,17 +9,14 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from time import perf_counter, sleep
 
+from datelier.analysis.algorithms.registry import BUILDERS
 from datelier.analysis.jobs import AnalysisJobs
-from datelier.analysis.parameters import EXTRA_DEFAULTS, DBSCANParameters
+from datelier.analysis.parameters import DBSCANParameters
 from datelier.analysis.types import (
     DEFAULT_LIMITS,
     Algorithm,
     AnalysisRequest,
     ClusteringResult,
-    KMeansParameters,
-    PCAParameters,
-    TSNEParameters,
-    UMAPParameters,
 )
 from datelier.core.dataset import Dataset, SourceReference
 from datelier.feasibility.fixtures import make_table
@@ -40,13 +37,8 @@ def main() -> None:
     dataset = Dataset.from_source(
         make_table(args.rows, args.columns), SourceReference(Path("synthetic"), 0, 0)
     )
-    parameters = {
-        **{a.name.lower(): p for a, p in EXTRA_DEFAULTS.items()},
-        "pca": PCAParameters(),
-        "kmeans": KMeansParameters(),
-        "tsne": TSNEParameters(),
-        "umap": UMAPParameters(),
-    }[args.algorithm]
+    algorithm = next(a for a in Algorithm if a.name.lower() == args.algorithm)
+    parameters = BUILDERS[algorithm]().parameters
     if args.dense_neighborhood:
         if args.algorithm != "dbscan":
             raise ValueError("Dense-neighborhood measurement requires DBSCAN")

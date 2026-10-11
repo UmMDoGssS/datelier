@@ -10,14 +10,10 @@ from dataclasses import fields, is_dataclass
 from enum import Enum
 from typing import TypeAliasType, cast, get_args, get_origin, get_type_hints
 
-from datelier.analysis.parameters import EXTRA_DEFAULTS
+from datelier.analysis.algorithms.registry import BUILDERS
 from datelier.analysis.types import (
     AnalysisRequest,
-    KMeansParameters,
-    PCAParameters,
     Preprocessing,
-    TSNEParameters,
-    UMAPParameters,
 )
 from datelier.inspection.annotations.overlay import OverlayClass, OverlaySettings
 from datelier.inspection.annotations.settings import (
@@ -139,7 +135,7 @@ RECORDS = (
     TablePresentation,
     ReferenceSettings,
     ReferenceMapping,
-    *(type(p) for p in EXTRA_DEFAULTS.values()),
+    *(type(builder().parameters) for builder in BUILDERS.values()),
     Workspace,
     SessionFile,
     SessionWorkspace,
@@ -166,10 +162,6 @@ RECORDS = (
     DerivedColumn,
     AnalysisRequest,
     Preprocessing,
-    PCAParameters,
-    TSNEParameters,
-    UMAPParameters,
-    KMeansParameters,
     PlotSettings,
     DistributionSettings,
     CategorySettings,

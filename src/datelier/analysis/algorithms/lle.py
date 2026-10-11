@@ -1,4 +1,4 @@
-"LLEAlgorithm: parameter ownership, fitting and input constraints."
+"""LLEAlgorithm: parameter ownership, fitting and input constraints."""
 
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, ClassVar, Literal, cast

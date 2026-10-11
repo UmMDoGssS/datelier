@@ -1,4 +1,4 @@
-"AgglomerativeAlgorithm: parameter ownership, fitting and input constraints."
+"""AgglomerativeAlgorithm: parameter ownership, fitting and input constraints."""
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar, Literal, cast
@@ -33,7 +33,6 @@ class AgglomerativeAlgorithm(ClusteringAlgorithm[AgglomerativeParameters]):
 
         values = prepared.values
         params = self.parameters
-        details: list[tuple[str, str]] = []
         estimator = AgglomerativeClustering(
             n_clusters=params.clusters,
             linkage=cast(
@@ -41,12 +40,11 @@ class AgglomerativeAlgorithm(ClusteringAlgorithm[AgglomerativeParameters]):
             ),
             metric="euclidean",
         )
-        return (estimator, values, tuple(details))
+        return estimator, values, ()
 
     def validate_input(
         self, values: NDArray[np.float64], request: AnalysisRequest
     ) -> None:
         params = self.parameters
-        rows, width = values.shape
         if params.clusters > len(np.unique(values, axis=0)):
             raise ValueError("Cluster count exceeds distinct sampled inputs")

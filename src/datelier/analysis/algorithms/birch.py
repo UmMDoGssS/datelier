@@ -1,4 +1,4 @@
-"BirchAlgorithm: parameter ownership, fitting and input constraints."
+"""BirchAlgorithm: parameter ownership, fitting and input constraints."""
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar
@@ -34,18 +34,16 @@ class BirchAlgorithm(ClusteringAlgorithm[BirchParameters]):
 
         values = prepared.values
         params = self.parameters
-        details: list[tuple[str, str]] = []
         estimator = Birch(
             n_clusters=params.clusters,
             threshold=params.threshold,
             branching_factor=params.branching,
         )
-        return (estimator, values, tuple(details))
+        return estimator, values, ()
 
     def validate_input(
         self, values: NDArray[np.float64], request: AnalysisRequest
     ) -> None:
         params = self.parameters
-        rows, width = values.shape
         if params.clusters > len(np.unique(values, axis=0)):
             raise ValueError("Cluster count exceeds distinct sampled inputs")

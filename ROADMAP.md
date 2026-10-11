@@ -949,4 +949,4 @@ families, method-owned parameter schemas and generic GUI forms.
 
 - [x] Replace estimator dispatch chains with concrete algorithm builders and input constraints.
 - [x] Consolidate parameter defaults, limits, request/restoration and GUI schema rendering.
-- [ ] Verify all algorithms, persistence, native forms and full-suite acceptance.
+- [x] Verify all algorithms, persistence, native forms and full-suite acceptance.

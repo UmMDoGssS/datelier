@@ -1,4 +1,4 @@
-"HDBSCANAlgorithm: parameter ownership, fitting and input constraints."
+"""HDBSCANAlgorithm: parameter ownership, fitting and input constraints."""
 
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, ClassVar
@@ -39,7 +39,6 @@ class HDBSCANAlgorithm(ClusteringAlgorithm[HDBSCANParameters]):
 
         values = prepared.values
         params = self.parameters
-        details: list[tuple[str, str]] = []
         estimator = HDBSCAN(
             min_cluster_size=params.min_cluster_size,
             min_samples=params.min_samples,
@@ -48,13 +47,13 @@ class HDBSCANAlgorithm(ClusteringAlgorithm[HDBSCANParameters]):
             n_jobs=1,
             copy=True,
         )
-        return (estimator, values, tuple(details))
+        return estimator, values, ()
 
     def validate_input(
         self, values: NDArray[np.float64], request: AnalysisRequest
     ) -> None:
         params = self.parameters
-        rows, width = values.shape
+        rows = len(values)
         if max(params.min_samples, params.min_cluster_size) > rows:
             raise ValueError(
                 "Minimum neighbors and cluster size exceed the sampled rows"

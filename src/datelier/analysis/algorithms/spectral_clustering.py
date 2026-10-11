@@ -1,4 +1,4 @@
-"SpectralClusteringAlgorithm: parameter ownership, fitting and input constraints."
+"""SpectralClusteringAlgorithm: parameter ownership, fitting and input constraints."""
 
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, ClassVar
@@ -55,8 +55,7 @@ class SpectralClusteringAlgorithm(ClusteringAlgorithm[SpectralClusteringParamete
         request = prepared.request
         values = prepared.values
         params = self.parameters
-        _dims, seed = (request.dimensions, request.seed)
-        details: list[tuple[str, str]] = []
+        seed = request.seed
         estimator = SpectralClustering(
             n_clusters=params.clusters,
             affinity=params.affinity,
@@ -68,16 +67,15 @@ class SpectralClusteringAlgorithm(ClusteringAlgorithm[SpectralClusteringParamete
             random_state=seed,
             n_jobs=1,
         )
-        return (estimator, values, tuple(details))
+        return estimator, values, ()
 
     def validate_input(
         self, values: NDArray[np.float64], request: AnalysisRequest
     ) -> None:
         params = self.parameters
-        rows, width = values.shape
         if params.clusters > len(np.unique(values, axis=0)):
             raise ValueError("Cluster count exceeds distinct sampled inputs")
-        if params.affinity == "nearest_neighbors" and params.neighbors >= rows:
+        if params.affinity == "nearest_neighbors" and params.neighbors >= len(values):
             raise ValueError(
                 "Spectral clustering needs more sampled rows than neighbors"
             )

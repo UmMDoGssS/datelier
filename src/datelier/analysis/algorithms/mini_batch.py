@@ -1,4 +1,4 @@
-"MiniBatchAlgorithm: parameter ownership, fitting and input constraints."
+"""MiniBatchAlgorithm: parameter ownership, fitting and input constraints."""
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar, cast
@@ -7,7 +7,10 @@ import numpy as np
 from numpy.typing import NDArray
 
 from datelier.analysis.algorithm import Algorithm as AlgorithmId
-from datelier.analysis.algorithms.base import ClusterEstimator, ClusteringAlgorithm
+from datelier.analysis.algorithms.base import (
+    ClusterEstimator,
+    NearestCenterClusteringAlgorithm,
+)
 from datelier.analysis.parameter_fields import setting
 
 if TYPE_CHECKING:
@@ -23,7 +26,7 @@ class MiniBatchParameters:
     iterations: int = setting(100, "Iterations", 1, 10000)
 
 
-class MiniBatchAlgorithm(ClusteringAlgorithm[MiniBatchParameters]):
+class MiniBatchAlgorithm(NearestCenterClusteringAlgorithm[MiniBatchParameters]):
     parameter_type = MiniBatchParameters
     row_limit = 100000
     default_row_limit = 10000
@@ -36,8 +39,7 @@ class MiniBatchAlgorithm(ClusteringAlgorithm[MiniBatchParameters]):
         request = prepared.request
         values = prepared.values
         params = self.parameters
-        _dims, seed = (request.dimensions, request.seed)
-        details: list[tuple[str, str]] = []
+        seed = request.seed
         estimator = MiniBatchKMeans(
             n_clusters=params.clusters,
             batch_size=params.batch_size,
@@ -45,7 +47,7 @@ class MiniBatchAlgorithm(ClusteringAlgorithm[MiniBatchParameters]):
             max_iter=params.iterations,
             random_state=seed,
         )
-        return (estimator, values, tuple(details))
+        return estimator, values, ()
 
     def fitted_centers(
         self, estimator: ClusterEstimator, prepared: PreparedInput
@@ -61,6 +63,5 @@ class MiniBatchAlgorithm(ClusteringAlgorithm[MiniBatchParameters]):
         self, values: NDArray[np.float64], request: AnalysisRequest
     ) -> None:
         params = self.parameters
-        rows, width = values.shape
         if params.clusters > len(np.unique(values, axis=0)):
             raise ValueError("Cluster count exceeds distinct sampled inputs")

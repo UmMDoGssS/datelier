@@ -1,4 +1,4 @@
-"GaussianMixtureAlgorithm: parameter ownership, fitting and input constraints."
+"""GaussianMixtureAlgorithm: parameter ownership, fitting and input constraints."""
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar, Literal, cast
@@ -39,7 +39,7 @@ class GaussianMixtureAlgorithm(ClusteringAlgorithm[GaussianMixtureParameters]):
         request = prepared.request
         values = prepared.values
         params = self.parameters
-        _dims, seed = (request.dimensions, request.seed)
+        seed = request.seed
         details: list[tuple[str, str]] = []
         estimator = GaussianMixture(
             n_components=params.clusters,
@@ -71,6 +71,5 @@ class GaussianMixtureAlgorithm(ClusteringAlgorithm[GaussianMixtureParameters]):
         self, values: NDArray[np.float64], request: AnalysisRequest
     ) -> None:
         params = self.parameters
-        rows, width = values.shape
         if params.clusters > len(np.unique(values, axis=0)):
             raise ValueError("Cluster count exceeds distinct sampled inputs")

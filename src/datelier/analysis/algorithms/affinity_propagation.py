@@ -1,4 +1,4 @@
-"AffinityPropagationAlgorithm: parameter ownership, fitting and input constraints."
+"""AffinityPropagationAlgorithm: parameter ownership, fitting and input constraints."""
 
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, ClassVar
@@ -47,8 +47,7 @@ class AffinityPropagationAlgorithm(ClusteringAlgorithm[AffinityPropagationParame
         request = prepared.request
         values = prepared.values
         params = self.parameters
-        _dims, seed = (request.dimensions, request.seed)
-        details: list[tuple[str, str]] = []
+        seed = request.seed
         estimator = AffinityPropagation(
             damping=params.damping,
             max_iter=params.iterations,
@@ -56,7 +55,7 @@ class AffinityPropagationAlgorithm(ClusteringAlgorithm[AffinityPropagationParame
             preference=None if params.automatic_preference else params.preference,
             random_state=seed,
         )
-        return (estimator, values, tuple(details))
+        return estimator, values, ()
 
     def diagnostics(
         self, estimator: ClusterEstimator, labels: NDArray[np.int64]

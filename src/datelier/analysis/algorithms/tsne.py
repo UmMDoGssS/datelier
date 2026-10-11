@@ -1,4 +1,4 @@
-"TSNEAlgorithm: parameter ownership, fitting and input constraints."
+"""TSNEAlgorithm: parameter ownership, fitting and input constraints."""
 
 from dataclasses import dataclass, field
 from time import perf_counter
@@ -44,6 +44,7 @@ class TSNEAlgorithm(DecompositionAlgorithm[TSNEParameters]):
 
         from datelier.analysis.embedding_result import embedding_result
 
+        self.check_input(prepared)
         started = perf_counter()
         request = prepared.request
         params = self.parameters

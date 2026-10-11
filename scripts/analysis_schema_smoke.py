@@ -6,11 +6,16 @@ from tempfile import TemporaryDirectory
 
 import numpy as np
 import polars as pl
-from imgui_bundle import hello_imgui
+from imgui_bundle import hello_imgui, imgui
 from rebuild_input import NativeInput, NativeText
 
 from datelier.analysis.algorithms.registry import build_algorithm
-from datelier.analysis.types import Algorithm, PCAParameters, TSNEParameters
+from datelier.analysis.types import (
+    Algorithm,
+    KMeansParameters,
+    PCAParameters,
+    TSNEParameters,
+)
 from datelier.application.editor import EditorController
 from datelier.gui.app import InspectionEvidence, run_gui
 from datelier.gui.components.probe import GuiProbe
@@ -126,6 +131,38 @@ def main() -> None:
             elif step == 7:
                 assert pointer.find(probe, ("Mean shift", "bandwidth", "value"))
                 assert pointer.find(probe, ("Mean shift", "quantile", "value")) is None
+                file.analysis.panel_source = Algorithm.KMEANS
+                stage, entered = stage + 1, count
+            elif step == 8:
+                if age > 6 and pointer.click(
+                    probe, ("K-means", "clusters", "value"), count
+                ):
+                    stage, entered = stage + 1, count
+            elif step == 9:
+                text.start("4", count)
+                stage, entered = stage + 1, count
+            elif step == 10:
+                params = controls.parameters[Algorithm.KMEANS]
+                assert isinstance(params, KMeansParameters) and params.clusters == 4
+                file.analysis.panel_source = Algorithm.PCA
+                stage, entered = stage + 1, count
+            elif step == 11:
+                if age > 6 and pointer.click(probe, ("PCA", "solver", "value"), count):
+                    stage, entered = stage + 1, count
+            elif step == 12 and age > 4:
+                imgui.get_io().add_key_event(imgui.Key.end, True)
+                stage, entered = stage + 1, count
+            elif step == 13 and age > 4:
+                imgui.get_io().add_key_event(imgui.Key.end, False)
+                imgui.get_io().add_key_event(imgui.Key.enter, True)
+                stage, entered = stage + 1, count
+            elif step == 14 and age > 4:
+                imgui.get_io().add_key_event(imgui.Key.enter, False)
+                stage, entered = stage + 1, count
+            elif step == 15 and age > 4:
+                assert controls.parameters[Algorithm.PCA] == PCAParameters(
+                    solver="full", whiten=True
+                )
                 assert path.read_bytes() == original
                 complete = True
                 hello_imgui.get_runner_params().app_shall_exit = True
@@ -141,6 +178,7 @@ def main() -> None:
                     ),
                     "schemas_rendered": forms,
                     "native_boolean_and_numeric_edits": True,
+                    "native_integer_and_choice_edits": True,
                     "automatic_manual_draft_retained": True,
                     "conditional_visibility": True,
                     "no_implicit_analysis": True,
