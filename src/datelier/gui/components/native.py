@@ -15,6 +15,14 @@ def target(frame: FrameContext, key: str) -> None:
     frame.record(key, ((lo.x + hi.x) / 2, (lo.y + hi.y) / 2))
 
 
+def window_close_target(frame: FrameContext) -> None:
+    position, size = imgui.get_window_pos(), imgui.get_window_size()
+    frame.record(
+        "close-window",
+        (position.x + size.x - 13, position.y + imgui.get_frame_height() / 2),
+    )
+
+
 def help_tip(text: str) -> None:
     imgui.text_disabled("(?)")
     if imgui.is_item_hovered():

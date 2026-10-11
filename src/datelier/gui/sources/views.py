@@ -5,7 +5,7 @@ from collections.abc import Callable
 from imgui_bundle import imgui
 
 from datelier.gui.components.base import Component, FrameContext
-from datelier.gui.components.native import target
+from datelier.gui.components.native import label_text, target
 
 
 class RecordViewSelector(Component):
@@ -33,7 +33,7 @@ class RecordViewSelector(Component):
             (i for i, (identity, _) in enumerate(choices) if identity == active), 0
         )
         changed, index = imgui.combo(
-            "Record view", index, [label for _, label in choices]
+            "Record view", index, [label_text(label) for _, label in choices]
         )
         target(frame, "select")
         if changed:

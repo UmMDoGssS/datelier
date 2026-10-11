@@ -9,6 +9,7 @@ from imgui_bundle import imgui
 from datelier.gui.components.actions import CommandButton, JobFeedback, JobSnapshot
 from datelier.gui.components.base import Container, FrameContext
 from datelier.gui.components.fields import BooleanField, ChoiceField, TextField
+from datelier.gui.components.native import window_close_target
 from datelier.io.exporting import ExportFormat
 
 
@@ -79,8 +80,9 @@ class ExportDialog(Container):
             self.binding = self.capture()
             imgui.open_popup("Export source")
             self.requested = False
-        opened, _ = imgui.begin_popup_modal("Export source", True)
+        opened, visible = imgui.begin_popup_modal("Export source", True)
         if opened:
+            window_close_target(frame)
             imgui.text_wrapped(
                 "Source: " + (self.binding.label if self.binding else "No source")
             )
@@ -89,6 +91,8 @@ class ExportDialog(Container):
                 self.binding = None
                 imgui.close_current_popup()
             imgui.end_popup()
+        if visible is False:
+            self.binding = None
 
     def close(self) -> None:
         self.binding = None

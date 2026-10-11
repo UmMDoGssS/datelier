@@ -915,6 +915,28 @@ Verification: 10 scatter/color/comparison/image checks, scoped types (zero error
 full Ruff lint/format and whitespace checks pass. Full-project types remain open
 for the remaining obsolete caller inventory; final integrated audit stays open.
 
+## Fresh Stage E23 — Native workflow and custom splitter audit
+
+Dock customization now includes user-dragged split sizes, not just changed dock IDs.
+Viewport resizing/visibility changes settle before customization detection, so
+normal adaptive defaults remain automatic. A real native +70 px splitter drag
+survives changing from 1024×768 to 1280×800; pointer Reset restores the wide
+four-panel defaults. Export title-bar dismissal releases its captured source port.
+Named record selectors now share source-label escaping.
+
+Native column selection with literal triple hashes, Sort, toolbar Undo/Redo,
+keyboard destination entry, overwrite rejection and successful source-bound
+export pass. Activation is explicitly changed through the controller while the
+modal remains open; exported values still belong to its captured source. Actual
+native title-bar closure and unchanged original CSV bytes pass.
+[Workflow/dock report](evidence/gui-overhaul/fresh-workflow-docks.json).
+
+Verification: splitter 82 frames/20.92 ms p95, workflow 252/13.89 ms, docking reset
+69/11.21 ms and fresh-process adaptive restoration 25/25 frames at 12.69/11.35 ms.
+29 architecture/restore/export/transform/navigation checks and scoped types pass;
+full Ruff lint/format and whitespace checks pass. Historical caller consolidation
+and final acceptance audit remain open.
+
 ## Baseline evidence
 
 Before implementation, 38 targeted editor/session/schema-role/profile-selection/

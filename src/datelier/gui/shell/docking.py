@@ -59,6 +59,8 @@ class DockHost(Container):
         self.customized = False
         self.reset = False
         self._signature: dict[str, int] = {}
+        self._geometry: dict[str, tuple[float, float]] = {}
+        self._work_size = (0.0, 0.0)
         self._settle = 4
 
     def toggle_context(self) -> None:
@@ -86,21 +88,41 @@ class DockHost(Container):
         imgui.dock_space(node_id, (0, 0))
         self.context.drawer = compact
         super().render(frame)
-        signature = {
-            panel.key: window.dock_id
+        windows = {
+            panel.key: window
             for panel in self.children
             if isinstance(panel, DockPanel) and panel.visible and not panel.drawer
             for window in (imgui.internal.find_window_by_name(panel.label),)
             if window is not None
         }
+        signature = {key: window.dock_id for key, window in windows.items()}
+        geometry = {
+            key: (window.size.x, window.size.y) for key, window in windows.items()
+        }
+        size = imgui.get_main_viewport().work_size
+        work_size = (size.x, size.y)
+        if work_size != self._work_size or signature.keys() != self._signature.keys():
+            self._settle = max(self._settle, 4)
         if self._settle:
             self._settle -= 1
         elif any(
             key in self._signature and self._signature[key] != dock_id
             for key, dock_id in signature.items()
+        ) or (
+            imgui.is_mouse_down(0)
+            and any(
+                key in self._geometry
+                and any(
+                    abs(a - b) > 1
+                    for a, b in zip(value, self._geometry[key], strict=True)
+                )
+                for key, value in geometry.items()
+            )
         ):
             self.customized = True
         self._signature = signature
+        self._geometry = geometry
+        self._work_size = work_size
 
     def _build(self, node_id: int, compact: bool) -> None:
         imgui.internal.dock_builder_remove_node(node_id)
