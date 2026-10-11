@@ -15,6 +15,20 @@ class FileTab:
     title: str
     active: bool
 
+    @property
+    def label(self) -> str:
+        return self.title.replace("##", "# #") + "###" + self.identity
+
+
+def native_order(files: tuple[FileTab, ...]) -> tuple[str, ...]:
+    """Read the native tab order at the isolated ImGui boundary."""
+    identities = {imgui.get_id(file.label): file.identity for file in files}
+    return tuple(
+        identities[tab.id_]
+        for tab in imgui.internal.get_current_tab_bar().tabs
+        if tab.id_ in identities
+    )
+
 
 class FileTabs(Component):
     def __init__(
@@ -27,6 +41,7 @@ class FileTabs(Component):
         redo: Callable[[], None],
         toggle_context: Callable[[], None],
         toggle_table: Callable[[], None],
+        reorder: Callable[[tuple[str, ...]], None],
     ) -> None:
         super().__init__("files")
         self.files, self.activate, self.close_file, self.new = (
@@ -37,7 +52,9 @@ class FileTabs(Component):
         )
         self.undo, self.redo = undo, redo
         self.toggle_context, self.toggle_table = toggle_context, toggle_table
+        self.reorder = reorder
         self._active = ""
+        self._order: tuple[str, ...] = ()
 
     def render(self, frame: FrameContext) -> None:
         if imgui.button("+"):
@@ -61,13 +78,17 @@ class FileTabs(Component):
         active = next((f.identity for f in files if f.active), "")
         changed = active != self._active
         if imgui.begin_tab_bar("files", imgui.TabBarFlags_.reorderable):
+            desired = tuple(file.identity for file in files)
+            if desired != self._order:
+                native = imgui.internal.get_current_tab_bar()
+                for identity in tuple(tab.id_ for tab in native.tabs):
+                    imgui.internal.tab_bar_remove_tab(native, identity)
+                changed = True
             for file in files:
                 flags = (
                     imgui.TabItemFlags_.set_selected if changed and file.active else 0
                 )
-                opened, visible = imgui.begin_tab_item(
-                    file.title + "###" + file.identity, True, flags
-                )
+                opened, visible = imgui.begin_tab_item(file.label, True, flags)
                 target(frame.child(file.identity), "tab")
                 if imgui.is_item_clicked() or (
                     not changed and opened and active != file.identity
@@ -77,6 +98,13 @@ class FileTabs(Component):
                     imgui.end_tab_item()
                 if not visible:
                     self.close_file(file.identity)
+            current = self.files()
+            order = native_order(current)
+            if len(order) == len(current) and order != tuple(
+                f.identity for f in current
+            ):
+                self.reorder(order)
+            self._order = tuple(file.identity for file in self.files())
             imgui.end_tab_bar()
         self._active = active
 

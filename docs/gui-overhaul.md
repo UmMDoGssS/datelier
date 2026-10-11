@@ -637,6 +637,36 @@ Full-suite collection identifies 1,076 tests and ten obsolete GUI-import modules
 its gate stays open. Browser/caller migration and final integrated resource,
 size/theme and restoration acceptance remain open.
 
+## Fresh Stage E13 — File navigation and first legacy-test migration
+
+Blank files expose a Welcome canvas with opening/session commands and prepared
+recent recipes. File labels retain literal separator characters without sharing
+native identities. Native drag order now updates the editor, is saved in session
+files, and stays stable during polling. Controller/restored order also updates the
+native bar without changing the active file. Activation exits Compare while
+retaining each comparison draft.
+
+Five legacy test modules now exercise the replacement GUI-free file/editor,
+analysis, plot and restoration controllers. Their behavioral gates remain:
+independent histories and equal row numbers across files, safe stale loading,
+nonblocking analysis closure/process reaping, schema role changes, coordinate/color
+recipes, navigation, and named settings. Tests no longer construct removed GUI
+sessions or mock the former exploration renderer.
+
+Verification: production/migrated caller Pyrefly zero errors; 28 focused lifecycle,
+navigation, role and workspace checks pass. The broader suite passes **1,102 tests**
+with three dependency warnings in 29.33 s, explicitly excluding the five remaining
+obsolete-import modules; full-suite acceptance remains open. Full Ruff lint/format
+(751 files) and whitespace checks pass. Native Welcome/duplicate filenames,
+calibrated local X11 pointer drag, saved order and controller-to-native order,
+activation/draft preservation pass in 54 frames at 26.91 ms p95.
+[Tab report](evidence/gui-overhaul/fresh-tabs.json).
+Session save/fresh-process restore regress in 23/31 frames at 28.13/11.06 ms p95.
+Source bytes and zero implicit analysis/playback pass. The shell sizing/navigation
+check previously passed 64 frames at 15.75 ms p95. Remaining browser/import/session
+caller migration, obsolete native scripts and final integrated resource/size/theme
+acceptance remain open.
+
 ## Baseline evidence
 
 Before implementation, 38 targeted editor/session/schema-role/profile-selection/

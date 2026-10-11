@@ -12,8 +12,8 @@ from datelier.analysis.types import (
     PreparedInput,
     Provenance,
 )
+from datelier.application.editor import EditorController
 from datelier.application.navigation import WorkbenchNavigation
-from datelier.gui.editor_session import EditorSession
 from datelier.inspection.comparison_settings import ComparisonSettings
 from datelier.io.loading import LoadPhase
 
@@ -29,19 +29,19 @@ def tiny_embedding(inputs: PreparedInput) -> EmbeddingResult:
 
 
 def test_file_activation_exits_comparison_without_discarding_drafts() -> None:
-    editor = EditorSession()
+    editor = EditorController()
     try:
         first = editor.active
-        second = editor.new_tab()
-        editor.comparisons = (ComparisonSettings(),)
+        second = editor.new_file()
+        editor.compare.columns.draft = ComparisonSettings()
         editor.navigation.choose_canvas(True)
         editor.activate(first.identity)
         assert not editor.navigation.comparing
-        assert editor.comparisons == (ComparisonSettings(),)
+        assert editor.compare.columns.draft == ComparisonSettings()
         editor.navigation.choose_canvas(True)
-        editor.activate(first.identity, focus=False)
-        assert editor.navigation.comparing  # Per-frame selected-tab binding is idle.
-        editor.close_tab(second.identity)
+        editor.poll()
+        assert editor.navigation.comparing  # Polling never activates a tab.
+        editor.close_file(second.identity)
     finally:
         editor.close()
 
@@ -62,7 +62,7 @@ def test_worker_completion_announces_result_without_changing_navigation(
         "x,y\n" + "".join(f"{x},{y}\n" for x, y in rng.normal(size=(24, 2)))
     )
     original = source.read_bytes()
-    editor = EditorSession()
+    editor = EditorController()
     file = editor.active
     try:
         file.loader.request(source)
@@ -74,7 +74,7 @@ def test_worker_completion_announces_result_without_changing_navigation(
         file.analysis.jobs.close()
         file.analysis.jobs = AnalysisJobs(tiny_embedding, executor=editor.workers)
         file.analysis.controls.features = ["x", "y"]
-        file.exploration.active_tab, file.exploration.tab = "Inspect", ""
+        editor.choose_route("Inspect")
         file.analysis.controls.start(
             file.analysis.jobs, file.loader.active.dataset, Algorithm.PCA
         )
@@ -84,7 +84,7 @@ def test_worker_completion_announces_result_without_changing_navigation(
             sleep(0.001)
         assert file.analysis.pending_result == Algorithm.PCA
         assert file.analysis.source is None
-        assert file.exploration.active_tab == "Inspect" and file.exploration.tab == ""
+        assert file.views.tab == "Inspect"
         assert source.read_bytes() == original
     finally:
         editor.close()

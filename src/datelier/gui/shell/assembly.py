@@ -1,5 +1,6 @@
 """Explicit assembly is the only GUI layer that knows application controllers."""
 
+from collections.abc import Callable
 from dataclasses import dataclass, replace
 
 from datelier.analysis.types import Algorithm
@@ -35,6 +36,7 @@ from datelier.gui.relationships.scatter_router import ScatterRouter
 from datelier.gui.shell.inspect_assembly import assemble_inspect
 from datelier.gui.shell.navigation import CanvasTabs, NamedTab
 from datelier.gui.shell.status import SourceState, SourceStatus
+from datelier.gui.shell.welcome import Welcome
 from datelier.gui.sources.columns import ColumnCatalog
 from datelier.gui.sources.imports.view import ImportSettings
 from datelier.gui.table.view import TableView
@@ -68,7 +70,11 @@ class FileComponents:
 
 
 def assemble_file(
-    file: FileController, editor: EditorController, compare: CompareComponents
+    file: FileController,
+    editor: EditorController,
+    compare: CompareComponents,
+    open_files: Callable[[], None],
+    open_workspace: Callable[[], None],
 ) -> FileComponents:
     def points() -> Scatter | None:
         dashboard = file.explorer.active
@@ -247,6 +253,26 @@ def assemble_file(
         route,
         editor.choose_route,
     )
+    canvas_content = RoutedContent(
+        {
+            "Welcome": Welcome(
+                open_files,
+                open_workspace,
+                lambda: editor.preferences.value.recent,
+                editor.open_recent,
+            ),
+            "Inspection": canvas,
+        },
+        lambda: (
+            "Welcome"
+            if (
+                file.inspection is None
+                and file.loader.status.phase == LoadPhase.IDLE
+                and not editor.navigation.comparing
+            )
+            else "Inspection"
+        ),
+    )
     context = CanvasTabs(
         (
             NamedTab(
@@ -317,7 +343,7 @@ def assemble_file(
                 inspect.browser,
             ),
         ),
-        canvas,
+        canvas_content,
         context,
         TableView(
             file.table,

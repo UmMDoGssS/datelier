@@ -4,9 +4,9 @@ import polars as pl
 import pytest
 
 from datelier.application.analysis_settings import AnalysisSettings
+from datelier.application.plot_settings import PlotState
 from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset, SourceReference
-from datelier.gui.plots.controls import PlotControls
 from datelier.inspection.profiles import ProfileKind, prepare_profiles
 from datelier.pipeline.history import Pipeline
 from datelier.pipeline.operations import OperationFailure, SetColumnRole, Sort
@@ -46,7 +46,7 @@ def test_roles_use_nonnull_uniqueness_without_guessing_unique_features() -> None
     assert not profiles["passenger_id"].distribution.counts
     assert profiles["sex"].distribution.counts == (2, 1)
     assert len(prepare_correlations(dataset)) == 1
-    plots, analysis = PlotControls(), AnalysisSettings()
+    plots, analysis = PlotState(), AnalysisSettings()
     plots.bind(dataset)
     analysis.bind(dataset)
     assert plots.numeric == analysis.numeric == ("age", "fare")

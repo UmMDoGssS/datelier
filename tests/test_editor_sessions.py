@@ -3,13 +3,13 @@ from time import monotonic, sleep
 
 import pytest
 
-from datelier.gui.editor_session import EditorSession
-from datelier.gui.file_session import FileSession
-from datelier.gui.tabs import tab_label
+from datelier.application.editor import EditorController
+from datelier.application.file import FileController
+from datelier.gui.shell.navigation import FileTab
 from datelier.io.loading import LoadPhase
 
 
-def wait_for_files(*files: FileSession) -> None:
+def wait_for_files(*files: FileController) -> None:
     deadline = monotonic() + 5
     while monotonic() < deadline:
         for file in files:
@@ -23,22 +23,22 @@ def wait_for_files(*files: FileSession) -> None:
 def test_switch_reorder_close_and_last_tab_replacement(tmp_path: Path) -> None:
     source = tmp_path / "data.csv"
     source.write_text("x,y\n3,6\n1,2\n2,4\n")
-    editor = EditorSession()
+    editor = EditorController()
     try:
         blank = editor.active
-        first = editor.new_tab(source)
-        second = editor.new_tab(source)
+        first = editor.new_file(source)
+        second = editor.new_file(source)
         wait_for_files(first, second)
         first.plots.bins, second.plots.bins = 7, 13
         editor.activate(first.identity)
         editor.reorder((second.identity, blank.identity, first.identity))
         assert editor.active is first
         assert editor.files == [second, blank, first]
-        editor.close_tab(blank.identity)
+        editor.close_file(blank.identity)
         assert blank.closed and editor.active is first
-        editor.close_tab(first.identity)
+        editor.close_file(first.identity)
         assert first.closed and editor.active is second and second.plots.bins == 13
-        editor.close_tab(second.identity)
+        editor.close_file(second.identity)
         assert second.closed and len(editor.files) == 1
         assert editor.active.loader.active is None
         assert editor.active.identity not in (
@@ -46,30 +46,42 @@ def test_switch_reorder_close_and_last_tab_replacement(tmp_path: Path) -> None:
             first.identity,
             second.identity,
         )
-        assert tab_label(editor.active).startswith("Welcome###")
-        with pytest.raises(ValueError, match="closed"):
+        assert editor.active.title == "Welcome"
+        with pytest.raises(ValueError, match="unavailable"):
             editor.activate(first.identity)
         with pytest.raises(ValueError, match="exactly once"):
             editor.reorder((editor.active.identity, editor.active.identity))
     finally:
         editor.close()
     with pytest.raises(RuntimeError, match="closed"):
-        editor.new_tab()
+        editor.new_file()
 
 
 def test_duplicate_filenames_have_distinct_native_ids(tmp_path: Path) -> None:
-    editor = EditorSession()
+    editor = EditorController()
     try:
-        first = editor.new_tab()
-        second = editor.new_tab()
-        first.controls.path = str(tmp_path / "first" / "data.csv")
-        second.controls.path = str(tmp_path / "second" / "data.csv")
+        first = editor.new_file()
+        second = editor.new_file()
+        first.imports.path = str(tmp_path / "first" / "data.csv")
+        second.imports.path = str(tmp_path / "second" / "data.csv")
         from datelier.io.loading import LoadStatus
 
-        first.loader.status = LoadStatus(path=Path(first.controls.path))
-        second.loader.status = LoadStatus(path=Path(second.controls.path))
-        assert tab_label(first).split("###")[0] == "data.csv"
-        assert tab_label(second).split("###")[0] == "data.csv"
-        assert tab_label(first) != tab_label(second)
+        first.loader.status = LoadStatus(path=Path(first.imports.path))
+        second.loader.status = LoadStatus(path=Path(second.imports.path))
+        assert (
+            FileTab(first.identity, first.title, False).label.split("###")[0]
+            == "data.csv"
+        )
+        assert (
+            FileTab(second.identity, second.title, False).label.split("###")[0]
+            == "data.csv"
+        )
+        assert (
+            FileTab(first.identity, first.title, False).label
+            != FileTab(second.identity, second.title, False).label
+        )
+        assert FileTab(first.identity, "data##literal.csv", False).label == (
+            "data# #literal.csv###" + first.identity
+        )
     finally:
         editor.close()

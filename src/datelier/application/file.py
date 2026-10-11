@@ -121,7 +121,7 @@ class FileController:
             if self.inspection
             else self.loader.status.path
         )
-        return self.view_name or (source.name if source else "Untitled")
+        return self.view_name or (source.name if source else "Welcome")
 
     def open(
         self,

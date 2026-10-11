@@ -159,6 +159,7 @@ class WorkbenchPage(Page):
             lambda: self._history(HistoryAction.REDO),
             self.host.toggle_context,
             self.host.toggle_table,
+            editor.reorder,
         )
         super().__init__(
             "page",
@@ -262,7 +263,11 @@ class WorkbenchPage(Page):
         for file in self.editor.all_files:
             if file.identity not in self.files:
                 self.files[file.identity] = assemble_file(
-                    file, self.editor, self.compare
+                    file,
+                    self.editor,
+                    self.compare,
+                    lambda: setattr(self.open_dialog, "requested", True),
+                    lambda: setattr(self.workspace_dialog, "requested", True),
                 )
         file = self.editor.current
         components = self.files[file.identity]

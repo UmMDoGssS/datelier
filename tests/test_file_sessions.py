@@ -3,9 +3,8 @@ from threading import Event
 from time import monotonic, sleep
 
 from datelier.analysis.types import EmbeddingResult, PreparedInput
+from datelier.application.file import FileController
 from datelier.core.jobs import SharedWorkers
-from datelier.gui.file_session import FileSession
-from datelier.gui.workspace.preferences import PreferenceControls
 from datelier.io.csv import load_csv
 from datelier.io.loading import DatasetLoader, LoadPhase
 from datelier.io.types import ImportOptions, ImportResult
@@ -13,7 +12,7 @@ from datelier.pipeline.editing import HistoryAction
 from datelier.pipeline.operations import Sort
 
 
-def wait_for_files(*files: FileSession) -> None:
+def wait_for_files(*files: FileController) -> None:
     deadline = monotonic() + 5
     while monotonic() < deadline:
         for file in files:
@@ -35,9 +34,8 @@ def test_files_keep_independent_history_controls_and_colliding_row_ids(
     test.write_text("x,y\n30,60\n10,20\n20,40\n")
     originals = (train.read_bytes(), test.read_bytes())
     workers = SharedWorkers()
-    preferences = PreferenceControls(None, executor=workers)
-    first = FileSession.create(preferences, executor=workers)
-    second = FileSession.create(preferences, executor=workers)
+    first = FileController(workers)
+    second = FileController(workers)
     try:
         first.loader.request(train)
         second.loader.request(test)
@@ -76,7 +74,6 @@ def test_files_keep_independent_history_controls_and_colliding_row_ids(
     finally:
         first.close()
         second.close()
-        preferences.close()
         workers.shutdown()
 
 
@@ -104,13 +101,13 @@ def test_closing_analyzing_tab_is_nonblocking_and_reaps_its_worker(
 
     from datelier.analysis.jobs import AnalysisJobs
     from datelier.analysis.types import AnalysisRequest
-    from datelier.gui.editor_session import EditorSession
+    from datelier.application.editor import EditorController
 
     source = tmp_path / "source.csv"
     source.write_text("x,y\n1,2\n3,4\n5,6\n7,8\n")
-    editor = EditorSession()
-    first = editor.new_tab(source)
-    second = editor.new_tab(source)
+    editor = EditorController()
+    first = editor.new_file(source)
+    second = editor.new_file(source)
     before = {process.pid for process in mp.active_children()}
     try:
         wait_for_files(first, second)
@@ -131,7 +128,7 @@ def test_closing_analyzing_tab_is_nonblocking_and_reaps_its_worker(
         }
         assert running
         started = monotonic()
-        editor.close_tab(first.identity)
+        editor.close_file(first.identity)
         assert monotonic() - started < 0.5
         assert first.closed and editor.active is second
         assert first.loader.active is None and first.editor.pipeline is None
@@ -151,7 +148,6 @@ def test_closed_loading_file_never_publishes_into_a_sibling(tmp_path: Path) -> N
     source.write_text("x,y\n1,2\n3,4\n")
     started, release = Event(), Event()
     workers = SharedWorkers()
-    preferences = PreferenceControls(None, executor=workers)
 
     def importer(path: Path, options: ImportOptions | None) -> ImportResult:
         started.set()
@@ -159,8 +155,8 @@ def test_closed_loading_file_never_publishes_into_a_sibling(tmp_path: Path) -> N
         return load_csv(path)
 
     loader = DatasetLoader(importer, executor=workers)
-    first = FileSession.create(preferences, executor=workers, loader_override=loader)
-    second = FileSession.create(preferences, executor=workers)
+    first = FileController(workers, loader=loader)
+    second = FileController(workers)
     try:
         first.loader.request(source)
         assert started.wait(3)
@@ -170,7 +166,10 @@ def test_closed_loading_file_never_publishes_into_a_sibling(tmp_path: Path) -> N
         active = second.loader.active
         assert active is not None
         release.set()
-        workers.shutdown()
+        deadline = monotonic() + 3
+        while first.loader.retired_running and monotonic() < deadline:
+            sleep(0.001)
+        assert first.loader.retired_running == 0
         first.poll()
         second.poll()
         assert first.closed and first.loader.active is None
@@ -181,5 +180,4 @@ def test_closed_loading_file_never_publishes_into_a_sibling(tmp_path: Path) -> N
         release.set()
         first.close()
         second.close()
-        preferences.close()
         workers.shutdown()

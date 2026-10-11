@@ -10,9 +10,8 @@ from datelier.analysis.types import (
     TSNEParameters,
 )
 from datelier.application.analysis_settings import AnalysisSettings
-from datelier.gui.plots.controls import PlotControls
-from datelier.gui.profiles.view import profile_summary
-from datelier.gui.workspace.state import restore_analysis, restore_plots
+from datelier.application.plot_settings import PlotState
+from datelier.application.settings_restore import restore_analysis, restore_plots
 from datelier.inspection.exploration import PlotSettings
 from datelier.inspection.profiles import prepare_profiles
 from datelier.io.importing import load_file
@@ -36,7 +35,7 @@ def test_plot_names_restore_independently_of_column_order(tmp_path: Path) -> Non
         color_column="group",
         relationship_features=("z", "x"),
     )
-    controls = PlotControls()
+    controls = PlotState()
     assert not restore_plots(controls, dataset, saved)
     assert controls.settings() == saved
     assert controls.three_d and controls.custom_scatter
@@ -55,7 +54,7 @@ def test_removed_columns_reset_only_unavailable_views(tmp_path: Path) -> None:
         comparison=DistributionSettings(("x", "missing")),
         relationship_features=("x", "gone"),
     )
-    controls = PlotControls()
+    controls = PlotState()
     assert restore_plots(controls, dataset, saved)
     result = controls.settings()
     assert result.bins == 9
@@ -121,13 +120,13 @@ def test_profile_chart_type_recipes_remain_backward_compatible() -> None:
 def test_unfitted_coordinates_survive_polling_without_starting_analysis(
     tmp_path: Path,
 ) -> None:
-    from datelier.gui.analysis.session import AnalysisSession
+    from datelier.application.analysis import AnalysisController
 
     source = tmp_path / "data.csv"
     source.write_text("x,y,z\n1.0,2,3\n3.0,4,5\n")
     data = load_file(source).dataset
-    session = AnalysisSession(source=Algorithm.PCA)
-    plots = PlotControls(three_d=True, custom_scatter=True)
+    session = AnalysisController(source=Algorithm.PCA)
+    plots = PlotState(three_d=True, custom_scatter=True)
     plots.bind(data)
     plots.custom_scatter = True
     try:
@@ -143,7 +142,7 @@ def test_unfitted_coordinates_survive_polling_without_starting_analysis(
 
 
 def test_manual_axes_can_swap_without_duplicate_coordinates() -> None:
-    controls = PlotControls(numeric=("x", "y"))
+    controls = PlotState(numeric=("x", "y"))
     controls.choose_axis("x_index", 1)
     assert (controls.x_index, controls.y_index) == (1, 0)
     controls.numeric = ("x", "y", "z")
@@ -162,20 +161,22 @@ def test_profile_summary_accounts_for_missing_and_nonfinite(tmp_path: Path) -> N
         SourceReference(tmp_path / "unused", 0, 0),
     )
     profile = prepare_profiles(data).columns[0]
-    assert profile_summary(profile, 4) == "2 included · 1 missing (25.0%) · 1 nonfinite"
+    assert profile.counted_rows == 2
+    assert profile.null_count == 1 and profile.nonfinite_count == 1
+    assert prepare_profiles(data).row_count == 4
 
 
 def test_color_sources_are_exclusive_and_selection_does_not_run_ml(
     tmp_path: Path,
 ) -> None:
-    from datelier.gui.analysis.session import AnalysisSession
+    from datelier.application.analysis import AnalysisController
 
     path = tmp_path / "data.csv"
     path.write_text("x,y,group\n1.0,2,a\n3.0,4,b\n5.0,6,a\n")
     dataset = load_file(path).dataset
-    plots = PlotControls()
+    plots = PlotState()
     plots.bind(dataset)
-    analysis = AnalysisSession()
+    analysis = AnalysisController()
     try:
         plots.choose_color("Column")
         plots.color_index = plots.color_columns.index("group") + 1
@@ -237,7 +238,7 @@ def test_finished_clustering_cannot_override_another_color_source(
     from datelier.analysis.input import prepare_input
     from datelier.analysis.runner import run_analysis
     from datelier.analysis.types import ClusteringResult, KMeansParameters
-    from datelier.gui.analysis.session import AnalysisSession
+    from datelier.application.analysis import AnalysisController
 
     path = tmp_path / "data.csv"
     path.write_text("x,y,group\n0,1,a\n1,0,a\n9,10,b\n10,9,b\n")
@@ -246,8 +247,9 @@ def test_finished_clustering_cannot_override_another_color_source(
         prepare_input(dataset, AnalysisRequest(("x", "y"), KMeansParameters(2)))
     )
     assert isinstance(result, ClusteringResult)
-    analysis = AnalysisSession()
-    plots = PlotControls()
+    analysis = AnalysisController()
+    analysis.poll(dataset)
+    plots = PlotState()
     plots.bind(dataset)
     try:
         plots.choose_color("K-means")
@@ -273,7 +275,7 @@ def test_finished_clustering_cannot_override_another_color_source(
 def test_column_color_survives_removal_of_the_selected_column(tmp_path: Path) -> None:
     path = tmp_path / "data.csv"
     path.write_text("x,y,group\n1.0,2,a\n3.0,4,b\n5.0,6,a\n")
-    plots = PlotControls()
+    plots = PlotState()
     plots.bind(load_file(path).dataset)
     plots.choose_color("Column")
     plots.color_index = plots.color_columns.index("group") + 1
@@ -293,38 +295,25 @@ def test_coordinate_dimension_changes_do_not_invalidate_clustering_settings() ->
     assert not controls.matches_result(clustering)
 
 
-def test_pending_default_correlations_preserve_saved_pair_grid(
-    tmp_path: Path, monkeypatch
-) -> None:
-    from imgui_bundle import imgui
+def test_pending_correlations_preserve_saved_pair_grid(tmp_path: Path) -> None:
+    from test_rebuild_sources import until
 
-    from datelier.gui.data.table import TableView
-    from datelier.gui.exploration import ExplorationView
-    from datelier.inspection.exploration import Explorer
-    from datelier.plotting.selection import LinkedSelection
+    from datelier.application.editor import EditorController
 
     source = tmp_path / "data.csv"
     source.write_text("x,y\n1.0,2\n3.0,4\n5.0,6\n")
-    dataset = load_file(source).dataset
-    plots = PlotControls()
-    plots.bind(dataset)
-    plots.relationship_features = []  # A legacy empty recipe uses numeric defaults.
-    view = ExplorationView(tab="Correlations", active_tab="Correlations")
-    view.relationships.mode = 1
-    monkeypatch.setattr(imgui, "get_window_dock_id", lambda: 0)
-    monkeypatch.setattr(imgui, "text_wrapped", lambda _text: None)
-    monkeypatch.setattr(imgui, "begin_table", lambda *_args: False)
-    monkeypatch.setattr(imgui, "begin_tab_bar", lambda _label: True)
-    monkeypatch.setattr(
-        imgui,
-        "begin_tab_item",
-        lambda label, **_kwargs: (label == "Correlations", None),
-    )
-    monkeypatch.setattr(imgui, "end_tab_item", lambda: None)
-    monkeypatch.setattr(imgui, "end_tab_bar", lambda: None)
-    explorer = Explorer()
+    editor = EditorController()
     try:
-        view.show(explorer, LinkedSelection(), TableView(), plots, dataset)
-        assert view.relationships.mode == 1
+        file = editor.active
+        file.open(source)
+        until(editor, lambda: file.inspection is not None)
+        file.views = replace(file.views, tab="Correlations", relationship_mode=1)
+        # Current explicit empty selection stays empty.
+        file.plots.relationship_features = []
+        file.explorer.active = None
+        editor.poll()
+        assert file.views.tab == "Correlations" and file.views.relationship_mode == 1
+        assert file.plots.relationship_features == []
+        assert not file.analysis.jobs.busy
     finally:
-        explorer.close()
+        editor.close()
