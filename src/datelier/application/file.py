@@ -13,7 +13,8 @@ from datelier.application.audio import AudioController
 from datelier.application.columns import ColumnChoice
 from datelier.application.dataset import DatasetRuntime
 from datelier.application.images import ImageController
-from datelier.application.import_settings import import_draft
+from datelier.application.import_settings import DEFAULTS, import_draft
+from datelier.application.imports.controller import ImportController
 from datelier.application.media_input import MediaInput
 from datelier.application.plot_settings import PlotState
 from datelier.application.profiles import ProfileController
@@ -38,7 +39,7 @@ from datelier.inspection.table import Inspection
 from datelier.inspection.text.list_records import is_text_field
 from datelier.io.arrays.storage import ArrayStore
 from datelier.io.exporting import DatasetExporter
-from datelier.io.loading import DatasetLoader
+from datelier.io.loading import DatasetLoader, LoadPhase
 from datelier.io.types import ArrayOptions, ImportFormat, ImportOptions, MediaOptions
 from datelier.pipeline.editing import DatasetEditor
 from datelier.plotting.selection import LinkedSelection
@@ -101,6 +102,7 @@ class FileController:
         self.array_record_source = NumericSourceController(self.array_records.jobs)
         self.recovery: RestoredSessionFile | None = None
         self.draft: SourceDraft | None = None
+        self.imports = ImportController(self._request_import)
         self.choices: tuple[ColumnChoice, ...] = ()
         self._plot_settings: PlotSettings | None = None
 
@@ -110,7 +112,11 @@ class FileController:
 
     @property
     def title(self) -> str:
-        source = self.loader.status.path
+        source = (
+            self.inspection.dataset.source.path
+            if self.inspection
+            else self.loader.status.path
+        )
         return self.view_name or (source.name if source else "Untitled")
 
     def open(
@@ -121,7 +127,19 @@ class FileController:
         format: ImportFormat | None = None,
     ) -> None:
         self.draft = import_draft(path, options, format)
+        self.imports.bind(self.draft)
         self.loader.request(path, options, format=format)
+        self.imports.busy = True
+
+    def _request_import(self, draft: SourceDraft) -> None:
+        automatic = (
+            self.imports.format is None and draft.options == DEFAULTS[draft.format]()
+        )
+        self.open(
+            Path(draft.path),
+            None if automatic else draft.options,
+            format=None if automatic else draft.format,
+        )
 
     def media_input(self) -> MediaInput:
         return MediaInput(
@@ -212,6 +230,7 @@ class FileController:
         self.draft = SourceDraft(
             str(dataset.source.path), active.imported.format, active.imported.options
         )
+        self.imports.bind(self.draft)
         self.plots.bind(dataset)
         self.analysis.controls.bind(dataset)
         self.choices = tuple(
@@ -293,6 +312,8 @@ class FileController:
         if changes.loaded:
             self.record_views.clear()
             self.recovery = None
+        self.imports.busy = self.loader.status.phase == LoadPhase.LOADING
+        self.imports.blocked = self.recovery is not None
         if changes.loaded or changes.edited:
             self._bind()
             if changes.loaded and self.inspection:
@@ -381,6 +402,7 @@ class FileController:
         if self.closed:
             return
         self.closed = True
+        self.imports.close()
         self.record_views.close()
         self.audio.close(self.identity)
         for controller in (

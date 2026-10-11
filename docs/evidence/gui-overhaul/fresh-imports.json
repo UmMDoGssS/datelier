@@ -1,0 +1,11 @@
+{
+  "frames": 291,
+  "p95_ms": 13.058423999609658,
+  "native_delimiter_and_null_token_edits": true,
+  "native_invalid_draft_never_requests_load": true,
+  "native_failed_reload_preserves_pipeline": true,
+  "native_successful_retry_replaces_pipeline": true,
+  "ten_format_forms_render_without_loading": true,
+  "source_preserved": true,
+  "implicit_analysis": false
+}

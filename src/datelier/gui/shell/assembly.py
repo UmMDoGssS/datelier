@@ -30,6 +30,7 @@ from datelier.gui.shell.inspect_assembly import assemble_inspect
 from datelier.gui.shell.navigation import CanvasTabs, NamedTab
 from datelier.gui.shell.status import SourceState, SourceStatus
 from datelier.gui.sources.columns import ColumnCatalog
+from datelier.gui.sources.imports.view import ImportSettings
 from datelier.gui.table.view import TableView
 from datelier.io.loading import LoadPhase
 from datelier.plotting.data import Scatter
@@ -278,7 +279,18 @@ def assemble_file(
         ),
     )
     return FileComponents(
-        Group("source-content", (source_status, inspect.browser)),
+        Group(
+            "source-content",
+            (
+                source_status,
+                ImportSettings(
+                    file.imports,
+                    lambda: file.loader.status.phase == LoadPhase.FAILED,
+                    file.loader.abandon,
+                ),
+                inspect.browser,
+            ),
+        ),
         canvas,
         context,
         TableView(file.table),

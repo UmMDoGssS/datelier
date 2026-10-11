@@ -505,6 +505,38 @@ at 144/125/228 frames with 16.73/17.54/14.71 ms p95. Source bytes and explicit
 analysis behavior pass. Import/table/mapping controls, full old caller migration
 and final integrated resource/size/theme acceptance remain open.
 
+## Fresh Stage E9 — Typed source import families and failed reload drafts
+
+Source import settings now compose a common form parent, format-specific children
+and the shared typed fields. CSV/TSV, JSON/JSONL, Parquet, XML, media/text, object,
+array and checkpoint drafts have separate application models. Literal names/null
+tokens and hidden object/array/media recipe fields survive unchanged edits;
+media manifest refresh is explicit. Forms validate before requesting workers.
+Automatic default JSON opening retains the non-record hierarchy fallback.
+Failed reloads keep the usable table, source title, row identities and pipeline;
+successful imports replace the pipeline and close obsolete named views. Recovery
+must resolve the saved source before importing through these controls.
+
+Session v3 gains an optional import-settings draft alongside the loaded recipe.
+It restores failed reload settings without requesting that failed source or
+discarding the usable recipe. Old files default to no extra draft. Drafts remain
+independent across tabs, format switching and table edits. Saved import settings
+must be valid option recipes; invalid draft validation is reported when saving.
+Closed import controllers release their bound file callback.
+
+Verification: production/migrated caller Pyrefly zero errors; 79 rebuilt
+controller/session/axis/loading checks and 130 import-adapter/family checks pass
+(with overlap). Full Ruff lint/format (729 files) and whitespace checks pass.
+Native delimiter/null-token typing, invalid submission, failure preservation,
+successful retry and ten format forms pass in 291 frames/13.06 ms p95.
+[Import report](evidence/gui-overhaul/fresh-imports.json).
+Separate-process session save/restore regress in 23/31 frames with
+14.15/10.77 ms p95. Object/array/checkpoint navigation regresses in 168 frames/
+18.70 ms p95; basic sizing/navigation regresses in 64 frames/13.97 ms p95.
+Source bytes and zero implicit analysis/playback/collection work pass. Remaining
+table/reference/mapping controls, old caller migration and final integrated
+resource/size/theme acceptance remain open.
+
 ## Baseline evidence
 
 Before implementation, 38 targeted editor/session/schema-role/profile-selection/

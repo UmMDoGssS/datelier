@@ -88,3 +88,35 @@ class NativeInput:
         self, start: tuple[float, float], end: tuple[float, float], frame: int
     ) -> None:
         self.point, self._drag_end, self.entered, self.phase = start, end, frame, 0
+
+
+class NativeText:
+    def __init__(self) -> None:
+        self.value: str | None = None
+        self.stage = self.entered = 0
+
+    def start(self, value: str, frame: int) -> None:
+        self.value, self.stage, self.entered = value, 0, frame
+
+    def advance(self, frame: int) -> bool:
+        if self.value is None:
+            return False
+        if frame - self.entered < 3:
+            return True
+        io = imgui.get_io()
+        if self.stage == 0:
+            io.add_key_event(imgui.Key.mod_ctrl, True)
+            io.add_key_event(imgui.Key.a, True)
+        elif self.stage == 1:
+            io.add_key_event(imgui.Key.a, False)
+            io.add_key_event(imgui.Key.mod_ctrl, False)
+        elif self.stage == 2:
+            io.add_input_characters_utf8(self.value)
+        elif self.stage == 3:
+            io.add_key_event(imgui.Key.enter, True)
+        elif self.stage == 4:
+            io.add_key_event(imgui.Key.enter, False)
+        else:
+            self.value = None
+        self.stage, self.entered = self.stage + 1, frame
+        return True

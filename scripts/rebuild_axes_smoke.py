@@ -6,44 +6,12 @@ from tempfile import TemporaryDirectory
 
 import numpy as np
 from imgui_bundle import hello_imgui, imgui
-from rebuild_input import NativeInput
+from rebuild_input import NativeInput, NativeText
 
 from datelier.application.editor import EditorController
 from datelier.gui.app import InspectionEvidence, run_gui
 from datelier.gui.components.probe import GuiProbe
 from datelier.plotting.categories import CategoryRepresentation
-
-
-class TextInput:
-    def __init__(self) -> None:
-        self.value: str | None = None
-        self.stage = self.entered = 0
-
-    def start(self, value: str, frame: int) -> None:
-        self.value, self.stage, self.entered = value, 0, frame
-
-    def advance(self, frame: int) -> bool:
-        if self.value is None:
-            return False
-        if frame - self.entered < 3:
-            return True
-        io = imgui.get_io()
-        if self.stage == 0:
-            io.add_key_event(imgui.Key.mod_ctrl, True)
-            io.add_key_event(imgui.Key.a, True)
-        elif self.stage == 1:
-            io.add_key_event(imgui.Key.a, False)
-            io.add_key_event(imgui.Key.mod_ctrl, False)
-        elif self.stage == 2:
-            io.add_input_characters_utf8(self.value)
-        elif self.stage == 3:
-            io.add_key_event(imgui.Key.enter, True)
-        elif self.stage == 4:
-            io.add_key_event(imgui.Key.enter, False)
-        else:
-            self.value = None
-        self.stage, self.entered = self.stage + 1, frame
-        return True
 
 
 def measure(probe: GuiProbe, suffix: tuple[str, ...]) -> tuple[float, float]:
@@ -63,7 +31,7 @@ def main() -> None:
             "x,y,g\n1.0,10.0,a\n2.0,20.0,b\n3.0,30.0,a\n4.0,40.0,b\n5.0,50.0,a\n"
         )
         original = source.read_bytes()
-        native, text = NativeInput(), TextInput()
+        native, text = NativeInput(), NativeText()
         stage = entered = 0
         done = False
         y_before = (0.0, 0.0)

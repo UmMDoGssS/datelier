@@ -55,8 +55,11 @@ class SessionFile:
     object_path: NodePath = ()
     object_focus: NodePath = ()
     object_expanded: tuple[NodePath, ...] = ()
+    import_settings: SourceDraft | None = None
 
     def validate(self) -> None:
+        if self.import_settings is not None:
+            self.import_settings.validate()
         if len(self.object_expanded) > 1024:
             raise ValueError("Save at most 1024 expanded object nodes")
         options = (

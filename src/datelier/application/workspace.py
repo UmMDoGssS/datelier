@@ -9,7 +9,7 @@ from datelier.core.dataset import SourceReference
 from datelier.io.loading import LoadPhase, LoadStatus
 from datelier.workspace.session_jobs import SessionSnapshot
 from datelier.workspace.session_restore import RestoredSessionFile
-from datelier.workspace.session_types import SessionFile
+from datelier.workspace.session_types import SessionFile, SourceDraft
 from datelier.workspace.types import Workspace, WorkspaceSource, WorkspaceViews
 
 if TYPE_CHECKING:
@@ -87,10 +87,16 @@ def capture_file(
             object_path=views.path,
             object_focus=views.focus_path,
             object_expanded=tuple(sorted(views.expanded, key=repr)),
+            import_settings=file.imports.capture(),
         )
     if file.recovery:
         return file.recovery.file
-    return SessionFile(file.identity, draft=file.draft, name=file.view_name)
+    return SessionFile(
+        file.identity,
+        draft=file.draft,
+        name=file.view_name,
+        import_settings=file.imports.capture(),
+    )
 
 
 def capture_session(
@@ -149,3 +155,12 @@ def install_file(file: FileController, result: RestoredSessionFile) -> None:
             file.arrays.catalog = result.array_catalog
             if recipe:
                 file.views = recipe.views
+        if draft is not None:
+            file.draft = draft
+            file.imports.bind(draft)
+        elif recipe:
+            file.imports.bind(
+                SourceDraft(recipe.source.path, recipe.format, recipe.options)
+            )
+    if result.file.import_settings is not None:
+        file.imports.restore(result.file.import_settings)
