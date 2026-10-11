@@ -6,6 +6,7 @@ import numpy as np
 from imgui_bundle import imgui, implot
 
 from datelier.gui.components.base import Component, Container, FrameContext
+from datelier.gui.components.native import label_text
 from datelier.gui.profiles.series import SERIES_TYPES
 from datelier.plotting.distributions import Comparison
 from datelier.plotting.relationships import Relationships
@@ -33,7 +34,7 @@ class CountDiagonal(Component):
         bars = data.diagonals[self.index]
         if len(bars.counts):
             implot.plot_stairs(
-                data.names[self.index].replace("##", "#\u200b#"),
+                label_text(data.names[self.index]),
                 np.concatenate(([bars.edges[0]], bars.edges, [bars.edges[-1]])),
                 np.concatenate(([0, bars.counts[0]], bars.counts, [0])),
                 implot.Spec(

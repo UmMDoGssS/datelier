@@ -6,6 +6,7 @@ import numpy as np
 from imgui_bundle import imgui, implot, implot3d
 from numpy.typing import NDArray
 
+from datelier.gui.components.native import label_text
 from datelier.plotting.colors import ColorSeries
 from datelier.plotting.data import Scatter
 
@@ -20,7 +21,7 @@ def rgba_color(rgba: int) -> imgui.ImVec4:
 
 
 def item_label(points: Scatter, series: ColorSeries, index: int) -> str:
-    label = series.label.replace("##", "#\u200b#")
+    label = label_text(series.label)
     source = points.colors.name if points.colors is not None else "Uniform"
     return f"{label}##{source}/{index}"
 

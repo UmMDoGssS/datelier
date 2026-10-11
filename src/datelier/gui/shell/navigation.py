@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from imgui_bundle import imgui
 
 from datelier.gui.components.base import Component, Container, FrameContext, Tab
-from datelier.gui.components.native import target
+from datelier.gui.components.native import label_text, target
 
 
 @dataclass(frozen=True)
@@ -17,7 +17,7 @@ class FileTab:
 
     @property
     def label(self) -> str:
-        return self.title.replace("##", "# #") + "###" + self.identity
+        return label_text(self.title) + "###" + self.identity
 
 
 def native_order(files: tuple[FileTab, ...]) -> tuple[str, ...]:

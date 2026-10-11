@@ -6,12 +6,11 @@ from imgui_bundle import imgui
 
 from datelier.application.table import TableColumn
 from datelier.gui.components.base import Component, FrameContext
+from datelier.gui.components.native import label_text
 
 
 def label(column: TableColumn, badges: bool) -> str:
-    return (column.name + (f" [{column.role.value}]" if badges else "")).replace(
-        "##", "#\u200b#"
-    )
+    return label_text(column.name + (f" [{column.role.value}]" if badges else ""))
 
 
 class TableHeaders(Component):

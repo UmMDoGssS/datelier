@@ -7,7 +7,7 @@ from imgui_bundle import imgui
 
 from datelier.gui.components.actions import CommandButton
 from datelier.gui.components.base import Component, Container, FrameContext
-from datelier.gui.components.native import target
+from datelier.gui.components.native import label_text, target
 from datelier.workspace.recent import RecentSource
 
 
@@ -22,7 +22,7 @@ class RecentEntry(Component):
         self.source, self.open_source = source, open_source
 
     def render(self, frame: FrameContext) -> None:
-        caption = Path(self.source.path).name.replace("##", "# #")
+        caption = label_text(Path(self.source.path).name)
         if imgui.selectable(caption + "###" + self.key, False)[0]:
             self.open_source(self.source)
         target(frame, "open")

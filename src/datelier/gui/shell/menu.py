@@ -5,7 +5,7 @@ from collections.abc import Callable
 from imgui_bundle import imgui
 
 from datelier.gui.components.base import Component, Container, FrameContext
-from datelier.gui.components.native import target
+from datelier.gui.components.native import label_text, target
 from datelier.workspace.recent import RecentSource
 
 
@@ -27,7 +27,7 @@ class MenuAction(Component):
         )
 
     def render(self, frame: FrameContext) -> None:
-        label = self.label.replace("##", "# #") + "###" + self.key
+        label = label_text(self.label) + "###" + self.key
         if imgui.menu_item(label, self.shortcut, self.selected())[0]:
             self.command()
         target(frame, "run")

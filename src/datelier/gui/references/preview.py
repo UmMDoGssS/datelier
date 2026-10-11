@@ -9,7 +9,7 @@ from datelier.application.references import ReferenceController
 from datelier.gui.components.actions import CommandButton
 from datelier.gui.components.base import Component, Container, FrameContext
 from datelier.gui.components.fields import TextField
-from datelier.gui.components.native import target
+from datelier.gui.components.native import label_text, target
 from datelier.gui.references.cache import PreviewTextures
 from datelier.inspection.references.types import AssetPreview, Resolution
 
@@ -32,9 +32,7 @@ class CandidateList(Component):
             while clipper.step():
                 for i in range(clipper.display_start, clipper.display_end):
                     path = resolution.candidates[i]
-                    if imgui.selectable(
-                        str(path).replace("##", "#\u200b#") + f"##{i}", False
-                    )[0]:
+                    if imgui.selectable(label_text(str(path)) + f"##{i}", False)[0]:
                         self.choose(str(path))
                     target(frame.child(str(i)), "choose")
         if resolution.candidates:

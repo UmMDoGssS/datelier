@@ -6,7 +6,7 @@ from imgui_bundle import imgui
 
 from datelier.application.columns import ColumnChoice, SelectionPolicy
 from datelier.gui.components.base import Component, Container, FrameContext
-from datelier.gui.components.native import target
+from datelier.gui.components.native import label_text, target
 
 
 class ColumnRow(Component):
@@ -29,7 +29,7 @@ class ColumnRow(Component):
         imgui.push_id(self.choice.name)
         imgui.begin_disabled(not self.enabled)
         clicked, _ = imgui.checkbox(
-            self.choice.label or self.choice.name, self.selected
+            label_text(self.choice.label or self.choice.name), self.selected
         )
         target(frame, "select")
         if clicked:

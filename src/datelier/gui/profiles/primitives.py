@@ -3,11 +3,12 @@
 import numpy as np
 from imgui_bundle import imgui, implot
 
+from datelier.gui.components.native import label_text
 from datelier.plotting.distributions import NumericDistribution
 
 
 def box_label(name: str, index: int) -> str:
-    return name.replace("##", "#\u200b#") + f"##box/{index}"
+    return label_text(name) + f"##box/{index}"
 
 
 def draw_box(

@@ -8,7 +8,7 @@ from imgui_bundle import imgui, implot
 
 from datelier.gui.components.axes import AxisPlot, apply_axes, observe_axes
 from datelier.gui.components.base import Component, FrameContext
-from datelier.gui.components.native import target
+from datelier.gui.components.native import label_text, target
 from datelier.gui.components.viewport import ViewportContent
 from datelier.gui.profiles.colors import profile_color
 from datelier.gui.profiles.primitives import box_label, draw_box
@@ -164,7 +164,7 @@ class CategoryBars(CategoryPlot):
         for group, name in enumerate(data.groups):
             ys = positions - 0.4 + width * (group + 0.5)
             implot.plot_bars(
-                name.replace("##", "#​#") + f"##group/{group}",
+                label_text(name) + f"##group/{group}",
                 data.values[group],
                 ys,
                 width,
@@ -185,7 +185,7 @@ class CategoryBars(CategoryPlot):
             and 0 <= group < len(data.groups)
             and data.counts[group, category]
             and implot.internal.get_item(
-                data.groups[group].replace("##", "#​#") + f"##group/{group}"
+                label_text(data.groups[group]) + f"##group/{group}"
             ).show
         ):
             value = data.values[group, category]

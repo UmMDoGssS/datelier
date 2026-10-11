@@ -15,7 +15,7 @@ from datelier.gui.components.actions import CommandButton, JobFeedback, JobSnaps
 from datelier.gui.components.base import Component, Container, FrameContext, Group
 from datelier.gui.components.fields import TextField
 from datelier.gui.components.groups import Row
-from datelier.gui.components.native import target
+from datelier.gui.components.native import label_text, target
 
 
 class BrowserEntry(Component, ABC):
@@ -31,7 +31,7 @@ class BrowserEntry(Component, ABC):
 
     @property
     def label(self) -> str:
-        return self.entry.name.replace("##", "# #")
+        return label_text(self.entry.name)
 
     def render(self, frame: FrameContext) -> None:
         imgui.push_id(self.entry.name)

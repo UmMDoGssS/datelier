@@ -1,0 +1,14 @@
+{
+  "saved": {
+    "mode": "wide-save",
+    "frames": 25,
+    "p95_ms": 13.531662499008235,
+    "source_preserved": true
+  },
+  "restored": {
+    "mode": "compact-restore",
+    "frames": 25,
+    "p95_ms": 11.675516099057859,
+    "source_preserved": true
+  }
+}

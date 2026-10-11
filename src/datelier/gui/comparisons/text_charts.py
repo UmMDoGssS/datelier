@@ -7,7 +7,7 @@ from imgui_bundle import imgui, implot
 
 from datelier.application.comparisons.text import TextComparisonController
 from datelier.gui.components.base import FrameContext
-from datelier.gui.components.native import target
+from datelier.gui.components.native import label_text, target
 from datelier.gui.components.viewport import ViewportContent
 from datelier.gui.profiles.colors import profile_color
 from datelier.inspection.text.comparisons.settings import TextScale
@@ -51,7 +51,7 @@ class TextComparisonChart(ViewportContent, ABC):
                 implot.LegendFlags_.outside | implot.LegendFlags_.horizontal,
             )
             labels = tuple(
-                label.replace("##", "#\u200b#") + f"##{p.file_id}"
+                label_text(label) + f"##{p.file_id}"
                 for label, p in zip(result.labels, result.profiles, strict=True)
             )
             for i, label in enumerate(labels):

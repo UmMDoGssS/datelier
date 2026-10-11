@@ -839,6 +839,27 @@ window take 1715.73/45.38 ms. Four workers and storage/thread cleanup pass.
 Scoped types pass with zero errors; 24 source/window behavioral tests and full
 Ruff lint/format pass. Full-project types remain open for obsolete harnesses.
 
+## Fresh Stage E20 — Architecture guardrails and source-safe labels
+
+The boundary audit finds no GUI/native imports in application or domain packages;
+whole editor/file controllers enter the GUI only at bootstrap/page/assembly.
+Behavioral architecture checks now enforce those boundaries. Shared label escaping
+preserves visible hashes, including triple/repeated hashes and Unicode, without
+allowing source text to become native widget IDs. Columns, source browsers, file
+menus/tabs, text tokens, tables and chart legends use the same helper.
+
+Saved default docking now rebuilds for the current window size; custom native
+layouts retain their saved geometry. A fresh-process wide-to-compact restoration
+passes 25/25 frames at 13.53/11.68 ms p95. Shared viewport measurements enable
+content-specific native sizing acceptance without exposing widget internals.
+[Adaptive layout report](evidence/gui-overhaul/fresh-adaptive-layout.json).
+
+Verification: 12 architecture/selector/persistence checks, scoped types (zero
+errors), full Ruff lint/format and whitespace checks pass. Compact pointer/keyboard
+shell and browser regressions pass 179/281 frames at 16.26/14.94 ms p95. No implicit
+analysis/playback or source modification. Remaining harness replacement and final
+integrated acceptance gates stay open.
+
 ## Baseline evidence
 
 Before implementation, 38 targeted editor/session/schema-role/profile-selection/

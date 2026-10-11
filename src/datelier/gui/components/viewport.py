@@ -83,6 +83,7 @@ class ResizableViewport(Container):
     def _render_content(self, frame: FrameContext, expanded: bool) -> None:
         automatic = max(self.minimum, imgui.get_content_region_avail().y - 32)
         self.content.height = automatic if expanded or not self.height else self.height
+        frame.measure("extent", (self.content.height, float(expanded)))
         imgui.internal.push_override_id(self._native_id)
         super().render(frame)
         imgui.pop_id()

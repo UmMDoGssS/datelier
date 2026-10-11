@@ -12,7 +12,7 @@ from datelier.application.comparisons.columns import (
 from datelier.core.column_roles import ColumnRole
 from datelier.gui.components.axes import AxisPlot, apply_axes, observe_axes
 from datelier.gui.components.base import FrameContext
-from datelier.gui.components.native import target
+from datelier.gui.components.native import label_text, target
 from datelier.gui.components.viewport import ViewportContent
 from datelier.gui.profiles.colors import profile_color
 from datelier.inspection.comparison_settings import Normalization
@@ -56,7 +56,7 @@ class ColumnComparisonPlot(AxisPlot, ABC):
             )
             labels = []
             for series in self.model.series:
-                label = series.label.replace("##", "#\u200b#") + f"##{series.identity}"
+                label = label_text(series.label) + f"##{series.identity}"
                 labels.append(label)
                 color = (
                     imgui.ImVec4(*series.color)

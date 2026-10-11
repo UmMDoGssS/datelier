@@ -9,7 +9,7 @@ from datelier.application.sources.numeric import NumericSourceController
 from datelier.application.sources.objects import ObjectController, ObjectEntry
 from datelier.gui.components.actions import CommandButton
 from datelier.gui.components.base import Component, Container, FrameContext
-from datelier.gui.components.native import target
+from datelier.gui.components.native import label_text, target
 from datelier.inspection.objects.types import NodePath
 
 
@@ -26,7 +26,7 @@ class ObjectEntryView(Component):
 
     def render(self, frame: FrameContext) -> None:
         entry = self.entry
-        if imgui.selectable(entry.label + "###" + self.key, False)[0]:
+        if imgui.selectable(label_text(entry.label) + "###" + self.key, False)[0]:
             self.choose(entry.path)
         target(frame, "open")
         if imgui.is_item_hovered():
@@ -133,7 +133,7 @@ class MemberListing(Component):
                     clipper.display_start : clipper.display_end
                 ]:
                     if imgui.selectable(
-                        entry.name.replace("##", "# #") + "###" + entry.name,
+                        label_text(entry.name) + "###" + entry.name,
                         entry.name == self.model.settings.member,
                     )[0]:
                         self.select(entry.name)

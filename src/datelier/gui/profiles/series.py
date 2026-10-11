@@ -7,6 +7,7 @@ import numpy as np
 from imgui_bundle import implot
 
 from datelier.gui.components.base import Component, FrameContext
+from datelier.gui.components.native import label_text
 from datelier.gui.profiles.colors import profile_color
 from datelier.gui.profiles.primitives import draw_box
 from datelier.plotting.distributions import Comparison, NumericDistribution
@@ -41,7 +42,7 @@ class HistogramSeries(DistributionSeries):
             return
         color = profile_color(series.name)
         implot.plot_stairs(
-            series.name.replace("##", "#\u200b#"),
+            label_text(series.name),
             np.concatenate(([data.edges[0]], data.edges, [data.edges[-1]])),
             np.concatenate(([0, series.histogram[0]], series.histogram, [0])),
             implot.Spec(
@@ -59,7 +60,7 @@ class DensitySeries(DistributionSeries):
     def draw(self, data: Comparison, series: NumericDistribution, index: int) -> None:
         if len(series.kde_y):
             implot.plot_line(
-                series.name.replace("##", "#\u200b#"),
+                label_text(series.name),
                 series.kde_x,
                 series.kde_y,
                 implot.Spec(line_color=profile_color(series.name)),
@@ -73,7 +74,7 @@ class CumulativeSeries(DistributionSeries):
     def draw(self, data: Comparison, series: NumericDistribution, index: int) -> None:
         if len(series.ecdf_x):
             implot.plot_stairs(
-                series.name.replace("##", "#\u200b#"),
+                label_text(series.name),
                 np.concatenate(([series.ecdf_x[0]], series.ecdf_x)),
                 np.concatenate(([0.0], series.ecdf_y)),
                 implot.Spec(line_color=profile_color(series.name)),

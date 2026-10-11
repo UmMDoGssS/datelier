@@ -6,7 +6,7 @@ from imgui_bundle import imgui, implot
 
 from datelier.application.comparisons.histograms import HistogramPlot
 from datelier.gui.components.base import FrameContext
-from datelier.gui.components.native import target
+from datelier.gui.components.native import label_text, target
 from datelier.gui.components.viewport import ViewportContent
 from datelier.gui.profiles.colors import profile_color
 
@@ -44,7 +44,7 @@ class ComparisonHistogram(ViewportContent):
             selected_visible = False
             for series in plot.series:
                 color = profile_color(series.identity)
-                label = series.label.replace("##", "#\u200b#") + "##" + series.identity
+                label = label_text(series.label) + "##" + series.identity
                 implot.plot_stairs(
                     label,
                     series.x,

@@ -6,7 +6,7 @@ from imgui_bundle import imgui
 
 from datelier.application.text import TextController
 from datelier.gui.components.base import Component, FrameContext
-from datelier.gui.components.native import target
+from datelier.gui.components.native import label_text, target
 from datelier.gui.components.viewport import ResizableViewport, ViewportContent
 from datelier.gui.records.base import RecordContent
 
@@ -80,7 +80,7 @@ class TokenRows(Component):
                     token = document.tokens[index]
                     imgui.table_next_row()
                     imgui.table_next_column()
-                    label = f"{index + 1}: {token.piece[:96]!r}".replace("##", "# #")
+                    label = label_text(f"{index + 1}: {token.piece[:96]!r}")
                     if imgui.selectable(
                         label + f"###token-{index}", index == viewport.selected_token
                     )[0]:

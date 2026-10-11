@@ -287,7 +287,9 @@ class WorkbenchPage(Page):
     ) -> None:
         if layout and "[Datelier][Workbench]" in layout:
             imgui.load_ini_settings_from_memory(layout)
-            self.host.initialized = True
+            # Default layouts adapt to the current window; only custom trees
+            # retain their saved geometry across different screen sizes.
+            self.host.initialized = customized
             self.host.customized = customized
             self.host.compact = (
                 imgui.get_main_viewport().work_size.x < 1100 and not customized

@@ -9,6 +9,7 @@ from datelier.application.profiles import ProfileController, ProfileFamily
 from datelier.gui.components.axes import AxisPlot, apply_axes, observe_axes
 from datelier.gui.components.base import Component, FrameContext
 from datelier.gui.components.facts import FactsTable
+from datelier.gui.components.native import label_text
 from datelier.gui.components.viewport import ResizableViewport
 from datelier.gui.profiles.base import ProfileContent
 from datelier.gui.profiles.charts import CHARTS
@@ -171,7 +172,7 @@ class ProfileBars(AxisPlot):
                 )
             apply_axes(self.axes)
             implot.plot_bars(
-                data.profiles.columns[0].name.replace("##", "#\u200b#"),
+                label_text(data.profiles.columns[0].name),
                 bars.positions,
                 bars.counts,
                 float(np.diff(bars.edges)[0]) if len(bars.edges) > 1 else 0.7,

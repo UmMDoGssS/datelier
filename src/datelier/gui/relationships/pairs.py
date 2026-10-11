@@ -6,7 +6,7 @@ import numpy as np
 from imgui_bundle import imgui, implot
 
 from datelier.gui.components.base import Container, FrameContext
-from datelier.gui.components.native import help_tip, target
+from datelier.gui.components.native import help_tip, label_text, target
 from datelier.gui.components.viewport import ViewportContent
 from datelier.gui.relationships.diagonals import DiagonalContent
 from datelier.gui.relationships.scatter import ScatterInput
@@ -51,7 +51,7 @@ class PairCell(Container):
         dense = len(data.names) > 4
         if self.fit:
             implot.set_next_axes_to_fit()
-        title = f"{y} / {x}".replace("##", "#\u200b#") + f"##{self.key}"
+        title = label_text(f"{y} / {x}") + f"##{self.key}"
         flags = implot.Flags_.no_legend | (implot.Flags_.no_title if dense else 0)
         if not implot.begin_plot(title, flags=flags):
             return
