@@ -979,6 +979,24 @@ and exporting tests, full Ruff checks and diff whitespace pass. The full type
 check still reports obsolete GUI script callers; final auditing and merge remain
 open.
 
+## Fresh E26 — Nearby references and bounded gallery resource gates
+
+The original 100,000-record/1,000-image reference benchmark now uses controllers
+and frame-local probes. Shared reference previews report actual inline rendering;
+the gate measures gallery headers, visible table rows and GPU cache payload rather
+than removed widget counters. Both original 20-cycle fixtures and budgets pass.
+Table mode passes 323 frames at 11.46 ms p95, 429.10 MiB peak RSS and 247.90 ms first
+preview. Randomized Inspect mode passes 323 frames at 13.14 ms p95, 437.48 MiB,
+252.43 ms first preview and 164.99 ms maximum record update. At most three gallery
+cards render; CPU/GPU payload is bounded to 2/1 MiB. Actual retained RSS decreases
+in both runs. Four-worker limits, closed-controller weak references, zero pending
+jobs, thread/temp cleanup and source hashes pass. Evidence is in
+[evidence/gui-overhaul/fresh-reference-resources.json](evidence/gui-overhaul/fresh-reference-resources.json).
+
+Scoped Pyrefly, focused reference/record tests, full Ruff and whitespace checks
+pass. Full-project type checking and final acceptance remain open for obsolete
+GUI harness callers.
+
 ## Baseline evidence
 
 Before implementation, 38 targeted editor/session/schema-role/profile-selection/

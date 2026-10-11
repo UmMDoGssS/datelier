@@ -18,9 +18,9 @@ import polars as pl
 from imgui_bundle import hello_imgui
 from PIL import Image
 
+from datelier.application.editor import EditorController
 from datelier.gui.app import InspectionEvidence, run_gui
-from datelier.gui.editor_session import EditorSession
-from datelier.gui.tabs import EditorTabs
+from datelier.gui.components.probe import GuiProbe
 from datelier.inspection.records.types import RecordMode
 
 BUDGETS = {
@@ -85,13 +85,34 @@ def main() -> None:
         closed = []
 
         def frame(
-            editor: EditorSession, tabs: EditorTabs, evidence: InspectionEvidence
+            editor: EditorController, probe: GuiProbe, evidence: InspectionEvidence
         ) -> None:
             nonlocal stage, cycles, entered, metadata_ms, index_ms, preview_ms
             nonlocal baseline, closed, record_started, first_record_ms
             nonlocal max_rendered_cards
-            file = editor.active
-            max_rendered_cards = max(max_rendered_cards, file.inspect.rendered_cards)
+            file = editor.current
+            rendered_cards = sum(
+                key.path[-2:] == ("header", "select") for key in probe.targets
+            )
+            max_rendered_cards = max(max_rendered_cards, rendered_cards)
+            shown = any(
+                key.path[-2:] == ("reference", "shown") and values[0] > 0
+                for key, values in probe.measurements.items()
+            )
+            gpu_bytes = max(
+                (
+                    int(values[0])
+                    for key, values in probe.measurements.items()
+                    if key.path[-1:] == ("preview-cache",)
+                ),
+                default=0,
+            )
+            visible_rows = [
+                int(key.path[-3])
+                for key in probe.targets
+                if key.path[-2:] == ("source", "select")
+            ]
+
             elapsed = (perf_counter() - started) * 1000
             if file.loader.active and metadata_ms is None:
                 metadata_ms = elapsed
@@ -102,16 +123,14 @@ def main() -> None:
                         gpu_bytes=BUDGETS["gpu_bytes"],
                     )
                 )
-            if args.inspect and file.inspect.shown_cards and first_record_ms is None:
+            if args.inspect and shown and first_record_ms is None:
                 first_record_ms = elapsed
-            if args.inspect and evidence.frames == 2:
-                file.exploration.tab = "Inspect"
-                hello_imgui.get_runner_params().docking_params.focus_dockable_window(
-                    "Explore"
-                )
+            if args.inspect and metadata_ms is not None and stage == 0:
+                editor.choose_route("Inspect")
+                file.records.settings = replace(file.records.settings, primary="image")
             if file.references.index and index_ms is None:
                 index_ms = elapsed
-            if file.reference_view.preview_frames and preview_ms is None:
+            if shown and preview_ms is None:
                 preview_ms = elapsed
             if (
                 stage == 0
@@ -121,15 +140,15 @@ def main() -> None:
             ):
                 baseline = rss_mib()
                 stage = 1
-            elif stage == 1 and file.reference_view.preview_frames:
+            elif stage == 1 and shown:
                 previews.append(elapsed)
                 if cycles < 20:
                     cycles += 1
                     file.table.target_row = cycles * 4500 + 1
                     file.table.jump = True
                     if args.inspect:
-                        file.inspect.settings = replace(
-                            file.inspect.settings,
+                        file.records.settings = replace(
+                            file.records.settings,
                             mode=RecordMode.RANDOM,
                             count=10000,
                             seed=cycles,
@@ -142,11 +161,12 @@ def main() -> None:
             elif (
                 stage == 2
                 and evidence.frames > entered + 12
-                and file.table.first_visible_row >= cycles * 4500
+                and visible_rows
+                and max(visible_rows) >= cycles * 4500
             ):
                 if args.inspect:
-                    records = file.inspect.jobs.active
-                    page = file.inspect.jobs.get(0)
+                    records = file.records.jobs.active
+                    page = file.records.jobs.get(0)
                     if (
                         records is None
                         or records.settings.seed != cycles
@@ -189,7 +209,7 @@ def main() -> None:
                     peak_rss_mib=peak,
                     retained_growth_mib=growth,
                     cpu_bytes=file.references.retained_bytes,
-                    gpu_bytes=file.reference_view.textures.retained_bytes,
+                    gpu_bytes=gpu_bytes,
                     workers=workers,
                     fixture_disk_bytes=fixture_bytes,
                     inspect=args.inspect,
@@ -213,8 +233,7 @@ def main() -> None:
                 ), report
                 assert (
                     file.references.retained_bytes <= BUDGETS["cpu_bytes"]
-                    and file.reference_view.textures.retained_bytes
-                    <= BUDGETS["gpu_bytes"]
+                    and gpu_bytes <= BUDGETS["gpu_bytes"]
                 ), report
                 assert workers <= BUDGETS["workers"], report
                 if args.inspect:
@@ -229,7 +248,7 @@ def main() -> None:
                     ), report
                 closed = [ref(f) for f in editor.files]
                 for identity in tuple(f.identity for f in editor.files):
-                    editor.close_tab(identity)
+                    editor.close_file(identity)
                 stage, entered = 4, evidence.frames
             elif (
                 stage == 4
@@ -243,7 +262,7 @@ def main() -> None:
                 stage = 5
                 hello_imgui.get_runner_params().app_shall_exit = True
 
-        run_gui(source, smoke_frames=3000, on_editor_frame=frame)
+        run_gui(source, smoke_frames=3000, on_probe_frame=frame)
         assert stage == 5, (stage, report)
         assert hashlib.sha256(source.read_bytes()).hexdigest() == digest
     report.update(

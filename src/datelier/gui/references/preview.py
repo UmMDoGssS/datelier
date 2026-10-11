@@ -97,6 +97,7 @@ class ReferencePreview(Container, ABC):
     def render(self, frame: FrameContext) -> None:
         resolution, preview = self.model.jobs.get(self.column, self.value)
         shown = self.render_inline(preview, frame)
+        frame.measure("shown", (float(shown), 1.0))
         target(frame, "preview")
         if imgui.is_item_hovered():
             imgui.begin_tooltip()
