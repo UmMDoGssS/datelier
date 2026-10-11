@@ -36,3 +36,16 @@ warnings). Ruff lint/format and whitespace checks pass. Separate-process native
 save/restore passes with original source bytes preserved and zero implicit work;
 [recorded evidence](evidence/package-layout/foundation.json). Stage 2 is next.
 Existing analysis package verification remains valid.
+
+Stage 2 passes: **49 inspection modules** moved into profile, decoding, signal,
+tokenizer, display, association and overlay packages; contract exports keep recipe
+imports independent of preparation/jobs. **403 focused tests**, zero Pyrefly errors,
+Ruff and diff checks pass. [Native record evidence](evidence/package-layout/inspection.json)
+verifies original image pixels, Unicode token spans and original audio waveforms,
+source preservation and zero implicit collection work/playback.
+
+The original record harness requested text preparation before background reference
+discovery completed. The later reference-index change correctly invalidated its
+result. The same failure was reproduced against the preceding commit `bf018ec`;
+the harness now waits for preferences/reference discovery before its explicit
+command. Application cancellation and publication behavior were unchanged.

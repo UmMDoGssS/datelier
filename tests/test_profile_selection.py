@@ -5,8 +5,8 @@ import pytest
 
 from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset, SourceReference
-from datelier.inspection.profile_preview import ProfileRequest, prepare_profile_group
-from datelier.inspection.profile_selection import ProfileSelection
+from datelier.inspection.profiles import ProfileSelection
+from datelier.inspection.profiles.preview import ProfileRequest, prepare_profile_group
 from datelier.plotting.distributions import DistributionSettings
 from datelier.workspace.recipes.codec import decode_record, encode
 from datelier.workspace.single import WorkspaceViews

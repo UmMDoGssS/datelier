@@ -12,15 +12,15 @@ from datelier.application.editor import EditorController
 from datelier.application.workspace import capture_session
 from datelier.core.column_roles import ColumnRole
 from datelier.inspection.audio.playback.settings import PlaybackSettings
-from datelier.inspection.audio.profile_types import AudioThresholds
+from datelier.inspection.audio.profiles import AudioThresholds
 from datelier.inspection.audio.settings import AudioSettings
-from datelier.inspection.audio.types import AudioRange
-from datelier.inspection.audio.view_types import (
+from datelier.inspection.audio.signal import (
     AudioViewKind,
     AudioWindow,
     SignalViewSettings,
     SpectrumScale,
 )
+from datelier.inspection.audio.types import AudioRange
 from datelier.inspection.heatmaps import Colormap
 from datelier.workspace.recipes.codec import decode_record, encode
 from datelier.workspace.sessions.jobs import save_snapshot

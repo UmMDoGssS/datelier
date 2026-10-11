@@ -14,8 +14,8 @@ from datelier.application.editor import EditorController
 from datelier.gui.app import InspectionEvidence, run_gui
 from datelier.gui.components.probe import GuiProbe
 from datelier.inspection.audio.playback.controller import PlaybackPhase
+from datelier.inspection.audio.signal import AudioViewKind, SpectralView
 from datelier.inspection.audio.types import AudioRange
-from datelier.inspection.audio.view_types import AudioViewKind, SpectralView
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tests"))
 from audio_playback_fixtures import Devices  # noqa: E402

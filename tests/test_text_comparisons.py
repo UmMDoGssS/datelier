@@ -26,7 +26,7 @@ from datelier.inspection.text.comparisons.types import (
     PreparedTextComparison,
     TextComparisonInput,
 )
-from datelier.inspection.text.corpus import TextProgress
+from datelier.inspection.text.profiles.corpus import TextProgress
 from datelier.inspection.text.types import (
     CorpusMode,
     Normalization,
@@ -219,7 +219,7 @@ def test_local_tokenizer_digest_controls_compatibility(tmp_path: Path) -> None:
 
     from tokenizers import Tokenizer, models
 
-    from datelier.inspection.text.tokenization import import_tokenizer
+    from datelier.inspection.text.tokenizers import import_tokenizer
 
     items = inputs(tmp_path)
     first, copied, other = (

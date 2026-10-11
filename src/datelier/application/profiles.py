@@ -9,9 +9,9 @@ from datelier.core.column_roles import ColumnRole, list_element_role
 from datelier.core.dataset import Dataset
 from datelier.inspection.arrays.mapping import ArrayLayout
 from datelier.inspection.exploration import Explorer
-from datelier.inspection.profile_preview import ProfileRequest
+from datelier.inspection.profiles.preview import ProfileRequest
 from datelier.inspection.table import Inspection
-from datelier.inspection.text.list_records import is_text_field
+from datelier.inspection.text.profiles.lists import is_text_field
 
 
 class ProfileFamily(StrEnum):

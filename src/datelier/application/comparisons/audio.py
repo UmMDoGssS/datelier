@@ -10,13 +10,13 @@ from datelier.application.comparisons.base import ComparisonFamily, RecipeContro
 from datelier.application.comparisons.catalog import SourceCatalog
 from datelier.application.comparisons.histograms import HistogramPlot, HistogramSeries
 from datelier.application.sources.columns import record_mapping
-from datelier.inspection.audio.collections.settings import AudioCollectionSettings
-from datelier.inspection.audio.comparisons.jobs import AudioComparisonJobs
-from datelier.inspection.audio.comparisons.settings import (
+from datelier.inspection.audio.collections import AudioCollectionSettings
+from datelier.inspection.audio.comparisons import (
     AudioComparisonSettings,
     AudioComparisonSource,
     AudioComparisonViewSettings,
 )
+from datelier.inspection.audio.comparisons.jobs import AudioComparisonJobs
 from datelier.inspection.audio.comparisons.types import (
     AudioComparisonCurve,
     AudioComparisonInput,

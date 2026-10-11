@@ -12,15 +12,15 @@ from unittest.mock import patch
 
 from PIL import Image
 
-from datelier.inspection.annotations.prepare import prepare_annotations
-from datelier.inspection.annotations.profiles import prepare_profiles
+from datelier.inspection.annotations.association.prepare import prepare_annotations
+from datelier.inspection.annotations.profiles.prepare import prepare_profiles
 from datelier.inspection.annotations.settings import (
     AnnotationSettings,
     AnnotationSource,
     ImageMatch,
 )
 from datelier.inspection.annotations.types import AnnotationFormat
-from datelier.inspection.images.profile_types import ImageProgress
+from datelier.inspection.images.profiles import ImageProgress
 from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.importing import load_inspectable_file
 

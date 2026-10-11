@@ -19,13 +19,13 @@ from PIL import Image
 
 from datelier.core.dataset import Dataset
 from datelier.inspection.arrays.mapping import ArrayLayout, ArrayRecordMapping
-from datelier.inspection.images.profile_types import (
+from datelier.inspection.images.decoding import ImageStore
+from datelier.inspection.images.profiles import (
     ImageProfileSettings,
     ImageProgress,
     PixelScope,
 )
-from datelier.inspection.images.profiles import prepare_image_profile
-from datelier.inspection.images.storage import ImageStore
+from datelier.inspection.images.profiles.prepare import prepare_image_profile
 from datelier.inspection.references.types import AssetIdentity, ReferenceSettings
 from datelier.io.arrays import ArrayStore
 from datelier.io.arrays.metadata import inspect_arrays

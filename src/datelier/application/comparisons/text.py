@@ -7,12 +7,12 @@ from dataclasses import replace
 from datelier.application.comparisons.base import ComparisonFamily, RecipeController
 from datelier.application.comparisons.catalog import SourceCatalog
 from datelier.application.text_profiles import length_rows, statistic_rows
-from datelier.inspection.text.comparisons.jobs import TextComparisonJobs
-from datelier.inspection.text.comparisons.settings import (
+from datelier.inspection.text.comparisons import (
     TextComparisonSettings,
     TextComparisonSource,
     TextComparisonViewSettings,
 )
+from datelier.inspection.text.comparisons.jobs import TextComparisonJobs
 from datelier.inspection.text.comparisons.types import (
     PreparedTextComparison,
     TextComparisonInput,

@@ -14,7 +14,7 @@ from PIL import Image
 from datelier.application.editor import EditorController
 from datelier.gui.app import InspectionEvidence, run_gui
 from datelier.gui.components.probe import GuiProbe
-from datelier.inspection.audio.view_types import WaveformEnvelope
+from datelier.inspection.audio.signal import WaveformEnvelope
 from datelier.inspection.text.types import Normalization, TokenMode
 
 
@@ -100,7 +100,12 @@ def main() -> None:
                     ),
                 )
                 stage, entered = 2, evidence.frames
-            elif stage == 2 and age > 10:
+            elif (
+                stage == 2
+                and age > 10
+                and editor.preferences.ready
+                and not file.references.busy
+            ):
                 suffix, next_stage = ("text", "prepare"), 3
             elif stage == 3 and file.text.jobs.active:
                 document = file.text.jobs.active

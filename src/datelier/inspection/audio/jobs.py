@@ -7,14 +7,13 @@ from datelier.core.dataset import Dataset, DatasetRevision
 from datelier.core.jobs import JobExecutor
 from datelier.inspection.arrays.mapping import ArrayRecordMapping
 from datelier.inspection.arrays.types import ArrayCatalog
-from datelier.inspection.audio.profile_types import (
+from datelier.inspection.audio.decoding import prepare_metadata, prepare_window
+from datelier.inspection.audio.profiles import (
     AudioProgress,
     AudioSignalProfile,
     AudioThresholds,
 )
-from datelier.inspection.audio.reading import prepare_window
-from datelier.inspection.audio.sources import prepare_metadata
-from datelier.inspection.audio.statistics import profile_signal
+from datelier.inspection.audio.profiles.statistics import profile_signal
 from datelier.inspection.audio.types import (
     AudioLocator,
     AudioMetadata,

@@ -6,8 +6,8 @@ from dataclasses import dataclass, field
 from datelier.analysis.types import ClusteringResult
 from datelier.core.dataset import Dataset, DatasetRevision
 from datelier.core.jobs import JobExecutor
-from datelier.inspection.profile_preview import ProfilePreview
 from datelier.inspection.profiles import Profiles, prepare_profiles
+from datelier.inspection.profiles.preview import ProfilePreview
 from datelier.plotting.categories import (
     CategoryChart,
     CategorySettings,

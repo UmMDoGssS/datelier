@@ -1,7 +1,7 @@
 """Screen labels avoid overlap without modifying the underlying box geometry."""
 
-from datelier.inspection.annotations.label_layout import LabelLayout
 from datelier.inspection.annotations.overlay import OverlaySettings
+from datelier.inspection.annotations.overlay.labels import LabelLayout
 from datelier.workspace.recipes.codec import decode_record, encode
 
 

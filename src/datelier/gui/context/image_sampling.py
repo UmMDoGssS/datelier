@@ -6,7 +6,7 @@ from dataclasses import replace
 from datelier.gui.components.base import Group
 from datelier.gui.components.bindings import StateFields
 from datelier.gui.components.groups import Conditional
-from datelier.inspection.images.profile_types import (
+from datelier.inspection.images.profiles import (
     ImageProfileSettings,
     ImageScopeMode,
     PixelScope,

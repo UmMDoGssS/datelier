@@ -20,7 +20,7 @@ from datelier.gui.components.bindings import StateFields
 from datelier.gui.components.columns import ColumnPicker
 from datelier.gui.components.fields import ChoiceField
 from datelier.gui.context.audio_sampling import AudioSamplingFields
-from datelier.inspection.audio.comparisons.settings import AudioComparisonSource
+from datelier.inspection.audio.comparisons import AudioComparisonSource
 from datelier.inspection.audio.comparisons.types import AudioMetric
 
 

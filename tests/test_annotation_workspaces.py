@@ -10,7 +10,7 @@ from PIL import Image
 from datelier.application.annotations.navigation import open_rows
 from datelier.application.editor import EditorController
 from datelier.application.workspace import capture_session
-from datelier.inspection.annotations.association_types import PreparedAnnotations
+from datelier.inspection.annotations.association import PreparedAnnotations
 from datelier.inspection.annotations.overlay import OverlayClass, OverlaySettings
 from datelier.inspection.annotations.settings import (
     AnnotationSettings,
@@ -124,7 +124,7 @@ def test_saved_confirmed_row_mapping_restores_without_implicit_reading(
     try:
         with (
             patch(
-                "datelier.inspection.annotations.prepare.load_annotations",
+                "datelier.inspection.annotations.association.prepare.load_annotations",
                 side_effect=AssertionError("restore parsed labels"),
             ),
             patch.object(

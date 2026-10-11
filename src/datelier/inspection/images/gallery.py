@@ -9,9 +9,8 @@ from numpy.typing import NDArray
 from datelier.core.dataset import Dataset
 from datelier.inspection.arrays.mapping import ArrayRecordMapping
 from datelier.inspection.arrays.types import ArrayCatalog
-from datelier.inspection.images.prepare import prepare_window
-from datelier.inspection.images.sources import prepare_metadata
-from datelier.inspection.images.storage import ImageStore
+from datelier.inspection.images.decoding import ImageStore, prepare_window
+from datelier.inspection.images.decoding.sources import prepare_metadata
 from datelier.inspection.images.types import ImageDisplay, ImageOrigin, ImageWindow
 from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.arrays import ArrayStore

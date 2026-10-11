@@ -14,7 +14,7 @@ from datelier.inspection.arrays.mapping import (
     ArrayRecordMapping,
     SupportingArray,
 )
-from datelier.inspection.images.profile_types import PixelScope
+from datelier.inspection.images.profiles import PixelScope
 from datelier.pipeline.operations import Sort
 from datelier.workspace.sessions.jobs import save_snapshot
 

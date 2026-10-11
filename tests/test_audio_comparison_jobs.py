@@ -10,8 +10,8 @@ import pytest
 from audio_comparison_fixtures import fixture
 
 from datelier.inspection.audio.collections.settings import AudioScope, AudioScopeMode
+from datelier.inspection.audio.comparisons import AudioComparisonSettings
 from datelier.inspection.audio.comparisons.jobs import AudioComparisonJobs
-from datelier.inspection.audio.comparisons.settings import AudioComparisonSettings
 from datelier.inspection.audio.comparisons.types import AudioComparisonInput
 
 

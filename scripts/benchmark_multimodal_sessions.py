@@ -25,7 +25,7 @@ from datelier.inspection.audio.collections.settings import (
     AudioCollectionSettings,
     AudioProfileMode,
 )
-from datelier.inspection.audio.comparisons.settings import (
+from datelier.inspection.audio.comparisons import (
     AudioComparisonSettings,
     AudioComparisonSource,
 )
@@ -34,10 +34,10 @@ from datelier.inspection.images.comparisons.settings import (
     ImageComparisonSettings,
     ImageComparisonSource,
 )
-from datelier.inspection.images.profile_types import ImageProfileSettings
+from datelier.inspection.images.profiles import ImageProfileSettings
 from datelier.inspection.images.types import ImageDisplay, ImageWindow
 from datelier.inspection.references.types import ReferenceSettings
-from datelier.inspection.text.comparisons.settings import (
+from datelier.inspection.text.comparisons import (
     TextComparisonSettings,
     TextComparisonSource,
 )

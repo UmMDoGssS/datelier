@@ -11,7 +11,7 @@ from datelier.inspection.annotations.types import (
     AnnotationIssue,
     BoxRecord,
 )
-from datelier.inspection.images.sources import file_metadata
+from datelier.inspection.images.decoding.sources import file_metadata
 from datelier.inspection.references.types import AssetIdentity
 from datelier.io.annotations.manifest_paths import label_path, local_path, split_images
 from datelier.io.annotations.source import annotation_source, verify_sources

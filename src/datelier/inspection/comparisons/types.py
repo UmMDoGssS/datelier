@@ -8,7 +8,7 @@ from numpy.typing import NDArray
 from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset, DatasetRevision
 from datelier.inspection.comparison_settings import ComparisonSettings, ComparisonSource
-from datelier.inspection.statistics import NumericStatistics
+from datelier.inspection.profiles import NumericStatistics
 
 
 @dataclass(frozen=True)

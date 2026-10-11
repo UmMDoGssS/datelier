@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 
 from datelier.core.dataset import DatasetRevision
-from datelier.inspection.text.viewport import TextViewport
+from datelier.inspection.text.display import TextViewport
 
 
 class TokenMode(StrEnum):

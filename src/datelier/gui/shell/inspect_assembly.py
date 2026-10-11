@@ -25,7 +25,7 @@ from datelier.gui.sources.numeric import NumericContent
 from datelier.gui.sources.routing import SourceInspection
 from datelier.gui.sources.views import RecordViewSelector
 from datelier.gui.table.cells import ReferenceFactory
-from datelier.inspection.annotations.association_types import AssociatedBox
+from datelier.inspection.annotations.association import AssociatedBox
 
 
 @dataclass

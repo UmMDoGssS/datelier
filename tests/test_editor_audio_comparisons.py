@@ -21,7 +21,7 @@ from datelier.inspection.audio.collections.settings import (
     AudioProfileMode,
     AudioScope,
 )
-from datelier.inspection.audio.comparisons.settings import (
+from datelier.inspection.audio.comparisons import (
     AudioComparisonSettings,
     AudioComparisonSource,
     AudioComparisonViewSettings,

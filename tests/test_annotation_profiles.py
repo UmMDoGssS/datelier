@@ -10,7 +10,7 @@ from uuid import uuid4
 import pytest
 
 from datelier.core.dataset import DatasetRevision
-from datelier.inspection.annotations.association_types import (
+from datelier.inspection.annotations.association import (
     AssociatedBox,
     AssociatedImage,
     AssociatedSource,
@@ -24,9 +24,9 @@ from datelier.inspection.annotations.overlay import (
     screen_box,
     visible,
 )
-from datelier.inspection.annotations.profile_jobs import AnnotationProfileJobs
-from datelier.inspection.annotations.profile_types import AnnotationProfiles
-from datelier.inspection.annotations.profiles import prepare_profiles
+from datelier.inspection.annotations.profiles import AnnotationProfiles
+from datelier.inspection.annotations.profiles.jobs import AnnotationProfileJobs
+from datelier.inspection.annotations.profiles.prepare import prepare_profiles
 from datelier.inspection.annotations.settings import AnnotationSource
 from datelier.inspection.annotations.types import (
     AnnotationCatalog,
@@ -37,7 +37,7 @@ from datelier.inspection.annotations.types import (
     BoxRecord,
     PixelBox,
 )
-from datelier.inspection.images.profile_types import ImageProgress
+from datelier.inspection.images.profiles import ImageProgress
 from datelier.inspection.images.types import ImageOrigin
 from datelier.inspection.images.viewport import ImageViewport
 from datelier.inspection.references.types import AssetIdentity
@@ -212,7 +212,7 @@ def test_executing_profiles_cannot_publish_after_retirement(
         return prepare_profiles(annotations, bins, stop, progress)
 
     monkeypatch.setattr(
-        "datelier.inspection.annotations.profile_jobs.prepare_profiles", controlled
+        "datelier.inspection.annotations.profiles.jobs.prepare_profiles", controlled
     )
     with ThreadPoolExecutor(1) as executor:
         jobs = AnnotationProfileJobs(executor)

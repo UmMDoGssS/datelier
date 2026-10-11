@@ -15,11 +15,10 @@ from PIL import Image, ImageOps
 
 from datelier.core.dataset import Dataset, SourceReference
 from datelier.inspection.arrays.mapping import ArrayLayout, ArrayRecordMapping
+from datelier.inspection.images.decoding import ImageStore, prepare_window
+from datelier.inspection.images.decoding.sources import image_metadata, locate_image
 from datelier.inspection.images.geometry import orient_array, source_pixel
 from datelier.inspection.images.jobs import ImageJobs
-from datelier.inspection.images.prepare import prepare_window
-from datelier.inspection.images.sources import image_metadata, locate_image
-from datelier.inspection.images.storage import ImageStore
 from datelier.inspection.images.types import ImageDisplay, ImageLocator, ImageWindow
 from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.arrays import ArrayStore
@@ -257,7 +256,7 @@ def test_job_revision_file_view_and_closure_reject_late_metadata(
     Image.new("RGB", (3, 2)).save(path)
     table = dataset(tmp_path, [path.name])
     entered, release = Event(), Event()
-    from datelier.inspection.images.sources import prepare_metadata
+    from datelier.inspection.images.decoding.sources import prepare_metadata
 
     def delayed(*args, **kwargs):
         entered.set()

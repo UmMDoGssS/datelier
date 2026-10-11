@@ -1,10 +1,11 @@
 """Trusted text recipe records; never selected by file-supplied imports."""
 
-from datelier.inspection.text.comparisons.settings import (
+from datelier.inspection.text.comparisons import (
     TextComparisonSettings,
     TextComparisonSource,
     TextComparisonViewSettings,
 )
+from datelier.inspection.text.display import TextViewport
 from datelier.inspection.text.types import (
     TextScope,
     TextSettings,
@@ -12,7 +13,6 @@ from datelier.inspection.text.types import (
     TokenSettings,
     TrainingSettings,
 )
-from datelier.inspection.text.viewport import TextViewport
 
 RECORDS = (
     TextComparisonSettings,

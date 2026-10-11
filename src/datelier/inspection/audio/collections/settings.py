@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 from enum import StrEnum
 
-from datelier.inspection.audio.profile_types import AudioThresholds
+from datelier.inspection.audio.profiles import AudioThresholds
 from datelier.inspection.audio.types import validate_sample_rate
 
 

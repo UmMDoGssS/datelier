@@ -9,8 +9,8 @@ from time import monotonic, sleep
 from datelier.application.comparisons.base import ComparisonFamily
 from datelier.application.editor import EditorController
 from datelier.application.workspace import capture_session
-from datelier.inspection.audio.collections.settings import AudioCollectionSettings
-from datelier.inspection.audio.comparisons.settings import (
+from datelier.inspection.audio.collections import AudioCollectionSettings
+from datelier.inspection.audio.comparisons import (
     AudioComparisonSettings,
     AudioComparisonSource,
 )
@@ -23,8 +23,8 @@ from datelier.inspection.images.comparisons.settings import (
     ImageComparisonSettings,
     ImageComparisonSource,
 )
-from datelier.inspection.images.profile_types import ImageProfileSettings
-from datelier.inspection.text.comparisons.settings import (
+from datelier.inspection.images.profiles import ImageProfileSettings
+from datelier.inspection.text.comparisons import (
     TextComparisonSettings,
     TextComparisonSource,
 )

@@ -7,6 +7,7 @@ from threading import Event
 import numpy as np
 from numpy.typing import NDArray
 
+from datelier.inspection.audio.decoding.reading import audio_blocks, check_stopped
 from datelier.inspection.audio.playback.buffer import PlaybackRing
 from datelier.inspection.audio.playback.conversion import output_samples
 from datelier.inspection.audio.playback.device import DeviceFactory
@@ -15,7 +16,6 @@ from datelier.inspection.audio.playback.types import (
     PlaybackRequest,
     RenderAction,
 )
-from datelier.inspection.audio.reading import audio_blocks, check_stopped
 from datelier.inspection.audio.types import AudioRange
 from datelier.io.arrays import ArrayStore
 

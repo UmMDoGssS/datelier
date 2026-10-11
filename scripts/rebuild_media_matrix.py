@@ -25,20 +25,20 @@ from datelier.application.comparisons.base import ComparisonFamily
 from datelier.application.editor import EditorController
 from datelier.gui.app import InspectionEvidence, run_gui
 from datelier.gui.components.probe import GuiProbe
-from datelier.inspection.audio.collections.settings import AudioCollectionSettings
-from datelier.inspection.audio.comparisons.settings import (
+from datelier.inspection.audio.collections import AudioCollectionSettings
+from datelier.inspection.audio.comparisons import (
     AudioComparisonSettings,
     AudioComparisonSource,
 )
-from datelier.inspection.audio.view_types import AudioViewKind, SpectralView
+from datelier.inspection.audio.signal import AudioViewKind, SpectralView
 from datelier.inspection.comparison_settings import ComparisonSettings, ComparisonSource
 from datelier.inspection.images.comparisons.settings import (
     ImageComparisonSettings,
     ImageComparisonSource,
 )
-from datelier.inspection.images.profile_types import ImageProfileSettings
+from datelier.inspection.images.profiles import ImageProfileSettings
 from datelier.inspection.references.types import ReferenceSettings
-from datelier.inspection.text.comparisons.settings import (
+from datelier.inspection.text.comparisons import (
     TextComparisonSettings,
     TextComparisonSource,
 )

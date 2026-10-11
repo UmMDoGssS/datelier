@@ -15,7 +15,7 @@ from datelier.inspection.text.comparisons.types import (
     PreparedTextComparison,
     TextComparisonInput,
 )
-from datelier.inspection.text.corpus import TextProgress
+from datelier.inspection.text.profiles.corpus import TextProgress
 from datelier.inspection.text.types import CorpusMode
 
 

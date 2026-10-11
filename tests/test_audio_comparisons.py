@@ -22,12 +22,12 @@ from datelier.inspection.audio.collections.types import (
     AudioCollectionProfile,
     CollectionProgress,
 )
-from datelier.inspection.audio.comparisons.prepare import prepare_comparison
-from datelier.inspection.audio.comparisons.selection import select_bin
-from datelier.inspection.audio.comparisons.settings import (
+from datelier.inspection.audio.comparisons import (
     AudioComparisonSettings,
     AudioComparisonSource,
 )
+from datelier.inspection.audio.comparisons.prepare import prepare_comparison
+from datelier.inspection.audio.comparisons.selection import select_bin
 from datelier.inspection.audio.comparisons.types import (
     AudioComparisonInput,
     PreparedAudioComparison,

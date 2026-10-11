@@ -17,8 +17,12 @@ from datelier.inspection.arrays.mapping import (
     ArrayRecordMapping,
     SupportingArray,
 )
-from datelier.inspection.audio.reading import audio_blocks, prepare_window
-from datelier.inspection.audio.sources import audio_metadata, locate_audio
+from datelier.inspection.audio.decoding import (
+    audio_blocks,
+    audio_metadata,
+    locate_audio,
+    prepare_window,
+)
 from datelier.inspection.audio.types import AudioRange
 from datelier.inspection.references.types import ReferenceMapping, ReferenceSettings
 from datelier.io.arrays import ArrayStore

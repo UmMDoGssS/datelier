@@ -3,7 +3,7 @@
 import math
 from dataclasses import dataclass
 
-from datelier.inspection.images.profile_types import ImageProfileSettings
+from datelier.inspection.images.profiles import ImageProfileSettings
 
 
 @dataclass(frozen=True)

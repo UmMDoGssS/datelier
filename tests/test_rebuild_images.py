@@ -16,7 +16,7 @@ from datelier.inspection.arrays.mapping import (
     SupportingArray,
 )
 from datelier.inspection.heatmaps import Colormap
-from datelier.inspection.images.profile_types import (
+from datelier.inspection.images.profiles import (
     ImageScope,
     ImageScopeMode,
     PixelScope,

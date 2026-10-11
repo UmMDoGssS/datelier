@@ -12,9 +12,9 @@ import polars as pl
 
 from datelier.core.dataset import Dataset, SourceReference
 from datelier.inspection.references.types import ReferenceSettings
-from datelier.inspection.text.corpus import TextProgress
-from datelier.inspection.text.preparation import prepare_document
-from datelier.inspection.text.profiles import prepare_profile
+from datelier.inspection.text.profiles.corpus import TextProgress
+from datelier.inspection.text.profiles.prepare import prepare_profile
+from datelier.inspection.text.tokenizers.prepare import prepare_document
 from datelier.inspection.text.types import CorpusMode, TextScope, TextSettings
 
 BUDGETS = {

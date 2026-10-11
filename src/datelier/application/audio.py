@@ -10,8 +10,8 @@ from datelier.inspection.audio.jobs import AudioJobs
 from datelier.inspection.audio.playback.controller import AudioPlayback, PlaybackPhase
 from datelier.inspection.audio.playback.requests import playback_request
 from datelier.inspection.audio.settings import AudioSettings
+from datelier.inspection.audio.signal.jobs import SignalViewJobs
 from datelier.inspection.audio.types import AudioLocator, AudioMetadata
-from datelier.inspection.audio.view_jobs import SignalViewJobs
 
 
 class AudioController(MediaController):

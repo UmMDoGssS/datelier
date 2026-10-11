@@ -16,17 +16,17 @@ import datelier
 from datelier.gui.app import run_gui
 from datelier.gui.fonts import FALLBACK_FONTS
 from datelier.inspection.references.types import ReferenceSettings
-from datelier.inspection.text.comparisons.prepare import prepare_comparison
-from datelier.inspection.text.comparisons.settings import (
+from datelier.inspection.text.comparisons import (
     TextComparisonSettings,
     TextComparisonSource,
 )
+from datelier.inspection.text.comparisons.prepare import prepare_comparison
 from datelier.inspection.text.comparisons.types import TextComparisonInput
-from datelier.inspection.text.corpus import TextProgress
-from datelier.inspection.text.preparation import prepare_document
-from datelier.inspection.text.statistics import calculate_profile
-from datelier.inspection.text.tokenization import import_tokenizer
-from datelier.inspection.text.training import train_tokenizer
+from datelier.inspection.text.profiles import calculate_profile
+from datelier.inspection.text.profiles.corpus import TextProgress
+from datelier.inspection.text.tokenizers import import_tokenizer
+from datelier.inspection.text.tokenizers.prepare import prepare_document
+from datelier.inspection.text.tokenizers.training import train_tokenizer
 from datelier.inspection.text.types import (
     CorpusMode,
     Normalization,

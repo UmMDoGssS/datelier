@@ -8,13 +8,13 @@ from datelier.application.comparisons.choices import media_choices
 from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset, DatasetRevision
 from datelier.inspection.arrays.mapping import ArrayLayout
-from datelier.inspection.audio.collections.settings import AudioCollectionSettings
+from datelier.inspection.audio.collections import AudioCollectionSettings
 from datelier.inspection.audio.settings import AudioSettings
 from datelier.inspection.comparisons.types import ComparisonSelection
 from datelier.inspection.references.index import ReferenceIndex
 from datelier.inspection.references.types import ReferenceSettings
 from datelier.inspection.table import Inspection
-from datelier.inspection.text.list_records import is_text_field
+from datelier.inspection.text.profiles.lists import is_text_field
 from datelier.inspection.text.types import TextSettings
 from datelier.io.arrays import ArrayStore
 

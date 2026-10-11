@@ -8,7 +8,7 @@ from numpy.typing import NDArray
 from datelier.core.dataset import Dataset
 from datelier.inspection.arrays.mapping import ArrayRecordMapping
 from datelier.inspection.arrays.types import ArrayCatalog
-from datelier.inspection.audio.collections.types import AudioCollectionProfile
+from datelier.inspection.audio.collections import AudioCollectionProfile
 from datelier.inspection.audio.comparisons.settings import (
     AudioComparisonSettings,
     AudioComparisonSource,

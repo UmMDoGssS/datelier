@@ -12,10 +12,14 @@ import numpy as np
 import soundfile as sf
 
 from datelier.inspection.arrays.mapping import ArrayLayout, ArrayRecordMapping
-from datelier.inspection.audio.profile_types import AudioThresholds
-from datelier.inspection.audio.reading import audio_blocks, prepare_window
-from datelier.inspection.audio.sources import audio_metadata, locate_audio
-from datelier.inspection.audio.statistics import profile_signal
+from datelier.inspection.audio.decoding import (
+    audio_blocks,
+    audio_metadata,
+    locate_audio,
+    prepare_window,
+)
+from datelier.inspection.audio.profiles import AudioThresholds
+from datelier.inspection.audio.profiles.statistics import profile_signal
 from datelier.inspection.audio.types import AudioRange
 from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.arrays import ArrayStore

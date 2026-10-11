@@ -5,7 +5,7 @@ from math import isfinite
 
 from datelier.inspection.annotations.settings import AnnotationSettings
 from datelier.inspection.annotations.view_settings import AnnotationViewSettings
-from datelier.inspection.images.profile_types import ImageProfileSettings
+from datelier.inspection.images.profiles import ImageProfileSettings
 from datelier.inspection.images.types import ImageDisplay
 from datelier.inspection.images.viewport import ImageViewport
 

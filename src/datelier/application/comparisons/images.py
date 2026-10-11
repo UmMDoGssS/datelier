@@ -22,7 +22,7 @@ from datelier.inspection.images.comparisons.types import (
     ImageComparisonInput,
     PreparedImageComparison,
 )
-from datelier.inspection.images.profile_types import ImageProfileSettings
+from datelier.inspection.images.profiles import ImageProfileSettings
 
 
 class ImageComparisonController(RecipeController[ImageComparisonSettings]):

@@ -14,10 +14,10 @@ import soundfile as sf
 from audio_playback_smoke import wait
 
 from datelier.inspection.arrays.mapping import ArrayLayout, ArrayRecordMapping
+from datelier.inspection.audio.decoding import prepare_metadata
 from datelier.inspection.audio.playback.controller import AudioPlayback, PlaybackPhase
 from datelier.inspection.audio.playback.device import Renderer, SoundDeviceOutput
 from datelier.inspection.audio.playback.types import PlaybackRequest
-from datelier.inspection.audio.sources import prepare_metadata
 from datelier.inspection.audio.types import AudioRange
 from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.arrays import ArrayStore

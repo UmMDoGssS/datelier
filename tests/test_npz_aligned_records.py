@@ -7,7 +7,7 @@ import pytest
 
 from datelier.core.column_roles import ColumnRole
 from datelier.inspection.arrays.mapping import ArrayLayout
-from datelier.inspection.images.sources import image_metadata, locate_image
+from datelier.inspection.images.decoding.sources import image_metadata, locate_image
 from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.arrays import ArrayStore, load_arrays
 from datelier.io.arrays.aligned import (

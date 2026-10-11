@@ -7,22 +7,22 @@ from dataclasses import replace
 from datelier.application.columns import ColumnChoice
 from datelier.application.media_input import MediaInput
 from datelier.application.sources.columns import record_mapping
-from datelier.inspection.annotations.association_types import (
+from datelier.inspection.annotations.association import (
     AssociatedBox,
     AssociatedSource,
     PreparedAnnotations,
 )
 from datelier.inspection.annotations.jobs import AnnotationJobs
 from datelier.inspection.annotations.overlay import OverlayClass
-from datelier.inspection.annotations.profile_jobs import AnnotationProfileJobs
-from datelier.inspection.annotations.profile_types import AnnotationProfile
-from datelier.inspection.annotations.scene_jobs import SceneJobs
+from datelier.inspection.annotations.overlay.jobs import SceneJobs
+from datelier.inspection.annotations.profiles import AnnotationProfile
+from datelier.inspection.annotations.profiles.jobs import AnnotationProfileJobs
 from datelier.inspection.annotations.settings import (
     AnnotationSettings,
     AnnotationSource,
 )
 from datelier.inspection.annotations.view_settings import AnnotationViewSettings
-from datelier.inspection.images.profile_types import ImageHistogram
+from datelier.inspection.images.profiles import ImageHistogram
 from datelier.inspection.table import Inspection
 
 

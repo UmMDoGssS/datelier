@@ -12,11 +12,14 @@ import pytest
 
 from datelier.core.jobs import SharedWorkers
 from datelier.inspection.references.types import ReferenceSettings
-from datelier.inspection.text.corpus import TextProgress, corpus_positions
 from datelier.inspection.text.jobs import TextJobs
+from datelier.inspection.text.profiles.corpus import TextProgress, corpus_positions
 from datelier.inspection.text.records import read_document
-from datelier.inspection.text.tokenization import TextTokenizer, import_tokenizer
-from datelier.inspection.text.training import TrainedTokenizer, train_tokenizer
+from datelier.inspection.text.tokenizers import TextTokenizer, import_tokenizer
+from datelier.inspection.text.tokenizers.training import (
+    TrainedTokenizer,
+    train_tokenizer,
+)
 from datelier.inspection.text.types import (
     CorpusMode,
     Normalization,
@@ -186,7 +189,10 @@ def test_failed_publish_preserves_existing_destination_and_source(
         original_link(src, dst)
 
     with (
-        patch("datelier.inspection.text.training.os.link", side_effect=collision),
+        patch(
+            "datelier.inspection.text.tokenizers.training.os.link",
+            side_effect=collision,
+        ),
         pytest.raises(FileExistsError),
     ):
         train_tokenizer(

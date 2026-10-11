@@ -10,9 +10,9 @@ import pytest
 from tokenizers import Tokenizer, models, processors
 
 from datelier.inspection.references.types import ReferenceSettings
-from datelier.inspection.text.corpus import TextProgress
-from datelier.inspection.text.statistics import calculate_profile, length_histogram
-from datelier.inspection.text.tokenization import import_tokenizer
+from datelier.inspection.text.profiles import calculate_profile, length_histogram
+from datelier.inspection.text.profiles.corpus import TextProgress
+from datelier.inspection.text.tokenizers import import_tokenizer
 from datelier.inspection.text.types import (
     CorpusMode,
     TextScope,

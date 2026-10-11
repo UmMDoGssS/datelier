@@ -12,22 +12,22 @@ from datelier.application.profiles import ProfileFamily
 from datelier.application.records import RecordKind
 from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset, SourceReference
-from datelier.inspection.profile_preview import ProfileRequest, prepare_profile_group
-from datelier.inspection.profile_selection import ProfileSelection
+from datelier.inspection.profiles import ProfileSelection
+from datelier.inspection.profiles.preview import ProfileRequest, prepare_profile_group
 from datelier.inspection.references.types import ReferenceSettings
+from datelier.inspection.text.comparisons import (
+    TextComparisonSettings,
+    TextComparisonSource,
+)
 from datelier.inspection.text.comparisons.prepare import (
     compare_profiles,
     select_length_bin,
 )
-from datelier.inspection.text.comparisons.settings import (
-    TextComparisonSettings,
-    TextComparisonSource,
-)
-from datelier.inspection.text.corpus import TextProgress
 from datelier.inspection.text.jobs import TextJobs
-from datelier.inspection.text.preparation import prepare_document
-from datelier.inspection.text.statistics import TextProfile, calculate_profile
-from datelier.inspection.text.training import train_tokenizer
+from datelier.inspection.text.profiles import TextProfile, calculate_profile
+from datelier.inspection.text.profiles.corpus import TextProgress
+from datelier.inspection.text.tokenizers.prepare import prepare_document
+from datelier.inspection.text.tokenizers.training import train_tokenizer
 from datelier.inspection.text.types import (
     CorpusMode,
     TextScope,

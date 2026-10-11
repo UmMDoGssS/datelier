@@ -11,13 +11,13 @@ import pytest
 from PIL import Image
 
 from datelier.core.dataset import Dataset, DatasetRevision, SourceReference
-from datelier.inspection.images.profile_jobs import ImageProfileJobs
-from datelier.inspection.images.profile_types import (
+from datelier.inspection.images.profiles import (
     ImageProfile,
     ImageProfileSettings,
     ImageScope,
     ImageScopeMode,
 )
+from datelier.inspection.images.profiles.jobs import ImageProfileJobs
 from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.arrays import ArrayStore
 
@@ -70,7 +70,7 @@ def test_executing_profiles_cannot_publish_into_another_scope(
 ) -> None:
     table, arrays = dataset(tmp_path), ArrayStore()
     entered, release = Event(), Event()
-    from datelier.inspection.images.profiles import prepare_image_profile
+    from datelier.inspection.images.profiles.prepare import prepare_image_profile
 
     def delayed(*args, **kwargs) -> ImageProfile:
         entered.set()
@@ -78,7 +78,7 @@ def test_executing_profiles_cannot_publish_into_another_scope(
         return prepare_image_profile(*args, **kwargs)
 
     monkeypatch.setattr(
-        "datelier.inspection.images.profile_jobs.prepare_image_profile", delayed
+        "datelier.inspection.images.profiles.jobs.prepare_image_profile", delayed
     )
     with ThreadPoolExecutor(1) as worker:
         jobs = ImageProfileJobs(worker)

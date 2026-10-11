@@ -8,13 +8,13 @@ from imgui_bundle import hello_imgui, imgui, implot
 
 from datelier.gui.components.base import FrameContext
 from datelier.gui.components.viewport import ViewportContent
-from datelier.inspection.audio.mel import hz_to_mel
-from datelier.inspection.audio.view_types import (
+from datelier.inspection.audio.signal import (
     AudioViewKind,
     PreparedSignalView,
     SpectralView,
     WaveformEnvelope,
 )
+from datelier.inspection.audio.signal.mel import hz_to_mel
 
 
 class SignalChart(ViewportContent, ABC):

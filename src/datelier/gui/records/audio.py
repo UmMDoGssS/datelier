@@ -13,8 +13,8 @@ from datelier.gui.components.base import Component, FrameContext, Group
 from datelier.gui.components.facts import FactsTable
 from datelier.gui.components.groups import Collapsible
 from datelier.gui.records.base import RecordContent
+from datelier.inspection.audio.signal import SpectralView, WaveformEnvelope
 from datelier.inspection.audio.types import AudioRange
-from datelier.inspection.audio.view_types import SpectralView, WaveformEnvelope
 
 
 class AudioMetadataView(Component):

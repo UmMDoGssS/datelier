@@ -24,8 +24,8 @@ from datelier.inspection.images.comparisons.types import (
     ImageComparisonInput,
     PreparedImageComparison,
 )
-from datelier.inspection.images.profile_scan import ImageProfileScan
-from datelier.inspection.images.profile_types import (
+from datelier.inspection.images.decoding import ImageStore
+from datelier.inspection.images.profiles import (
     ChannelKey,
     ImageBounds,
     ImageProfile,
@@ -35,8 +35,8 @@ from datelier.inspection.images.profile_types import (
     ImageScopeMode,
     PixelScope,
 )
-from datelier.inspection.images.profiles import finish_image_profile
-from datelier.inspection.images.storage import ImageStore
+from datelier.inspection.images.profiles.prepare import finish_image_profile
+from datelier.inspection.images.profiles.scan import ImageProfileScan
 from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.arrays import ArrayStore
 from datelier.io.arrays.metadata import inspect_arrays

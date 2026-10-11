@@ -14,7 +14,7 @@ from datelier.application.comparisons.base import ComparisonFamily
 from datelier.application.editor import EditorController
 from datelier.gui.app import InspectionEvidence, run_gui
 from datelier.gui.components.probe import GuiProbe
-from datelier.inspection.images.profile_types import PixelScope
+from datelier.inspection.images.profiles import PixelScope
 from datelier.pipeline.operations import Sort
 
 

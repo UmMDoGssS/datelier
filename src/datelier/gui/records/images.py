@@ -12,7 +12,7 @@ from datelier.gui.components.base import FrameContext
 from datelier.gui.components.native import help_tip, target
 from datelier.gui.records.base import RecordContent
 from datelier.gui.records.pixels import PixelSurface
-from datelier.inspection.annotations.association_types import AssociatedBox
+from datelier.inspection.annotations.association import AssociatedBox
 from datelier.inspection.images.viewport import ImageViewport
 
 

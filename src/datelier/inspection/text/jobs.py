@@ -9,11 +9,15 @@ from datelier.core.dataset import Dataset, DatasetRevision
 from datelier.core.jobs import JobExecutor
 from datelier.inspection.references.index import ReferenceIndex
 from datelier.inspection.references.types import ReferenceSettings
-from datelier.inspection.text.corpus import TextProgress
-from datelier.inspection.text.preparation import prepare_document
-from datelier.inspection.text.profiles import PreparedTextProfile, prepare_profile
-from datelier.inspection.text.tokenization import import_tokenizer
-from datelier.inspection.text.training import (
+from datelier.inspection.text.display import TextViewport
+from datelier.inspection.text.profiles.corpus import TextProgress
+from datelier.inspection.text.profiles.prepare import (
+    PreparedTextProfile,
+    prepare_profile,
+)
+from datelier.inspection.text.tokenizers import import_tokenizer
+from datelier.inspection.text.tokenizers.prepare import prepare_document
+from datelier.inspection.text.tokenizers.training import (
     TrainedTokenizer,
     remove_unaccepted,
     train_tokenizer,
@@ -24,7 +28,6 @@ from datelier.inspection.text.types import (
     TokenizedDocument,
     TokenizerReference,
 )
-from datelier.inspection.text.viewport import TextViewport
 
 
 class TextJobs:

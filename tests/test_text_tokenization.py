@@ -9,7 +9,7 @@ from tokenizers import Tokenizer, models, pre_tokenizers, processors, trainers
 
 from datelier.core.dataset import Dataset, DatasetRevision, SourceReference
 from datelier.inspection.text.records import read_document
-from datelier.inspection.text.tokenization import TextTokenizer, import_tokenizer
+from datelier.inspection.text.tokenizers import TextTokenizer, import_tokenizer
 from datelier.inspection.text.types import (
     Normalization,
     TextDocument,

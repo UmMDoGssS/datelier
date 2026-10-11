@@ -10,7 +10,7 @@ from datelier.inspection.audio.comparisons.types import (
     AudioComparisonInput,
     PreparedAudioComparison,
 )
-from datelier.inspection.audio.reading import check_stopped
+from datelier.inspection.audio.decoding.reading import check_stopped
 from datelier.io.arrays import ArrayStore
 
 

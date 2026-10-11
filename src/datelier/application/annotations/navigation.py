@@ -3,7 +3,7 @@
 from dataclasses import replace
 
 from datelier.application.records import RecordController
-from datelier.inspection.annotations.association_types import PreparedAnnotations
+from datelier.inspection.annotations.association import PreparedAnnotations
 from datelier.inspection.records.types import RecordMode
 from datelier.plotting.scatter import SELECTION_LIMIT
 

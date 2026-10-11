@@ -23,9 +23,9 @@ from datelier.inspection.audio.collections.types import (
     AudioCollectionProfile,
     CollectionProgress,
 )
-from datelier.inspection.audio.reading import check_stopped
-from datelier.inspection.audio.sources import check_asset, prepare_metadata
-from datelier.inspection.audio.statistics import profile_signal
+from datelier.inspection.audio.decoding.reading import check_stopped
+from datelier.inspection.audio.decoding.sources import check_asset, prepare_metadata
+from datelier.inspection.audio.profiles.statistics import profile_signal
 from datelier.inspection.audio.types import AudioLocator, AudioRange
 from datelier.inspection.records.prepare import prepare_records
 from datelier.inspection.records.types import InspectSettings, RecordMode

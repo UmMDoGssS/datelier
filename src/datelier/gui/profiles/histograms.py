@@ -7,7 +7,7 @@ from imgui_bundle import imgui, implot
 from datelier.gui.components.base import FrameContext
 from datelier.gui.components.viewport import ViewportContent
 from datelier.gui.profiles.colors import profile_color
-from datelier.inspection.images.profile_types import ImageHistogram
+from datelier.inspection.images.profiles import ImageHistogram
 
 
 class HistogramContent(ViewportContent):

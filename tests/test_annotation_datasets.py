@@ -8,7 +8,7 @@ import pytest
 from PIL import Image
 
 from datelier.inspection.annotations.geometry import pixel_box
-from datelier.inspection.images.sources import file_metadata
+from datelier.inspection.images.decoding.sources import file_metadata
 from datelier.inspection.images.types import ImageMetadata
 from datelier.inspection.references.types import AssetIdentity
 from datelier.io.annotations.coco import read_coco

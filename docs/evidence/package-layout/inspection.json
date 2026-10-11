@@ -1,0 +1,16 @@
+{
+  "modules_moved": 49,
+  "focused_tests": 403,
+  "pyrefly_errors": 0,
+  "ruff": "passed",
+  "native": {
+    "frames": 65,
+    "p95_ms": 43.41451990330824,
+    "image_original_pixels": true,
+    "text_original_spans": true,
+    "audio_original_waveform": true,
+    "source_preserved": true,
+    "implicit_collection_playback": 0
+  },
+  "native_harness_baseline_race": "reproduced at bf018ec; wait for reference discovery before explicit text command"
+}

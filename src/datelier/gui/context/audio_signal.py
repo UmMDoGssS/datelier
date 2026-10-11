@@ -6,7 +6,7 @@ from datelier.application.audio import AudioController
 from datelier.gui.components.base import Container
 from datelier.gui.components.bindings import StateFields
 from datelier.gui.components.groups import Collapsible, Conditional
-from datelier.inspection.audio.view_types import (
+from datelier.inspection.audio.signal import (
     AudioViewKind,
     AudioWindow,
     SignalViewSettings,

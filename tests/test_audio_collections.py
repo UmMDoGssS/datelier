@@ -24,7 +24,7 @@ from datelier.inspection.audio.collections.types import (
     CollectionProgress,
 )
 from datelier.inspection.audio.comparisons.types import AudioComparisonInput
-from datelier.inspection.audio.profile_types import AudioThresholds
+from datelier.inspection.audio.profiles import AudioThresholds
 from datelier.io.arrays import ArrayStore
 from datelier.io.arrays.metadata import inspect_arrays
 

@@ -3,7 +3,7 @@
 import math
 from dataclasses import dataclass
 
-from datelier.inspection.audio.collections.settings import AudioCollectionSettings
+from datelier.inspection.audio.collections import AudioCollectionSettings
 
 
 @dataclass(frozen=True)

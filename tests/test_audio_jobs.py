@@ -10,10 +10,10 @@ from unittest.mock import patch
 import numpy as np
 import soundfile as sf
 
+from datelier.inspection.audio.decoding import prepare_metadata
 from datelier.inspection.audio.jobs import AudioJobs
-from datelier.inspection.audio.profile_types import AudioThresholds
-from datelier.inspection.audio.sources import prepare_metadata
-from datelier.inspection.audio.statistics import profile_signal
+from datelier.inspection.audio.profiles import AudioThresholds
+from datelier.inspection.audio.profiles.statistics import profile_signal
 from datelier.inspection.audio.types import AudioRange
 from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.arrays import ArrayStore

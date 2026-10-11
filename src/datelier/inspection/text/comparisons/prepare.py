@@ -16,8 +16,8 @@ from datelier.inspection.text.comparisons.types import (
     PreparedTextComparison,
     TextComparisonInput,
 )
-from datelier.inspection.text.corpus import TextProgress, check_abandoned
-from datelier.inspection.text.statistics import TextProfile, calculate_profile
+from datelier.inspection.text.profiles import TextProfile, calculate_profile
+from datelier.inspection.text.profiles.corpus import TextProgress, check_abandoned
 from datelier.inspection.text.types import TokenMode, TokenSettings
 
 

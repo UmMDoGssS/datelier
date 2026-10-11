@@ -7,7 +7,7 @@ from imgui_bundle import imgui
 from datelier.application.annotations.controller import AnnotationController
 from datelier.gui.components.base import Component, Container, FrameContext
 from datelier.gui.records.pixels import PixelSurface
-from datelier.inspection.annotations.association_types import AssociatedBox
+from datelier.inspection.annotations.association import AssociatedBox
 from datelier.inspection.annotations.overlay import hits
 from datelier.inspection.images.viewport import ImageViewport
 

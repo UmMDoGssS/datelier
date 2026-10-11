@@ -7,8 +7,8 @@ from datelier.application.annotations.controller import AnnotationController
 from datelier.application.media_input import MediaController, MediaInput
 from datelier.application.sources.columns import record_mapping
 from datelier.inspection.images.jobs import ImageJobs
-from datelier.inspection.images.profile_jobs import ImageProfileJobs
-from datelier.inspection.images.profile_types import ChannelSummary, ImageProfile
+from datelier.inspection.images.profiles import ChannelSummary, ImageProfile
+from datelier.inspection.images.profiles.jobs import ImageProfileJobs
 from datelier.inspection.images.settings import ImageSettings
 from datelier.inspection.images.types import ImageWindow
 

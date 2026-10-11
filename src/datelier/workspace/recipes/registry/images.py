@@ -5,7 +5,7 @@ from datelier.inspection.images.comparisons.settings import (
     ImageComparisonSource,
     ImageComparisonViewSettings,
 )
-from datelier.inspection.images.profile_types import ImageProfileSettings, ImageScope
+from datelier.inspection.images.profiles import ImageProfileSettings, ImageScope
 from datelier.inspection.images.settings import ImageProfileViewSettings, ImageSettings
 from datelier.inspection.images.types import ImageDisplay
 from datelier.inspection.images.viewport import ImageViewport

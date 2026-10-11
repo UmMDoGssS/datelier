@@ -3,11 +3,11 @@
 from dataclasses import dataclass
 from math import isfinite
 
-from datelier.inspection.audio.collections.settings import AudioCollectionSettings
+from datelier.inspection.audio.collections import AudioCollectionSettings
 from datelier.inspection.audio.playback.settings import PlaybackSettings
-from datelier.inspection.audio.profile_types import AudioThresholds
+from datelier.inspection.audio.profiles import AudioThresholds
+from datelier.inspection.audio.signal import SignalViewSettings
 from datelier.inspection.audio.types import AudioRange, validate_sample_rate
-from datelier.inspection.audio.view_types import SignalViewSettings
 
 
 @dataclass(frozen=True)

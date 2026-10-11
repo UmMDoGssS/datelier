@@ -11,16 +11,16 @@ from unittest.mock import patch
 import numpy as np
 import soundfile as sf
 
-from datelier.inspection.audio.sources import prepare_metadata
-from datelier.inspection.audio.types import AudioRange
-from datelier.inspection.audio.view_jobs import SignalViewJobs
-from datelier.inspection.audio.view_types import (
+from datelier.inspection.audio.decoding import prepare_metadata
+from datelier.inspection.audio.signal import (
     AudioViewKind,
     SignalViewSettings,
     SpectralView,
     SpectrumScale,
     WaveformEnvelope,
 )
+from datelier.inspection.audio.signal.jobs import SignalViewJobs
+from datelier.inspection.audio.types import AudioRange
 from datelier.inspection.heatmaps import Colormap
 from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.arrays import ArrayStore
@@ -78,7 +78,7 @@ def test_waveform_relevance_and_spectral_scale_reuses_prepared_power(
         assert isinstance(jobs.active, SpectralView)
         power = jobs.active.power
         with patch(
-            "datelier.inspection.audio.view_jobs.prepare_spectrogram",
+            "datelier.inspection.audio.signal.jobs.prepare_spectrogram",
             side_effect=AssertionError("must reuse PSD"),
         ):
             jobs.request(
@@ -92,7 +92,7 @@ def test_waveform_relevance_and_spectral_scale_reuses_prepared_power(
         assert isinstance(jobs.active, SpectralView) and jobs.active.power is power
         assert jobs.active.values is power
         with patch(
-            "datelier.inspection.audio.view_jobs.prepare_spectrogram",
+            "datelier.inspection.audio.signal.jobs.prepare_spectrogram",
             side_effect=AssertionError("color controls must reuse PSD"),
         ):
             jobs.request(
@@ -196,7 +196,7 @@ def test_mel_relevance_display_reuse_and_band_changes(tmp_path: Path) -> None:
         )
         assert not jobs.busy and jobs.active is previous
         with patch(
-            "datelier.inspection.audio.view_jobs.prepare_spectrogram",
+            "datelier.inspection.audio.signal.jobs.prepare_spectrogram",
             side_effect=AssertionError("must reuse band power"),
         ):
             jobs.request(

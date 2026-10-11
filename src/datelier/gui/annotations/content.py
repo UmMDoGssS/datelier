@@ -12,7 +12,7 @@ from datelier.gui.components.base import Container, FrameContext
 from datelier.gui.components.columns import ColumnPicker
 from datelier.gui.components.tables import SequenceTable
 from datelier.gui.shell.navigation import CanvasTabs, NamedTab
-from datelier.inspection.annotations.association_types import AssociatedBox
+from datelier.inspection.annotations.association import AssociatedBox
 
 
 class AssociationContent(Container):

@@ -6,7 +6,7 @@ import numpy as np
 import polars as pl
 from numpy.typing import NDArray
 
-from datelier.inspection.audio.collections.types import AudioCollectionProfile
+from datelier.inspection.audio.collections import AudioCollectionProfile
 from datelier.inspection.audio.comparisons.types import (
     AudioComparisonCurve,
     AudioMetric,

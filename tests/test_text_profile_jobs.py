@@ -11,7 +11,10 @@ import polars as pl
 from datelier.core.jobs import SharedWorkers
 from datelier.inspection.references.types import ReferenceSettings
 from datelier.inspection.text.jobs import TextJobs
-from datelier.inspection.text.profiles import PreparedTextProfile, prepare_profile
+from datelier.inspection.text.profiles.prepare import (
+    PreparedTextProfile,
+    prepare_profile,
+)
 from datelier.inspection.text.types import (
     CorpusMode,
     TextScope,
@@ -102,7 +105,7 @@ def test_linked_scope_revision_and_closed_views_reject_profiles(tmp_path: Path) 
             started.set()
             assert release.wait(3)
             # Use an independent event to force a late successful result.
-            from datelier.inspection.text.corpus import TextProgress
+            from datelier.inspection.text.profiles.corpus import TextProgress
 
             return original(
                 dataset,

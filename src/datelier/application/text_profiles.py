@@ -1,6 +1,6 @@
 """Small prepared statistics rows beside the complete worker-owned corpus tables."""
 
-from datelier.inspection.text.statistics import TextProfile
+from datelier.inspection.text.profiles import TextProfile
 
 
 def statistic_rows(

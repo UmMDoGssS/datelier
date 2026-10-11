@@ -30,20 +30,20 @@ from datelier.inspection.audio.collections.settings import (
     AudioProfileMode,
 )
 from datelier.inspection.audio.collections.types import CollectionProgress
-from datelier.inspection.audio.comparisons.prepare import (
-    prepare_comparison as audio_compare,
-)
-from datelier.inspection.audio.comparisons.settings import (
+from datelier.inspection.audio.comparisons import (
     AudioComparisonSettings,
     AudioComparisonSource,
 )
+from datelier.inspection.audio.comparisons.prepare import (
+    prepare_comparison as audio_compare,
+)
 from datelier.inspection.audio.comparisons.types import AudioComparisonInput
+from datelier.inspection.audio.decoding import audio_metadata, locate_audio
 from datelier.inspection.audio.playback.outputs import discover_outputs
-from datelier.inspection.audio.sources import audio_metadata, locate_audio
-from datelier.inspection.audio.spectra import prepare_spectrogram
+from datelier.inspection.audio.signal import AudioViewKind, SignalViewSettings
+from datelier.inspection.audio.signal.spectra import prepare_spectrogram
+from datelier.inspection.audio.signal.waveforms import prepare_waveform
 from datelier.inspection.audio.types import AudioRange
-from datelier.inspection.audio.view_types import AudioViewKind, SignalViewSettings
-from datelier.inspection.audio.waveforms import prepare_waveform
 from datelier.inspection.checkpoints.slices import prepare_tensor_slice
 from datelier.inspection.images.comparisons.prepare import (
     prepare_comparison as image_compare,
@@ -53,17 +53,17 @@ from datelier.inspection.images.comparisons.settings import (
     ImageComparisonSource,
 )
 from datelier.inspection.images.comparisons.types import ImageComparisonInput
-from datelier.inspection.images.profile_types import ImageProfileSettings, ImageProgress
+from datelier.inspection.images.profiles import ImageProfileSettings, ImageProgress
 from datelier.inspection.references.types import ReferenceSettings
-from datelier.inspection.text.comparisons.prepare import (
-    prepare_comparison as text_compare,
-)
-from datelier.inspection.text.comparisons.settings import (
+from datelier.inspection.text.comparisons import (
     TextComparisonSettings,
     TextComparisonSource,
 )
+from datelier.inspection.text.comparisons.prepare import (
+    prepare_comparison as text_compare,
+)
 from datelier.inspection.text.comparisons.types import TextComparisonInput
-from datelier.inspection.text.corpus import TextProgress
+from datelier.inspection.text.profiles.corpus import TextProgress
 from datelier.inspection.text.types import CorpusMode, TextScope, TextSource
 from datelier.io.arrays import ArrayStore
 from datelier.io.arrays.metadata import inspect_arrays

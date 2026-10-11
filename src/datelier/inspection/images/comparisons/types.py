@@ -9,7 +9,7 @@ from datelier.inspection.images.comparisons.settings import (
     ImageComparisonSettings,
     ImageComparisonSource,
 )
-from datelier.inspection.images.profile_types import (
+from datelier.inspection.images.profiles import (
     ChannelKey,
     ImageBounds,
     ImageHistogram,

@@ -14,9 +14,12 @@ from datelier.core.dataset import Dataset
 from datelier.inspection.arrays.mapping import ArrayLayout, ArrayRecordMapping
 from datelier.inspection.arrays.slices import SliceSettings, prepare_slice
 from datelier.inspection.heatmaps import Colormap, normalize, ramp_colors
-from datelier.inspection.images.prepare import display_pixels, prepare_window
-from datelier.inspection.images.sources import image_metadata, locate_image
-from datelier.inspection.images.storage import ImageStore
+from datelier.inspection.images.decoding import (
+    ImageStore,
+    display_pixels,
+    prepare_window,
+)
+from datelier.inspection.images.decoding.sources import image_metadata, locate_image
 from datelier.inspection.images.types import ImageDisplay, ImageMetadata, ImageWindow
 from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.arrays import ArrayStore

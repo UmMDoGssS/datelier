@@ -6,10 +6,9 @@ import pytest
 
 from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset, SourceReference
-from datelier.inspection.lists import flatten_elements, prepare_list
-from datelier.inspection.profile_preview import ProfileRequest, prepare_profile_group
-from datelier.inspection.profile_selection import ProfileSelection
-from datelier.inspection.profiles import ProfileKind, prepare_profiles
+from datelier.inspection.profiles import ProfileKind, ProfileSelection, prepare_profiles
+from datelier.inspection.profiles.lists import flatten_elements, prepare_list
+from datelier.inspection.profiles.preview import ProfileRequest, prepare_profile_group
 from datelier.pipeline.history import Pipeline
 from datelier.pipeline.operations import Sort
 from datelier.plotting.distributions import DistributionSettings
@@ -122,7 +121,7 @@ def test_empty_null_object_and_array_lists_remain_profileable(
 def test_strings_booleans_and_counts_cap_use_leaf_population(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    import datelier.inspection.profiles as profiles
+    import datelier.inspection.profiles.prepare as profiles
 
     monkeypatch.setattr(profiles, "COUNT_ROW_LIMIT", 3)
     dataset = data(pl.Series("words", [["a", "b", "a", "c"], [], None, [None, "b"]]))

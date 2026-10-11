@@ -108,7 +108,7 @@ def test_empty_folder_nonrecursive_members_and_manifest_validation(
 def test_image_folder_routes_to_profiles_without_decoding_mixed_folder(
     tmp_path: Path,
 ) -> None:
-    from datelier.inspection.profile_selection import ProfileSelection
+    from datelier.inspection.profiles import ProfileSelection
 
     (tmp_path / "broken.png").write_bytes(b"undecodable")
     images = load_file(tmp_path).dataset

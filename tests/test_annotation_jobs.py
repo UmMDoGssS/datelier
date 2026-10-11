@@ -11,9 +11,9 @@ import pytest
 from PIL import Image
 
 from datelier.core.dataset import Dataset, DatasetRevision, SourceReference
-from datelier.inspection.annotations.association_types import PreparedAnnotations
+from datelier.inspection.annotations.association import PreparedAnnotations
+from datelier.inspection.annotations.association.prepare import prepare_annotations
 from datelier.inspection.annotations.jobs import AnnotationJobs
-from datelier.inspection.annotations.prepare import prepare_annotations
 from datelier.inspection.annotations.settings import (
     AnnotationSettings,
     AnnotationSource,
@@ -23,7 +23,7 @@ from datelier.inspection.annotations.settings import (
 from datelier.inspection.annotations.types import AnnotationFormat
 from datelier.inspection.arrays.mapping import ArrayRecordMapping
 from datelier.inspection.arrays.types import ArrayCatalog
-from datelier.inspection.images.profile_types import ImageProgress
+from datelier.inspection.images.profiles import ImageProgress
 from datelier.inspection.references.index import ReferenceIndex
 from datelier.inspection.references.types import ReferenceSettings
 

@@ -15,7 +15,7 @@ from datelier.inspection.images.comparisons.types import (
     ImageComparisonInput,
     PreparedImageComparison,
 )
-from datelier.inspection.images.profile_types import ImageProgress, ImageScopeMode
+from datelier.inspection.images.profiles import ImageProgress, ImageScopeMode
 
 
 class ImageComparisonJobs:

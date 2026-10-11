@@ -10,7 +10,7 @@ from time import perf_counter
 import polars as pl
 
 from datelier.core.dataset import Dataset, SourceReference
-from datelier.inspection.profile_preview import ProfileRequest, prepare_profile_group
+from datelier.inspection.profiles.preview import ProfileRequest, prepare_profile_group
 from datelier.inspection.table import PAGE_ROWS, prepare_page
 from datelier.plotting.distributions import DistributionSettings
 

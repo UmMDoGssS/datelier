@@ -4,7 +4,7 @@ import math
 import string
 from dataclasses import dataclass
 
-from datelier.inspection.audio.comparisons.settings import (
+from datelier.inspection.audio.comparisons import (
     AudioComparisonSettings,
     AudioComparisonViewSettings,
 )
@@ -14,7 +14,7 @@ from datelier.inspection.images.comparisons.settings import (
     ImageComparisonViewSettings,
 )
 from datelier.inspection.objects.types import NodePath
-from datelier.inspection.text.comparisons.settings import (
+from datelier.inspection.text.comparisons import (
     TextComparisonSettings,
     TextComparisonViewSettings,
 )

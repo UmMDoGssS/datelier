@@ -11,8 +11,8 @@ from PIL import Image
 
 from datelier.core.dataset import Dataset, SourceReference
 from datelier.inspection.arrays.mapping import ArrayLayout, ArrayRecordMapping
-from datelier.inspection.images.profile_scan import scan_image_profile
-from datelier.inspection.images.profile_types import (
+from datelier.inspection.images.decoding import ImageStore
+from datelier.inspection.images.profiles import (
     ChannelKey,
     ImageProfile,
     ImageProfileSettings,
@@ -21,12 +21,12 @@ from datelier.inspection.images.profile_types import (
     ImageScopeMode,
     PixelScope,
 )
-from datelier.inspection.images.profiles import (
+from datelier.inspection.images.profiles.prepare import (
     finish_image_profile,
     image_positions,
     prepare_image_profile,
 )
-from datelier.inspection.images.storage import ImageStore
+from datelier.inspection.images.profiles.scan import scan_image_profile
 from datelier.inspection.references.index import ReferenceIndex
 from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.arrays import ArrayStore
@@ -288,7 +288,10 @@ def test_large_integer_and_nonfinite_array_statistics_keep_exact_bounds(
 def test_changed_image_between_statistics_and_histograms_rejects_the_snapshot(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from datelier.inspection.images.profile_records import ProfileRecord, profile_record
+    from datelier.inspection.images.profiles.records import (
+        ProfileRecord,
+        profile_record,
+    )
     from datelier.inspection.images.types import ImageLocator, ImageMetadata
 
     path = tmp_path / "image.png"
@@ -310,7 +313,7 @@ def test_changed_image_between_statistics_and_histograms_rejects_the_snapshot(
         return record
 
     monkeypatch.setattr(
-        "datelier.inspection.images.profile_scan.profile_record", changed
+        "datelier.inspection.images.profiles.scan.profile_record", changed
     )
     with pytest.raises(ValueError, match="changed"):
         profile(dataset(tmp_path, ["image.png"]))

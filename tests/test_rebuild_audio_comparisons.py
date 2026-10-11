@@ -14,9 +14,9 @@ from datelier.inspection.audio.collections.settings import (
     AudioScope,
     AudioScopeMode,
 )
-from datelier.inspection.audio.comparisons.settings import AudioComparisonViewSettings
+from datelier.inspection.audio.comparisons import AudioComparisonViewSettings
 from datelier.inspection.audio.playback.controller import PlaybackPhase
-from datelier.inspection.audio.profile_types import AudioThresholds
+from datelier.inspection.audio.profiles import AudioThresholds
 from datelier.workspace.sessions.jobs import save_snapshot
 
 

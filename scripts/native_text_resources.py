@@ -16,12 +16,13 @@ from datelier.application.comparisons.base import ComparisonFamily
 from datelier.application.editor import EditorController
 from datelier.gui.app import InspectionEvidence, run_gui
 from datelier.gui.components.probe import GuiProbe
-from datelier.inspection.text.comparisons.settings import (
+from datelier.inspection.text.comparisons import (
     TextComparisonSettings,
     TextComparisonSource,
 )
 from datelier.inspection.text.comparisons.types import PreparedTextComparison
-from datelier.inspection.text.profiles import PreparedTextProfile
+from datelier.inspection.text.display import TextViewport
+from datelier.inspection.text.profiles.prepare import PreparedTextProfile
 from datelier.inspection.text.types import (
     CorpusMode,
     Normalization,
@@ -32,7 +33,6 @@ from datelier.inspection.text.types import (
     TokenMode,
     TokenSettings,
 )
-from datelier.inspection.text.viewport import TextViewport
 
 
 def rendered(probe: GuiProbe, key: str) -> int:

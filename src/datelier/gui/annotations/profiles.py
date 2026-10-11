@@ -13,7 +13,7 @@ from datelier.gui.components.tables import SequenceTable
 from datelier.gui.components.viewport import ResizableViewport
 from datelier.gui.profiles.histograms import HistogramContent
 from datelier.gui.shell.navigation import CanvasTabs, NamedTab
-from datelier.inspection.annotations.association_types import AssociatedBox
+from datelier.inspection.annotations.association import AssociatedBox
 
 
 class AnnotationProfileContent(Container):

@@ -11,17 +11,20 @@ import soundfile as sf
 from scipy.signal import get_window, stft
 
 from datelier.inspection.arrays.mapping import ArrayLayout, ArrayRecordMapping
-from datelier.inspection.audio.sources import audio_metadata, locate_audio
-from datelier.inspection.audio.spectra import prepare_spectrogram
-from datelier.inspection.audio.spectral_display import spectral_display
-from datelier.inspection.audio.types import AudioRange
-from datelier.inspection.audio.view_types import (
+from datelier.inspection.audio.decoding import audio_metadata, locate_audio
+from datelier.inspection.audio.signal import (
     AudioViewKind,
     AudioWindow,
     SignalViewSettings,
     SpectrumScale,
 )
-from datelier.inspection.audio.waveforms import compress_envelope, prepare_waveform
+from datelier.inspection.audio.signal.display import spectral_display
+from datelier.inspection.audio.signal.spectra import prepare_spectrogram
+from datelier.inspection.audio.signal.waveforms import (
+    compress_envelope,
+    prepare_waveform,
+)
+from datelier.inspection.audio.types import AudioRange
 from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.arrays import ArrayStore
 from datelier.io.arrays.metadata import inspect_arrays

@@ -226,7 +226,7 @@ and count/density meaning. Handle constant/all-null columns explicitly.
 Primary areas: [profile rendering](../src/datelier/gui/exploration.py),
 [comparison rendering](../src/datelier/gui/plots/distributions.py),
 [prepared bars](../src/datelier/plotting/scatter/prepare.py),
-[profiles](../src/datelier/inspection/profiles.py),
+[profiles](../src/datelier/inspection/profiles/prepare.py),
 [distribution preparation](../src/datelier/plotting/distributions/numeric.py).
 
 Gate: `sex` shows named bars with 551/299 counts without opening help; age

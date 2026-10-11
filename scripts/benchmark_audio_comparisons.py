@@ -21,11 +21,11 @@ from datelier.inspection.audio.collections.settings import (
     AudioProfileMode,
 )
 from datelier.inspection.audio.collections.types import CollectionProgress
-from datelier.inspection.audio.comparisons.prepare import prepare_comparison
-from datelier.inspection.audio.comparisons.settings import (
+from datelier.inspection.audio.comparisons import (
     AudioComparisonSettings,
     AudioComparisonSource,
 )
+from datelier.inspection.audio.comparisons.prepare import prepare_comparison
 from datelier.inspection.audio.comparisons.types import AudioComparisonInput
 from datelier.io.arrays import ArrayStore
 from datelier.io.arrays.metadata import inspect_arrays

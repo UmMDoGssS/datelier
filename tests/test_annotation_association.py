@@ -12,8 +12,8 @@ import pytest
 from PIL import Image
 
 from datelier.core.dataset import Dataset, SourceReference
-from datelier.inspection.annotations.association_types import PreparedAnnotations
-from datelier.inspection.annotations.prepare import prepare_annotations
+from datelier.inspection.annotations.association import PreparedAnnotations
+from datelier.inspection.annotations.association.prepare import prepare_annotations
 from datelier.inspection.annotations.settings import (
     AnnotationSettings,
     AnnotationSource,
@@ -22,7 +22,7 @@ from datelier.inspection.annotations.settings import (
 )
 from datelier.inspection.annotations.types import AnnotationCatalog, AnnotationFormat
 from datelier.inspection.arrays.mapping import ArrayLayout, ArrayRecordMapping
-from datelier.inspection.images.profile_types import ImageProgress
+from datelier.inspection.images.profiles import ImageProgress
 from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.annotations import load_annotations
 from datelier.io.arrays import ArrayStore
@@ -302,7 +302,7 @@ def test_source_changed_after_association_retires_only_its_results(
         return load_annotations(source, stop)
 
     monkeypatch.setattr(
-        "datelier.inspection.annotations.prepare.load_annotations", changed
+        "datelier.inspection.annotations.association.prepare.load_annotations", changed
     )
     result = prepare_annotations(
         data,

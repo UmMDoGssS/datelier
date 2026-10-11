@@ -5,8 +5,7 @@ import polars as pl
 import pytest
 
 from datelier.core.dataset import Dataset, SourceReference
-from datelier.inspection.profiles import prepare_profiles
-from datelier.inspection.statistics import prepare_numeric_statistics
+from datelier.inspection.profiles import prepare_numeric_statistics, prepare_profiles
 
 
 def test_finite_statistics_and_separate_quality_counts() -> None:

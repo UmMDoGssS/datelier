@@ -4,7 +4,7 @@ from math import isfinite
 
 import polars as pl
 
-from datelier.inspection.audio.profile_types import AudioSignalProfile
+from datelier.inspection.audio.profiles import AudioSignalProfile
 
 RECORD_SCHEMA = {
     "row_id": pl.UInt64,

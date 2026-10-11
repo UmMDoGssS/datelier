@@ -10,22 +10,25 @@ from datelier.inspection.images.comparisons.types import (
     ImageComparisonInput,
     PreparedImageComparison,
 )
-from datelier.inspection.images.pixels import check_cancelled
-from datelier.inspection.images.profile_histograms import dimension_histograms
-from datelier.inspection.images.profile_scan import (
-    ImageProfileScan,
-    scan_image_profile,
-    validate_profile_input,
-)
-from datelier.inspection.images.profile_types import (
+from datelier.inspection.images.decoding import ImageStore
+from datelier.inspection.images.decoding.pixels import check_cancelled
+from datelier.inspection.images.decoding.sources import check_asset
+from datelier.inspection.images.profiles import (
     ChannelKey,
     ChannelSummary,
     ImageHistogram,
     ImageProgress,
 )
-from datelier.inspection.images.profiles import finish_image_profile, image_positions
-from datelier.inspection.images.sources import check_asset
-from datelier.inspection.images.storage import ImageStore
+from datelier.inspection.images.profiles.histograms import dimension_histograms
+from datelier.inspection.images.profiles.prepare import (
+    finish_image_profile,
+    image_positions,
+)
+from datelier.inspection.images.profiles.scan import (
+    ImageProfileScan,
+    scan_image_profile,
+    validate_profile_input,
+)
 from datelier.io.arrays import ArrayStore
 
 

@@ -10,9 +10,14 @@ from uuid import uuid4
 from datelier.application.editor import EditorController
 from datelier.core.dataset import DatasetRevision
 from datelier.core.jobs import SharedWorkers
-from datelier.inspection.text.page_jobs import TextPageJobs
-from datelier.inspection.text.pages import TextPage, display_text, prepare_text_page
-from datelier.inspection.text.tokenization import TextTokenizer
+from datelier.inspection.text.display import TextViewport
+from datelier.inspection.text.display.jobs import TextPageJobs
+from datelier.inspection.text.display.pages import (
+    TextPage,
+    display_text,
+    prepare_text_page,
+)
+from datelier.inspection.text.tokenizers import TextTokenizer
 from datelier.inspection.text.types import (
     Normalization,
     TextDocument,
@@ -21,7 +26,6 @@ from datelier.inspection.text.types import (
     TokenMode,
     TokenSettings,
 )
-from datelier.inspection.text.viewport import TextViewport
 from datelier.io.types import ImportFormat, MediaOptions
 from datelier.workspace.recipes.codec import decode_record, encode
 from datelier.workspace.single import WorkspaceViews
@@ -95,7 +99,7 @@ def test_late_page_cannot_publish_into_replaced_or_closed_document() -> None:
 
     try:
         with patch(
-            "datelier.inspection.text.page_jobs.prepare_text_page", side_effect=slow
+            "datelier.inspection.text.display.jobs.prepare_text_page", side_effect=slow
         ):
             jobs.sync(first, TextViewport())
         assert started.wait(3)
@@ -194,7 +198,7 @@ def test_imported_prefix_is_not_evidence_of_character_composition(
 ) -> None:
     from tokenizers import Tokenizer, models, normalizers, pre_tokenizers
 
-    from datelier.inspection.text.tokenization import import_tokenizer
+    from datelier.inspection.text.tokenizers import import_tokenizer
 
     tokenizer = Tokenizer(models.BPE({"_": 0, "e": 1, "\u0301": 2}, []))
     tokenizer.normalizer = normalizers.Prepend("_")
@@ -213,7 +217,7 @@ def test_imported_composition_and_expansion_share_consumed_source_span(
 ) -> None:
     from tokenizers import Tokenizer, models, normalizers, pre_tokenizers
 
-    from datelier.inspection.text.tokenization import import_tokenizer
+    from datelier.inspection.text.tokenizers import import_tokenizer
 
     tokenizer = Tokenizer(models.BPE({"e": 0, "\u0301": 1}, []))
     tokenizer.normalizer = normalizers.Sequence([normalizers.NFC(), normalizers.NFD()])

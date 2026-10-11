@@ -12,8 +12,8 @@ from audio_playback_fixtures import Devices
 from datelier.application.editor import EditorController
 from datelier.inspection.audio.collections.settings import AudioProfileMode
 from datelier.inspection.audio.playback.controller import PlaybackPhase
+from datelier.inspection.audio.signal import AudioViewKind, SpectralView
 from datelier.inspection.audio.types import AudioRange
-from datelier.inspection.audio.view_types import AudioViewKind, SpectralView
 
 
 def until(editor: EditorController, condition: Callable[[], bool]) -> None:

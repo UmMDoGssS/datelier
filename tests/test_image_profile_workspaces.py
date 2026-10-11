@@ -8,7 +8,7 @@ from PIL import Image
 
 from datelier.application.editor import EditorController
 from datelier.application.workspace import capture_session
-from datelier.inspection.images.profile_types import (
+from datelier.inspection.images.profiles import (
     ImageProfileSettings,
     ImageScope,
     ImageScopeMode,

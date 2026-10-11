@@ -14,7 +14,7 @@ from datelier.gui.components.viewport import ResizableViewport
 from datelier.gui.profiles.base import ProfileContent
 from datelier.gui.profiles.histograms import HistogramContent
 from datelier.gui.shell.navigation import CanvasTabs, NamedTab
-from datelier.inspection.images.profile_types import ImageHistogram, PixelScope
+from datelier.inspection.images.profiles import ImageHistogram, PixelScope
 
 
 class ImageProfileContent(ProfileContent):

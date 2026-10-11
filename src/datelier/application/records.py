@@ -19,7 +19,7 @@ from datelier.inspection.records.types import (
     RecordMode,
 )
 from datelier.inspection.table import Inspection
-from datelier.inspection.text.list_records import is_text_list
+from datelier.inspection.text.profiles.lists import is_text_list
 from datelier.io.types import ArrayOptions
 from datelier.plotting.scatter import LinkedSelection
 

@@ -7,7 +7,7 @@ from datelier.application.audio import AudioController
 from datelier.gui.components.actions import CommandButton, JobFeedback, JobSnapshot
 from datelier.gui.components.base import Container
 from datelier.gui.context.audio_sampling import AudioSamplingFields
-from datelier.inspection.audio.collections.settings import AudioCollectionSettings
+from datelier.inspection.audio.collections import AudioCollectionSettings
 
 
 class AudioProfileSettings(Container):

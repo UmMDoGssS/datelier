@@ -9,7 +9,7 @@ from datelier.core.column_roles import ColumnRole
 from datelier.core.dataset import Dataset
 from datelier.inspection.references.index import ReferenceIndex, resolve
 from datelier.inspection.references.types import ReferenceSettings
-from datelier.inspection.text.list_records import is_text_list, read_list_document
+from datelier.inspection.text.profiles.lists import is_text_list, read_list_document
 from datelier.inspection.text.types import (
     TextDocument,
     TextOrigin,

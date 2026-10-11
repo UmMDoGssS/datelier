@@ -7,8 +7,8 @@ import pytest
 
 from datelier.core.column_roles import ColumnRole, allowed_roles
 from datelier.core.dataset import Dataset, SourceReference
-from datelier.inspection.profile_preview import ProfileRequest, prepare_profile_group
 from datelier.inspection.profiles import ProfileKind
+from datelier.inspection.profiles.preview import ProfileRequest, prepare_profile_group
 from datelier.io.importing import load_file
 from datelier.pipeline.history import Pipeline
 from datelier.pipeline.operations import OperationFailure, SetColumnRole, Sort

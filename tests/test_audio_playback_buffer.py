@@ -8,10 +8,10 @@ import numpy as np
 import pytest
 import soundfile as sf
 
+from datelier.inspection.audio.decoding import prepare_metadata
 from datelier.inspection.audio.playback.buffer import PlaybackRing
 from datelier.inspection.audio.playback.conversion import output_samples
 from datelier.inspection.audio.playback.types import PlaybackRequest, RenderAction
-from datelier.inspection.audio.sources import prepare_metadata
 from datelier.inspection.audio.types import AudioRange
 from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.media import load_media

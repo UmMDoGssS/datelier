@@ -13,7 +13,7 @@ from datelier.inspection.text.comparisons.settings import (
     TextComparisonSettings,
     TextComparisonSource,
 )
-from datelier.inspection.text.statistics import TextProfile
+from datelier.inspection.text.profiles import TextProfile
 
 
 @dataclass(frozen=True)

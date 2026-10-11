@@ -12,7 +12,7 @@ from datelier.inspection.comparisons.types import (
     PreparedComparison,
     SeriesSummary,
 )
-from datelier.inspection.statistics import prepare_numeric_statistics
+from datelier.inspection.profiles import prepare_numeric_statistics
 
 
 def numeric_comparison(

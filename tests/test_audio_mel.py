@@ -8,15 +8,15 @@ import pytest
 import soundfile as sf
 from scipy.signal import get_window, stft
 
-from datelier.inspection.audio.mel import hz_to_mel, mel_filters, mel_to_hz
-from datelier.inspection.audio.sources import audio_metadata, locate_audio
-from datelier.inspection.audio.spectra import prepare_spectrogram
-from datelier.inspection.audio.types import AudioRange
-from datelier.inspection.audio.view_types import (
+from datelier.inspection.audio.decoding import audio_metadata, locate_audio
+from datelier.inspection.audio.signal import (
     AudioViewKind,
     SignalViewSettings,
     SpectrumScale,
 )
+from datelier.inspection.audio.signal.mel import hz_to_mel, mel_filters, mel_to_hz
+from datelier.inspection.audio.signal.spectra import prepare_spectrogram
+from datelier.inspection.audio.types import AudioRange
 from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.arrays import ArrayStore
 from datelier.io.media import load_media
