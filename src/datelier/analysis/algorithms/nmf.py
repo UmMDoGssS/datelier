@@ -1,20 +1,34 @@
-"""NMFAlgorithm: parameter ownership, fitting and input constraints."""
+"NMFAlgorithm: parameter ownership, fitting and input constraints."
 
-from typing import cast
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, ClassVar, cast
 
 import numpy as np
 from numpy.typing import NDArray
 
+from datelier.analysis.algorithm import Algorithm as AlgorithmId
 from datelier.analysis.algorithms.base import (
     EmbeddingEstimator,
     FittedDecompositionAlgorithm,
 )
-from datelier.analysis.embedding_parameters import NMFParameters
-from datelier.analysis.types import AnalysisRequest, PreparedInput
+from datelier.analysis.parameter_fields import choice, setting
+
+if TYPE_CHECKING:
+    from datelier.analysis.types import AnalysisRequest, PreparedInput
+
+
+@dataclass(frozen=True)
+class NMFParameters:
+    algorithm: ClassVar[AlgorithmId] = AlgorithmId.NMF
+    scaling: str = choice("minmax", "NMF input scaling", ("minmax", "none"))
+    iterations: int = setting(500, "Iterations", 1, 10000)
+    tolerance: float = setting(1e-4, "Tolerance", 1e-12, 1.0)
 
 
 class NMFAlgorithm(FittedDecompositionAlgorithm[NMFParameters]):
     parameter_type = NMFParameters
+    row_limit = 50000
+    default_row_limit = 10000
 
     def build(
         self, prepared: PreparedInput

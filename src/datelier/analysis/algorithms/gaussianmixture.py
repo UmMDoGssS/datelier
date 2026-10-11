@@ -1,17 +1,35 @@
-"""GaussianMixtureAlgorithm: parameter ownership, fitting and input constraints."""
+"GaussianMixtureAlgorithm: parameter ownership, fitting and input constraints."
 
-from typing import Literal, cast
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, ClassVar, Literal, cast
 
 import numpy as np
 from numpy.typing import NDArray
 
+from datelier.analysis.algorithm import Algorithm as AlgorithmId
 from datelier.analysis.algorithms.base import ClusterEstimator, ClusteringAlgorithm
-from datelier.analysis.parameters import GaussianMixtureParameters
-from datelier.analysis.types import AnalysisRequest, PreparedInput
+from datelier.analysis.parameter_fields import choice, setting
+
+if TYPE_CHECKING:
+    from datelier.analysis.types import AnalysisRequest, PreparedInput
+
+
+@dataclass(frozen=True)
+class GaussianMixtureParameters:
+    algorithm: ClassVar[AlgorithmId] = AlgorithmId.GAUSSIAN_MIXTURE
+    clusters: int = setting(3, "Components", 1, 256)
+    covariance: str = choice(
+        "full", "Covariance", ("full", "tied", "diag", "spherical")
+    )
+    regularization: float = setting(1e-6, "Covariance regularization", 1e-12)
+    initializations: int = setting(1, "Initializations", 1, 100)
+    iterations: int = setting(100, "Iterations", 1, 10000)
 
 
 class GaussianMixtureAlgorithm(ClusteringAlgorithm[GaussianMixtureParameters]):
     parameter_type = GaussianMixtureParameters
+    row_limit = 50000
+    default_row_limit = 10000
 
     def build(
         self, prepared: PreparedInput

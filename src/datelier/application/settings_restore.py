@@ -2,13 +2,6 @@
 
 from dataclasses import replace
 
-from datelier.analysis.parameters import EXTRA_DEFAULTS
-from datelier.analysis.types import (
-    KMeansParameters,
-    PCAParameters,
-    TSNEParameters,
-    UMAPParameters,
-)
 from datelier.application.analysis_settings import AnalysisSettings
 from datelier.application.plot_settings import PlotState
 from datelier.core.dataset import Dataset
@@ -107,33 +100,4 @@ def restore_analysis(
     controls.impute = common.preprocessing.impute
     controls.dimensions, controls.seed = common.dimensions, common.seed
     for request in workspace.analysis:
-        params = request.parameters
-        if isinstance(params, PCAParameters):
-            controls.pca_limit = request.row_limit
-            controls.pca_solver = ["randomized", "full"].index(params.solver)
-            controls.pca_whiten = params.whiten
-        elif isinstance(params, TSNEParameters):
-            controls.tsne_limit = request.row_limit
-            controls.perplexity, controls.tsne_iterations = (
-                params.perplexity,
-                params.iterations,
-            )
-            controls.tsne_auto_rate = params.learning_rate == "auto"
-            if isinstance(params.learning_rate, (int, float)):
-                controls.tsne_rate = float(params.learning_rate)
-            controls.tsne_init = ["pca", "random"].index(params.initialization)
-        elif isinstance(params, UMAPParameters):
-            controls.umap_limit = request.row_limit
-            controls.neighbors, controls.min_distance = (
-                params.neighbors,
-                params.min_distance,
-            )
-            controls.umap_metric = ["euclidean", "cosine"].index(params.metric)
-        elif isinstance(params, KMeansParameters):
-            controls.kmeans_limit = request.row_limit
-            controls.clusters = params.clusters
-            controls.initializations = params.initializations
-            controls.kmeans_iterations = params.iterations
-        elif request.algorithm in EXTRA_DEFAULTS:
-            controls.extra_parameters[request.algorithm] = params
-            controls.extra_limits[request.algorithm] = request.row_limit
+        controls.restore(request)

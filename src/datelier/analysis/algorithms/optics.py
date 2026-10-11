@@ -1,15 +1,32 @@
-"""OPTICSAlgorithm: parameter ownership, fitting and input constraints."""
+"OPTICSAlgorithm: parameter ownership, fitting and input constraints."
+
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, ClassVar
 
 import numpy as np
 from numpy.typing import NDArray
 
+from datelier.analysis.algorithm import Algorithm as AlgorithmId
 from datelier.analysis.algorithms.base import ClusterEstimator, ClusteringAlgorithm
-from datelier.analysis.parameters import OPTICSParameters
-from datelier.analysis.types import AnalysisRequest, PreparedInput
+from datelier.analysis.parameter_fields import choice, setting
+
+if TYPE_CHECKING:
+    from datelier.analysis.types import AnalysisRequest, PreparedInput
+
+
+@dataclass(frozen=True)
+class OPTICSParameters:
+    algorithm: ClassVar[AlgorithmId] = AlgorithmId.OPTICS
+    min_samples: int = setting(5, "Minimum neighbors", 2, 10000)
+    min_cluster_size: int = setting(5, "Minimum cluster size", 2, 10000)
+    xi: float = setting(0.05, "Steepness threshold", 1e-6, 0.999999)
+    metric: str = choice("euclidean", "Distance", ("euclidean", "manhattan"))
 
 
 class OPTICSAlgorithm(ClusteringAlgorithm[OPTICSParameters]):
     parameter_type = OPTICSParameters
+    row_limit = 5000
+    default_row_limit = 2000
 
     def build(
         self, prepared: PreparedInput

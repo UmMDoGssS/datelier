@@ -6,8 +6,11 @@ from pathlib import Path
 from datelier.analysis.types import (
     Algorithm,
     AnalysisRequest,
+    KMeansParameters,
+    PCAParameters,
     Preprocessing,
     TSNEParameters,
+    UMAPParameters,
 )
 from datelier.application.analysis_settings import AnalysisSettings
 from datelier.application.plot_settings import PlotState
@@ -74,16 +77,13 @@ def test_analysis_controls_round_trip_without_launching_jobs(tmp_path: Path) -> 
         impute=True,
         dimensions=3,
         seed=19,
-        pca_whiten=True,
-        pca_solver=1,
-        perplexity=4,
-        tsne_auto_rate=False,
-        tsne_rate=55,
-        tsne_init=1,
-        umap_metric=1,
-        neighbors=7,
-        clusters=5,
     )
+    before.parameters[Algorithm.PCA] = PCAParameters(solver="full", whiten=True)
+    before.parameters[Algorithm.TSNE] = TSNEParameters(
+        perplexity=4, learning_rate=55, initialization="random"
+    )
+    before.parameters[Algorithm.UMAP] = UMAPParameters(neighbors=7, metric="cosine")
+    before.parameters[Algorithm.KMEANS] = KMeansParameters(clusters=5)
     requests = tuple(before.request(a) for a in Algorithm)
     workspace = Workspace(
         reference_source(imported.dataset.source),
@@ -211,10 +211,8 @@ def test_every_method_recipe_round_trips_through_strict_codec(tmp_path: Path) ->
     path.write_text("x,y,z\n1.0,2,3\n3.0,4,5\n6.0,8,9\n")
     imported = load_file(path)
     before = AnalysisSettings(features=["z", "x", "y"], dimensions=3, seed=19)
-    before.extra_parameters[Algorithm.DBSCAN] = DBSCANParameters(epsilon=0.75)
-    before.extra_parameters[Algorithm.LLE] = LLEParameters(
-        method="hessian", neighbors=20
-    )
+    before.parameters[Algorithm.DBSCAN] = DBSCANParameters(epsilon=0.75)
+    before.parameters[Algorithm.LLE] = LLEParameters(method="hessian", neighbors=20)
     requests = tuple(before.request(a) for a in Algorithm)
     saved = Workspace(
         reference_source(imported.dataset.source),

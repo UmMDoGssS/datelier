@@ -1,18 +1,33 @@
-"""IsomapAlgorithm: parameter ownership, fitting and input constraints."""
+"IsomapAlgorithm: parameter ownership, fitting and input constraints."
+
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, ClassVar
 
 import numpy as np
 from numpy.typing import NDArray
 
+from datelier.analysis.algorithm import Algorithm as AlgorithmId
 from datelier.analysis.algorithms.base import (
     EmbeddingEstimator,
     FittedDecompositionAlgorithm,
 )
-from datelier.analysis.embedding_parameters import IsomapParameters
-from datelier.analysis.types import AnalysisRequest, PreparedInput
+from datelier.analysis.parameter_fields import choice, setting
+
+if TYPE_CHECKING:
+    from datelier.analysis.types import AnalysisRequest, PreparedInput
+
+
+@dataclass(frozen=True)
+class IsomapParameters:
+    algorithm: ClassVar[AlgorithmId] = AlgorithmId.ISOMAP
+    neighbors: int = setting(15, "Neighbors", 2, 100)
+    metric: str = choice("euclidean", "Distance", ("euclidean", "manhattan"))
 
 
 class IsomapAlgorithm(FittedDecompositionAlgorithm[IsomapParameters]):
     parameter_type = IsomapParameters
+    row_limit = 3000
+    default_row_limit = 2000
 
     def build(
         self, prepared: PreparedInput

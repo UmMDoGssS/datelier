@@ -1,22 +1,54 @@
-"""SpectralEmbeddingAlgorithm: parameter ownership, fitting and input constraints."""
+"SpectralEmbeddingAlgorithm: parameter ownership, fitting and input constraints."
 
-from typing import Literal, cast
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, ClassVar, Literal, cast
 
 import numpy as np
 from numpy.typing import NDArray
 
+from datelier.analysis.algorithm import Algorithm as AlgorithmId
 from datelier.analysis.algorithms.base import (
     EmbeddingEstimator,
     FittedDecompositionAlgorithm,
 )
-from datelier.analysis.embedding_parameters import SpectralEmbeddingParameters
-from datelier.analysis.types import AnalysisRequest, PreparedInput
+from datelier.analysis.parameter_fields import choice
+
+if TYPE_CHECKING:
+    from datelier.analysis.types import AnalysisRequest, PreparedInput
+
+
+@dataclass(frozen=True)
+class SpectralEmbeddingParameters:
+    algorithm: ClassVar[AlgorithmId] = AlgorithmId.SPECTRAL_EMBEDDING
+    affinity: str = choice(
+        "nearest_neighbors", "Affinity", ("nearest_neighbors", "rbf")
+    )
+    neighbors: int = field(
+        default=15,
+        metadata={
+            "label": "Neighbors",
+            "min": 2,
+            "max": 100,
+            "when": ("affinity", "nearest_neighbors"),
+        },
+    )
+    gamma: float = field(
+        default=1.0,
+        metadata={
+            "label": "Kernel gamma",
+            "min": 1e-9,
+            "max": 1e6,
+            "when": ("affinity", "rbf"),
+        },
+    )
 
 
 class SpectralEmbeddingAlgorithm(
     FittedDecompositionAlgorithm[SpectralEmbeddingParameters]
 ):
     parameter_type = SpectralEmbeddingParameters
+    row_limit = 5000
+    default_row_limit = 2000
 
     def build(
         self, prepared: PreparedInput

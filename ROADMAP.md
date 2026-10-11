@@ -948,5 +948,5 @@ were unchecked then. The first implementation gate at approval was M9.1;
 families, method-owned parameter schemas and generic GUI forms.
 
 - [x] Replace estimator dispatch chains with concrete algorithm builders and input constraints.
-- [ ] Consolidate parameter defaults, limits, request/restoration and GUI schema rendering.
+- [x] Consolidate parameter defaults, limits, request/restoration and GUI schema rendering.
 - [ ] Verify all algorithms, persistence, native forms and full-suite acceptance.

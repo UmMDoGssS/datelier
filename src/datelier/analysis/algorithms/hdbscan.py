@@ -1,15 +1,34 @@
-"""HDBSCANAlgorithm: parameter ownership, fitting and input constraints."""
+"HDBSCANAlgorithm: parameter ownership, fitting and input constraints."
+
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, ClassVar
 
 import numpy as np
 from numpy.typing import NDArray
 
+from datelier.analysis.algorithm import Algorithm as AlgorithmId
 from datelier.analysis.algorithms.base import ClusterEstimator, ClusteringAlgorithm
-from datelier.analysis.parameters import HDBSCANParameters
-from datelier.analysis.types import AnalysisRequest, PreparedInput
+from datelier.analysis.parameter_fields import choice, setting
+
+if TYPE_CHECKING:
+    from datelier.analysis.types import AnalysisRequest, PreparedInput
+
+
+@dataclass(frozen=True)
+class HDBSCANParameters:
+    algorithm: ClassVar[AlgorithmId] = AlgorithmId.HDBSCAN
+    min_cluster_size: int = setting(5, "Minimum cluster size", 2, 10000)
+    min_samples: int = setting(5, "Minimum neighbors", 2, 10000)
+    selection: str = choice("eom", "Cluster selection", ("eom", "leaf"))
+    allow_single_cluster: bool = field(
+        default=False, metadata={"label": "Allow one cluster"}
+    )
 
 
 class HDBSCANAlgorithm(ClusteringAlgorithm[HDBSCANParameters]):
     parameter_type = HDBSCANParameters
+    row_limit = 10000
+    default_row_limit = 2000
 
     def build(
         self, prepared: PreparedInput

@@ -1,20 +1,44 @@
-"""LLEAlgorithm: parameter ownership, fitting and input constraints."""
+"LLEAlgorithm: parameter ownership, fitting and input constraints."
 
-from typing import Literal, cast
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, ClassVar, Literal, cast
 
 import numpy as np
 from numpy.typing import NDArray
 
+from datelier.analysis.algorithm import Algorithm as AlgorithmId
 from datelier.analysis.algorithms.base import (
     EmbeddingEstimator,
     FittedDecompositionAlgorithm,
 )
-from datelier.analysis.embedding_parameters import LLEParameters
-from datelier.analysis.types import AnalysisRequest, PreparedInput
+from datelier.analysis.parameter_fields import choice, setting
+
+if TYPE_CHECKING:
+    from datelier.analysis.types import AnalysisRequest, PreparedInput
+
+
+@dataclass(frozen=True)
+class LLEParameters:
+    algorithm: ClassVar[AlgorithmId] = AlgorithmId.LLE
+    method: str = choice(
+        "standard", "LLE method", ("standard", "modified", "hessian", "ltsa")
+    )
+    neighbors: int = setting(15, "Neighbors", 2, 100)
+    regularization: float = field(
+        default=0.001,
+        metadata={
+            "label": "Local regularization",
+            "min": 1e-12,
+            "max": 1.0,
+            "when": ("method", "standard"),
+        },
+    )
 
 
 class LLEAlgorithm(FittedDecompositionAlgorithm[LLEParameters]):
     parameter_type = LLEParameters
+    row_limit = 2000
+    default_row_limit = 2000
 
     def build(
         self, prepared: PreparedInput

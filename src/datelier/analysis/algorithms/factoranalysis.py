@@ -1,20 +1,34 @@
-"""FactorAnalysisAlgorithm: parameter ownership, fitting and input constraints."""
+"FactorAnalysisAlgorithm: parameter ownership, fitting and input constraints."
 
-from typing import Literal, cast
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, ClassVar, Literal, cast
 
 import numpy as np
 from numpy.typing import NDArray
 
+from datelier.analysis.algorithm import Algorithm as AlgorithmId
 from datelier.analysis.algorithms.base import (
     EmbeddingEstimator,
     FittedDecompositionAlgorithm,
 )
-from datelier.analysis.embedding_parameters import FactorAnalysisParameters
-from datelier.analysis.types import AnalysisRequest, PreparedInput
+from datelier.analysis.parameter_fields import choice, setting
+
+if TYPE_CHECKING:
+    from datelier.analysis.types import AnalysisRequest, PreparedInput
+
+
+@dataclass(frozen=True)
+class FactorAnalysisParameters:
+    algorithm: ClassVar[AlgorithmId] = AlgorithmId.FACTOR_ANALYSIS
+    rotation: str = choice("none", "Rotation", ("none", "varimax", "quartimax"))
+    iterations: int = setting(1000, "Iterations", 1, 10000)
+    tolerance: float = setting(0.01, "Tolerance", 1e-12, 1.0)
 
 
 class FactorAnalysisAlgorithm(FittedDecompositionAlgorithm[FactorAnalysisParameters]):
     parameter_type = FactorAnalysisParameters
+    row_limit = 50000
+    default_row_limit = 10000
 
     def build(
         self, prepared: PreparedInput

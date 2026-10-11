@@ -1,26 +1,48 @@
-"""TSNEAlgorithm: parameter ownership, fitting and input constraints."""
+"TSNEAlgorithm: parameter ownership, fitting and input constraints."
 
+from dataclasses import dataclass, field
 from time import perf_counter
-from typing import cast
+from typing import TYPE_CHECKING, ClassVar, cast
 
 import numpy as np
 from numpy.typing import NDArray
 
+from datelier.analysis.algorithm import Algorithm as AlgorithmId
 from datelier.analysis.algorithms.base import DecompositionAlgorithm
-from datelier.analysis.embedding_result import embedding_result
-from datelier.analysis.types import (
-    AnalysisRequest,
-    EmbeddingResult,
-    PreparedInput,
-    TSNEParameters,
-)
+from datelier.analysis.parameter_fields import choice, setting
+
+if TYPE_CHECKING:
+    from datelier.analysis.types import AnalysisRequest, EmbeddingResult, PreparedInput
+
+
+@dataclass(frozen=True)
+class TSNEParameters:
+    algorithm: ClassVar[AlgorithmId] = AlgorithmId.TSNE
+    perplexity: float = setting(30.0, "Perplexity", 1e-9)
+    iterations: int = setting(1000, "Iterations", 250)
+    learning_rate: float | str = field(
+        default="auto",
+        metadata={
+            "label": "Learning rate",
+            "kind": "real",
+            "min": 1e-9,
+            "max": 1e6,
+            "automatic": "auto",
+            "manual_default": 200.0,
+        },
+    )
+    initialization: str = choice("pca", "Initialization", ("pca", "random"))
 
 
 class TSNEAlgorithm(DecompositionAlgorithm[TSNEParameters]):
     parameter_type = TSNEParameters
+    row_limit = 10000
+    default_row_limit = 2000
 
     def run(self, prepared: PreparedInput) -> EmbeddingResult:
         from threadpoolctl import threadpool_limits
+
+        from datelier.analysis.embedding_result import embedding_result
 
         started = perf_counter()
         request = prepared.request

@@ -1,17 +1,32 @@
-"""MiniBatchAlgorithm: parameter ownership, fitting and input constraints."""
+"MiniBatchAlgorithm: parameter ownership, fitting and input constraints."
 
-from typing import cast
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, ClassVar, cast
 
 import numpy as np
 from numpy.typing import NDArray
 
+from datelier.analysis.algorithm import Algorithm as AlgorithmId
 from datelier.analysis.algorithms.base import ClusterEstimator, ClusteringAlgorithm
-from datelier.analysis.parameters import MiniBatchParameters
-from datelier.analysis.types import AnalysisRequest, KMeansFit, PreparedInput
+from datelier.analysis.parameter_fields import setting
+
+if TYPE_CHECKING:
+    from datelier.analysis.types import AnalysisRequest, KMeansFit, PreparedInput
+
+
+@dataclass(frozen=True)
+class MiniBatchParameters:
+    algorithm: ClassVar[AlgorithmId] = AlgorithmId.MINIBATCH_KMEANS
+    clusters: int = setting(3, "Clusters", 1, 256)
+    batch_size: int = setting(1024, "Batch size", 1, 100000)
+    initializations: int = setting(3, "Initializations", 1, 100)
+    iterations: int = setting(100, "Iterations", 1, 10000)
 
 
 class MiniBatchAlgorithm(ClusteringAlgorithm[MiniBatchParameters]):
     parameter_type = MiniBatchParameters
+    row_limit = 100000
+    default_row_limit = 10000
 
     def build(
         self, prepared: PreparedInput

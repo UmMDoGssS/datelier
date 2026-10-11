@@ -1,12 +1,11 @@
-"""Algorithm-specific editor families built from shared typed field components."""
+"""Schema-driven analysis forms; algorithm knowledge belongs to the domain."""
 
-from abc import ABC
-from collections.abc import Callable, Mapping
-from dataclasses import fields
+from collections.abc import Callable
 from typing import cast
 
-from datelier.analysis.parameters import ExtraParameters
-from datelier.analysis.types import LIMITS, Algorithm
+from datelier.analysis.algorithms.registry import build_algorithm
+from datelier.analysis.schema import Parameter, ParameterKind, ParameterValue
+from datelier.analysis.types import Algorithm
 from datelier.application.analysis_settings import AnalysisSettings
 from datelier.gui.components.base import Component, Container, FrameContext
 from datelier.gui.components.fields import (
@@ -34,23 +33,6 @@ def integer(
     )
 
 
-def real(
-    model: AnalysisSettings,
-    name: str,
-    label: str,
-    minimum: float = 0,
-    maximum: float = 100000,
-) -> FloatField:
-    return FloatField(
-        name,
-        label,
-        lambda: cast(float, getattr(model, name)),
-        lambda value: setattr(model, name, value),
-        minimum,
-        maximum,
-    )
-
-
 def boolean(model: AnalysisSettings, name: str, label: str) -> BooleanField:
     return BooleanField(
         name,
@@ -60,167 +42,124 @@ def boolean(model: AnalysisSettings, name: str, label: str) -> BooleanField:
     )
 
 
-def choice(
-    model: AnalysisSettings, name: str, label: str, labels: tuple[str, ...]
-) -> ChoiceField[int]:
-    return ChoiceField(
-        name,
-        label,
-        tuple(range(len(labels))),
-        lambda: cast(int, getattr(model, name)),
-        lambda value: setattr(model, name, value),
-        labels,
-    )
+class AutomaticRealField(Container):
+    """Preserve the last manual draft while toggling a schema-defined auto value."""
 
-
-def parameter_field(
-    name: str,
-    label: str,
-    value: object,
-    get: Callable[[], object],
-    set_value: Callable[[object], None],
-    metadata: Mapping[str, object],
-) -> Component:
-    minimum = cast(float, metadata.get("min", 0))
-    maximum = cast(float, metadata.get("max", 1000000))
-    makers: dict[type, Callable[[], Component]] = {
-        bool: lambda: BooleanField(name, label, lambda: cast(bool, get()), set_value),
-        int: lambda: IntegerField(
-            name, label, lambda: cast(int, get()), set_value, int(minimum), int(maximum)
-        ),
-        float: lambda: FloatField(
-            name,
-            label,
-            lambda: cast(float, get()),
-            set_value,
-            float(minimum),
-            float(maximum),
-        ),
-        str: lambda: ChoiceField(
-            name,
-            label,
-            cast(tuple[str, ...], metadata["choices"]),
-            lambda: cast(str, get()),
-            set_value,
-        ),
-    }
-    return makers[type(value)]()
-
-
-class AlgorithmSettings(Container, ABC):
-    """Each concrete method owns its parameter fields and limits."""
-
-
-class PCASettings(AlgorithmSettings):
-    def __init__(self, model: AnalysisSettings) -> None:
+    def __init__(
+        self,
+        descriptor: Parameter,
+        get: Callable[[], ParameterValue],
+        set_value: Callable[[ParameterValue], None],
+    ) -> None:
+        self.descriptor, self.get, self.set_value = descriptor, get, set_value
+        self.manual = descriptor.manual_default
         super().__init__(
-            "PCA",
+            descriptor.name,
             (
-                integer(model, "pca_limit", "Rows (max 100k)"),
-                choice(model, "pca_solver", "Solver", ("randomized", "full")),
-                boolean(model, "pca_whiten", "Whitening"),
+                BooleanField(
+                    "automatic",
+                    "Automatic " + descriptor.label.lower(),
+                    lambda: get() == descriptor.automatic,
+                    self.toggle,
+                ),
+                FloatField(
+                    "manual",
+                    descriptor.label,
+                    self.manual_value,
+                    self.set_manual,
+                    descriptor.minimum,
+                    descriptor.maximum,
+                ),
             ),
         )
 
+    def manual_value(self) -> float:
+        value = self.get()
+        return float(value) if isinstance(value, (int, float)) else self.manual
 
-class KMeansSettings(AlgorithmSettings):
-    def __init__(self, model: AnalysisSettings) -> None:
-        super().__init__(
-            "k-means",
-            (
-                integer(model, "kmeans_limit", "Rows (max 100k)"),
-                integer(model, "clusters", "Clusters", maximum=256),
-                integer(model, "initializations", "Initializations"),
-                integer(model, "kmeans_iterations", "Iterations"),
-            ),
+    def set_manual(self, value: float) -> None:
+        self.manual = value
+        self.set_value(value)
+
+    def toggle(self, automatic: bool) -> None:
+        self.manual = self.manual_value()
+        self.set_value(
+            cast(str, self.descriptor.automatic) if automatic else self.manual
         )
-
-
-class TSNESettings(AlgorithmSettings):
-    def __init__(self, model: AnalysisSettings) -> None:
-        super().__init__(
-            "t-SNE",
-            (
-                integer(model, "tsne_limit", "Rows (max 10k)", maximum=10000),
-                real(model, "perplexity", "Perplexity", minimum=0.1),
-                integer(model, "tsne_iterations", "Iterations", minimum=250),
-                boolean(model, "tsne_auto_rate", "Automatic learning rate"),
-                real(model, "tsne_rate", "Learning rate", minimum=0.1),
-                choice(model, "tsne_init", "Initialization", ("pca", "random")),
-            ),
-        )
-
-
-class UMAPSettings(AlgorithmSettings):
-    def __init__(self, model: AnalysisSettings) -> None:
-        super().__init__(
-            "UMAP",
-            (
-                integer(model, "umap_limit", "Rows (max 50k)", maximum=50000),
-                integer(model, "neighbors", "Neighbors", minimum=2),
-                real(model, "min_distance", "Minimum distance", maximum=1),
-                choice(model, "umap_metric", "Metric", ("euclidean", "cosine")),
-            ),
-        )
-
-
-class ExtraSettings(AlgorithmSettings):
-    def __init__(self, model: AnalysisSettings, algorithm: Algorithm) -> None:
-        self.model, self.algorithm = model, algorithm
-        self.conditions: dict[str, Callable[[], bool]] = {}
-        children: list[Component] = [
-            IntegerField(
-                "limit",
-                f"Rows (max {LIMITS[algorithm]:,})",
-                lambda: model.extra_limits[algorithm],
-                lambda value: model.extra_limits.__setitem__(algorithm, value),
-                1,
-                LIMITS[algorithm],
-            )
-        ]
-        parameters = model.extra_parameters[algorithm]
-        for item in fields(parameters):
-            name = item.name
-            label = str(item.metadata["label"])
-            value: object = getattr(parameters, name)
-
-            def get(name: str = name) -> object:
-                return getattr(model.extra_parameters[algorithm], name)
-
-            def set_value(new: object, name: str = name) -> None:
-                self.update(name, new)
-
-            children.append(
-                parameter_field(name, label, value, get, set_value, item.metadata)
-            )
-            if "when" in item.metadata:
-                dependency, active = item.metadata["when"]
-                self.conditions[name] = lambda dependency=dependency, active=active: (
-                    getattr(model.extra_parameters[algorithm], dependency) == active
-                )
-            if "unless" in item.metadata:
-                dependency, inactive = item.metadata["unless"]
-                self.conditions[name] = (
-                    lambda dependency=dependency, inactive=inactive: (
-                        getattr(model.extra_parameters[algorithm], dependency)
-                        not in inactive
-                    )
-                )
-        super().__init__(algorithm.value, tuple(children))
-
-    def update(self, name: str, value: object) -> None:
-        parameters = self.model.extra_parameters[self.algorithm]
-        values = {
-            item.name: getattr(parameters, item.name) for item in fields(parameters)
-        }
-        values[name] = value
-        constructor = cast(Callable[..., ExtraParameters], type(parameters))
-        self.model.extra_parameters[self.algorithm] = constructor(**values)
 
     def render(self, frame: FrameContext) -> None:
         for child in self.children:
-            visible = self.conditions.get(child.key)
-            if visible is None or visible():
+            if child.key == "automatic" or self.get() != self.descriptor.automatic:
+                child.render(frame.child(child.key))
+
+
+def parameter_field(
+    descriptor: Parameter,
+    get: Callable[[], ParameterValue],
+    set_value: Callable[[ParameterValue], None],
+) -> Component:
+    name, label = descriptor.name, descriptor.label
+    makers: dict[ParameterKind, Callable[[], Component]] = {
+        ParameterKind.BOOLEAN: lambda: BooleanField(
+            name, label, lambda: cast(bool, get()), set_value
+        ),
+        ParameterKind.INTEGER: lambda: IntegerField(
+            name,
+            label,
+            lambda: cast(int, get()),
+            set_value,
+            int(descriptor.minimum),
+            int(descriptor.maximum),
+        ),
+        ParameterKind.REAL: lambda: FloatField(
+            name,
+            label,
+            lambda: float(get()),
+            set_value,
+            descriptor.minimum,
+            descriptor.maximum,
+        ),
+        ParameterKind.CHOICE: lambda: ChoiceField(
+            name, label, descriptor.choices, lambda: cast(str, get()), set_value
+        ),
+    }
+    if descriptor.automatic is not None:
+        return AutomaticRealField(descriptor, get, set_value)
+    return makers[descriptor.kind]()
+
+
+class AlgorithmSettings(Container):
+    def __init__(self, model: AnalysisSettings, algorithm: Algorithm) -> None:
+        self.model, self.algorithm = model, algorithm
+        builder = build_algorithm(model.parameters[algorithm])
+        self.schema = builder.schema
+        children: list[Component] = [
+            IntegerField(
+                "limit",
+                f"Rows (max {builder.row_limit:,})",
+                lambda: model.limits[algorithm],
+                lambda value: model.limits.__setitem__(algorithm, value),
+                1,
+                builder.row_limit,
+            )
+        ]
+        for descriptor in self.schema:
+            name = descriptor.name
+
+            def get(name: str = name) -> ParameterValue:
+                return cast(ParameterValue, getattr(model.parameters[algorithm], name))
+
+            def set_value(value: ParameterValue, name: str = name) -> None:
+                model.update(algorithm, name, value)
+
+            children.append(parameter_field(descriptor, get, set_value))
+        super().__init__(algorithm.value, tuple(children))
+
+    def render(self, frame: FrameContext) -> None:
+        parameters = self.model.parameters[self.algorithm]
+        visible = {item.name for item in self.schema if item.visible(parameters)}
+        for child in self.children:
+            if child.key == "limit" or child.key in visible:
                 child.render(frame.child(child.key))
 
 
@@ -229,18 +168,10 @@ class AlgorithmEditors(Container):
         self, model: AnalysisSettings, selected: Callable[[], Algorithm]
     ) -> None:
         self.selected = selected
-        self.registry: dict[Algorithm, AlgorithmSettings] = {
-            algorithm: ExtraSettings(model, algorithm)
-            for algorithm in model.extra_parameters
+        self.registry = {
+            algorithm: AlgorithmSettings(model, algorithm)
+            for algorithm in model.parameters
         }
-        self.registry.update(
-            {
-                Algorithm.PCA: PCASettings(model),
-                Algorithm.KMEANS: KMeansSettings(model),
-                Algorithm.TSNE: TSNESettings(model),
-                Algorithm.UMAP: UMAPSettings(model),
-            }
-        )
         super().__init__("parameters", ())
 
     def render(self, frame: FrameContext) -> None:

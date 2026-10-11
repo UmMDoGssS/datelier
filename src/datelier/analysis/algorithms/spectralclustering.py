@@ -1,15 +1,51 @@
-"""SpectralClusteringAlgorithm: parameter ownership, fitting and input constraints."""
+"SpectralClusteringAlgorithm: parameter ownership, fitting and input constraints."
+
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, ClassVar
 
 import numpy as np
 from numpy.typing import NDArray
 
+from datelier.analysis.algorithm import Algorithm as AlgorithmId
 from datelier.analysis.algorithms.base import ClusterEstimator, ClusteringAlgorithm
-from datelier.analysis.parameters import SpectralClusteringParameters
-from datelier.analysis.types import AnalysisRequest, PreparedInput
+from datelier.analysis.parameter_fields import choice, setting
+
+if TYPE_CHECKING:
+    from datelier.analysis.types import AnalysisRequest, PreparedInput
+
+
+@dataclass(frozen=True)
+class SpectralClusteringParameters:
+    algorithm: ClassVar[AlgorithmId] = AlgorithmId.SPECTRAL_CLUSTERING
+    clusters: int = setting(3, "Clusters", 1, 256)
+    affinity: str = choice(
+        "nearest_neighbors", "Affinity", ("nearest_neighbors", "rbf")
+    )
+    neighbors: int = field(
+        default=10,
+        metadata={
+            "label": "Neighbors",
+            "min": 2,
+            "max": 10000,
+            "when": ("affinity", "nearest_neighbors"),
+        },
+    )
+    gamma: float = field(
+        default=1.0,
+        metadata={
+            "label": "Kernel gamma",
+            "min": 1e-9,
+            "max": 1e6,
+            "when": ("affinity", "rbf"),
+        },
+    )
+    initializations: int = setting(10, "Initializations", 1, 100)
 
 
 class SpectralClusteringAlgorithm(ClusteringAlgorithm[SpectralClusteringParameters]):
     parameter_type = SpectralClusteringParameters
+    row_limit = 3000
+    default_row_limit = 2000
 
     def build(
         self, prepared: PreparedInput

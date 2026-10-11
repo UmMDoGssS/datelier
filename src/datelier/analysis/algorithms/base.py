@@ -1,26 +1,32 @@
 """Typed algorithm families; fitted estimators stay inside the analysis worker."""
 
 from abc import ABC, abstractmethod
-from dataclasses import fields
+from collections.abc import Callable
 from time import perf_counter
-from typing import Protocol, cast
+from typing import TYPE_CHECKING, Protocol, cast
 from warnings import catch_warnings
 
 import numpy as np
 from numpy.typing import NDArray
 
-from datelier.analysis.embedding_result import embedding_result
-from datelier.analysis.parameters import validate_parameters
-from datelier.analysis.provenance import make_provenance
-from datelier.analysis.types import (
-    AnalysisRequest,
-    AnalysisResult,
-    ClusteringResult,
-    EmbeddingResult,
-    KMeansFit,
-    Parameters,
-    PreparedInput,
+from datelier.analysis.schema import (
+    Parameter,
+    ParameterValue,
+    parameter_schema,
+    validate_parameters,
 )
+
+if TYPE_CHECKING:
+    from datelier.analysis.types import (
+        AnalysisRequest,
+        AnalysisResult,
+        ClusteringResult,
+        EmbeddingResult,
+        KMeansFit,
+        Parameters,
+        PreparedInput,
+    )
+
 
 type Details = tuple[tuple[str, str], ...]
 
@@ -35,13 +41,26 @@ class ClusterEstimator(Protocol):
 
 class Algorithm[P: Parameters](ABC):
     parameter_type: type[P]
+    row_limit: int
+    default_row_limit: int
 
-    def __init__(self, parameters: P) -> None:
-        self.parameters = parameters
+    def __init__(self, parameters: P | None = None) -> None:
+        self.parameters = self.parameter_type() if parameters is None else parameters
 
     @property
-    def schema(self) -> tuple[object, ...]:
-        return fields(self.parameters)
+    def schema(self) -> tuple[Parameter, ...]:
+        return parameter_schema(self.parameters)
+
+    def with_parameter(self, name: str, value: ParameterValue) -> P:
+        descriptor = next(item for item in self.schema if item.name == name)
+        descriptor.validate(value)
+        values = {
+            item.name: getattr(self.parameters, item.name) for item in self.schema
+        }
+        values[name] = value
+        # Trusted schema names/values are validated before dynamic construction.
+        constructor = cast(Callable[..., P], self.parameter_type)
+        return constructor(**values)
 
     def validate(self) -> None:
         validate_parameters(self.parameters)
@@ -72,6 +91,8 @@ class FittedDecompositionAlgorithm[P: Parameters](DecompositionAlgorithm[P], ABC
 
     def run(self, prepared: PreparedInput) -> EmbeddingResult:
         from threadpoolctl import threadpool_limits
+
+        from datelier.analysis.embedding_result import embedding_result
 
         started = perf_counter()
         estimator, values, details = self.build(prepared)
@@ -111,6 +132,8 @@ class ClusteringAlgorithm[P: Parameters](Algorithm[P], ABC):
     def center_fit(
         prepared: PreparedInput, centers: object, inertia: float
     ) -> KMeansFit:
+        from datelier.analysis.types import KMeansFit
+
         values = np.asarray(centers, dtype=np.float64)
         if not np.isfinite(values).all() or not np.isfinite(inertia):
             raise ValueError("Clustering overflow; enable standardization")
@@ -119,6 +142,9 @@ class ClusteringAlgorithm[P: Parameters](Algorithm[P], ABC):
 
     def run(self, prepared: PreparedInput) -> ClusteringResult:
         from threadpoolctl import threadpool_limits
+
+        from datelier.analysis.provenance import make_provenance
+        from datelier.analysis.types import ClusteringResult
 
         started = perf_counter()
         estimator, values, details = self.build(prepared)

@@ -1,71 +1,26 @@
 """Typed requests and revision-bound analysis results; no GUI dependencies."""
 
-import math
 from dataclasses import dataclass
-from typing import ClassVar
 
 import numpy as np
 from numpy.typing import NDArray
 
 from datelier.analysis.algorithm import Algorithm as Algorithm
+from datelier.analysis.algorithms.kmeans import KMeansParameters as KMeansParameters
+from datelier.analysis.algorithms.pca import PCAParameters as PCAParameters
+from datelier.analysis.algorithms.registry import BUILDERS, build_algorithm
+from datelier.analysis.algorithms.tsne import TSNEParameters as TSNEParameters
+from datelier.analysis.algorithms.umap import UMAPParameters as UMAPParameters
 from datelier.analysis.parameters import (
-    EXTRA_DEFAULT_LIMITS,
-    EXTRA_LIMITS,
     ExtraParameters,
-    validate_parameters,
 )
 from datelier.core.dataset import DatasetRevision
-
-
-@dataclass(frozen=True)
-class PCAParameters:
-    algorithm: ClassVar[Algorithm] = Algorithm.PCA
-    solver: str = "randomized"
-    whiten: bool = False
-
-
-@dataclass(frozen=True)
-class TSNEParameters:
-    algorithm: ClassVar[Algorithm] = Algorithm.TSNE
-    perplexity: float = 30
-    iterations: int = 1_000
-    learning_rate: float | str = "auto"
-    initialization: str = "pca"
-
-
-@dataclass(frozen=True)
-class UMAPParameters:
-    algorithm: ClassVar[Algorithm] = Algorithm.UMAP
-    neighbors: int = 15
-    min_distance: float = 0.1
-    metric: str = "euclidean"
-
-
-@dataclass(frozen=True)
-class KMeansParameters:
-    algorithm: ClassVar[Algorithm] = Algorithm.KMEANS
-    clusters: int = 3
-    initializations: int = 10
-    iterations: int = 300
-
 
 Parameters = (
     PCAParameters | TSNEParameters | UMAPParameters | KMeansParameters | ExtraParameters
 )
-LIMITS = {
-    **EXTRA_LIMITS,
-    Algorithm.PCA: 100_000,
-    Algorithm.KMEANS: 100_000,
-    Algorithm.TSNE: 10_000,
-    Algorithm.UMAP: 50_000,
-}
-DEFAULT_LIMITS = {
-    **EXTRA_DEFAULT_LIMITS,
-    Algorithm.PCA: 10_000,
-    Algorithm.KMEANS: 10_000,
-    Algorithm.TSNE: 2_000,
-    Algorithm.UMAP: 5_000,
-}
+LIMITS = {a: builder.row_limit for a, builder in BUILDERS.items()}
+DEFAULT_LIMITS = {a: builder.default_row_limit for a, builder in BUILDERS.items()}
 
 
 @dataclass(frozen=True)
@@ -101,53 +56,7 @@ class AnalysisRequest:
             )
         if self.dimensions not in (2, 3):
             raise ValueError("Embedding dimensions must be two or three")
-        validate_parameters(self.parameters)
-        params = self.parameters
-        if isinstance(params, PCAParameters) and params.solver not in (
-            "randomized",
-            "full",
-        ):
-            raise ValueError("PCA solver must be randomized or full")
-        if isinstance(params, TSNEParameters):
-            if (
-                not math.isfinite(params.perplexity)
-                or params.perplexity <= 0
-                or params.iterations < 250
-            ):
-                raise ValueError(
-                    "t-SNE requires positive perplexity and at least 250 iterations"
-                )
-            if params.initialization not in ("pca", "random"):
-                raise ValueError("t-SNE initialization must be pca or random")
-            rate = params.learning_rate
-            if rate != "auto" and (
-                not isinstance(rate, (int, float))
-                or not math.isfinite(rate)
-                or rate <= 0
-            ):
-                raise ValueError(
-                    "Learning rate must be auto or a positive finite number"
-                )
-        if isinstance(params, UMAPParameters):
-            if (
-                params.neighbors < 2
-                or not math.isfinite(params.min_distance)
-                or not 0 <= params.min_distance <= 1
-            ):
-                raise ValueError(
-                    "UMAP needs at least two neighbors and minimum distance 0–1"
-                )
-            if params.metric not in ("euclidean", "cosine"):
-                raise ValueError("UMAP metric must be euclidean or cosine")
-        if (
-            isinstance(params, KMeansParameters)
-            and min(params.clusters, params.initializations, params.iterations) < 1
-        ):
-            raise ValueError(
-                "Cluster count, initializations and iterations must be positive"
-            )
-        if isinstance(params, KMeansParameters) and params.clusters > 256:
-            raise ValueError("Cluster count is capped at 256 for bounded coloring")
+        build_algorithm(self.parameters).validate()
 
 
 @dataclass(frozen=True)

@@ -1,5 +1,7 @@
 """Explicit trusted algorithm catalog; importing it never loads estimators."""
 
+from typing import TYPE_CHECKING
+
 from datelier.analysis.algorithm import Algorithm as AlgorithmId
 from datelier.analysis.algorithms.affinitypropagation import (
     AffinityPropagationAlgorithm,
@@ -30,7 +32,9 @@ from datelier.analysis.algorithms.spectralembedding import SpectralEmbeddingAlgo
 from datelier.analysis.algorithms.svd import SVDAlgorithm
 from datelier.analysis.algorithms.tsne import TSNEAlgorithm
 from datelier.analysis.algorithms.umap import UMAPAlgorithm
-from datelier.analysis.types import Parameters
+
+if TYPE_CHECKING:
+    from datelier.analysis.types import Parameters
 
 BUILDERS: dict[AlgorithmId, type[Algorithm]] = {
     builder.parameter_type.algorithm: builder

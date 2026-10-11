@@ -1,17 +1,30 @@
-"""AgglomerativeAlgorithm: parameter ownership, fitting and input constraints."""
+"AgglomerativeAlgorithm: parameter ownership, fitting and input constraints."
 
-from typing import Literal, cast
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, ClassVar, Literal, cast
 
 import numpy as np
 from numpy.typing import NDArray
 
+from datelier.analysis.algorithm import Algorithm as AlgorithmId
 from datelier.analysis.algorithms.base import ClusterEstimator, ClusteringAlgorithm
-from datelier.analysis.parameters import AgglomerativeParameters
-from datelier.analysis.types import AnalysisRequest, PreparedInput
+from datelier.analysis.parameter_fields import choice, setting
+
+if TYPE_CHECKING:
+    from datelier.analysis.types import AnalysisRequest, PreparedInput
+
+
+@dataclass(frozen=True)
+class AgglomerativeParameters:
+    algorithm: ClassVar[AlgorithmId] = AlgorithmId.AGGLOMERATIVE
+    clusters: int = setting(3, "Clusters", 1, 256)
+    linkage: str = choice("ward", "Linkage", ("ward", "complete", "average", "single"))
 
 
 class AgglomerativeAlgorithm(ClusteringAlgorithm[AgglomerativeParameters]):
     parameter_type = AgglomerativeParameters
+    row_limit = 5000
+    default_row_limit = 2000
 
     def build(
         self, prepared: PreparedInput

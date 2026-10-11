@@ -1,20 +1,50 @@
-"""KernelPCAAlgorithm: parameter ownership, fitting and input constraints."""
+"KernelPCAAlgorithm: parameter ownership, fitting and input constraints."
 
-from typing import Literal, cast
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, ClassVar, Literal, cast
 
 import numpy as np
 from numpy.typing import NDArray
 
+from datelier.analysis.algorithm import Algorithm as AlgorithmId
 from datelier.analysis.algorithms.base import (
     EmbeddingEstimator,
     FittedDecompositionAlgorithm,
 )
-from datelier.analysis.embedding_parameters import KernelPCAParameters
-from datelier.analysis.types import AnalysisRequest, PreparedInput
+from datelier.analysis.parameter_fields import choice
+
+if TYPE_CHECKING:
+    from datelier.analysis.types import AnalysisRequest, PreparedInput
+
+
+@dataclass(frozen=True)
+class KernelPCAParameters:
+    algorithm: ClassVar[AlgorithmId] = AlgorithmId.KERNEL_PCA
+    kernel: str = choice("rbf", "Kernel", ("rbf", "poly", "cosine", "linear"))
+    gamma: float = field(
+        default=1.0,
+        metadata={
+            "label": "Kernel gamma",
+            "min": 1e-9,
+            "max": 1e6,
+            "unless": ("kernel", ("cosine", "linear")),
+        },
+    )
+    degree: int = field(
+        default=3,
+        metadata={
+            "label": "Polynomial degree",
+            "min": 1,
+            "max": 10,
+            "when": ("kernel", "poly"),
+        },
+    )
 
 
 class KernelPCAAlgorithm(FittedDecompositionAlgorithm[KernelPCAParameters]):
     parameter_type = KernelPCAParameters
+    row_limit = 3000
+    default_row_limit = 2000
 
     def build(
         self, prepared: PreparedInput

@@ -1,15 +1,43 @@
-"""AffinityPropagationAlgorithm: parameter ownership, fitting and input constraints."""
+"AffinityPropagationAlgorithm: parameter ownership, fitting and input constraints."
+
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, ClassVar
 
 import numpy as np
 from numpy.typing import NDArray
 
+from datelier.analysis.algorithm import Algorithm as AlgorithmId
 from datelier.analysis.algorithms.base import ClusterEstimator, ClusteringAlgorithm
-from datelier.analysis.parameters import AffinityPropagationParameters
-from datelier.analysis.types import PreparedInput
+from datelier.analysis.parameter_fields import setting
+
+if TYPE_CHECKING:
+    from datelier.analysis.types import PreparedInput
+
+
+@dataclass(frozen=True)
+class AffinityPropagationParameters:
+    algorithm: ClassVar[AlgorithmId] = AlgorithmId.AFFINITY_PROPAGATION
+    damping: float = setting(0.7, "Damping", 0.5, 0.999999)
+    iterations: int = setting(300, "Iterations", 1, 10000)
+    convergence_iterations: int = setting(15, "Convergence window", 1, 10000)
+    automatic_preference: bool = field(
+        default=True, metadata={"label": "Automatic preference"}
+    )
+    preference: float = field(
+        default=-1.0,
+        metadata={
+            "label": "Preference",
+            "min": -1e12,
+            "max": 1e12,
+            "when": ("automatic_preference", False),
+        },
+    )
 
 
 class AffinityPropagationAlgorithm(ClusteringAlgorithm[AffinityPropagationParameters]):
     parameter_type = AffinityPropagationParameters
+    row_limit = 2000
+    default_row_limit = 2000
 
     def build(
         self, prepared: PreparedInput

@@ -1,15 +1,53 @@
-"""MeanShiftAlgorithm: parameter ownership, fitting and input constraints."""
+"MeanShiftAlgorithm: parameter ownership, fitting and input constraints."
+
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, ClassVar
 
 import numpy as np
 from numpy.typing import NDArray
 
+from datelier.analysis.algorithm import Algorithm as AlgorithmId
 from datelier.analysis.algorithms.base import ClusterEstimator, ClusteringAlgorithm
-from datelier.analysis.parameters import MeanShiftParameters
-from datelier.analysis.types import PreparedInput
+from datelier.analysis.parameter_fields import setting
+
+if TYPE_CHECKING:
+    from datelier.analysis.types import PreparedInput
+
+
+@dataclass(frozen=True)
+class MeanShiftParameters:
+    algorithm: ClassVar[AlgorithmId] = AlgorithmId.MEAN_SHIFT
+    automatic_bandwidth: bool = field(
+        default=True, metadata={"label": "Automatic bandwidth"}
+    )
+    bandwidth: float = field(
+        default=1.0,
+        metadata={
+            "label": "Bandwidth",
+            "min": 1e-9,
+            "max": 1e6,
+            "when": ("automatic_bandwidth", False),
+        },
+    )
+    quantile: float = field(
+        default=0.3,
+        metadata={
+            "label": "Bandwidth quantile",
+            "min": 1e-6,
+            "max": 1.0,
+            "when": ("automatic_bandwidth", True),
+        },
+    )
+    cluster_all: bool = field(
+        default=True, metadata={"label": "Assign isolated points"}
+    )
+    iterations: int = setting(300, "Iterations", 1, 10000)
 
 
 class MeanShiftAlgorithm(ClusteringAlgorithm[MeanShiftParameters]):
     parameter_type = MeanShiftParameters
+    row_limit = 5000
+    default_row_limit = 2000
 
     def build(
         self, prepared: PreparedInput

@@ -26,7 +26,7 @@ def test_raw_scatter_refreshes_cluster_colors_on_fit_refit_and_clear(
         file.plots.choose_color("K-means")
         file.analysis.controls.features = ["x", "y"]
         for clusters in (2, 3):
-            file.analysis.controls.clusters = clusters
+            file.analysis.controls.update(Algorithm.KMEANS, "clusters", clusters)
             file.analysis.start(Algorithm.KMEANS)
             until(
                 editor,

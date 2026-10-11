@@ -1,26 +1,36 @@
-"""PCAAlgorithm: parameter ownership, fitting and input constraints."""
+"PCAAlgorithm: parameter ownership, fitting and input constraints."
 
+from dataclasses import dataclass, field
 from time import perf_counter
-from typing import cast
+from typing import TYPE_CHECKING, ClassVar, cast
 
 import numpy as np
 from numpy.typing import NDArray
 
+from datelier.analysis.algorithm import Algorithm as AlgorithmId
 from datelier.analysis.algorithms.base import DecompositionAlgorithm
-from datelier.analysis.embedding_result import embedding_result
-from datelier.analysis.types import (
-    AnalysisRequest,
-    EmbeddingResult,
-    PCAParameters,
-    PreparedInput,
-)
+from datelier.analysis.parameter_fields import choice
+
+if TYPE_CHECKING:
+    from datelier.analysis.types import AnalysisRequest, EmbeddingResult, PreparedInput
+
+
+@dataclass(frozen=True)
+class PCAParameters:
+    algorithm: ClassVar[AlgorithmId] = AlgorithmId.PCA
+    solver: str = choice("randomized", "Solver", ("randomized", "full"))
+    whiten: bool = field(default=False, metadata={"label": "Whitening"})
 
 
 class PCAAlgorithm(DecompositionAlgorithm[PCAParameters]):
     parameter_type = PCAParameters
+    row_limit = 100000
+    default_row_limit = 10000
 
     def run(self, prepared: PreparedInput) -> EmbeddingResult:
         from threadpoolctl import threadpool_limits
+
+        from datelier.analysis.embedding_result import embedding_result
 
         started = perf_counter()
         request = prepared.request

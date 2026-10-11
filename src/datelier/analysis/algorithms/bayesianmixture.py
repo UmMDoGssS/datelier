@@ -1,17 +1,35 @@
-"""BayesianMixtureAlgorithm: parameter ownership, fitting and input constraints."""
+"BayesianMixtureAlgorithm: parameter ownership, fitting and input constraints."
 
-from typing import Literal, cast
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, ClassVar, Literal, cast
 
 import numpy as np
 from numpy.typing import NDArray
 
+from datelier.analysis.algorithm import Algorithm as AlgorithmId
 from datelier.analysis.algorithms.base import ClusterEstimator, ClusteringAlgorithm
-from datelier.analysis.parameters import BayesianMixtureParameters
-from datelier.analysis.types import AnalysisRequest, PreparedInput
+from datelier.analysis.parameter_fields import choice, setting
+
+if TYPE_CHECKING:
+    from datelier.analysis.types import AnalysisRequest, PreparedInput
+
+
+@dataclass(frozen=True)
+class BayesianMixtureParameters:
+    algorithm: ClassVar[AlgorithmId] = AlgorithmId.BAYESIAN_MIXTURE
+    clusters: int = setting(3, "Maximum components", 1, 256)
+    covariance: str = choice(
+        "full", "Covariance", ("full", "tied", "diag", "spherical")
+    )
+    concentration: float = setting(1.0, "Weight concentration", 1e-9)
+    regularization: float = setting(1e-6, "Covariance regularization", 1e-12)
+    iterations: int = setting(100, "Iterations", 1, 10000)
 
 
 class BayesianMixtureAlgorithm(ClusteringAlgorithm[BayesianMixtureParameters]):
     parameter_type = BayesianMixtureParameters
+    row_limit = 50000
+    default_row_limit = 10000
 
     def build(
         self, prepared: PreparedInput
