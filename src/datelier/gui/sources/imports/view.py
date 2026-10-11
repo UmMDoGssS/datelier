@@ -6,10 +6,10 @@ from imgui_bundle import imgui
 
 from datelier.application.imports import ImportController
 from datelier.gui.components.actions import CommandButton, JobFeedback, JobSnapshot
-from datelier.gui.components.base import Component, Container, FrameContext
-from datelier.gui.components.fields import ChoiceField, TextField
+from datelier.gui.components.inputs import ChoiceField, TextField
+from datelier.gui.components.layout import Component, Container, FrameContext
+from datelier.gui.components.layout.routing import RoutedContent
 from datelier.gui.components.native import target
-from datelier.gui.components.routing import RoutedContent
 from datelier.gui.sources.imports.media import MediaForm
 from datelier.gui.sources.imports.structured import (
     ArrayForm,

@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 from imgui_bundle import imgui
 
-from datelier.gui.components.base import Component, FrameContext
+from datelier.gui.components.layout import Component, FrameContext
 from datelier.gui.components.native import target
 
 

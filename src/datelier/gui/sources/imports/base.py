@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 
 from imgui_bundle import imgui
 
-from datelier.gui.components.base import Container, FrameContext
+from datelier.gui.components.layout import Container, FrameContext
 
 
 class OptionForm(Container, ABC):

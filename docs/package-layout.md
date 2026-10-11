@@ -60,3 +60,15 @@ Pyrefly reports zero errors; Ruff and diff checks pass. The
 [native workflow](evidence/package-layout/application.json) verifies sort,
 undo/redo, literal-name selectors, explicit export/source protection and closure,
 with no implicit analysis or playback.
+
+Stage 4 passes: **72 GUI modules** grouped into input/layout/table/plot primitives,
+modality context forms, distribution series, scatter/grid renderers, comparison
+families and shell composition/layout/commands. Media pixel/texture primitives are
+exported independently of the views that consume them. Scatter summary belongs
+with scatter, so grid rendering does not participate in its import chain.
+The large transform module is split into a shared base, row/column forms, value
+forms and the contextual view; form classes and operation behavior are preserved.
+**80 focused GUI/controller/boundary tests**, zero Pyrefly errors, Ruff and diff
+checks pass. [Native step evidence](evidence/package-layout/gui.json) verifies
+transforms, selectors, explicit export/closure and image/text/audio record views.
+Whole-controller injection remains restricted to bootstrap and composition.

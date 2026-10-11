@@ -6,13 +6,13 @@ from typing import cast
 from datelier.analysis.schema import Parameter, ParameterKind, ParameterValue
 from datelier.analysis.types import Algorithm
 from datelier.application.analysis import AnalysisSettings
-from datelier.gui.components.base import Component, Container, FrameContext
-from datelier.gui.components.fields import (
+from datelier.gui.components.inputs import (
     BooleanField,
     ChoiceField,
     FloatField,
     IntegerField,
 )
+from datelier.gui.components.layout import Component, Container, FrameContext
 
 
 def integer(

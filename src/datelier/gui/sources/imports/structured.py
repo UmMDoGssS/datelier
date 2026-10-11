@@ -5,7 +5,7 @@ from datelier.application.imports.structured import (
     CheckpointDraft,
     ObjectDraft,
 )
-from datelier.gui.components.fields import BooleanField, ChoiceField, IntegerField
+from datelier.gui.components.inputs import BooleanField, ChoiceField, IntegerField
 from datelier.gui.sources.imports.base import OptionForm
 
 

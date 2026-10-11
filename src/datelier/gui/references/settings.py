@@ -5,10 +5,14 @@ from imgui_bundle import imgui
 from datelier.application.media.records import ReferenceController
 from datelier.application.tabular import SingleSelection
 from datelier.gui.components.actions import CommandButton, JobFeedback, JobSnapshot
-from datelier.gui.components.base import Component, Container, FrameContext
-from datelier.gui.components.columns import ColumnPicker
-from datelier.gui.components.fields import BooleanField, IntegerField, TextField
-from datelier.gui.components.groups import Collapsible
+from datelier.gui.components.inputs import (
+    BooleanField,
+    ColumnPicker,
+    IntegerField,
+    TextField,
+)
+from datelier.gui.components.layout import Component, Container, FrameContext
+from datelier.gui.components.layout.groups import Collapsible
 from datelier.gui.components.native import target
 
 

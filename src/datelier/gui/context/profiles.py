@@ -1,12 +1,16 @@
 """Profile settings compose shared selectors and typed fields."""
 
 from datelier.application.exploration import PlotState, ProfileController, ProfileFamily
-from datelier.gui.components.base import Container
-from datelier.gui.components.columns import ColumnPicker
-from datelier.gui.components.fields import BooleanField, ChoiceField, IntegerField
-from datelier.gui.components.groups import Conditional
+from datelier.gui.components.inputs import (
+    BooleanField,
+    ChoiceField,
+    ColumnPicker,
+    IntegerField,
+)
+from datelier.gui.components.layout import Container
+from datelier.gui.components.layout.groups import Conditional
 from datelier.gui.context.distributions import DistributionTuning
-from datelier.gui.profiles.series import SERIES_TYPES
+from datelier.gui.profiles.distributions import SERIES_TYPES
 
 
 class ProfileSettings(Container):

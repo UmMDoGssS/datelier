@@ -4,10 +4,14 @@ from dataclasses import replace
 
 from datelier.application.media.records import RecordController
 from datelier.application.tabular import MultiSelection, SingleSelection
-from datelier.gui.components.base import Container
-from datelier.gui.components.columns import ColumnPicker
-from datelier.gui.components.fields import BooleanField, ChoiceField, IntegerField
-from datelier.gui.components.groups import Conditional
+from datelier.gui.components.inputs import (
+    BooleanField,
+    ChoiceField,
+    ColumnPicker,
+    IntegerField,
+)
+from datelier.gui.components.layout import Container
+from datelier.gui.components.layout.groups import Conditional
 from datelier.inspection.records.types import RecordMode
 
 

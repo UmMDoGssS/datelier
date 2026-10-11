@@ -4,7 +4,7 @@ from collections.abc import Callable
 
 from imgui_bundle import imgui
 
-from datelier.gui.components.base import Component, Container, FrameContext
+from datelier.gui.components.layout import Component, Container, FrameContext
 from datelier.gui.components.native import target
 
 

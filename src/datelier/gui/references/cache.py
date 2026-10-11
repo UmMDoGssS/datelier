@@ -2,7 +2,7 @@
 
 from collections.abc import Callable
 
-from datelier.gui.records.textures import TextureCache
+from datelier.gui.records.media import TextureCache
 from datelier.inspection.references.jobs import ReferenceJobs
 
 

@@ -3,7 +3,7 @@
 from datelier.application.sources.numeric import NumericSourceController
 from datelier.application.sources.records import ArrayRecordController
 from datelier.gui.components.actions import CommandButton
-from datelier.gui.components.base import FrameContext
+from datelier.gui.components.layout import FrameContext
 from datelier.gui.records.base import RecordContent
 from datelier.gui.sources.numeric import NumericContent
 

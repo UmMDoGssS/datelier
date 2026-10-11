@@ -7,8 +7,8 @@ from imgui_bundle import imgui
 
 from datelier.application.media.records import ReferenceController
 from datelier.application.tabular import TableColumn, TableController
-from datelier.gui.components.base import Component, Container, FrameContext
-from datelier.gui.components.groups import Conditional
+from datelier.gui.components.layout import Component, Container, FrameContext
+from datelier.gui.components.layout.groups import Conditional
 from datelier.gui.components.native import help_tip, target
 from datelier.gui.references.settings import ReferenceSettings
 from datelier.gui.table.cells import ReferenceFactory, TableCell

@@ -3,10 +3,10 @@
 from imgui_bundle import imgui
 
 from datelier.application.media.images import ArrayGalleryController
-from datelier.gui.components.base import FrameContext
+from datelier.gui.components.layout import FrameContext
 from datelier.gui.components.native import target
 from datelier.gui.records.base import RecordContent
-from datelier.gui.records.textures import TextureCache
+from datelier.gui.records.media import TextureCache
 from datelier.gui.table.cells import ReferenceFactory
 
 

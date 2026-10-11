@@ -4,9 +4,9 @@ from dataclasses import replace
 
 from datelier.application.media.audio import AudioController
 from datelier.application.media.records import RecordKind
-from datelier.gui.components.fields import FloatField, IntegerField
-from datelier.gui.components.groups import Collapsible, Conditional
-from datelier.gui.context.audio_signal import SignalSettings
+from datelier.gui.components.inputs import FloatField, IntegerField
+from datelier.gui.components.layout.groups import Collapsible, Conditional
+from datelier.gui.context.audio import SignalSettings
 from datelier.gui.context.media.base import MediaSettings
 
 

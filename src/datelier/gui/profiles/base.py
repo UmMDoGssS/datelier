@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 
 from datelier.application.exploration import ProfileFamily
-from datelier.gui.components.base import Container
+from datelier.gui.components.layout import Container
 
 
 class ProfileContent(Container, ABC):

@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 
 from datelier.application.comparisons import ComparisonFamily
-from datelier.gui.components.base import Container
+from datelier.gui.components.layout import Container
 
 
 class ComparisonContent(Container, ABC):

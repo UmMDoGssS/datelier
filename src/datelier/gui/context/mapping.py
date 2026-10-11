@@ -8,10 +8,9 @@ from datelier.application.sources.mapping import RecordMappingDraft, SupportingD
 from datelier.application.sources.numeric import NumericSourceController
 from datelier.application.tabular import SingleSelection
 from datelier.gui.components.actions import CommandButton
-from datelier.gui.components.base import Container, FrameContext
-from datelier.gui.components.columns import ColumnPicker
-from datelier.gui.components.fields import ChoiceField, TextField
-from datelier.gui.components.groups import Conditional
+from datelier.gui.components.inputs import ChoiceField, ColumnPicker, TextField
+from datelier.gui.components.layout import Container, FrameContext
+from datelier.gui.components.layout.groups import Conditional
 from datelier.gui.components.native import target
 from datelier.inspection.arrays.mapping import ArrayLayout, ArrayRecordMapping
 

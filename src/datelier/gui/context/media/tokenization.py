@@ -4,10 +4,10 @@ from dataclasses import replace
 
 from datelier.application.media.records import RecordKind
 from datelier.application.media.text import TextController
-from datelier.gui.components.bindings import StateFields
-from datelier.gui.components.groups import Conditional
+from datelier.gui.components.inputs import StateFields
+from datelier.gui.components.layout.groups import Conditional
 from datelier.gui.context.media.base import MediaSettings
-from datelier.gui.context.tokenization import TokenizationFields
+from datelier.gui.context.text import TokenizationFields
 
 
 class TokenSettings(MediaSettings):

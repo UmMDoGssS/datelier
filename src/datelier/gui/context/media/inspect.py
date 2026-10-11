@@ -4,7 +4,7 @@ from datelier.application.media.audio import AudioController
 from datelier.application.media.images import ImageController
 from datelier.application.media.records import RecordController
 from datelier.application.media.text import TextController
-from datelier.gui.components.base import Container, FrameContext
+from datelier.gui.components.layout import Container, FrameContext
 from datelier.gui.context.media.audio import AudioSettings
 from datelier.gui.context.media.images import ImageSettings
 from datelier.gui.context.media.tokenization import TokenSettings

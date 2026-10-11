@@ -8,7 +8,7 @@ from imgui_bundle import imgui
 from datelier.application.sources.numeric import NumericSourceController
 from datelier.application.sources.objects import ObjectController, ObjectEntry
 from datelier.gui.components.actions import CommandButton
-from datelier.gui.components.base import Component, Container, FrameContext
+from datelier.gui.components.layout import Component, Container, FrameContext
 from datelier.gui.components.native import label_text, target
 from datelier.inspection.objects.types import NodePath
 

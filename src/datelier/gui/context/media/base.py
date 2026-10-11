@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 
 from datelier.application.media.records import RecordKind
-from datelier.gui.components.base import Container
+from datelier.gui.components.layout import Container
 
 
 class MediaSettings(Container, ABC):

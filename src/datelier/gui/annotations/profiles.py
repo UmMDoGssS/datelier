@@ -6,13 +6,11 @@ from dataclasses import replace
 from imgui_bundle import imgui
 
 from datelier.application.annotations.controller import AnnotationController
-from datelier.gui.components.base import Container, FrameContext, Group
-from datelier.gui.components.dataframe import DataFrameTable
-from datelier.gui.components.facts import FactsTable
-from datelier.gui.components.tables import SequenceTable
-from datelier.gui.components.viewport import ResizableViewport
-from datelier.gui.profiles.histograms import HistogramContent
-from datelier.gui.shell.navigation import CanvasTabs, NamedTab
+from datelier.gui.components.layout import Container, FrameContext, Group
+from datelier.gui.components.layout.viewport import ResizableViewport
+from datelier.gui.components.tables import DataFrameTable, FactsTable, SequenceTable
+from datelier.gui.profiles.distributions import HistogramContent
+from datelier.gui.shell.layout import CanvasTabs, NamedTab
 from datelier.inspection.annotations.association import AssociatedBox
 
 

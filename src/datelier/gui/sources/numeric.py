@@ -7,12 +7,16 @@ from collections.abc import Callable
 from imgui_bundle import imgui, implot
 
 from datelier.application.sources.numeric import NumericSourceController
-from datelier.gui.components.axes import AxisPlot, apply_axes, observe_axes
-from datelier.gui.components.base import Component, Container, FrameContext
-from datelier.gui.components.colors import native_colormap
-from datelier.gui.components.groups import Conditional
+from datelier.gui.components.layout import Component, Container, FrameContext
+from datelier.gui.components.layout.groups import Conditional
+from datelier.gui.components.layout.viewport import ResizableViewport, ViewportContent
 from datelier.gui.components.native import target
-from datelier.gui.components.viewport import ResizableViewport, ViewportContent
+from datelier.gui.components.plots import (
+    AxisPlot,
+    apply_axes,
+    native_colormap,
+    observe_axes,
+)
 from datelier.inspection.arrays.slices import PreparedSlice
 
 

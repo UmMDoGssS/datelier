@@ -8,10 +8,10 @@ from imgui_bundle import imgui
 from datelier.application.annotations.controller import AnnotationController
 from datelier.application.tabular import SingleSelection
 from datelier.gui.annotations.profiles import AnnotationProfileContent
-from datelier.gui.components.base import Container, FrameContext
-from datelier.gui.components.columns import ColumnPicker
+from datelier.gui.components.inputs import ColumnPicker
+from datelier.gui.components.layout import Container, FrameContext
 from datelier.gui.components.tables import SequenceTable
-from datelier.gui.shell.navigation import CanvasTabs, NamedTab
+from datelier.gui.shell.layout import CanvasTabs, NamedTab
 from datelier.inspection.annotations.association import AssociatedBox
 
 

@@ -206,7 +206,7 @@ def test_export_ports_capture_the_named_view_and_protect_a_pending_source(
     import polars as pl
 
     from datelier.gui.components.probe import GuiProbe
-    from datelier.gui.shell.page import WorkbenchPage
+    from datelier.gui.shell.composition import WorkbenchPage
     from datelier.io.exporting import ExportFormat
 
     source, next_source, output = (

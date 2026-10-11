@@ -6,7 +6,7 @@ from datelier.application.imports.tabular import (
     ParquetDraft,
     XmlDraft,
 )
-from datelier.gui.components.fields import BooleanField, IntegerField, TextField
+from datelier.gui.components.inputs import BooleanField, IntegerField, TextField
 from datelier.gui.sources.imports.base import OptionForm
 
 

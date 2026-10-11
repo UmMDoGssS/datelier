@@ -4,9 +4,9 @@ from dataclasses import replace
 
 from datelier.application.tabular import PresentationController
 from datelier.gui.components.actions import CommandButton
-from datelier.gui.components.base import Container
-from datelier.gui.components.fields import BooleanField, ChoiceField, FloatField
-from datelier.gui.components.groups import Conditional
+from datelier.gui.components.inputs import BooleanField, ChoiceField, FloatField
+from datelier.gui.components.layout import Container
+from datelier.gui.components.layout.groups import Conditional
 from datelier.inspection.presentation import NumericScale
 
 

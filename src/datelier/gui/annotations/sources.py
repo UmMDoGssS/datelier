@@ -7,11 +7,14 @@ from datelier.application.annotations.controller import AnnotationController
 from datelier.application.annotations.recipes import class_names, confirm_mapping
 from datelier.application.tabular import ColumnChoice, SingleSelection
 from datelier.gui.components.actions import CommandButton
-from datelier.gui.components.base import Container, FrameContext
-from datelier.gui.components.bindings import StateFields
-from datelier.gui.components.columns import ColumnPicker
-from datelier.gui.components.fields import IntegerField, TextField
-from datelier.gui.components.groups import Collapsible, Conditional
+from datelier.gui.components.inputs import (
+    ColumnPicker,
+    IntegerField,
+    StateFields,
+    TextField,
+)
+from datelier.gui.components.layout import Container, FrameContext
+from datelier.gui.components.layout.groups import Collapsible, Conditional
 from datelier.gui.components.tables import SequenceTable
 from datelier.inspection.annotations.settings import AnnotationSource, ImageMatch
 from datelier.inspection.annotations.types import AnnotationFormat, BoxCoordinates

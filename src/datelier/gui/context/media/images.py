@@ -5,11 +5,9 @@ from dataclasses import replace
 from datelier.application.media.images import ImageController
 from datelier.application.media.records import RecordKind
 from datelier.gui.annotations.settings import AnnotationSettings
-from datelier.gui.components.base import Container, FrameContext
-from datelier.gui.components.bindings import StateFields
-from datelier.gui.components.fields import IntegerField
-from datelier.gui.components.groups import Collapsible
-from datelier.gui.components.ranges import DisplayRange
+from datelier.gui.components.inputs import DisplayRange, IntegerField, StateFields
+from datelier.gui.components.layout import Container, FrameContext
+from datelier.gui.components.layout.groups import Collapsible
 from datelier.gui.context.media.base import MediaSettings
 from datelier.inspection.heatmaps import Colormap
 

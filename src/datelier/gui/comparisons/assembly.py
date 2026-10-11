@@ -3,17 +3,16 @@
 from dataclasses import dataclass
 
 from datelier.application.comparisons import ComparisonFamily, ComparisonHub
-from datelier.gui.comparisons.audio import AudioComparisonContent
-from datelier.gui.comparisons.audio_tools import AudioComparisonTools
-from datelier.gui.comparisons.column_tools import ColumnComparisonTools
-from datelier.gui.comparisons.columns import ColumnComparisonContent
-from datelier.gui.comparisons.image_tools import ImageComparisonTools
-from datelier.gui.comparisons.images import ImageComparisonContent
-from datelier.gui.comparisons.text import TextComparisonContent
-from datelier.gui.comparisons.text_tools import TextComparisonTools
-from datelier.gui.components.base import Component
-from datelier.gui.components.routing import RoutedContent
-from datelier.gui.shell.navigation import CanvasTabs, NamedTab
+from datelier.gui.comparisons.audio import AudioComparisonContent, AudioComparisonTools
+from datelier.gui.comparisons.images import ImageComparisonContent, ImageComparisonTools
+from datelier.gui.comparisons.tabular import (
+    ColumnComparisonContent,
+    ColumnComparisonTools,
+)
+from datelier.gui.comparisons.text import TextComparisonContent, TextComparisonTools
+from datelier.gui.components.layout import Component
+from datelier.gui.components.layout.routing import RoutedContent
+from datelier.gui.shell.layout import CanvasTabs, NamedTab
 
 
 @dataclass

@@ -2,7 +2,7 @@
 
 from datelier.application.imports.media import MediaDraft
 from datelier.gui.components.actions import CommandButton
-from datelier.gui.components.fields import BooleanField
+from datelier.gui.components.inputs import BooleanField
 from datelier.gui.sources.imports.base import OptionForm
 
 

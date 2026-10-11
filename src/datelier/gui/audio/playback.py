@@ -6,13 +6,13 @@ from imgui_bundle import imgui
 
 from datelier.application.media.audio import AudioController
 from datelier.gui.components.actions import CommandButton
-from datelier.gui.components.base import Container, FrameContext
-from datelier.gui.components.fields import (
+from datelier.gui.components.inputs import (
     BooleanField,
     ChoiceField,
     FloatField,
     IntegerField,
 )
+from datelier.gui.components.layout import Container, FrameContext
 from datelier.inspection.audio.playback.controller import PlaybackPhase
 
 

@@ -7,12 +7,11 @@ from datelier.application.analysis import AnalysisController
 from datelier.application.exploration import PlotState
 from datelier.application.tabular import ColumnChoice, MultiSelection, SingleSelection
 from datelier.gui.components.actions import JobFeedback, JobSnapshot
-from datelier.gui.components.base import Container
-from datelier.gui.components.columns import ColumnPicker
-from datelier.gui.components.fields import ChoiceField, IntegerField
-from datelier.gui.components.groups import Conditional
+from datelier.gui.components.inputs import ChoiceField, ColumnPicker, IntegerField
+from datelier.gui.components.layout import Container
+from datelier.gui.components.layout.groups import Conditional
 from datelier.gui.context.distributions import DistributionTuning
-from datelier.gui.profiles.series import SERIES_TYPES
+from datelier.gui.profiles.distributions import SERIES_TYPES
 from datelier.plotting.categories import CategoryRepresentation
 
 

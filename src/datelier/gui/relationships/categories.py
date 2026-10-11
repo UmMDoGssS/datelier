@@ -6,13 +6,12 @@ from collections.abc import Callable
 import numpy as np
 from imgui_bundle import imgui, implot
 
-from datelier.gui.components.axes import AxisPlot, apply_axes, observe_axes
-from datelier.gui.components.base import Component, FrameContext
+from datelier.gui.components.layout import Component, FrameContext
+from datelier.gui.components.layout.viewport import ViewportContent
 from datelier.gui.components.native import label_text, target
-from datelier.gui.components.viewport import ViewportContent
-from datelier.gui.profiles.colors import profile_color
-from datelier.gui.profiles.primitives import box_label, draw_box
-from datelier.gui.relationships.primitives import legend_hovered
+from datelier.gui.components.plots import AxisPlot, apply_axes, observe_axes
+from datelier.gui.profiles.distributions import box_label, draw_box, profile_color
+from datelier.gui.relationships.scatter import legend_hovered
 from datelier.plotting.categories import CategoryChart, CategoryRepresentation
 from datelier.plotting.scatter import LinkedSelection
 

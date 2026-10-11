@@ -41,9 +41,9 @@ def test_domain_and_controllers_do_not_depend_on_rendering() -> None:
 def test_whole_controllers_are_only_injected_at_gui_composition() -> None:
     composition = {
         "app.py",
-        "shell/page.py",
-        "shell/assembly.py",
-        "shell/inspect_assembly.py",
+        "shell/composition/page.py",
+        "shell/composition/files.py",
+        "shell/composition/inspect.py",
     }
     root = PACKAGE / "gui"
     for path in root.rglob("*.py"):

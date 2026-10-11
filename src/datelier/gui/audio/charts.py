@@ -6,8 +6,8 @@ from math import floor
 
 from imgui_bundle import hello_imgui, imgui, implot
 
-from datelier.gui.components.base import FrameContext
-from datelier.gui.components.viewport import ViewportContent
+from datelier.gui.components.layout import FrameContext
+from datelier.gui.components.layout.viewport import ViewportContent
 from datelier.inspection.audio.signal import (
     AudioViewKind,
     PreparedSignalView,

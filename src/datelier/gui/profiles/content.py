@@ -6,14 +6,13 @@ import numpy as np
 from imgui_bundle import imgui, implot
 
 from datelier.application.exploration import ProfileController, ProfileFamily
-from datelier.gui.components.axes import AxisPlot, apply_axes, observe_axes
-from datelier.gui.components.base import Component, FrameContext
-from datelier.gui.components.facts import FactsTable
+from datelier.gui.components.layout import Component, FrameContext
+from datelier.gui.components.layout.viewport import ResizableViewport
 from datelier.gui.components.native import label_text
-from datelier.gui.components.viewport import ResizableViewport
+from datelier.gui.components.plots import AxisPlot, apply_axes, observe_axes
+from datelier.gui.components.tables import FactsTable
 from datelier.gui.profiles.base import ProfileContent
-from datelier.gui.profiles.charts import CHARTS
-from datelier.gui.profiles.distribution_facts import DistributionFacts
+from datelier.gui.profiles.distributions import CHARTS, DistributionFacts
 from datelier.inspection.profiles import ProfileKind
 
 

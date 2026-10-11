@@ -10,10 +10,9 @@ from datelier.application.analysis import AnalysisController
 from datelier.application.tabular import ColumnChoice, MultiSelection
 from datelier.gui.analysis.parameters import AlgorithmEditors, boolean, integer
 from datelier.gui.components.actions import CommandButton, JobFeedback, JobSnapshot
-from datelier.gui.components.base import Component, Container, FrameContext
-from datelier.gui.components.columns import ColumnPicker
-from datelier.gui.components.facts import FactsTable
-from datelier.gui.components.fields import ChoiceField
+from datelier.gui.components.inputs import ChoiceField, ColumnPicker
+from datelier.gui.components.layout import Component, Container, FrameContext
+from datelier.gui.components.tables import FactsTable
 
 
 class Provenance(Component):

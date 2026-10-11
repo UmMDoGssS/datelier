@@ -6,9 +6,9 @@ from dataclasses import replace
 from imgui_bundle import imgui
 
 from datelier.application.media.records import RecordController, RecordKind
-from datelier.gui.components.base import Component, Container, FrameContext
+from datelier.gui.components.layout import Component, Container, FrameContext
+from datelier.gui.components.layout.viewport import ResizableViewport
 from datelier.gui.components.native import target
-from datelier.gui.components.viewport import ResizableViewport
 from datelier.gui.records.base import RecordContent
 from datelier.gui.records.values import NestedContent, ValueContent
 from datelier.inspection.records.types import RecordCard

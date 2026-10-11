@@ -2,8 +2,8 @@
 
 from collections.abc import Callable
 
-from datelier.gui.components.base import FrameContext
-from datelier.gui.components.viewport import ViewportContent
+from datelier.gui.components.layout import FrameContext
+from datelier.gui.components.layout.viewport import ViewportContent
 
 
 class RelationshipContent(ViewportContent):

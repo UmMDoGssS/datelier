@@ -2,7 +2,7 @@
 
 from imgui_bundle import imgui
 
-from datelier.gui.components.base import FrameContext
+from datelier.gui.components.layout import FrameContext
 
 
 def label_text(value: str) -> str:

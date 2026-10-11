@@ -8,10 +8,10 @@ from time import perf_counter
 from imgui_bundle import hello_imgui, imgui, immapp
 
 from datelier.application.sessions import EditorController
-from datelier.gui.components.base import FrameContext
+from datelier.gui.components.layout import FrameContext
 from datelier.gui.components.probe import GuiProbe, ViewScope
 from datelier.gui.fonts import load_fonts
-from datelier.gui.shell.page import WorkbenchPage
+from datelier.gui.shell.composition import WorkbenchPage
 from datelier.inspection.audio.playback.device import DeviceFactory, SoundDeviceOutput
 from datelier.workspace.preferences import preference_path
 

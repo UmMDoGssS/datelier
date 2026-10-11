@@ -7,10 +7,9 @@ from datelier.application.annotations.controller import AnnotationController
 from datelier.application.tabular import MultiSelection, SingleSelection
 from datelier.gui.annotations.sources import SourceForm
 from datelier.gui.components.actions import CommandButton, JobFeedback, JobSnapshot
-from datelier.gui.components.base import Container
-from datelier.gui.components.bindings import StateFields
-from datelier.gui.components.columns import ColumnPicker
-from datelier.gui.components.groups import Collapsible
+from datelier.gui.components.inputs import ColumnPicker, StateFields
+from datelier.gui.components.layout import Container
+from datelier.gui.components.layout.groups import Collapsible
 
 
 class AnnotationSettings(Container):

@@ -5,15 +5,15 @@ from imgui_bundle import imgui
 from datelier.application.sources.numeric import NumericSourceController
 from datelier.application.sources.records import ArrayRecordController
 from datelier.gui.components.actions import CommandButton, JobFeedback, JobSnapshot
-from datelier.gui.components.base import Container, FrameContext
-from datelier.gui.components.fields import (
+from datelier.gui.components.inputs import (
     BooleanField,
     ChoiceField,
     FloatField,
     IntegerField,
     TextField,
 )
-from datelier.gui.components.groups import Conditional
+from datelier.gui.components.layout import Container, FrameContext
+from datelier.gui.components.layout.groups import Conditional
 from datelier.inspection.heatmaps import Colormap
 
 
