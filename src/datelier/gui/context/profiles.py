@@ -6,7 +6,7 @@ from datelier.gui.components.base import Container
 from datelier.gui.components.columns import ColumnPicker
 from datelier.gui.components.fields import BooleanField, ChoiceField, IntegerField
 from datelier.gui.components.groups import Conditional
-from datelier.gui.profiles.charts import CHARTS
+from datelier.gui.profiles.series import SERIES_TYPES
 
 
 class ProfileSettings(Container):
@@ -52,7 +52,7 @@ class ProfileSettings(Container):
                             tuple(range(5)),
                             lambda: profiles.mode,
                             lambda value: setattr(profiles, "mode", value),
-                            tuple(chart.label for chart in CHARTS),
+                            tuple(chart.label for chart in SERIES_TYPES),
                         ),
                         IntegerField(
                             "bins",

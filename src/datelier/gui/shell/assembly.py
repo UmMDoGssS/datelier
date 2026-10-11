@@ -24,7 +24,7 @@ from datelier.gui.profiles.images import ImageProfileContent
 from datelier.gui.profiles.text import TextProfileContent
 from datelier.gui.relationships.categories import CategoryRouter
 from datelier.gui.relationships.content import RelationshipContent
-from datelier.gui.relationships.correlations import CorrelationPlot
+from datelier.gui.relationships.matrix import CorrelationContent
 from datelier.gui.relationships.scatter_router import ScatterRouter
 from datelier.gui.shell.inspect_assembly import assemble_inspect
 from datelier.gui.shell.navigation import CanvasTabs, NamedTab
@@ -66,13 +66,19 @@ def assemble_file(
 
     def relationships() -> Relationships | None:
         dashboard = file.explorer.active
-        return dashboard.relationships if dashboard else None
+        return (
+            dashboard.relationships
+            if dashboard and file.plots.relationship_features
+            else None
+        )
 
     def pair(x: str, y: str | None) -> None:
         if y is None:
             file.profiles.choose((x,))
             editor.choose_route("Profiles")
-        else:
+        elif x in file.plots.numeric and y in file.plots.numeric:
+            file.analysis.choose_source(None)
+            file.plots.choose_chart("Scatter 2D")
             file.plots.choose_axis("x_index", file.plots.numeric.index(x))
             file.plots.choose_axis("y_index", file.plots.numeric.index(y))
             file.plots.custom_scatter = True
@@ -130,7 +136,13 @@ def assemble_file(
     def correlation_viewport() -> ResizableViewport:
         return ResizableViewport(
             "correlations",
-            CorrelationPlot(relationships, pair),
+            CorrelationContent(
+                relationships,
+                file.selection,
+                file.table.go_to,
+                pair,
+                lambda: file.views.relationship_mode,
+            ),
             read_height=lambda: file.views.relationship_height,
             write_height=lambda value: setattr(
                 file, "views", replace(file.views, relationship_height=value)
@@ -226,7 +238,13 @@ def assemble_file(
                                 AnalysisSettingsView(file.analysis, open_result),
                             ),
                         ),
-                        "Correlations": CorrelationSettings(file.plots),
+                        "Correlations": CorrelationSettings(
+                            file.plots,
+                            lambda: file.views.relationship_mode,
+                            lambda v: setattr(
+                                file, "views", replace(file.views, relationship_mode=v)
+                            ),
+                        ),
                         "Inspect": inspect.settings,
                         "Compare files": SharedView(compare.settings),
                     },

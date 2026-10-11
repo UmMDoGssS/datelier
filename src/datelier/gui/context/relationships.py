@@ -11,6 +11,7 @@ from datelier.gui.components.base import Container
 from datelier.gui.components.columns import ColumnPicker
 from datelier.gui.components.fields import ChoiceField, FloatField, IntegerField
 from datelier.gui.components.groups import Conditional
+from datelier.gui.profiles.series import SERIES_TYPES
 from datelier.plotting.categories import CategoryRepresentation
 
 
@@ -246,10 +247,59 @@ class RelationshipSettings(Container):
 
 
 class CorrelationSettings(Container):
-    def __init__(self, plots: PlotState) -> None:
+    def __init__(
+        self,
+        plots: PlotState,
+        read_mode: Callable[[], int],
+        write_mode: Callable[[int], None],
+    ) -> None:
         super().__init__(
             "correlations",
             (
+                ChoiceField(
+                    "mode",
+                    "View",
+                    (0, 1),
+                    read_mode,
+                    write_mode,
+                    labels=("Heatmap", "Pair grid"),
+                ),
+                Conditional(
+                    "diagonal",
+                    lambda: read_mode() == 1,
+                    (
+                        ChoiceField(
+                            "mode",
+                            "Diagonal",
+                            tuple(range(5)),
+                            lambda: plots.diagonal_mode,
+                            lambda v: setattr(plots, "diagonal_mode", v),
+                            labels=tuple(s.label for s in SERIES_TYPES),
+                        ),
+                        Conditional(
+                            "curves",
+                            lambda: plots.diagonal_mode in (1, 4),
+                            (
+                                FloatField(
+                                    "bandwidth",
+                                    "Density bandwidth",
+                                    lambda: plots.bandwidth,
+                                    lambda v: setattr(plots, "bandwidth", v),
+                                    0.05,
+                                    4,
+                                ),
+                                IntegerField(
+                                    "seed",
+                                    "Curve seed",
+                                    lambda: plots.seed,
+                                    lambda v: setattr(plots, "seed", v),
+                                    0,
+                                    2**32 - 1,
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
                 ColumnPicker(
                     "features",
                     "Correlation features (up to 16)",

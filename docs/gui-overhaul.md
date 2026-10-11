@@ -454,6 +454,28 @@ production and migrated callers are clean. Pair-grid/diagonal views, remaining
 axis/plot styling, import/table/mapping controls, full caller migration and final
 integrated resource/size/theme acceptance remain open.
 
+## Fresh Stage E7 — Correlation pair grids and shared diagonals
+
+Correlations now routes heatmap and bounded, scrollable pair-grid content through
+the shared viewport. Each cell owns its prepared distribution or scatter-input
+child. Histogram, KDE, ECDF, Box and Violin diagonals reuse the same distribution
+series components as Profiles. Sampling, finite-value coverage and fallback facts
+remain visible; gesture instructions live in hover help. Grid picks preserve
+source-row identity after sorting. Diagonal links select Profiles; pair links
+explicitly choose raw 2D axes, clearing an unavailable embedding or 3D route.
+An empty feature selection remains empty. Mode, diagonal and height restoration
+does not fit an algorithm.
+
+Verification: production/migrated caller Pyrefly zero errors; 21 focused prepared
+relationships/scatter/profile and restoration tests pass. Full Ruff lint/format
+(709 files) and whitespace checks pass. Native keyboard matrix selection, all
+five diagonals, original-row picking, Expand/Restore and profile/pair links pass
+in 146 frames/14.64 ms p95 with unchanged source bytes and zero implicit ML.
+[Pair-grid report](evidence/gui-overhaul/fresh-pairs.json).
+The native numeric-profile resize/navigation regression passes in 64 frames/
+13.57 ms p95. Axis controls, import/table/mapping controls, old caller migration
+and final integrated resource/size/theme acceptance remain open.
+
 ## Baseline evidence
 
 Before implementation, 38 targeted editor/session/schema-role/profile-selection/

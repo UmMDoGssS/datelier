@@ -1,26 +1,34 @@
-"""Polymorphic distribution renderers over worker-prepared arrays."""
+"""Standalone distribution charts compose the same series used by pair diagonals."""
 
 from abc import ABC, abstractmethod
 from collections.abc import Callable
 
-import numpy as np
 from imgui_bundle import implot
 
 from datelier.gui.components.base import FrameContext
 from datelier.gui.components.viewport import ViewportContent
-from datelier.gui.profiles.colors import profile_color
-from datelier.gui.profiles.primitives import draw_box
-from datelier.plotting.distributions import Comparison, NumericDistribution
+from datelier.gui.profiles.series import (
+    BoxSeries,
+    CumulativeSeries,
+    DensitySeries,
+    DistributionSeries,
+    HistogramSeries,
+    ViolinSeries,
+)
+from datelier.plotting.distributions import Comparison
 
 
 class DistributionChart(ViewportContent, ABC):
-    label = "Distribution"
-    boxes = False
-    ylabel = "Density"
-
     def __init__(self, prepared: Callable[[], Comparison | None]) -> None:
-        super().__init__(self.label)
+        self.series = self.make_series(prepared)
+        super().__init__(self.series.label)
         self.prepared = prepared
+        self.children = (self.series,)
+
+    @abstractmethod
+    def make_series(
+        self, prepared: Callable[[], Comparison | None]
+    ) -> DistributionSeries: ...
 
     def render(self, frame: FrameContext) -> None:
         data = self.prepared()
@@ -29,85 +37,56 @@ class DistributionChart(ViewportContent, ABC):
         if self.fit:
             implot.set_next_axes_to_fit()
         if implot.begin_plot("##distribution", (-1, self.height)):
-            implot.setup_axes("Column" if self.boxes else "Value", self.ylabel)
-            if self.boxes:
+            implot.setup_axes(
+                "Column" if self.series.boxes else "Value",
+                "Rows"
+                if self.series.label == "Histogram" and not data.settings.density
+                else self.series.ylabel,
+            )
+            if self.series.boxes:
                 implot.setup_axis_ticks(
                     implot.ImAxis_.x1,
                     [float(i) for i in range(len(data.series))],
                     [s.name for s in data.series],
                 )
-            for index, series in enumerate(data.series):
-                self.draw(data, series, index)
+            super().render(frame)
             implot.end_plot()
             self.fit = False
 
-    @abstractmethod
-    def draw(
-        self, data: Comparison, series: NumericDistribution, index: int
-    ) -> None: ...
-
 
 class HistogramChart(DistributionChart):
-    label = "Histogram"
-
-    def draw(self, data: Comparison, series: NumericDistribution, index: int) -> None:
-        if not len(series.histogram):
-            return
-        color = profile_color(series.name)
-        implot.plot_stairs(
-            series.name,
-            np.concatenate(([data.edges[0]], data.edges, [data.edges[-1]])),
-            np.concatenate(([0, series.histogram[0]], series.histogram, [0])),
-            implot.Spec(
-                line_color=color,
-                fill_color=color,
-                fill_alpha=0.2,
-                flags=implot.StairsFlags_.pre_step | implot.StairsFlags_.shaded,
-            ),
-        )
+    def make_series(
+        self, prepared: Callable[[], Comparison | None]
+    ) -> DistributionSeries:
+        return HistogramSeries(prepared)
 
 
 class DensityChart(DistributionChart):
-    label = "KDE"
-
-    def draw(self, data: Comparison, series: NumericDistribution, index: int) -> None:
-        if len(series.kde_y):
-            implot.plot_line(
-                series.name,
-                series.kde_x,
-                series.kde_y,
-                implot.Spec(line_color=profile_color(series.name)),
-            )
+    def make_series(
+        self, prepared: Callable[[], Comparison | None]
+    ) -> DistributionSeries:
+        return DensitySeries(prepared)
 
 
 class CumulativeChart(DistributionChart):
-    label = "ECDF"
-    ylabel = "Cumulative probability"
-
-    def draw(self, data: Comparison, series: NumericDistribution, index: int) -> None:
-        if len(series.ecdf_x):
-            implot.plot_stairs(
-                series.name,
-                np.concatenate(([series.ecdf_x[0]], series.ecdf_x)),
-                np.concatenate(([0.0], series.ecdf_y)),
-                implot.Spec(line_color=profile_color(series.name)),
-            )
+    def make_series(
+        self, prepared: Callable[[], Comparison | None]
+    ) -> DistributionSeries:
+        return CumulativeSeries(prepared)
 
 
 class BoxChart(DistributionChart):
-    label = "Box"
-    boxes = True
-    ylabel = "Value"
-
-    def draw(self, data: Comparison, series: NumericDistribution, index: int) -> None:
-        draw_box(series, index, False, profile_color(series.name))
+    def make_series(
+        self, prepared: Callable[[], Comparison | None]
+    ) -> DistributionSeries:
+        return BoxSeries(prepared)
 
 
-class ViolinChart(BoxChart):
-    label = "Violin"
-
-    def draw(self, data: Comparison, series: NumericDistribution, index: int) -> None:
-        draw_box(series, index, True, profile_color(series.name))
+class ViolinChart(DistributionChart):
+    def make_series(
+        self, prepared: Callable[[], Comparison | None]
+    ) -> DistributionSeries:
+        return ViolinSeries(prepared)
 
 
 CHARTS = (HistogramChart, DensityChart, CumulativeChart, BoxChart, ViolinChart)
