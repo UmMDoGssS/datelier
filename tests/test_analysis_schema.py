@@ -59,6 +59,38 @@ def test_public_family_objects_round_trip_in_a_fresh_process() -> None:
     assert json.loads(process.stdout) == []
 
 
+def test_legacy_package_exports_keep_aliases_and_bounded_defaults() -> None:
+    from importlib import import_module
+
+    from datelier.analysis.embedding_parameters import (
+        EMBEDDING_DEFAULTS,
+        EMBEDDING_LIMITS,
+    )
+    from datelier.analysis.parameters import (
+        EXTRA_DEFAULT_LIMITS,
+        EXTRA_DEFAULTS,
+        EXTRA_LIMITS,
+    )
+
+    parameters = import_module("datelier.analysis.parameters")
+    embeddings = import_module("datelier.analysis.embedding_parameters")
+    assert len(EXTRA_DEFAULTS) == 22
+    assert len(EMBEDDING_DEFAULTS) == 11
+    for identifier, method in EXTRA_DEFAULTS.items():
+        executable = ALGORITHMS[identifier]
+        assert type(method) is executable
+        alias = getattr(parameters, method.recipe_kind)
+        assert alias is executable
+        assert EXTRA_LIMITS[identifier] == executable.row_limit
+        assert EXTRA_DEFAULT_LIMITS[identifier] == executable.default_row_limit
+        request = AnalysisRequest(("x", "y", "z"), alias())
+        assert decode_record(AnalysisRequest, encode(request)) == request
+        if identifier in EMBEDDING_DEFAULTS:
+            assert getattr(embeddings, method.recipe_kind) is alias
+            assert EMBEDDING_DEFAULTS[identifier] == method
+            assert EMBEDDING_LIMITS[identifier] == executable.row_limit
+
+
 @pytest.mark.parametrize("algorithm", tuple(Algorithm))
 def test_schema_updates_round_trip_as_typed_workspace_recipes(
     algorithm: Algorithm,

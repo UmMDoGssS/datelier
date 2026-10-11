@@ -968,6 +968,6 @@ in packages while preserving their public names and recipe formats. This is a
 source-layout change; numerical pipelines and GUI behavior remain the same.
 
 - [x] Group algorithm implementations and expose family package APIs; verify fitting, worker lifecycle, recipes, imports, Pyrefly and Ruff, then commit.
-- [ ] Group legacy parameter exports; verify compatibility, full suite, wheel contents and native analysis/restoration workflows, then commit.
+- [x] Group legacy parameter exports; verify compatibility, full suite, wheel contents and native analysis/restoration workflows, then commit.
 
 [Layout and verification evidence](docs/analysis-packages.md).

@@ -209,8 +209,11 @@ Final corrected-design gates:
 To extend the implementation, add one immutable concrete algorithm dataclass:
 define its tunable fields/metadata, identifier, limits and recipe kind; implement
 its estimator construction, input constraints and any special diagnostics or
-prediction. Add it to `AlgorithmInstance` and the finite identifier. The catalog,
-GUI, requests and workspace codec consume this one definition. Introduce legacy
+prediction. Put it in the appropriate family package and add it to that
+package's exported method union and the finite identifier. `AlgorithmInstance`
+composes those family unions; the catalog, GUI, requests and workspace codec
+consume this one definition. [Package layout](analysis-packages.md) documents
+the public family imports. Introduce legacy
 import aliases only when compatibility requires them. Keep estimator imports and
 fitting off GUI frames.
 
