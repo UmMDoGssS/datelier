@@ -100,5 +100,24 @@ refactor acceptance does not close those human follow-ups.
 
 ## Final verification
 
-Final native inventory, full tests and installed-wheel verification are being
-completed. Detailed final evidence will be recorded here before merge.
+Accepted on 2026-10-11. Full-project Pyrefly reports zero errors; all **1,151 tests**
+pass with three dependency warnings. Ruff lint/format and diff whitespace pass.
+All **48 current native cases** pass, including nine shell and nine media
+size/theme combinations; maximum p95 is 30.72/31.88 ms. Native and controller
+resource gates, source hashes, stable identities, bounded workers, GPU closure,
+no implicit commands and clean temporary/thread closure pass.
+
+Fresh base/CPU-extra wheels pass dependency consistency (36/43 packages),
+installed domain/text/training/checkpoint probes, native launch and workflow/media/
+audio checks outside the checkout. All 435 packaged files match source bytes.
+PortAudio uses an explicitly extracted temporary Linux runtime, not a system
+installation. The final code's 30-cycle file benchmark passes 15.68 ms p95,
+595.73 MiB peak RSS, 82.63 MiB retained growth and 0.39 ms maximum close.
+
+See [final native inventory](evidence/gui-overhaul/final-native-inventory.json),
+[size/theme matrix](evidence/gui-overhaul/final-size-theme-matrix.json),
+[session resources](evidence/gui-overhaul/final-session-resources.json) and
+[installed wheels](evidence/gui-overhaul/final-installed-wheels.json). The
+historical performance gates and precise modality measurements remain in
+[gui-overhaul.md](gui-overhaul.md). No automated refactor gate remains open;
+the separate human/platform assumptions above retain their status.

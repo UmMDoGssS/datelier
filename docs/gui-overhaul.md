@@ -56,14 +56,15 @@ components implement Component.render; container classes render direct children.
 | A | Replace GUI package; GUI-free file/record/editor runtime and component contracts | Complete; desktop deliberately not runnable |
 | B | Shared controls, shell, columns, table, tabular profiles and plots | Complete; basic inspection shell runnable |
 | C | Contextual analysis, transforms/history, export and workspace/preferences | Complete; advanced plot modes tracked separately |
-| D | Structured/array/checkpoint source and multimodal record/profile families | In progress; source/Inspect, text/image/audio profiles and annotation workflows restored; remaining forms and integration pending |
-| E | Comparison families, remaining features and integrated acceptance | In progress; all four comparison families restored; remaining features and integrated acceptance pending |
+| D | Structured/array/checkpoint source and multimodal record/profile families | Complete; native, restoration, correctness and modality resource gates pass |
+| E | Comparison families, remaining features and integrated acceptance | Complete; all capabilities restored, audit/full checks/native matrix/clean wheel gates pass |
 
-Each stage runs scoped Pyrefly, behavioral tests, full Ruff checks and diff review
-before commit. Full Pyrefly/old GUI tests remain open while their imports target
-removed modules. Native gates begin when the replacement shell is runnable.
-This is the user's explicit exception to the usual runnable-step workflow; do
-not mark unperformed gates passed. Final acceptance still requires all capabilities,
+Early foundation stages used scoped Pyrefly and behavioral checks under the
+user's explicit non-runnable-rebuild exception. That exception is now closed:
+full-project Pyrefly, all behavioral tests and current native harnesses pass.
+Historical entries below retain their verification status at the time. Final
+acceptance is recorded in E29/E30 and [gui-refactor-audit.md](gui-refactor-audit.md).
+The acceptance contract requires all capabilities,
 full suite migration, native input at three sizes/themes, resource budgets,
 source/row identity and restoration/lifecycle verification.
 
@@ -1065,6 +1066,42 @@ Markdown audit links and diff whitespace pass. README navigation reflects the
 new shell. [gui-refactor-audit.md](gui-refactor-audit.md) records boundaries,
 lifecycle, capability scope and retained human/platform assumptions. Final
 multi-file resource reruns and installed-wheel acceptance remain before merge.
+
+## Fresh E30 — Final resources, clean installs and accepted rebuild
+
+Final native two-file/30-cycle resources pass: **556 frames**, **15.68 ms p95**,
+**595.73 MiB peak RSS**, **82.63 MiB retained growth**, **338.37 ms** maximum initial
+preview and **0.39 ms** maximum close. Four workers, zero pending jobs/retained
+closed controllers, unchanged source bytes and thread/temp cleanup pass. Six
+mixed controller cycles pass with **50.98 MiB** RSS increase, stable sorted source
+identity, explicit comparisons and zero retained stores/playback buffers. Native
+texture ownership is verified separately by the final media matrix. Evidence:
+[final-session-resources.json](evidence/gui-overhaul/final-session-resources.json).
+
+Wheel and source distribution build successfully. Fresh Python 3.14.7 base and
+CPU-extra virtual environments install locked dependencies and the wheel without
+system-site packages; `uv pip check` passes **36/43 packages**. Outside the checkout,
+both installed applications pass help, normal and feasibility launch, native
+sort/history/source-protected export, original image/text/audio inspection, and
+explicit injected audio commands. Installed native p95 is **14.09–29.96 ms**.
+Domain probes pass mixed comparisons, exact original signals, optional CPU tensor
+inspection and local BPE/Unigram training. Sources and packaged font/license
+integrity are preserved; optional runtimes remain unloaded until explicit use.
+All **435 packaged source/asset files** match the final source bytes.
+
+The Linux PortAudio dependency is provisioned in `/tmp` from the Ubuntu runtime,
+with an unversioned linker alias and `LD_LIBRARY_PATH`; no system-package install
+or human listening is claimed. Dependency cache misses were resolved using the
+locked requirements. Evidence:
+[final-installed-wheels.json](evidence/gui-overhaul/final-installed-wheels.json).
+
+Stages D/E and automated rebuild acceptance are **complete**. Full-project type,
+1,151-test suite, Ruff, 48 native cases, all sizes/themes, source/ownership/resource,
+architecture/capability audit and clean base/CPU wheel gates pass. The early
+non-runnable/scoped-check exception is closed. Titanic human usability and the
+explicitly deferred listening check retain their previous status; accelerated
+rendering and other platforms remain unverified. Local main can now receive the
+verified step commits by fast-forward, preserving their history.
 
 ## Baseline evidence
 

@@ -87,21 +87,22 @@ Try a CSV with an `id` column followed by at least two varying numeric columns
 (for example `x` and `y`):
 
 1. Open the file and inspect **Table preview**, **Source browser** and **Explore**.
-2. In **Transform and history**, sort `x`, then derive `score` with
+2. In **Context → Transform**, sort `x`, then derive `score` with
    `col("x") * 2 + col("y")`. Try **Undo** and **Redo**.
-3. In **Explore → Scatter**, choose `x` and `score`, then **Update raw scatter**.
+3. In **Canvas → Relationships**, choose Scatter 2D and its `x` / `score` axes.
    Click a row or point to see the matching highlight.
-4. In **Analysis**, choose `x` and `y`, then **Run PCA**. Analysis is optional and
+4. In Relationships context, choose PCA coordinates and `x` / `y` features, then
+   **Run analysis** and **Open result**. Analysis is optional and
    always requires an explicit command; the other algorithms have sample settings.
-5. Choose **File → Workspace actions…**, enter a new `.datelier` path and
-   **Save workspace**. Close
+5. Choose **File → Session workspace…**, enter a new `.datelier` path and
+   **Save all tabs**. Close
    and reopen with `datelier --workspace /path/to/session.datelier` (prefix with
    `uv run --no-dev` when using the checkout).
 6. Check the restored table/history/settings. Fitted analysis results are
    session-only; rerun explicitly if needed. Keep the source file available,
    or use the workspace's relink controls if it moved.
-7. In **Export table**, choose a new destination and CSV or Parquet, then
-   **Export active table**. The source file stays unchanged.
+7. In **File → Export active source…**, choose a new destination and CSV or
+   Parquet, then **Export**. The source file stays unchanged.
 
 ## Development
 

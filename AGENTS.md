@@ -159,14 +159,15 @@ deliverables, and acceptance gates. Inspect actual code and configuration
 before relying on either document's description of current implementation.
 Keep both documents aligned when an authorized decision changes direction.
 
-The production GUI architecture/workflow overhaul is authorized and underway;
+The production GUI architecture/workflow overhaul passes automated acceptance;
 [docs/gui-overhaul.md](docs/gui-overhaul.md) tracks its bounded delivery and gates.
 Use class-based view/component families, immediate-child rendering and explicit
 injection of narrow prepared state/commands. Pure drawing/formatting helpers may
 remain functions. Separate application coordination from GUI presentation; retain
-all domain engines and modality capabilities. The planned four-panel shell,
-contextual analysis, shared selectors/viewports and recipe-preserving layout
-migration must pass their recorded gates before being marked complete.
+all domain engines and modality capabilities. The four-panel shell, contextual
+analysis, shared selectors/viewports and recipe-preserving layout migration pass
+their recorded gates. The architecture
+and capability audit is in [docs/gui-refactor-audit.md](docs/gui-refactor-audit.md).
 
 The text statistics tables and nested JSON column follow-up passes;
 [docs/nested-column-profiles.md](docs/nested-column-profiles.md) records typed
@@ -176,12 +177,14 @@ reversible overrides, streamed List[Text] corpus/element tools, and
 rendering/restoration and measured resource evidence. Mouse-selector automation
 remains unverified on this display.
 
-The GUI overhaul now follows a fresh replacement authorized on 2026-10-10.
-[docs/gui-overhaul.md](docs/gui-overhaul.md) records stages and retained acceptance
-requirements. The user explicitly permits non-runnable early commits and obsolete
-GUI tests during the rebuild. Check the new runtime/components with scoped Pyrefly
-and behavioral tests, record the unavailable full/native gates, and restore those
-gates as features return. This exception does not waive final capability acceptance.
+The fresh GUI replacement authorized on 2026-10-10 passes on 2026-10-11.
+[docs/gui-overhaul.md](docs/gui-overhaul.md) records the stages and final full-suite,
+native size/theme, resource and clean base/CPU wheel evidence. The early exception
+allowing non-runnable commits, scoped type checks and obsolete GUI harnesses is
+closed. Use the normal full verification workflow for subsequent changes.
+[docs/gui-harness-audit.md](docs/gui-harness-audit.md) maps retired native callers
+to current checks and historical source recovery. Existing human listening,
+Titanic usability and platform/rendering assumptions retain their status.
 
 ## Architecture and data integrity
 
