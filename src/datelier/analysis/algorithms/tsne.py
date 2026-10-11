@@ -16,30 +16,27 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class TSNEParameters:
+class TSNEAlgorithm(DecompositionAlgorithm):
     algorithm: ClassVar[AlgorithmId] = AlgorithmId.TSNE
-    perplexity: float = setting(30.0, "Perplexity", 1e-9)
+    perplexity: float = setting(30.0, "Perplexity", 1e-09)
     iterations: int = setting(1000, "Iterations", 250)
     learning_rate: float | str = field(
         default="auto",
         metadata={
             "label": "Learning rate",
             "kind": "real",
-            "min": 1e-9,
-            "max": 1e6,
+            "min": 1e-09,
+            "max": 1000000.0,
             "automatic": "auto",
             "manual_default": 200.0,
         },
     )
     initialization: str = choice("pca", "Initialization", ("pca", "random"))
+    recipe_kind: ClassVar[str] = "TSNEParameters"
+    row_limit: ClassVar[int] = 10000
+    default_row_limit: ClassVar[int] = 2000
 
-
-class TSNEAlgorithm(DecompositionAlgorithm[TSNEParameters]):
-    parameter_type = TSNEParameters
-    row_limit = 10000
-    default_row_limit = 2000
-
-    def run(self, prepared: PreparedInput) -> EmbeddingResult:
+    def fit(self, prepared: PreparedInput) -> EmbeddingResult:
         from threadpoolctl import threadpool_limits
 
         from datelier.analysis.embedding_result import embedding_result
@@ -47,17 +44,16 @@ class TSNEAlgorithm(DecompositionAlgorithm[TSNEParameters]):
         self.check_input(prepared)
         started = perf_counter()
         request = prepared.request
-        params = self.parameters
         from sklearn.manifold import TSNE
 
         tsne = TSNE(
             n_components=request.dimensions,
-            perplexity=params.perplexity,
-            max_iter=params.iterations,
+            perplexity=self.perplexity,
+            max_iter=self.iterations,
             learning_rate="auto"
-            if params.learning_rate == "auto"
-            else float(params.learning_rate),
-            init="pca" if params.initialization == "pca" else "random",
+            if self.learning_rate == "auto"
+            else float(self.learning_rate),
+            init="pca" if self.initialization == "pca" else "random",
             metric="euclidean",
             method="barnes_hut",
             random_state=request.seed,
@@ -82,13 +78,16 @@ class TSNEAlgorithm(DecompositionAlgorithm[TSNEParameters]):
     def validate_input(
         self, values: NDArray[np.float64], request: AnalysisRequest
     ) -> None:
-        params = self.parameters
         rows, width = values.shape
-        if params.perplexity >= rows:
+        if self.perplexity >= rows:
             raise ValueError(
                 "t-SNE perplexity must be smaller than the sampled row count"
             )
-        if params.initialization == "pca" and request.dimensions > min(rows, width):
+        if self.initialization == "pca" and request.dimensions > min(rows, width):
             raise ValueError(
                 "PCA initialization needs enough varying features for the dimensions"
             )
+
+
+# Legacy recipe/import name refers to this same algorithm, not a second record.
+TSNEParameters = TSNEAlgorithm

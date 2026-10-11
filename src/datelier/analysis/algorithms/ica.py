@@ -18,17 +18,14 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class ICAParameters:
+class ICAAlgorithm(FittedDecompositionAlgorithm):
     algorithm: ClassVar[AlgorithmId] = AlgorithmId.ICA
     function: str = choice("logcosh", "Contrast function", ("logcosh", "exp", "cube"))
     iterations: int = setting(500, "Iterations", 1, 10000)
-    tolerance: float = setting(1e-4, "Tolerance", 1e-12, 1.0)
-
-
-class ICAAlgorithm(FittedDecompositionAlgorithm[ICAParameters]):
-    parameter_type = ICAParameters
-    row_limit = 50000
-    default_row_limit = 10000
+    tolerance: float = setting(0.0001, "Tolerance", 1e-12, 1.0)
+    recipe_kind: ClassVar[str] = "ICAParameters"
+    row_limit: ClassVar[int] = 50000
+    default_row_limit: ClassVar[int] = 10000
 
     def build(
         self, prepared: PreparedInput
@@ -37,14 +34,13 @@ class ICAAlgorithm(FittedDecompositionAlgorithm[ICAParameters]):
 
         request = prepared.request
         values = prepared.values
-        params = self.parameters
         dims, seed = (request.dimensions, request.seed)
         details: list[tuple[str, str]] = []
         estimator = FastICA(
             n_components=dims,
-            fun=cast(Literal["logcosh", "exp", "cube"], params.function),
-            max_iter=params.iterations,
-            tol=params.tolerance,
+            fun=cast(Literal["logcosh", "exp", "cube"], self.function),
+            max_iter=self.iterations,
+            tol=self.tolerance,
             random_state=seed,
             whiten="unit-variance",
         )
@@ -66,3 +62,7 @@ class ICAAlgorithm(FittedDecompositionAlgorithm[ICAParameters]):
             raise ValueError(
                 "Output dimensions exceed sampled rows or varying feature count"
             )
+
+
+# Legacy recipe/import name refers to this same algorithm, not a second record.
+ICAParameters = ICAAlgorithm

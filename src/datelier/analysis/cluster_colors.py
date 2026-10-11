@@ -4,7 +4,6 @@ import numpy as np
 from numpy.typing import NDArray
 
 from datelier.analysis.algorithms.base import ClusteringAlgorithm
-from datelier.analysis.algorithms.registry import build_algorithm
 from datelier.analysis.types import ClusteringResult
 from datelier.core.dataset import Dataset
 from datelier.plotting.colors import NEUTRAL, PALETTE, PointColors, color_series
@@ -13,7 +12,7 @@ from datelier.plotting.colors import NEUTRAL, PALETTE, PointColors, color_series
 def predict_clusters(
     dataset: Dataset, positions: NDArray[np.uint64], result: ClusteringResult
 ) -> NDArray[np.int64]:
-    builder = build_algorithm(result.provenance.request.parameters)
+    builder = result.provenance.request.parameters
     if not isinstance(builder, ClusteringAlgorithm):
         raise ValueError("Cluster prediction requires a clustering algorithm")
     return builder.predict(dataset, positions, result)

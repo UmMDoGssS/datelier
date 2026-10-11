@@ -10,7 +10,8 @@ from dataclasses import fields, is_dataclass
 from enum import Enum
 from typing import TypeAliasType, cast, get_args, get_origin, get_type_hints
 
-from datelier.analysis.algorithms.registry import BUILDERS
+from datelier.analysis.algorithms.base import Algorithm as AnalysisAlgorithm
+from datelier.analysis.algorithms.registry import ALGORITHMS
 from datelier.analysis.types import (
     AnalysisRequest,
     Preprocessing,
@@ -135,7 +136,7 @@ RECORDS = (
     TablePresentation,
     ReferenceSettings,
     ReferenceMapping,
-    *(type(builder().parameters) for builder in BUILDERS.values()),
+    *ALGORITHMS.values(),
     Workspace,
     SessionFile,
     SessionWorkspace,
@@ -179,7 +180,9 @@ def encode(value: object) -> object:
         return [encode(item) for item in value]
     if type(value) in RECORDS and is_dataclass(value):
         return {
-            "kind": type(value).__name__,
+            "kind": value.recipe_kind
+            if isinstance(value, AnalysisAlgorithm)
+            else type(value).__name__,
             **{f.name: encode(getattr(value, f.name)) for f in fields(value)},
         }
     raise ValueError(f"Unsupported recipe value: {type(value).__name__}")
@@ -189,8 +192,9 @@ def decode_record[T](cls: type[T], value: object) -> T:
     if cls not in RECORDS or not is_dataclass(cls) or not isinstance(value, dict):
         raise ValueError("Expected a registered recipe object")
     record = cast(dict[str, object], value)
-    if record.get("kind") != cls.__name__:
-        raise ValueError(f"Expected {cls.__name__} recipe")
+    kind = cls.recipe_kind if issubclass(cls, AnalysisAlgorithm) else cls.__name__
+    if record.get("kind") not in (kind, cls.__name__):
+        raise ValueError(f"Expected {kind} recipe")
     names = {f.name for f in fields(cls)}
     if set(record) - names - {"kind"}:
         raise ValueError(f"Unknown fields in {cls.__name__}")

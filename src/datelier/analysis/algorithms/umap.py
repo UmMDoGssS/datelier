@@ -17,19 +17,16 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class UMAPParameters:
+class UMAPAlgorithm(DecompositionAlgorithm):
     algorithm: ClassVar[AlgorithmId] = AlgorithmId.UMAP
     neighbors: int = setting(15, "Neighbors", 2)
     min_distance: float = setting(0.1, "Minimum distance", 0, 1)
     metric: str = choice("euclidean", "Metric", ("euclidean", "cosine"))
+    recipe_kind: ClassVar[str] = "UMAPParameters"
+    row_limit: ClassVar[int] = 50000
+    default_row_limit: ClassVar[int] = 5000
 
-
-class UMAPAlgorithm(DecompositionAlgorithm[UMAPParameters]):
-    parameter_type = UMAPParameters
-    row_limit = 50000
-    default_row_limit = 5000
-
-    def run(self, prepared: PreparedInput) -> EmbeddingResult:
+    def fit(self, prepared: PreparedInput) -> EmbeddingResult:
         from threadpoolctl import threadpool_limits
 
         from datelier.analysis.embedding_result import embedding_result
@@ -37,16 +34,15 @@ class UMAPAlgorithm(DecompositionAlgorithm[UMAPParameters]):
         self.check_input(prepared)
         started = perf_counter()
         request = prepared.request
-        params = self.parameters
         from numba import set_num_threads
         from umap import UMAP
 
         set_num_threads(1)
         reducer = UMAP(
             n_components=request.dimensions,
-            n_neighbors=params.neighbors,
-            min_dist=params.min_distance,
-            metric=params.metric,
+            n_neighbors=self.neighbors,
+            min_dist=self.min_distance,
+            metric=self.metric,
             init="spectral",
             random_state=request.seed,
             transform_seed=request.seed,
@@ -63,7 +59,7 @@ class UMAPAlgorithm(DecompositionAlgorithm[UMAPParameters]):
             coordinates,
             started,
             (
-                ("Distance", params.metric),
+                ("Distance", self.metric),
                 ("Initialization", "spectral"),
                 ("Threads", "1"),
                 *warnings,
@@ -74,13 +70,16 @@ class UMAPAlgorithm(DecompositionAlgorithm[UMAPParameters]):
     def validate_input(
         self, values: NDArray[np.float64], request: AnalysisRequest
     ) -> None:
-        params = self.parameters
         rows, width = values.shape
-        if params.neighbors >= rows or rows <= request.dimensions + 1:
+        if self.neighbors >= rows or rows <= request.dimensions + 1:
             raise ValueError(
                 "UMAP needs more sampled rows than neighbors and dimensions + 1"
             )
-        if params.metric == "cosine" and np.any(np.linalg.norm(values, axis=1) == 0):
+        if self.metric == "cosine" and np.any(np.linalg.norm(values, axis=1) == 0):
             raise ValueError(
                 "Cosine distance is undefined for zero-valued preprocessed rows"
             )
+
+
+# Legacy recipe/import name refers to this same algorithm, not a second record.
+UMAPParameters = UMAPAlgorithm

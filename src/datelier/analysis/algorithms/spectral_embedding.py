@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class SpectralEmbeddingParameters:
+class SpectralEmbeddingAlgorithm(FittedDecompositionAlgorithm):
     algorithm: ClassVar[AlgorithmId] = AlgorithmId.SPECTRAL_EMBEDDING
     affinity: str = choice(
         "nearest_neighbors", "Affinity", ("nearest_neighbors", "rbf")
@@ -36,19 +36,14 @@ class SpectralEmbeddingParameters:
         default=1.0,
         metadata={
             "label": "Kernel gamma",
-            "min": 1e-9,
-            "max": 1e6,
+            "min": 1e-09,
+            "max": 1000000.0,
             "when": ("affinity", "rbf"),
         },
     )
-
-
-class SpectralEmbeddingAlgorithm(
-    FittedDecompositionAlgorithm[SpectralEmbeddingParameters]
-):
-    parameter_type = SpectralEmbeddingParameters
-    row_limit = 5000
-    default_row_limit = 2000
+    recipe_kind: ClassVar[str] = "SpectralEmbeddingParameters"
+    row_limit: ClassVar[int] = 5000
+    default_row_limit: ClassVar[int] = 2000
 
     def build(
         self, prepared: PreparedInput
@@ -57,30 +52,32 @@ class SpectralEmbeddingAlgorithm(
 
         request = prepared.request
         values = prepared.values
-        params = self.parameters
         dims, seed = (request.dimensions, request.seed)
         estimator = SpectralEmbedding(
             n_components=dims,
-            affinity=cast(Literal["nearest_neighbors", "rbf"], params.affinity),
-            n_neighbors=params.neighbors
-            if params.affinity == "nearest_neighbors"
+            affinity=cast(Literal["nearest_neighbors", "rbf"], self.affinity),
+            n_neighbors=self.neighbors
+            if self.affinity == "nearest_neighbors"
             else None,
-            gamma=params.gamma if params.affinity == "rbf" else None,
+            gamma=self.gamma if self.affinity == "rbf" else None,
             eigen_solver="arpack",
             random_state=seed,
             n_jobs=1,
         )
-        return estimator, values, ()
+        return (estimator, values, ())
 
     def validate_input(
         self, values: NDArray[np.float64], request: AnalysisRequest
     ) -> None:
-        params = self.parameters
         rows, width = values.shape
         if rows <= request.dimensions + 1:
             raise ValueError(
                 "Manifold views need more sampled rows than dimensions + 1"
             )
-        uses_neighbors = params.affinity == "nearest_neighbors"
-        if uses_neighbors and params.neighbors >= rows:
+        uses_neighbors = self.affinity == "nearest_neighbors"
+        if uses_neighbors and self.neighbors >= rows:
             raise ValueError("Neighbors must be smaller than the sampled row count")
+
+
+# Legacy recipe/import name refers to this same algorithm, not a second record.
+SpectralEmbeddingParameters = SpectralEmbeddingAlgorithm

@@ -18,17 +18,14 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class NMFParameters:
+class NMFAlgorithm(FittedDecompositionAlgorithm):
     algorithm: ClassVar[AlgorithmId] = AlgorithmId.NMF
     scaling: str = choice("minmax", "NMF input scaling", ("minmax", "none"))
     iterations: int = setting(500, "Iterations", 1, 10000)
-    tolerance: float = setting(1e-4, "Tolerance", 1e-12, 1.0)
-
-
-class NMFAlgorithm(FittedDecompositionAlgorithm[NMFParameters]):
-    parameter_type = NMFParameters
-    row_limit = 50000
-    default_row_limit = 10000
+    tolerance: float = setting(0.0001, "Tolerance", 1e-12, 1.0)
+    recipe_kind: ClassVar[str] = "NMFParameters"
+    row_limit: ClassVar[int] = 50000
+    default_row_limit: ClassVar[int] = 10000
 
     def build(
         self, prepared: PreparedInput
@@ -37,10 +34,9 @@ class NMFAlgorithm(FittedDecompositionAlgorithm[NMFParameters]):
 
         request = prepared.request
         values = prepared.values
-        params = self.parameters
         dims, seed = (request.dimensions, request.seed)
         details: list[tuple[str, str]] = []
-        if params.scaling == "minmax":
+        if self.scaling == "minmax":
             normalized = values / np.abs(values).max(axis=0)
             low, high = (normalized.min(axis=0), normalized.max(axis=0))
             values = (normalized - low) / (high - low)
@@ -53,8 +49,8 @@ class NMFAlgorithm(FittedDecompositionAlgorithm[NMFParameters]):
         estimator = NMF(
             n_components=dims,
             init="nndsvda",
-            max_iter=params.iterations,
-            tol=params.tolerance,
+            max_iter=self.iterations,
+            tol=self.tolerance,
             random_state=seed,
         )
         return (estimator, values, tuple(details))
@@ -73,14 +69,17 @@ class NMFAlgorithm(FittedDecompositionAlgorithm[NMFParameters]):
     def validate_input(
         self, values: NDArray[np.float64], request: AnalysisRequest
     ) -> None:
-        params = self.parameters
         rows, width = values.shape
         if request.dimensions > min(rows, width):
             raise ValueError(
                 "Output dimensions exceed sampled rows or varying feature count"
             )
-        if params.scaling == "none" and np.any(values < 0):
+        if self.scaling == "none" and np.any(values < 0):
             raise ValueError(
                 "NMF needs nonnegative inputs; choose minmax scaling "
                 "or disable standardization"
             )
+
+
+# Legacy recipe/import name refers to this same algorithm, not a second record.
+NMFParameters = NMFAlgorithm

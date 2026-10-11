@@ -15,7 +15,7 @@ from datelier.analysis.algorithms.kernel_pca import (
 from datelier.analysis.algorithms.lle import LLEParameters as LLEParameters
 from datelier.analysis.algorithms.mds import MDSParameters as MDSParameters
 from datelier.analysis.algorithms.nmf import NMFParameters as NMFParameters
-from datelier.analysis.algorithms.registry import BUILDERS
+from datelier.analysis.algorithms.registry import ALGORITHMS
 from datelier.analysis.algorithms.sparse_projection import (
     SparseProjectionParameters as SparseProjectionParameters,
 )
@@ -50,4 +50,4 @@ EMBEDDING_DEFAULTS: dict[Algorithm, EmbeddingParameters] = {
     SpectralEmbeddingParameters.algorithm: SpectralEmbeddingParameters(),
     LLEParameters.algorithm: LLEParameters(),
 }
-EMBEDDING_LIMITS = {a: BUILDERS[a].row_limit for a in EMBEDDING_DEFAULTS}
+EMBEDDING_LIMITS = {a: ALGORITHMS[a].row_limit for a in EMBEDDING_DEFAULTS}

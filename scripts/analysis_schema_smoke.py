@@ -9,7 +9,6 @@ import polars as pl
 from imgui_bundle import hello_imgui, imgui
 from rebuild_input import NativeInput, NativeText
 
-from datelier.analysis.algorithms.registry import build_algorithm
 from datelier.analysis.types import (
     Algorithm,
     KMeansParameters,
@@ -57,10 +56,10 @@ def main() -> None:
                     return
                 if age < 6:
                     return
-                builder = build_algorithm(controls.parameters[algorithm])
+                builder = controls.parameters[algorithm]
                 expected: set[tuple[str, ...]] = {("limit", "value")}
                 for descriptor in builder.schema:
-                    if descriptor.visible(builder.parameters):
+                    if descriptor.visible(builder):
                         expected.add(
                             (descriptor.name, "automatic", "value")
                             if descriptor.automatic

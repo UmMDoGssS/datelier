@@ -15,21 +15,18 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class BayesianMixtureParameters:
+class BayesianMixtureAlgorithm(ClusteringAlgorithm):
     algorithm: ClassVar[AlgorithmId] = AlgorithmId.BAYESIAN_MIXTURE
     clusters: int = setting(3, "Maximum components", 1, 256)
     covariance: str = choice(
         "full", "Covariance", ("full", "tied", "diag", "spherical")
     )
-    concentration: float = setting(1.0, "Weight concentration", 1e-9)
-    regularization: float = setting(1e-6, "Covariance regularization", 1e-12)
+    concentration: float = setting(1.0, "Weight concentration", 1e-09)
+    regularization: float = setting(1e-06, "Covariance regularization", 1e-12)
     iterations: int = setting(100, "Iterations", 1, 10000)
-
-
-class BayesianMixtureAlgorithm(ClusteringAlgorithm[BayesianMixtureParameters]):
-    parameter_type = BayesianMixtureParameters
-    row_limit = 50000
-    default_row_limit = 10000
+    recipe_kind: ClassVar[str] = "BayesianMixtureParameters"
+    row_limit: ClassVar[int] = 50000
+    default_row_limit: ClassVar[int] = 10000
 
     def build(
         self, prepared: PreparedInput
@@ -38,17 +35,16 @@ class BayesianMixtureAlgorithm(ClusteringAlgorithm[BayesianMixtureParameters]):
 
         request = prepared.request
         values = prepared.values
-        params = self.parameters
         seed = request.seed
         details: list[tuple[str, str]] = []
         estimator = BayesianGaussianMixture(
-            n_components=params.clusters,
+            n_components=self.clusters,
             covariance_type=cast(
-                Literal["full", "tied", "diag", "spherical"], params.covariance
+                Literal["full", "tied", "diag", "spherical"], self.covariance
             ),
-            weight_concentration_prior=params.concentration,
-            reg_covar=params.regularization,
-            max_iter=params.iterations,
+            weight_concentration_prior=self.concentration,
+            reg_covar=self.regularization,
+            max_iter=self.iterations,
             random_state=seed,
         )
         return (estimator, values, tuple(details))
@@ -70,6 +66,9 @@ class BayesianMixtureAlgorithm(ClusteringAlgorithm[BayesianMixtureParameters]):
     def validate_input(
         self, values: NDArray[np.float64], request: AnalysisRequest
     ) -> None:
-        params = self.parameters
-        if params.clusters > len(np.unique(values, axis=0)):
+        if self.clusters > len(np.unique(values, axis=0)):
             raise ValueError("Cluster count exceeds distinct sampled inputs")
+
+
+# Legacy recipe/import name refers to this same algorithm, not a second record.
+BayesianMixtureParameters = BayesianMixtureAlgorithm

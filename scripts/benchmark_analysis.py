@@ -9,7 +9,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from time import perf_counter, sleep
 
-from datelier.analysis.algorithms.registry import BUILDERS
+from datelier.analysis.algorithms.registry import ALGORITHMS
 from datelier.analysis.jobs import AnalysisJobs
 from datelier.analysis.parameters import DBSCANParameters
 from datelier.analysis.types import (
@@ -38,7 +38,7 @@ def main() -> None:
         make_table(args.rows, args.columns), SourceReference(Path("synthetic"), 0, 0)
     )
     algorithm = next(a for a in Algorithm if a.name.lower() == args.algorithm)
-    parameters = BUILDERS[algorithm]().parameters
+    parameters = ALGORITHMS[algorithm]()
     if args.dense_neighborhood:
         if args.algorithm != "dbscan":
             raise ValueError("Dense-neighborhood measurement requires DBSCAN")

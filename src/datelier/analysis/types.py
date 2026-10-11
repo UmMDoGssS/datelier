@@ -8,7 +8,7 @@ from numpy.typing import NDArray
 from datelier.analysis.algorithm import Algorithm as Algorithm
 from datelier.analysis.algorithms.kmeans import KMeansParameters as KMeansParameters
 from datelier.analysis.algorithms.pca import PCAParameters as PCAParameters
-from datelier.analysis.algorithms.registry import BUILDERS, build_algorithm
+from datelier.analysis.algorithms.registry import ALGORITHMS
 from datelier.analysis.algorithms.tsne import TSNEParameters as TSNEParameters
 from datelier.analysis.algorithms.umap import UMAPParameters as UMAPParameters
 from datelier.analysis.parameters import (
@@ -19,8 +19,8 @@ from datelier.core.dataset import DatasetRevision
 Parameters = (
     PCAParameters | TSNEParameters | UMAPParameters | KMeansParameters | ExtraParameters
 )
-LIMITS = {a: builder.row_limit for a, builder in BUILDERS.items()}
-DEFAULT_LIMITS = {a: builder.default_row_limit for a, builder in BUILDERS.items()}
+LIMITS = {a: builder.row_limit for a, builder in ALGORITHMS.items()}
+DEFAULT_LIMITS = {a: builder.default_row_limit for a, builder in ALGORITHMS.items()}
 
 
 @dataclass(frozen=True)
@@ -56,7 +56,9 @@ class AnalysisRequest:
             )
         if self.dimensions not in (2, 3):
             raise ValueError("Embedding dimensions must be two or three")
-        build_algorithm(self.parameters).validate()
+        if type(self.parameters) is not ALGORITHMS[self.algorithm]:
+            raise ValueError("Algorithm is not registered")
+        self.parameters.validate()
 
 
 @dataclass(frozen=True)

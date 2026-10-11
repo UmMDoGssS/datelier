@@ -115,21 +115,34 @@ Native checks use Linux Mesa software OpenGL and preserve source bytes. No
 accelerated-rendering or other-platform verification is implied. Existing human
 listening and Titanic usability assumptions retain their status.
 
-## Extending and maintaining algorithms
+## Corrected ownership — authorized 2026-10-11
 
-Add a typed parameter dataclass beside its concrete algorithm, using `setting`,
-`choice` or field metadata for labels, bounds and conditions. Declare its row and
-default limits, implement its family construction/run and any input constraints
-or diagnostics, then register it explicitly in `BUILDERS`. Extend the finite
-identifier and parameter union/compatibility exports; the GUI and workspace codec
-consume the catalog without new method-specific branches. Keep estimator imports
-inside worker methods. Fit results retain the existing bounded immutable data
-contract; a new prediction capability needs explicit result data and tests.
+The user clarified that parameter state and the executable algorithm must be one
+object. This supersedes the earlier parameter-record-plus-wrapper design and its
+extension instructions. The entries above remain historical acceptance evidence.
 
-Import adapters, common Polars preprocessing, stable identity, spawned-worker
-ownership/cancellation, analysis settings provenance, plot preparation, pipeline
-operations and persistence formats keep their established contracts. The tiny
-synthetic feasibility estimators remain independent fixed compatibility probes;
-they do not provide production algorithm dispatch or GUI settings. No new methods,
-arbitrary estimator plugins, automatic fitting, general out-of-core execution or
-new out-of-sample capabilities were added.
+### Step 4 — Combine fields and execution
+
+All 26 concrete algorithms are now immutable field-bearing dataclasses. Their
+constructor takes tunable fields directly, their schema reflects those fields,
+and `fit(prepared)` calls the estimator pipeline. `parameter_type`, the wrapper
+constructor and `build_algorithm` are removed. The catalog registers algorithm
+classes, application drafts store their instances, and worker dispatch calls the
+instance's `fit` method directly. Configuration comparison supports family
+polymorphism while still rejecting mismatched fitting/prediction settings.
+
+The workspace codec preserves existing `*Parameters` wire kinds and fields while
+constructing the executable algorithm itself. Legacy import names are aliases to
+the same class, not separate records. Nothing fits during decoding or restoration.
+
+Verification: **179 focused tests pass**, full Pyrefly **0 errors**, full Ruff
+lint/format and whitespace checks pass. A direct facade test fits two and three
+clusters from copied configuration, retains the earlier immutable recipe and
+preserves row identity. All 26 legacy recipe round-trips and numerical algorithm
+checks pass. [Native schemas](evidence/analysis-refactor/unified-native-schemas-step4.json)
+verify all 26 forms, primitive input, automatic/manual drafts and conditional
+visibility: 381 frames, **15.23 ms p95**. [Explicit analysis](evidence/analysis-refactor/unified-native-workflow-step4.json)
+passes selector/Run/Open-result and completion focus: 225 frames,
+**15.87 ms p95**. Both preserve source bytes.
+
+Shared fitting simplification and final corrected-design acceptance remain open.

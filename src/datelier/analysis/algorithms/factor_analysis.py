@@ -18,17 +18,14 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class FactorAnalysisParameters:
+class FactorAnalysisAlgorithm(FittedDecompositionAlgorithm):
     algorithm: ClassVar[AlgorithmId] = AlgorithmId.FACTOR_ANALYSIS
     rotation: str = choice("none", "Rotation", ("none", "varimax", "quartimax"))
     iterations: int = setting(1000, "Iterations", 1, 10000)
     tolerance: float = setting(0.01, "Tolerance", 1e-12, 1.0)
-
-
-class FactorAnalysisAlgorithm(FittedDecompositionAlgorithm[FactorAnalysisParameters]):
-    parameter_type = FactorAnalysisParameters
-    row_limit = 50000
-    default_row_limit = 10000
+    recipe_kind: ClassVar[str] = "FactorAnalysisParameters"
+    row_limit: ClassVar[int] = 50000
+    default_row_limit: ClassVar[int] = 10000
 
     def build(
         self, prepared: PreparedInput
@@ -37,19 +34,18 @@ class FactorAnalysisAlgorithm(FittedDecompositionAlgorithm[FactorAnalysisParamet
 
         request = prepared.request
         values = prepared.values
-        params = self.parameters
         dims, seed = (request.dimensions, request.seed)
         details: list[tuple[str, str]] = []
         rotation = (
             None
-            if params.rotation == "none"
-            else cast(Literal["varimax", "quartimax"], params.rotation)
+            if self.rotation == "none"
+            else cast(Literal["varimax", "quartimax"], self.rotation)
         )
         estimator = FactorAnalysis(
             n_components=dims,
             rotation=rotation,
-            max_iter=params.iterations,
-            tol=params.tolerance,
+            max_iter=self.iterations,
+            tol=self.tolerance,
             random_state=seed,
         )
         return (estimator, values, tuple(details))
@@ -70,3 +66,7 @@ class FactorAnalysisAlgorithm(FittedDecompositionAlgorithm[FactorAnalysisParamet
             raise ValueError(
                 "Output dimensions exceed sampled rows or varying feature count"
             )
+
+
+# Legacy recipe/import name refers to this same algorithm, not a second record.
+FactorAnalysisParameters = FactorAnalysisAlgorithm

@@ -18,17 +18,14 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class KMeansParameters:
+class KMeansAlgorithm(NearestCenterClusteringAlgorithm):
     algorithm: ClassVar[AlgorithmId] = AlgorithmId.KMEANS
     clusters: int = setting(3, "Clusters", 1, 256)
     initializations: int = setting(10, "Initializations", 1)
     iterations: int = setting(300, "Iterations", 1)
-
-
-class KMeansAlgorithm(NearestCenterClusteringAlgorithm[KMeansParameters]):
-    parameter_type = KMeansParameters
-    row_limit = 100000
-    default_row_limit = 10000
+    recipe_kind: ClassVar[str] = "KMeansParameters"
+    row_limit: ClassVar[int] = 100000
+    default_row_limit: ClassVar[int] = 10000
 
     def build(
         self, prepared: PreparedInput
@@ -37,15 +34,14 @@ class KMeansAlgorithm(NearestCenterClusteringAlgorithm[KMeansParameters]):
 
         request = prepared.request
         values = prepared.values
-        params = self.parameters
         seed = request.seed
         estimator = KMeans(
-            n_clusters=params.clusters,
-            n_init=params.initializations,
-            max_iter=params.iterations,
+            n_clusters=self.clusters,
+            n_init=self.initializations,
+            max_iter=self.iterations,
             random_state=seed,
         )
-        return estimator, values, ()
+        return (estimator, values, ())
 
     def fitted_centers(
         self, estimator: ClusterEstimator, prepared: PreparedInput
@@ -60,6 +56,9 @@ class KMeansAlgorithm(NearestCenterClusteringAlgorithm[KMeansParameters]):
     def validate_input(
         self, values: NDArray[np.float64], request: AnalysisRequest
     ) -> None:
-        params = self.parameters
-        if params.clusters > len(np.unique(values, axis=0)):
+        if self.clusters > len(np.unique(values, axis=0)):
             raise ValueError("Cluster count exceeds distinct sampled inputs")
+
+
+# Legacy recipe/import name refers to this same algorithm, not a second record.
+KMeansParameters = KMeansAlgorithm

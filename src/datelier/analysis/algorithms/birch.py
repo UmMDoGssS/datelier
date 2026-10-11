@@ -15,17 +15,14 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class BirchParameters:
+class BirchAlgorithm(ClusteringAlgorithm):
     algorithm: ClassVar[AlgorithmId] = AlgorithmId.BIRCH
     clusters: int = setting(3, "Clusters", 1, 256)
-    threshold: float = setting(0.5, "Subcluster radius", 1e-9)
+    threshold: float = setting(0.5, "Subcluster radius", 1e-09)
     branching: int = setting(50, "Branching factor", 2, 1000)
-
-
-class BirchAlgorithm(ClusteringAlgorithm[BirchParameters]):
-    parameter_type = BirchParameters
-    row_limit = 100000
-    default_row_limit = 10000
+    recipe_kind: ClassVar[str] = "BirchParameters"
+    row_limit: ClassVar[int] = 100000
+    default_row_limit: ClassVar[int] = 10000
 
     def build(
         self, prepared: PreparedInput
@@ -33,17 +30,19 @@ class BirchAlgorithm(ClusteringAlgorithm[BirchParameters]):
         from sklearn.cluster import Birch
 
         values = prepared.values
-        params = self.parameters
         estimator = Birch(
-            n_clusters=params.clusters,
-            threshold=params.threshold,
-            branching_factor=params.branching,
+            n_clusters=self.clusters,
+            threshold=self.threshold,
+            branching_factor=self.branching,
         )
-        return estimator, values, ()
+        return (estimator, values, ())
 
     def validate_input(
         self, values: NDArray[np.float64], request: AnalysisRequest
     ) -> None:
-        params = self.parameters
-        if params.clusters > len(np.unique(values, axis=0)):
+        if self.clusters > len(np.unique(values, axis=0)):
             raise ValueError("Cluster count exceeds distinct sampled inputs")
+
+
+# Legacy recipe/import name refers to this same algorithm, not a second record.
+BirchParameters = BirchAlgorithm

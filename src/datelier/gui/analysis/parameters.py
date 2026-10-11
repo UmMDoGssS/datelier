@@ -3,7 +3,6 @@
 from collections.abc import Callable
 from typing import cast
 
-from datelier.analysis.algorithms.registry import build_algorithm
 from datelier.analysis.schema import Parameter, ParameterKind, ParameterValue
 from datelier.analysis.types import Algorithm
 from datelier.application.analysis_settings import AnalysisSettings
@@ -131,7 +130,7 @@ def parameter_field(
 class AlgorithmSettings(Container):
     def __init__(self, model: AnalysisSettings, algorithm: Algorithm) -> None:
         self.model, self.algorithm = model, algorithm
-        builder = build_algorithm(model.parameters[algorithm])
+        builder = model.parameters[algorithm]
         self.schema = builder.schema
         children: list[Component] = [
             IntegerField(

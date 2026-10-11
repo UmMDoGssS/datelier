@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class MeanShiftParameters:
+class MeanShiftAlgorithm(ClusteringAlgorithm):
     algorithm: ClassVar[AlgorithmId] = AlgorithmId.MEAN_SHIFT
     automatic_bandwidth: bool = field(
         default=True, metadata={"label": "Automatic bandwidth"}
@@ -24,8 +24,8 @@ class MeanShiftParameters:
         default=1.0,
         metadata={
             "label": "Bandwidth",
-            "min": 1e-9,
-            "max": 1e6,
+            "min": 1e-09,
+            "max": 1000000.0,
             "when": ("automatic_bandwidth", False),
         },
     )
@@ -33,7 +33,7 @@ class MeanShiftParameters:
         default=0.3,
         metadata={
             "label": "Bandwidth quantile",
-            "min": 1e-6,
+            "min": 1e-06,
             "max": 1.0,
             "when": ("automatic_bandwidth", True),
         },
@@ -42,12 +42,9 @@ class MeanShiftParameters:
         default=True, metadata={"label": "Assign isolated points"}
     )
     iterations: int = setting(300, "Iterations", 1, 10000)
-
-
-class MeanShiftAlgorithm(ClusteringAlgorithm[MeanShiftParameters]):
-    parameter_type = MeanShiftParameters
-    row_limit = 5000
-    default_row_limit = 2000
+    recipe_kind: ClassVar[str] = "MeanShiftParameters"
+    row_limit: ClassVar[int] = 5000
+    default_row_limit: ClassVar[int] = 2000
 
     def build(
         self, prepared: PreparedInput
@@ -57,7 +54,6 @@ class MeanShiftAlgorithm(ClusteringAlgorithm[MeanShiftParameters]):
 
         request = prepared.request
         values = prepared.values
-        params = self.parameters
         seed = request.seed
         details: list[tuple[str, str]] = []
         with threadpool_limits(limits=1):
@@ -65,14 +61,14 @@ class MeanShiftAlgorithm(ClusteringAlgorithm[MeanShiftParameters]):
                 float(
                     estimate_bandwidth(
                         prepared.values,
-                        quantile=params.quantile,
+                        quantile=self.quantile,
                         n_samples=min(500, len(prepared.row_ids)),
                         random_state=seed,
                         n_jobs=1,
                     )
                 )
-                if params.automatic_bandwidth
-                else params.bandwidth
+                if self.automatic_bandwidth
+                else self.bandwidth
             )
         if not np.isfinite(bandwidth) or bandwidth <= 0:
             raise ValueError(
@@ -81,8 +77,12 @@ class MeanShiftAlgorithm(ClusteringAlgorithm[MeanShiftParameters]):
         details.append(("Fitted bandwidth", f"{bandwidth:.6g}"))
         estimator = MeanShift(
             bandwidth=bandwidth,
-            cluster_all=params.cluster_all,
-            max_iter=params.iterations,
+            cluster_all=self.cluster_all,
+            max_iter=self.iterations,
             n_jobs=1,
         )
         return (estimator, values, tuple(details))
+
+
+# Legacy recipe/import name refers to this same algorithm, not a second record.
+MeanShiftParameters = MeanShiftAlgorithm

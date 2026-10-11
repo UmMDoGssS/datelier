@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class HDBSCANParameters:
+class HDBSCANAlgorithm(ClusteringAlgorithm):
     algorithm: ClassVar[AlgorithmId] = AlgorithmId.HDBSCAN
     min_cluster_size: int = setting(5, "Minimum cluster size", 2, 10000)
     min_samples: int = setting(5, "Minimum neighbors", 2, 10000)
@@ -23,12 +23,9 @@ class HDBSCANParameters:
     allow_single_cluster: bool = field(
         default=False, metadata={"label": "Allow one cluster"}
     )
-
-
-class HDBSCANAlgorithm(ClusteringAlgorithm[HDBSCANParameters]):
-    parameter_type = HDBSCANParameters
-    row_limit = 10000
-    default_row_limit = 2000
+    recipe_kind: ClassVar[str] = "HDBSCANParameters"
+    row_limit: ClassVar[int] = 10000
+    default_row_limit: ClassVar[int] = 2000
 
     def build(
         self, prepared: PreparedInput
@@ -38,23 +35,25 @@ class HDBSCANAlgorithm(ClusteringAlgorithm[HDBSCANParameters]):
         )
 
         values = prepared.values
-        params = self.parameters
         estimator = HDBSCAN(
-            min_cluster_size=params.min_cluster_size,
-            min_samples=params.min_samples,
-            cluster_selection_method=params.selection,
-            allow_single_cluster=params.allow_single_cluster,
+            min_cluster_size=self.min_cluster_size,
+            min_samples=self.min_samples,
+            cluster_selection_method=self.selection,
+            allow_single_cluster=self.allow_single_cluster,
             n_jobs=1,
             copy=True,
         )
-        return estimator, values, ()
+        return (estimator, values, ())
 
     def validate_input(
         self, values: NDArray[np.float64], request: AnalysisRequest
     ) -> None:
-        params = self.parameters
         rows = len(values)
-        if max(params.min_samples, params.min_cluster_size) > rows:
+        if max(self.min_samples, self.min_cluster_size) > rows:
             raise ValueError(
                 "Minimum neighbors and cluster size exceed the sampled rows"
             )
+
+
+# Legacy recipe/import name refers to this same algorithm, not a second record.
+HDBSCANParameters = HDBSCANAlgorithm

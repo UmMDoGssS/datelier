@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class MDSParameters:
+class MDSAlgorithm(FittedDecompositionAlgorithm):
     algorithm: ClassVar[AlgorithmId] = AlgorithmId.MDS
     metric: bool = field(default=True, metadata={"label": "Metric MDS"})
     initialization: str = choice(
@@ -35,13 +35,10 @@ class MDSParameters:
         },
     )
     iterations: int = setting(300, "Iterations", 1, 10000)
-    tolerance: float = setting(1e-6, "Stress tolerance", 1e-12, 1.0)
-
-
-class MDSAlgorithm(FittedDecompositionAlgorithm[MDSParameters]):
-    parameter_type = MDSParameters
-    row_limit = 2000
-    default_row_limit = 2000
+    tolerance: float = setting(1e-06, "Stress tolerance", 1e-12, 1.0)
+    recipe_kind: ClassVar[str] = "MDSParameters"
+    row_limit: ClassVar[int] = 2000
+    default_row_limit: ClassVar[int] = 2000
 
     def build(
         self, prepared: PreparedInput
@@ -50,17 +47,16 @@ class MDSAlgorithm(FittedDecompositionAlgorithm[MDSParameters]):
 
         request = prepared.request
         values = prepared.values
-        params = self.parameters
         dims, seed = (request.dimensions, request.seed)
         details: list[tuple[str, str]] = []
         mds_constructor = cast(Callable[..., MDS], MDS)
         estimator = mds_constructor(
             n_components=dims,
-            metric_mds=params.metric,
-            init=params.initialization,
-            n_init=params.initializations if params.initialization == "random" else 1,
-            max_iter=params.iterations,
-            eps=params.tolerance,
+            metric_mds=self.metric,
+            init=self.initialization,
+            n_init=self.initializations if self.initialization == "random" else 1,
+            max_iter=self.iterations,
+            eps=self.tolerance,
             random_state=seed,
             n_jobs=1,
             normalized_stress="auto",
@@ -84,3 +80,7 @@ class MDSAlgorithm(FittedDecompositionAlgorithm[MDSParameters]):
         rows, width = values.shape
         if rows <= request.dimensions:
             raise ValueError("MDS needs more sampled rows than dimensions")
+
+
+# Legacy recipe/import name refers to this same algorithm, not a second record.
+MDSParameters = MDSAlgorithm

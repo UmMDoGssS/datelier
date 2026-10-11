@@ -8,7 +8,7 @@ from typing import cast
 
 import pytest
 
-from datelier.analysis.algorithms.registry import BUILDERS, build_algorithm
+from datelier.analysis.algorithms.registry import ALGORITHMS
 from datelier.analysis.parameters import MeanShiftParameters
 from datelier.analysis.types import Algorithm, AnalysisRequest, TSNEParameters
 from datelier.application.analysis_settings import AnalysisSettings
@@ -21,8 +21,8 @@ def test_catalog_import_and_default_validation_never_import_estimators() -> None
             sys.executable,
             "-c",
             "import sys, json; "
-            "from datelier.analysis.algorithms.registry import BUILDERS; "
-            "[builder().validate() for builder in BUILDERS.values()]; "
+            "from datelier.analysis.algorithms.registry import ALGORITHMS; "
+            "[builder().validate() for builder in ALGORITHMS.values()]; "
             "print(json.dumps(sorted(set(sys.modules) & "
             "{'sklearn', 'umap', 'numba', 'imgui_bundle'})))",
         ],
@@ -38,7 +38,7 @@ def test_schema_updates_round_trip_as_typed_workspace_recipes(
     algorithm: Algorithm,
 ) -> None:
     controls = AnalysisSettings(features=["y", "x"])
-    builder = BUILDERS[algorithm]()
+    builder = ALGORITHMS[algorithm]()
     for descriptor in builder.schema:
         if descriptor.choices:
             value = descriptor.choices[-1]
@@ -63,15 +63,14 @@ def test_schema_updates_round_trip_as_typed_workspace_recipes(
 
 
 def test_conditional_parameters_share_gui_visibility_and_validation() -> None:
-    automatic = build_algorithm(MeanShiftParameters(bandwidth=-5))
-    manual = build_algorithm(
-        MeanShiftParameters(automatic_bandwidth=False, bandwidth=-5)
-    )
-    assert {
-        field.name for field in automatic.schema if field.visible(automatic.parameters)
-    } >= {"quantile", "automatic_bandwidth"}
+    automatic = MeanShiftParameters(bandwidth=-5)
+    manual = MeanShiftParameters(automatic_bandwidth=False, bandwidth=-5)
+    assert {field.name for field in automatic.schema if field.visible(automatic)} >= {
+        "quantile",
+        "automatic_bandwidth",
+    }
     assert not next(f for f in automatic.schema if f.name == "bandwidth").visible(
-        automatic.parameters
+        automatic
     )
     automatic.validate()
     with pytest.raises(ValueError, match="Bandwidth"):

@@ -15,21 +15,18 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class GaussianMixtureParameters:
+class GaussianMixtureAlgorithm(ClusteringAlgorithm):
     algorithm: ClassVar[AlgorithmId] = AlgorithmId.GAUSSIAN_MIXTURE
     clusters: int = setting(3, "Components", 1, 256)
     covariance: str = choice(
         "full", "Covariance", ("full", "tied", "diag", "spherical")
     )
-    regularization: float = setting(1e-6, "Covariance regularization", 1e-12)
+    regularization: float = setting(1e-06, "Covariance regularization", 1e-12)
     initializations: int = setting(1, "Initializations", 1, 100)
     iterations: int = setting(100, "Iterations", 1, 10000)
-
-
-class GaussianMixtureAlgorithm(ClusteringAlgorithm[GaussianMixtureParameters]):
-    parameter_type = GaussianMixtureParameters
-    row_limit = 50000
-    default_row_limit = 10000
+    recipe_kind: ClassVar[str] = "GaussianMixtureParameters"
+    row_limit: ClassVar[int] = 50000
+    default_row_limit: ClassVar[int] = 10000
 
     def build(
         self, prepared: PreparedInput
@@ -38,17 +35,16 @@ class GaussianMixtureAlgorithm(ClusteringAlgorithm[GaussianMixtureParameters]):
 
         request = prepared.request
         values = prepared.values
-        params = self.parameters
         seed = request.seed
         details: list[tuple[str, str]] = []
         estimator = GaussianMixture(
-            n_components=params.clusters,
+            n_components=self.clusters,
             covariance_type=cast(
-                Literal["full", "tied", "diag", "spherical"], params.covariance
+                Literal["full", "tied", "diag", "spherical"], self.covariance
             ),
-            reg_covar=params.regularization,
-            n_init=params.initializations,
-            max_iter=params.iterations,
+            reg_covar=self.regularization,
+            n_init=self.initializations,
+            max_iter=self.iterations,
             random_state=seed,
         )
         return (estimator, values, tuple(details))
@@ -70,6 +66,9 @@ class GaussianMixtureAlgorithm(ClusteringAlgorithm[GaussianMixtureParameters]):
     def validate_input(
         self, values: NDArray[np.float64], request: AnalysisRequest
     ) -> None:
-        params = self.parameters
-        if params.clusters > len(np.unique(values, axis=0)):
+        if self.clusters > len(np.unique(values, axis=0)):
             raise ValueError("Cluster count exceeds distinct sampled inputs")
+
+
+# Legacy recipe/import name refers to this same algorithm, not a second record.
+GaussianMixtureParameters = GaussianMixtureAlgorithm

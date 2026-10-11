@@ -18,17 +18,12 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class SparseProjectionParameters:
+class SparseProjectionAlgorithm(FittedDecompositionAlgorithm):
     algorithm: ClassVar[AlgorithmId] = AlgorithmId.SPARSE_PROJECTION
-    density: float = setting(0.3, "Projection density", 1e-6, 1.0)
-
-
-class SparseProjectionAlgorithm(
-    FittedDecompositionAlgorithm[SparseProjectionParameters]
-):
-    parameter_type = SparseProjectionParameters
-    row_limit = 100000
-    default_row_limit = 10000
+    density: float = setting(0.3, "Projection density", 1e-06, 1.0)
+    recipe_kind: ClassVar[str] = "SparseProjectionParameters"
+    row_limit: ClassVar[int] = 100000
+    default_row_limit: ClassVar[int] = 10000
 
     def build(
         self, prepared: PreparedInput
@@ -37,12 +32,15 @@ class SparseProjectionAlgorithm(
 
         request = prepared.request
         values = prepared.values
-        params = self.parameters
         dims, seed = (request.dimensions, request.seed)
         estimator = SparseRandomProjection(
             n_components=dims,
-            density=params.density,
+            density=self.density,
             dense_output=True,
             random_state=seed,
         )
-        return estimator, values, ()
+        return (estimator, values, ())
+
+
+# Legacy recipe/import name refers to this same algorithm, not a second record.
+SparseProjectionParameters = SparseProjectionAlgorithm

@@ -155,7 +155,7 @@ def test_builder_rejects_different_prepared_settings_before_fit() -> None:
     )
     prepared = prepare_input(dataset, AnalysisRequest(("x", "y")))
     with pytest.raises(ValueError, match="does not match"):
-        PCAAlgorithm(PCAParameters(whiten=True)).run(prepared)
+        PCAAlgorithm(whiten=True).fit(prepared)
 
 
 def test_clustering_family_uses_its_fitted_space_predictor() -> None:
@@ -181,7 +181,7 @@ def test_clustering_family_uses_its_fitted_space_predictor() -> None:
     prepared = prepare_input(dataset, AnalysisRequest(("x", "y"), parameters))
     result = run_analysis(prepared)
     assert isinstance(result, ClusteringResult)
-    predictor = ConstantPredictor(parameters)
+    predictor = ConstantPredictor(clusters=2)
     labels = predictor.predict(dataset, np.arange(4, dtype=np.uint64), result)
     assert labels.tolist() == [1, 1, 1, -2] and not labels.flags.writeable
     # Label-only recipes retain known row assignments, without inventing predictions.
@@ -197,6 +197,28 @@ def test_clustering_family_uses_its_fitted_space_predictor() -> None:
             result,
         )
     with pytest.raises(ValueError, match="match"):
-        KMeansAlgorithm(KMeansParameters(clusters=1)).predict(
+        KMeansAlgorithm(clusters=1).predict(
             dataset, np.arange(4, dtype=np.uint64), result
         )
+
+
+def test_one_algorithm_object_owns_tunable_fields_and_fit_facade() -> None:
+    from datelier.analysis.algorithms.kmeans import KMeansAlgorithm
+    from datelier.analysis.types import ClusteringResult
+
+    dataset = Dataset.from_source(
+        pl.DataFrame({"x": [0.0, 0.1, 4.0, 4.1, 9.0, 9.1], "y": [0, 1, 4, 5, 9, 10]}),
+        SourceReference(Path("unused"), 0, 0),
+    )
+    method = KMeansAlgorithm(clusters=2, iterations=75)
+    first = method.fit(prepare_input(dataset, AnalysisRequest(("x", "y"), method)))
+    assert isinstance(first, ClusteringResult) and len(first.counts) == 2
+    assert first.provenance.request.parameters is method
+    changed = method.with_parameter("clusters", 3)
+    second = changed.fit(prepare_input(dataset, AnalysisRequest(("x", "y"), changed)))
+    assert isinstance(second, ClusteringResult) and len(second.counts) == 3
+    assert changed.iterations == method.iterations == 75
+    assert method.clusters == 2
+    np.testing.assert_array_equal(first.row_ids, second.row_ids)
+    assert isinstance(first.provenance.request.parameters, KMeansAlgorithm)
+    assert first.provenance.request.parameters.clusters == 2

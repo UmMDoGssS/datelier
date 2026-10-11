@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class SpectralClusteringParameters:
+class SpectralClusteringAlgorithm(ClusteringAlgorithm):
     algorithm: ClassVar[AlgorithmId] = AlgorithmId.SPECTRAL_CLUSTERING
     clusters: int = setting(3, "Clusters", 1, 256)
     affinity: str = choice(
@@ -34,18 +34,15 @@ class SpectralClusteringParameters:
         default=1.0,
         metadata={
             "label": "Kernel gamma",
-            "min": 1e-9,
-            "max": 1e6,
+            "min": 1e-09,
+            "max": 1000000.0,
             "when": ("affinity", "rbf"),
         },
     )
     initializations: int = setting(10, "Initializations", 1, 100)
-
-
-class SpectralClusteringAlgorithm(ClusteringAlgorithm[SpectralClusteringParameters]):
-    parameter_type = SpectralClusteringParameters
-    row_limit = 3000
-    default_row_limit = 2000
+    recipe_kind: ClassVar[str] = "SpectralClusteringParameters"
+    row_limit: ClassVar[int] = 3000
+    default_row_limit: ClassVar[int] = 2000
 
     def build(
         self, prepared: PreparedInput
@@ -54,28 +51,28 @@ class SpectralClusteringAlgorithm(ClusteringAlgorithm[SpectralClusteringParamete
 
         request = prepared.request
         values = prepared.values
-        params = self.parameters
         seed = request.seed
         estimator = SpectralClustering(
-            n_clusters=params.clusters,
-            affinity=params.affinity,
-            n_neighbors=params.neighbors
-            if params.affinity == "nearest_neighbors"
-            else 10,
-            gamma=params.gamma if params.affinity == "rbf" else 1.0,
-            n_init=params.initializations,
+            n_clusters=self.clusters,
+            affinity=self.affinity,
+            n_neighbors=self.neighbors if self.affinity == "nearest_neighbors" else 10,
+            gamma=self.gamma if self.affinity == "rbf" else 1.0,
+            n_init=self.initializations,
             random_state=seed,
             n_jobs=1,
         )
-        return estimator, values, ()
+        return (estimator, values, ())
 
     def validate_input(
         self, values: NDArray[np.float64], request: AnalysisRequest
     ) -> None:
-        params = self.parameters
-        if params.clusters > len(np.unique(values, axis=0)):
+        if self.clusters > len(np.unique(values, axis=0)):
             raise ValueError("Cluster count exceeds distinct sampled inputs")
-        if params.affinity == "nearest_neighbors" and params.neighbors >= len(values):
+        if self.affinity == "nearest_neighbors" and self.neighbors >= len(values):
             raise ValueError(
                 "Spectral clustering needs more sampled rows than neighbors"
             )
+
+
+# Legacy recipe/import name refers to this same algorithm, not a second record.
+SpectralClusteringParameters = SpectralClusteringAlgorithm

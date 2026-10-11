@@ -18,16 +18,13 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class IsomapParameters:
+class IsomapAlgorithm(FittedDecompositionAlgorithm):
     algorithm: ClassVar[AlgorithmId] = AlgorithmId.ISOMAP
     neighbors: int = setting(15, "Neighbors", 2, 100)
     metric: str = choice("euclidean", "Distance", ("euclidean", "manhattan"))
-
-
-class IsomapAlgorithm(FittedDecompositionAlgorithm[IsomapParameters]):
-    parameter_type = IsomapParameters
-    row_limit = 3000
-    default_row_limit = 2000
+    recipe_kind: ClassVar[str] = "IsomapParameters"
+    row_limit: ClassVar[int] = 3000
+    default_row_limit: ClassVar[int] = 2000
 
     def build(
         self, prepared: PreparedInput
@@ -36,26 +33,28 @@ class IsomapAlgorithm(FittedDecompositionAlgorithm[IsomapParameters]):
 
         request = prepared.request
         values = prepared.values
-        params = self.parameters
         dims, _seed = (request.dimensions, request.seed)
         estimator = Isomap(
-            n_neighbors=params.neighbors,
+            n_neighbors=self.neighbors,
             n_components=dims,
-            metric=params.metric,
+            metric=self.metric,
             eigen_solver="dense",
             path_method="D",
             n_jobs=1,
         )
-        return estimator, values, ()
+        return (estimator, values, ())
 
     def validate_input(
         self, values: NDArray[np.float64], request: AnalysisRequest
     ) -> None:
-        params = self.parameters
         rows, width = values.shape
         if rows <= request.dimensions + 1:
             raise ValueError(
                 "Manifold views need more sampled rows than dimensions + 1"
             )
-        if params.neighbors >= rows:
+        if self.neighbors >= rows:
             raise ValueError("Neighbors must be smaller than the sampled row count")
+
+
+# Legacy recipe/import name refers to this same algorithm, not a second record.
+IsomapParameters = IsomapAlgorithm

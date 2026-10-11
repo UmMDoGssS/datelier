@@ -16,18 +16,15 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class PCAParameters:
+class PCAAlgorithm(DecompositionAlgorithm):
     algorithm: ClassVar[AlgorithmId] = AlgorithmId.PCA
     solver: str = choice("randomized", "Solver", ("randomized", "full"))
     whiten: bool = field(default=False, metadata={"label": "Whitening"})
+    recipe_kind: ClassVar[str] = "PCAParameters"
+    row_limit: ClassVar[int] = 100000
+    default_row_limit: ClassVar[int] = 10000
 
-
-class PCAAlgorithm(DecompositionAlgorithm[PCAParameters]):
-    parameter_type = PCAParameters
-    row_limit = 100000
-    default_row_limit = 10000
-
-    def run(self, prepared: PreparedInput) -> EmbeddingResult:
+    def fit(self, prepared: PreparedInput) -> EmbeddingResult:
         from threadpoolctl import threadpool_limits
 
         from datelier.analysis.embedding_result import embedding_result
@@ -35,13 +32,12 @@ class PCAAlgorithm(DecompositionAlgorithm[PCAParameters]):
         self.check_input(prepared)
         started = perf_counter()
         request = prepared.request
-        params = self.parameters
         from sklearn.decomposition import PCA
 
         pca = PCA(
             n_components=request.dimensions,
-            svd_solver="full" if params.solver == "full" else "randomized",
-            whiten=params.whiten,
+            svd_solver="full" if self.solver == "full" else "randomized",
+            whiten=self.whiten,
             random_state=request.seed,
         )
         with threadpool_limits(limits=1):
@@ -68,3 +64,7 @@ class PCAAlgorithm(DecompositionAlgorithm[PCAParameters]):
             raise ValueError(
                 "PCA dimensions exceed the sampled rows or varying feature count"
             )
+
+
+# Legacy recipe/import name refers to this same algorithm, not a second record.
+PCAParameters = PCAAlgorithm

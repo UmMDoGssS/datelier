@@ -37,7 +37,7 @@ from datelier.analysis.algorithms.mini_batch import (
 )
 from datelier.analysis.algorithms.nmf import NMFParameters as NMFParameters
 from datelier.analysis.algorithms.optics import OPTICSParameters as OPTICSParameters
-from datelier.analysis.algorithms.registry import BUILDERS
+from datelier.analysis.algorithms.registry import ALGORITHMS
 from datelier.analysis.algorithms.sparse_projection import (
     SparseProjectionParameters as SparseProjectionParameters,
 )
@@ -98,5 +98,5 @@ EXTRA_DEFAULTS: dict[Algorithm, ExtraParameters] = {
     SpectralEmbeddingParameters.algorithm: SpectralEmbeddingParameters(),
     LLEParameters.algorithm: LLEParameters(),
 }
-EXTRA_LIMITS = {a: BUILDERS[a].row_limit for a in EXTRA_DEFAULTS}
-EXTRA_DEFAULT_LIMITS = {a: BUILDERS[a].default_row_limit for a in EXTRA_DEFAULTS}
+EXTRA_LIMITS = {a: ALGORITHMS[a].row_limit for a in EXTRA_DEFAULTS}
+EXTRA_DEFAULT_LIMITS = {a: ALGORITHMS[a].default_row_limit for a in EXTRA_DEFAULTS}

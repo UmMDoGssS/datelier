@@ -3,7 +3,6 @@
 import numpy as np
 import polars as pl
 
-from datelier.analysis.algorithms.registry import build_algorithm
 from datelier.analysis.types import (
     AnalysisRequest,
     InputSummary,
@@ -72,7 +71,7 @@ def prepare_input(dataset: Dataset, request: AnalysisRequest) -> PreparedInput:
     )
     values, _ = model.transform(matrix)
     rows = values.shape[0]
-    build_algorithm(request.parameters).validate_input(values, request)
+    request.parameters.validate_input(values, request)
     ids, positions = (sample["id"].to_numpy(), sample["position"].to_numpy())
     for array in (
         values,

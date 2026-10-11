@@ -3,12 +3,13 @@
 from abc import ABC, abstractmethod
 from collections.abc import Callable
 from time import perf_counter
-from typing import TYPE_CHECKING, Protocol, cast
+from typing import TYPE_CHECKING, ClassVar, Protocol, Self, cast
 from warnings import catch_warnings
 
 import numpy as np
 from numpy.typing import NDArray
 
+from datelier.analysis.algorithm import Algorithm as AlgorithmId
 from datelier.analysis.schema import (
     Parameter,
     ParameterValue,
@@ -23,7 +24,6 @@ if TYPE_CHECKING:
         ClusteringResult,
         EmbeddingResult,
         KMeansFit,
-        Parameters,
         PreparedInput,
     )
     from datelier.core.dataset import Dataset
@@ -40,55 +40,61 @@ class ClusterEstimator(Protocol):
     def fit_predict(self, X: NDArray[np.float64]) -> object: ...
 
 
-class Algorithm[P: Parameters](ABC):
-    parameter_type: type[P]
-    row_limit: int
-    default_row_limit: int
-
-    def __init__(self, parameters: P | None = None) -> None:
-        self.parameters = self.parameter_type() if parameters is None else parameters
+class Algorithm(ABC):
+    algorithm: ClassVar[AlgorithmId]
+    recipe_kind: ClassVar[str]
+    row_limit: ClassVar[int]
+    default_row_limit: ClassVar[int]
 
     @property
     def schema(self) -> tuple[Parameter, ...]:
-        return parameter_schema(self.parameters)
+        return parameter_schema(self)
 
-    def with_parameter(self, name: str, value: ParameterValue) -> P:
+    def with_parameter(self, name: str, value: ParameterValue) -> Self:
         descriptor = next((item for item in self.schema if item.name == name), None)
         if descriptor is None:
             raise ValueError(f"Unknown algorithm parameter: {name}")
         descriptor.validate(value)
-        values = {
-            item.name: getattr(self.parameters, item.name) for item in self.schema
-        }
+        values = {item.name: getattr(self, item.name) for item in self.schema}
         values[name] = value
         # Trusted schema names/values are validated before dynamic construction.
-        constructor = cast(Callable[..., P], self.parameter_type)
+        constructor = cast(Callable[..., Self], type(self))
         return constructor(**values)
 
     def validate(self) -> None:
-        validate_parameters(self.parameters)
+        validate_parameters(self)
 
     def validate_input(
         self, values: NDArray[np.float64], request: AnalysisRequest
     ) -> None:
         return None
 
+    def same_configuration(self, other: Algorithm) -> bool:
+        return (
+            self.algorithm == other.algorithm
+            and self.schema == other.schema
+            and all(
+                getattr(self, item.name) == getattr(other, item.name)
+                for item in self.schema
+            )
+        )
+
     def check_input(self, prepared: PreparedInput) -> None:
-        if prepared.request.parameters != self.parameters:
+        if not self.same_configuration(prepared.request.parameters):
             raise ValueError("Prepared request does not match the algorithm parameters")
         prepared.request.validate()
 
     @abstractmethod
-    def run(self, prepared: PreparedInput) -> AnalysisResult:
+    def fit(self, prepared: PreparedInput) -> AnalysisResult:
         """Fit explicitly prepared data, preserving row identity and provenance."""
 
 
-class DecompositionAlgorithm[P: Parameters](Algorithm[P], ABC):
+class DecompositionAlgorithm(Algorithm, ABC):
     @abstractmethod
-    def run(self, prepared: PreparedInput) -> EmbeddingResult: ...
+    def fit(self, prepared: PreparedInput) -> EmbeddingResult: ...
 
 
-class FittedDecompositionAlgorithm[P: Parameters](DecompositionAlgorithm[P], ABC):
+class FittedDecompositionAlgorithm(DecompositionAlgorithm, ABC):
     @abstractmethod
     def build(
         self, prepared: PreparedInput
@@ -97,7 +103,7 @@ class FittedDecompositionAlgorithm[P: Parameters](DecompositionAlgorithm[P], ABC
     def diagnostics(self, estimator: EmbeddingEstimator) -> Details:
         return ()
 
-    def run(self, prepared: PreparedInput) -> EmbeddingResult:
+    def fit(self, prepared: PreparedInput) -> EmbeddingResult:
         from threadpoolctl import threadpool_limits
 
         from datelier.analysis.embedding_result import embedding_result
@@ -121,7 +127,7 @@ class FittedDecompositionAlgorithm[P: Parameters](DecompositionAlgorithm[P], ABC
         )
 
 
-class ClusteringAlgorithm[P: Parameters](Algorithm[P], ABC):
+class ClusteringAlgorithm(Algorithm, ABC):
     @abstractmethod
     def build(
         self, prepared: PreparedInput
@@ -142,7 +148,7 @@ class ClusteringAlgorithm[P: Parameters](Algorithm[P], ABC):
     ) -> NDArray[np.int64]:
         import polars as pl
 
-        if result.provenance.request.parameters != self.parameters:
+        if not self.same_configuration(result.provenance.request.parameters):
             raise ValueError("Cluster predictor does not match the fitted parameters")
         if dataset.revision != result.revision or len(positions) > 10000:
             raise ValueError(
@@ -193,7 +199,7 @@ class ClusteringAlgorithm[P: Parameters](Algorithm[P], ABC):
     ) -> NDArray[np.int64]:
         raise ValueError("This algorithm has no predictor for unseen rows")
 
-    def run(self, prepared: PreparedInput) -> ClusteringResult:
+    def fit(self, prepared: PreparedInput) -> ClusteringResult:
         from threadpoolctl import threadpool_limits
 
         from datelier.analysis.provenance import make_provenance
@@ -229,7 +235,7 @@ class ClusteringAlgorithm[P: Parameters](Algorithm[P], ABC):
         )
 
 
-class NearestCenterClusteringAlgorithm[P: Parameters](ClusteringAlgorithm[P], ABC):
+class NearestCenterClusteringAlgorithm(ClusteringAlgorithm, ABC):
     """K-means family predicts in the original fitted preprocessing space."""
 
     @staticmethod

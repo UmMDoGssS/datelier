@@ -15,17 +15,14 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class DBSCANParameters:
+class DBSCANAlgorithm(ClusteringAlgorithm):
     algorithm: ClassVar[AlgorithmId] = AlgorithmId.DBSCAN
-    epsilon: float = setting(0.5, "Neighborhood radius", 1e-9)
+    epsilon: float = setting(0.5, "Neighborhood radius", 1e-09)
     min_samples: int = setting(5, "Minimum neighbors", 2, 10000)
     metric: str = choice("euclidean", "Distance", ("euclidean", "manhattan"))
-
-
-class DBSCANAlgorithm(ClusteringAlgorithm[DBSCANParameters]):
-    parameter_type = DBSCANParameters
-    row_limit = 5000
-    default_row_limit = 2000
+    recipe_kind: ClassVar[str] = "DBSCANParameters"
+    row_limit: ClassVar[int] = 5000
+    default_row_limit: ClassVar[int] = 2000
 
     def build(
         self, prepared: PreparedInput
@@ -33,11 +30,14 @@ class DBSCANAlgorithm(ClusteringAlgorithm[DBSCANParameters]):
         from sklearn.cluster import DBSCAN
 
         values = prepared.values
-        params = self.parameters
         estimator = DBSCAN(
-            eps=params.epsilon,
-            min_samples=params.min_samples,
-            metric=params.metric,
+            eps=self.epsilon,
+            min_samples=self.min_samples,
+            metric=self.metric,
             n_jobs=1,
         )
-        return estimator, values, ()
+        return (estimator, values, ())
+
+
+# Legacy recipe/import name refers to this same algorithm, not a second record.
+DBSCANParameters = DBSCANAlgorithm

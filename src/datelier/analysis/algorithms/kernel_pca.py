@@ -18,15 +18,15 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class KernelPCAParameters:
+class KernelPCAAlgorithm(FittedDecompositionAlgorithm):
     algorithm: ClassVar[AlgorithmId] = AlgorithmId.KERNEL_PCA
     kernel: str = choice("rbf", "Kernel", ("rbf", "poly", "cosine", "linear"))
     gamma: float = field(
         default=1.0,
         metadata={
             "label": "Kernel gamma",
-            "min": 1e-9,
-            "max": 1e6,
+            "min": 1e-09,
+            "max": 1000000.0,
             "unless": ("kernel", ("cosine", "linear")),
         },
     )
@@ -39,12 +39,9 @@ class KernelPCAParameters:
             "when": ("kernel", "poly"),
         },
     )
-
-
-class KernelPCAAlgorithm(FittedDecompositionAlgorithm[KernelPCAParameters]):
-    parameter_type = KernelPCAParameters
-    row_limit = 3000
-    default_row_limit = 2000
+    recipe_kind: ClassVar[str] = "KernelPCAParameters"
+    row_limit: ClassVar[int] = 3000
+    default_row_limit: ClassVar[int] = 2000
 
     def build(
         self, prepared: PreparedInput
@@ -53,14 +50,13 @@ class KernelPCAAlgorithm(FittedDecompositionAlgorithm[KernelPCAParameters]):
 
         request = prepared.request
         values = prepared.values
-        params = self.parameters
         dims, seed = (request.dimensions, request.seed)
         details: list[tuple[str, str]] = []
         estimator = KernelPCA(
             n_components=dims,
-            kernel=cast(Literal["rbf", "poly", "cosine", "linear"], params.kernel),
-            gamma=params.gamma if params.kernel in ("rbf", "poly") else None,
-            degree=params.degree if params.kernel == "poly" else 3,
+            kernel=cast(Literal["rbf", "poly", "cosine", "linear"], self.kernel),
+            gamma=self.gamma if self.kernel in ("rbf", "poly") else None,
+            degree=self.degree if self.kernel == "poly" else 3,
             eigen_solver="arpack",
             random_state=seed,
             n_jobs=1,
@@ -83,3 +79,7 @@ class KernelPCAAlgorithm(FittedDecompositionAlgorithm[KernelPCAParameters]):
             raise ValueError(
                 "Kernel PCA needs more sampled rows than output dimensions"
             )
+
+
+# Legacy recipe/import name refers to this same algorithm, not a second record.
+KernelPCAParameters = KernelPCAAlgorithm

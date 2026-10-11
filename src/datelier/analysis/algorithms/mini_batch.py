@@ -18,18 +18,15 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class MiniBatchParameters:
+class MiniBatchAlgorithm(NearestCenterClusteringAlgorithm):
     algorithm: ClassVar[AlgorithmId] = AlgorithmId.MINIBATCH_KMEANS
     clusters: int = setting(3, "Clusters", 1, 256)
     batch_size: int = setting(1024, "Batch size", 1, 100000)
     initializations: int = setting(3, "Initializations", 1, 100)
     iterations: int = setting(100, "Iterations", 1, 10000)
-
-
-class MiniBatchAlgorithm(NearestCenterClusteringAlgorithm[MiniBatchParameters]):
-    parameter_type = MiniBatchParameters
-    row_limit = 100000
-    default_row_limit = 10000
+    recipe_kind: ClassVar[str] = "MiniBatchParameters"
+    row_limit: ClassVar[int] = 100000
+    default_row_limit: ClassVar[int] = 10000
 
     def build(
         self, prepared: PreparedInput
@@ -38,16 +35,15 @@ class MiniBatchAlgorithm(NearestCenterClusteringAlgorithm[MiniBatchParameters]):
 
         request = prepared.request
         values = prepared.values
-        params = self.parameters
         seed = request.seed
         estimator = MiniBatchKMeans(
-            n_clusters=params.clusters,
-            batch_size=params.batch_size,
-            n_init=params.initializations,
-            max_iter=params.iterations,
+            n_clusters=self.clusters,
+            batch_size=self.batch_size,
+            n_init=self.initializations,
+            max_iter=self.iterations,
             random_state=seed,
         )
-        return estimator, values, ()
+        return (estimator, values, ())
 
     def fitted_centers(
         self, estimator: ClusterEstimator, prepared: PreparedInput
@@ -62,6 +58,9 @@ class MiniBatchAlgorithm(NearestCenterClusteringAlgorithm[MiniBatchParameters]):
     def validate_input(
         self, values: NDArray[np.float64], request: AnalysisRequest
     ) -> None:
-        params = self.parameters
-        if params.clusters > len(np.unique(values, axis=0)):
+        if self.clusters > len(np.unique(values, axis=0)):
             raise ValueError("Cluster count exceeds distinct sampled inputs")
+
+
+# Legacy recipe/import name refers to this same algorithm, not a second record.
+MiniBatchParameters = MiniBatchAlgorithm

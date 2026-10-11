@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass, field, replace
 
-from datelier.analysis.algorithms.registry import BUILDERS, build_algorithm
+from datelier.analysis.algorithms.registry import ALGORITHMS
 from datelier.analysis.jobs import AnalysisJobs
 from datelier.analysis.schema import ParameterValue
 from datelier.analysis.types import (
@@ -25,18 +25,16 @@ class AnalysisSettings:
     seed: int = 42
     error: str = ""
     parameters: dict[Algorithm, Parameters] = field(
-        default_factory=lambda: {
-            a: builder().parameters for a, builder in BUILDERS.items()
-        }
+        default_factory=lambda: {a: builder() for a, builder in ALGORITHMS.items()}
     )
     limits: dict[Algorithm, int] = field(
         default_factory=lambda: {
-            a: builder.default_row_limit for a, builder in BUILDERS.items()
+            a: builder.default_row_limit for a, builder in ALGORITHMS.items()
         }
     )
 
     def update(self, algorithm: Algorithm, name: str, value: ParameterValue) -> None:
-        builder = build_algorithm(self.parameters[algorithm])
+        builder = self.parameters[algorithm]
         self.parameters[algorithm] = builder.with_parameter(name, value)
 
     def restore(self, request: AnalysisRequest) -> None:

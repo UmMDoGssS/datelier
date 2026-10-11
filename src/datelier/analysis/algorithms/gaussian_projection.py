@@ -17,16 +17,11 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class GaussianProjectionParameters:
+class GaussianProjectionAlgorithm(FittedDecompositionAlgorithm):
     algorithm: ClassVar[AlgorithmId] = AlgorithmId.GAUSSIAN_PROJECTION
-
-
-class GaussianProjectionAlgorithm(
-    FittedDecompositionAlgorithm[GaussianProjectionParameters]
-):
-    parameter_type = GaussianProjectionParameters
-    row_limit = 100000
-    default_row_limit = 10000
+    recipe_kind: ClassVar[str] = "GaussianProjectionParameters"
+    row_limit: ClassVar[int] = 100000
+    default_row_limit: ClassVar[int] = 10000
 
     def build(
         self, prepared: PreparedInput
@@ -37,4 +32,8 @@ class GaussianProjectionAlgorithm(
         values = prepared.values
         dims, seed = (request.dimensions, request.seed)
         estimator = GaussianRandomProjection(n_components=dims, random_state=seed)
-        return estimator, values, ()
+        return (estimator, values, ())
+
+
+# Legacy recipe/import name refers to this same algorithm, not a second record.
+GaussianProjectionParameters = GaussianProjectionAlgorithm

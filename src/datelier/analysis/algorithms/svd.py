@@ -18,15 +18,12 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class SVDParameters:
+class SVDAlgorithm(FittedDecompositionAlgorithm):
     algorithm: ClassVar[AlgorithmId] = AlgorithmId.SVD
     iterations: int = setting(5, "Power iterations", 1, 100)
-
-
-class SVDAlgorithm(FittedDecompositionAlgorithm[SVDParameters]):
-    parameter_type = SVDParameters
-    row_limit = 100000
-    default_row_limit = 10000
+    recipe_kind: ClassVar[str] = "SVDParameters"
+    row_limit: ClassVar[int] = 100000
+    default_row_limit: ClassVar[int] = 10000
 
     def build(
         self, prepared: PreparedInput
@@ -35,11 +32,10 @@ class SVDAlgorithm(FittedDecompositionAlgorithm[SVDParameters]):
 
         request = prepared.request
         values = prepared.values
-        params = self.parameters
         dims, seed = (request.dimensions, request.seed)
         details: list[tuple[str, str]] = []
         estimator = TruncatedSVD(
-            n_components=dims, n_iter=params.iterations, random_state=seed
+            n_components=dims, n_iter=self.iterations, random_state=seed
         )
         return (estimator, values, tuple(details))
 
@@ -66,3 +62,7 @@ class SVDAlgorithm(FittedDecompositionAlgorithm[SVDParameters]):
             )
         if width < 2:
             raise ValueError("Truncated SVD needs at least two varying features")
+
+
+# Legacy recipe/import name refers to this same algorithm, not a second record.
+SVDParameters = SVDAlgorithm

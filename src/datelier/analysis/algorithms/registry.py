@@ -7,7 +7,7 @@ from datelier.analysis.algorithms.affinity_propagation import (
     AffinityPropagationAlgorithm,
 )
 from datelier.analysis.algorithms.agglomerative import AgglomerativeAlgorithm
-from datelier.analysis.algorithms.base import Algorithm, ClusteringAlgorithm
+from datelier.analysis.algorithms.base import ClusteringAlgorithm
 from datelier.analysis.algorithms.bayesian_mixture import BayesianMixtureAlgorithm
 from datelier.analysis.algorithms.birch import BirchAlgorithm
 from datelier.analysis.algorithms.dbscan import DBSCANAlgorithm
@@ -36,8 +36,8 @@ from datelier.analysis.algorithms.umap import UMAPAlgorithm
 if TYPE_CHECKING:
     from datelier.analysis.types import Parameters
 
-BUILDERS: dict[AlgorithmId, type[Algorithm]] = {
-    builder.parameter_type.algorithm: builder
+ALGORITHMS: dict[AlgorithmId, type[Parameters]] = {
+    builder.algorithm: builder
     for builder in (
         KMeansAlgorithm,
         DBSCANAlgorithm,
@@ -69,13 +69,5 @@ BUILDERS: dict[AlgorithmId, type[Algorithm]] = {
 }
 
 
-def build_algorithm(parameters: Parameters) -> Algorithm:
-    builder = BUILDERS[parameters.algorithm]
-    algorithm = builder(parameters)
-    if type(parameters) is not algorithm.parameter_type:
-        raise ValueError("Parameters do not match the selected algorithm")
-    return algorithm
-
-
 def is_clustering(identifier: AlgorithmId) -> bool:
-    return issubclass(BUILDERS[identifier], ClusteringAlgorithm)
+    return issubclass(ALGORITHMS[identifier], ClusteringAlgorithm)
