@@ -66,6 +66,7 @@ class ColumnList(Container):
         _, self.search = imgui.input_text_with_hint(
             "##search", "Search columns", self.search
         )
+        target(frame, "search")
         groups = [
             "All roles",
             *dict.fromkeys(c.group for c in self.choices() if c.group),
@@ -74,6 +75,7 @@ class ColumnList(Container):
         _, group = imgui.combo(
             "##role", groups.index(self.group) if self.group in groups else 0, groups
         )
+        target(frame, "role")
         self.group = groups[group]
         shown = tuple(
             c

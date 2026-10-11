@@ -67,12 +67,15 @@ class FileTabs(Component):
         imgui.same_line()
         if imgui.button("Redo"):
             self.redo()
+        target(frame, "redo")
         imgui.same_line()
         if imgui.button("Context"):
             self.toggle_context()
+        target(frame, "context")
         imgui.same_line()
         if imgui.button("Table"):
             self.toggle_table()
+        target(frame, "table")
         imgui.same_line()
         files = self.files()
         active = next((f.identity for f in files if f.active), "")

@@ -791,6 +791,39 @@ fields and Expand/Restore in 263 frames at 20.15 ms, and browser/media opening i
 Old native-script migration, integrated GPU/resource and three-size/theme/final
 capability acceptance remain open.
 
+## Fresh Stage E18 — Three-size/theme shell and docking acceptance
+
+The native shell gate now runs from shared settled pointer/text drivers, reads
+persisted themes and exercises resizing, Expand/Restore/Auto, canvas tab input,
+context visibility and keyboard filtering/bulk selection in the shared picker.
+Toolbar and picker search/role controls expose stable probe targets.
+
+Opening the compact drawer no longer counts as custom docking. Tracking compares
+dock IDs of existing visible docked panels, ignoring newly visible panels/drawers.
+Actual custom docking suppresses default rebuilding when compact mode changes;
+Reset layout clears that customization and restores the default arrangement.
+
+All **nine size/theme combinations** pass: 1024×768, 1280×800 and 1600×1000 with
+Dark, Light and Classic. Native resize changes height by 35 px; Expand/Restore,
+Auto, Relationships/Correlations, Escape and keyboard-filtered ordered column
+selection pass. Compact cases retain an undocked 290 px context drawer; larger
+cases retain docked context. Frame p95 ranges **15.44–29.54 ms**, within the 33 ms
+budget. Source bytes and zero implicit analysis/playback pass. Representative
+captures at each size/theme were visually inspected.
+[Shell matrix](evidence/gui-overhaul/fresh-shell-matrix.json).
+
+Programmatic native dock reassignment persists at 1024×768. Actual menu Reset and
+Context toolbar input restore defaults and retain the drawer, in 69 frames at
+13.09 ms p95. This checks native docking state, rather than claiming a mouse-drag
+usability test. Saved-layout fresh-process restoration regresses in 23/31 frames
+at 17.03/13.56 ms p95. [Docking report](evidence/gui-overhaul/fresh-docking.json).
+
+Verification: production/tests/rebuilt scripts/migrated benchmarks pass scoped
+Pyrefly with zero errors; 28 picker/navigation/persistence checks, full Ruff
+lint/format (754 files) and whitespace checks pass. E17's full suite remains 1,136
+passing tests. Specialized multimodal size/theme and integrated GPU/resource
+acceptance, remaining old callers and final capability audit stay open.
+
 ## Baseline evidence
 
 Before implementation, 38 targeted editor/session/schema-role/profile-selection/

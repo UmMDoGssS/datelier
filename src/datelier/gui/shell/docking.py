@@ -58,7 +58,7 @@ class DockHost(Container):
         self.compact = False
         self.customized = False
         self.reset = False
-        self._signature: tuple[int, ...] = ()
+        self._signature: dict[str, int] = {}
         self._settle = 4
 
     def toggle_context(self) -> None:
@@ -69,9 +69,15 @@ class DockHost(Container):
 
     def render(self, frame: FrameContext) -> None:
         width = imgui.get_main_viewport().work_size.x
+        if self.reset:
+            self.customized = False
         compact = width < 1100 and not self.customized
         node_id = imgui.get_id("Datelier workbench")
-        if not self.initialized or self.reset or compact != self.compact:
+        if (
+            not self.initialized
+            or self.reset
+            or (not self.customized and compact != self.compact)
+        ):
             self._build(node_id, compact)
             self.initialized = True
             self.compact = compact
@@ -80,16 +86,19 @@ class DockHost(Container):
         imgui.dock_space(node_id, (0, 0))
         self.context.drawer = compact
         super().render(frame)
-        signature = tuple(
-            window.dock_id
+        signature = {
+            panel.key: window.dock_id
             for panel in self.children
-            if isinstance(panel, DockPanel)
+            if isinstance(panel, DockPanel) and panel.visible and not panel.drawer
             for window in (imgui.internal.find_window_by_name(panel.label),)
             if window is not None
-        )
+        }
         if self._settle:
             self._settle -= 1
-        elif self._signature and signature != self._signature:
+        elif any(
+            key in self._signature and self._signature[key] != dock_id
+            for key, dock_id in signature.items()
+        ):
             self.customized = True
         self._signature = signature
 

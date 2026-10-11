@@ -10,16 +10,19 @@ import numpy as np
 import polars as pl
 from imgui_bundle import hello_imgui, imgui
 from PIL import Image
+from rebuild_input import NativeInput, NativeText
 
 from datelier.application.editor import EditorController
 from datelier.gui.app import InspectionEvidence, run_gui
 from datelier.gui.components.probe import GuiProbe
+from datelier.workspace.preferences import Preferences, Theme, save_preferences
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--width", type=int, default=1280)
     parser.add_argument("--height", type=int, default=800)
+    parser.add_argument("--theme", choices=tuple(Theme), default=Theme.DARK)
     parser.add_argument("--output", type=Path, default=Path("/tmp/datelier-rebuild"))
     args = parser.parse_args()
     with TemporaryDirectory(prefix="datelier-rebuild-") as directory:
@@ -35,27 +38,14 @@ def main() -> None:
             }
         ).write_csv(source)
         digest = hashlib.sha256(source.read_bytes()).hexdigest()
+        preferences = Path(directory) / "preferences.json"
+        save_preferences(preferences, Preferences(theme=Theme(args.theme)))
         phase = 0
         stage_frame = 0
         start: tuple[float, float] | None = None
         checked: dict[str, object] = {}
 
-        def point(
-            probe: GuiProbe, suffix: tuple[str, ...]
-        ) -> tuple[float, float] | None:
-            return next(
-                (
-                    value
-                    for key, value in probe.targets.items()
-                    if key.path[-len(suffix) :] == suffix
-                ),
-                None,
-            )
-
-        def move(pixel: tuple[float, float]) -> None:
-            io = imgui.get_io()
-            io.mouse_pos = imgui.ImVec2(*pixel)
-            io.want_set_mouse_pos = True
+        native, text = NativeInput(), NativeText()
 
         def frame(
             editor: EditorController, probe: GuiProbe, evidence: InspectionEvidence
@@ -63,78 +53,102 @@ def main() -> None:
             nonlocal phase, stage_frame, start
             file = editor.active
             age = evidence.frames - stage_frame
-            io = imgui.get_io()
-            if evidence.frames > 250:
+            if evidence.frames > 500:
                 raise AssertionError((phase, list(k.path for k in probe.targets)))
-            if phase == 0:
-                if file.explorer.profiles.active and evidence.frames > 20:
-                    start = point(probe, ("numeric-plot", "resize"))
-                    assert start
-                    checked["profiles"] = len(
-                        file.explorer.profiles.active.profiles.columns
-                    )
-                    move(start)
-                    phase, stage_frame = 1, evidence.frames
-            elif phase == 1 and age > 3:
-                io.add_mouse_button_event(0, True)
-                phase, stage_frame = 2, evidence.frames
-            elif phase == 2 and age > 3:
+            if native.advance(evidence.frames) or text.advance(evidence.frames):
+                return
+            suffix: tuple[str, ...] | None = None
+            if phase == 0 and file.explorer.profiles.active and evidence.frames > 20:
+                start = native.find(probe, ("numeric-plot", "resize"))
                 assert start
-                move((start[0], start[1] + 35))
-                phase, stage_frame = 3, evidence.frames
-            elif phase == 3 and age > 3:
-                io.add_mouse_button_event(0, False)
-                phase, stage_frame = 4, evidence.frames
-            elif phase == 4 and age > 3:
-                resized = point(probe, ("numeric-plot", "resize"))
+                checked["profiles"] = len(
+                    file.explorer.profiles.active.profiles.columns
+                )
+                native.drag(start, (start[0], start[1] + 35), evidence.frames)
+                phase, stage_frame = 1, evidence.frames
+            elif phase == 1 and age > 3:
+                resized = native.find(probe, ("numeric-plot", "resize"))
                 assert resized and start and 25 <= resized[1] - start[1] <= 45
                 checked["resize_delta"] = resized[1] - start[1]
-                pixel = point(probe, ("Relationships", "tab"))
-                assert pixel
-                move(pixel)
-                phase, stage_frame = 5, evidence.frames
+                suffix = ("numeric-plot", "expand")
+            elif phase == 2 and age > 3:
+                suffix = ("numeric-plot", "restore")
+            elif phase == 3 and age > 3:
+                assert not native.find(probe, ("numeric-plot", "restore"))
+                checked["native_expand_restore"] = True
+                suffix = ("numeric-plot", "auto")
+            elif phase == 4 and age > 3:
+                assert file.profiles.height == 0
+                suffix = ("Relationships", "tab")
             elif phase == 5 and age > 3:
-                io.add_mouse_button_event(0, True)
-                phase, stage_frame = 6, evidence.frames
-            elif phase == 6 and age > 3:
-                io.add_mouse_button_event(0, False)
-                phase, stage_frame = 7, evidence.frames
-            elif phase == 7 and age > 4:
                 assert file.views.tab == "Relationships"
                 checked["relationships"] = True
-                pixel = point(probe, ("Correlations", "tab"))
-                assert pixel
-                move(pixel)
-                phase, stage_frame = 8, evidence.frames
-            elif phase == 8 and age > 3:
-                io.add_mouse_button_event(0, True)
-                phase, stage_frame = 9, evidence.frames
-            elif phase == 9 and age > 3:
-                io.add_mouse_button_event(0, False)
-                phase, stage_frame = 10, evidence.frames
-            elif phase == 10 and age > 5:
+                suffix = ("Correlations", "tab")
+            elif phase == 6 and age > 3:
                 assert file.views.tab == "Correlations"
+                if args.width < 1100:
+                    assert not native.find(probe, ("features", "open"))
+                    suffix = ("files", "context")
+                else:
+                    phase, stage_frame = 7, evidence.frames
+            elif phase == 7 and age > 3:
+                context = imgui.internal.find_window_by_name("Context")
+                assert context and context.size.x >= 270
+                assert bool(context.dock_id == 0) == (args.width < 1100)
+                checked["context_drawer"] = args.width < 1100
+                suffix = ("features", "open")
+            elif phase == 8 and age > 3:
+                suffix = ("features", "list", "search")
+            elif phase == 9:
+                text.start("y", evidence.frames)
+                phase, stage_frame = 10, evidence.frames
+            elif phase == 10 and age > 3:
+                assert native.find(probe, ("features", "list", "y", "select"))
+                assert not native.find(probe, ("features", "list", "x", "select"))
+                suffix = ("features", "list", "bulk")
+            elif phase == 11 and age > 3:
+                assert file.plots.relationship_features == ["y"]
+                checked["native_keyboard_filtered_column_selection"] = True
+                imgui.get_io().add_key_event(imgui.Key.escape, True)
+                phase, stage_frame = 12, evidence.frames
+            elif phase == 12:
+                imgui.get_io().add_key_event(imgui.Key.escape, False)
+                phase, stage_frame = 13, evidence.frames
+            elif phase == 13 and age > 3:
+                assert not native.find(probe, ("features", "list", "search"))
                 assert file.analysis.jobs.latest is None
                 assert file.audio.player.snapshot.request is None
                 assert hashlib.sha256(source.read_bytes()).hexdigest() == digest
-                checked["correlations"] = True
-                checked["source_preserved"] = True
-                checked["implicit_operations"] = 0
-                checked["targets"] = len(probe.targets)
+                assert editor.preferences.value.theme == Theme(args.theme)
+                checked.update(
+                    correlations=True,
+                    source_preserved=True,
+                    implicit_operations=0,
+                    targets=len(probe.targets),
+                )
                 hello_imgui.get_runner_params().app_shall_exit = True
-                phase = 11
+                phase = 14
+            if suffix:
+                pixel = native.find(probe, suffix)
+                if pixel:
+                    native.click_point(pixel, evidence.frames)
+                    phase, stage_frame = phase + 1, evidence.frames
 
         evidence = run_gui(
-            source, window_size=(args.width, args.height), on_probe_frame=frame
+            source,
+            window_size=(args.width, args.height),
+            preferences_path=preferences,
+            on_probe_frame=frame,
         )
         capture = hello_imgui.final_app_window_screenshot()
         if capture is not None and capture.size:
             Image.fromarray(capture).save(str(args.output) + ".png")
-        assert phase == 11, checked
+        assert phase == 14, checked
         report = {
             "frames": evidence.frames,
             "frame_p95_ms": float(np.percentile(evidence.frame_intervals_ms, 95)),
             "size": [args.width, args.height],
+            "theme": args.theme,
             **checked,
         }
         Path(str(args.output) + ".json").write_text(json.dumps(report, indent=2) + "\n")
