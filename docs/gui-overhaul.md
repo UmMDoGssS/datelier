@@ -886,6 +886,35 @@ script types (zero errors), full Ruff lint/format and whitespace checks pass.
 Full-project types remain open for historical GUI harnesses. Final caller
 consolidation, end-to-end/native regression and capability audit remain open.
 
+## Fresh Stage E22 — Live analysis/profile/comparison resources
+
+Migrated original million-row/six-feature explicit PCA/k-means/t-SNE/UMAP,
+20-cycle two-recipe column comparisons and 100-image exact live-profile gates.
+Their source fixtures and algorithm/comparison budgets are retained. The analysis
+gate exposed missing raw-scatter refresh after clustering: PlotSettings equality
+excludes result payloads, so publication/refit now also compares result identity.
+A behavioral regression covers fit/refit/clearing, aligned row IDs and unchanged
+sources. Benchmark embedding waits now require the requested algorithm's axes.
+
+All pass: analysis 2813 frames at 19.16 ms p95, parent peak 785.34 MiB and combined
+upper bound 1570.68 MiB within its original 2 GiB analysis budget. Column comparisons
+pass 20 updates at 15.23 ms p95, maximum preparation 55.17 ms, peak 474.23 MiB,
+zero outstanding jobs/retained closed files and complete worker cleanup.
+Exact 100×256×256 image profiling passes 349 live frames at 12.33 ms p95 in 4.11 s,
+with 3.02 MiB additional peak memory and about 387 MiB total peak.
+[Live resource reports](evidence/gui-overhaul/fresh-analysis-profile-resources.json).
+
+The old image growth baseline preceded native startup. It now records settled
+startup and cold startup separately: approximately 214 MiB belongs to native
+initialization, while explicit profiling retains its 96 MiB additional-peak limit.
+A 1 GiB total-process gate is also enforced. E21 independently verifies current
+RSS retention after repeated closure. This corrects measurement scope rather than
+concealing startup cost or claiming a retained-RSS result from high-water marks.
+
+Verification: 10 scatter/color/comparison/image checks, scoped types (zero errors),
+full Ruff lint/format and whitespace checks pass. Full-project types remain open
+for the remaining obsolete caller inventory; final integrated audit stays open.
+
 ## Baseline evidence
 
 Before implementation, 38 targeted editor/session/schema-role/profile-selection/

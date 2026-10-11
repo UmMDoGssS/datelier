@@ -15,9 +15,9 @@ import numpy as np
 import polars as pl
 from imgui_bundle import hello_imgui
 
+from datelier.application.editor import EditorController
 from datelier.gui.app import InspectionEvidence, run_gui
-from datelier.gui.editor_session import EditorSession
-from datelier.gui.tabs import EditorTabs
+from datelier.gui.components.probe import GuiProbe
 from datelier.inspection.comparison_settings import (
     ComparisonSettings,
     ComparisonSource,
@@ -65,10 +65,21 @@ def main() -> None:
         original = tuple(path.read_bytes() for path in paths)
         fixture_bytes = sum(path.stat().st_size for path in paths)
 
+        comparison_frames = 0
+
         def hook(
-            editor: EditorSession, tabs: EditorTabs, evidence: InspectionEvidence
+            editor: EditorController, probe: GuiProbe, evidence: InspectionEvidence
         ) -> None:
-            nonlocal stage, cycles, entered, started, baseline, closed
+            nonlocal \
+                stage, \
+                cycles, \
+                entered, \
+                started, \
+                baseline, \
+                closed, \
+                comparison_frames
+            if any(k.path[-2:] == ("column-chart", "canvas") for k in probe.targets):
+                comparison_frames += 1
             if stage == 0:
                 editor.opening.request(paths, editor.active_id)
                 stage = 1
@@ -78,7 +89,7 @@ def main() -> None:
                 ):
                     return
                 train, test = editor.files
-                editor.comparisons = (
+                editor.compare.columns.recipes = (
                     ComparisonSettings(
                         (
                             ComparisonSource(train.identity, "x", "Training"),
@@ -92,20 +103,18 @@ def main() -> None:
                         )
                     ),
                 )
-                hello_imgui.get_runner_params().docking_params.focus_dockable_window(
-                    "Compare files"
-                )
+                editor.choose_route("Compare files")
                 started = perf_counter()
                 stage = 2
             elif stage == 2:
                 if (
-                    editor.comparison_jobs.busy
-                    or not editor.comparison_jobs.states
-                    or any(s.result is None for s in editor.comparison_jobs.states)
+                    editor.compare.columns.jobs.busy
+                    or not editor.compare.columns.jobs.states
+                    or any(s.result is None for s in editor.compare.columns.jobs.states)
                 ):
                     return
                 prepare_ms.append((perf_counter() - started) * 1000)
-                for state in editor.comparison_jobs.states:
+                for state in editor.compare.columns.jobs.states:
                     assert state.result is not None
                     for series in state.result.series:
                         assert series.counts.sum() == series.included
@@ -114,7 +123,7 @@ def main() -> None:
                     baseline = rss_mib()
                 if cycles < 20:
                     cycles += 1
-                    editor.comparisons = tuple(
+                    editor.compare.columns.recipes = tuple(
                         replace(
                             recipe,
                             bins=10 + cycles,
@@ -123,7 +132,7 @@ def main() -> None:
                             if cycles % 2
                             else Normalization.DENSITY,
                         )
-                        for recipe in editor.comparisons
+                        for recipe in editor.compare.columns.recipes
                     )
                     started = perf_counter()
                 else:
@@ -131,7 +140,7 @@ def main() -> None:
             elif stage == 3:
                 if editor.workers.pending or evidence.frames < entered + 30:
                     return
-                assert evidence.comparison_frames > 20
+                assert comparison_frames > 20
                 gc.collect()
                 growth = rss_mib() - baseline
                 p95 = float(np.percentile(evidence.frame_intervals_ms, 95))
@@ -144,7 +153,7 @@ def main() -> None:
                     comparisons=2,
                     update_cycles=cycles,
                     frames=evidence.frames,
-                    comparison_frames=evidence.comparison_frames,
+                    comparison_frames=comparison_frames,
                     initial_prepare_ms=prepare_ms[0],
                     max_prepare_ms=max(prepare_ms),
                     frame_p95_ms=p95,
@@ -161,7 +170,7 @@ def main() -> None:
                 assert workers <= BUDGETS["workers"], report
                 closed = [ref(f) for f in editor.files]
                 for identity in tuple(f.identity for f in editor.files):
-                    editor.close_tab(identity)
+                    editor.close_file(identity)
                 stage, entered = 4, evidence.frames
             elif stage == 4:
                 if evidence.frames < entered + 20 or editor.workers.pending:
@@ -172,11 +181,11 @@ def main() -> None:
                     r() is not None for r in closed
                 )
                 assert report["retained_closed_sessions"] == 0, report
-                assert not editor.comparison_jobs.busy
+                assert not editor.compare.columns.jobs.busy
                 hello_imgui.get_runner_params().app_shall_exit = True
                 stage = 5
 
-        run_gui(smoke_frames=5000, on_editor_frame=hook)
+        run_gui(smoke_frames=5000, on_probe_frame=hook)
         assert stage == 5, stage
         report["source_bytes_unchanged"] = (
             tuple(path.read_bytes() for path in paths) == original

@@ -13,8 +13,10 @@ from imgui_bundle import hello_imgui
 from numpy.typing import NDArray
 
 from datelier.analysis.types import Algorithm, ClusteringResult
+from datelier.application.editor import EditorController
 from datelier.feasibility.fixtures import make_table
-from datelier.gui.app import GuiSession, InspectionEvidence, run_gui
+from datelier.gui.app import InspectionEvidence, run_gui
+from datelier.gui.components.probe import GuiProbe
 
 
 def main() -> None:
@@ -32,7 +34,10 @@ def main() -> None:
         make_table(args.rows, args.columns).write_csv(source)
         original = source.stat()
 
-        def frame(session: GuiSession, evidence: InspectionEvidence) -> None:
+        def frame(
+            editor: EditorController, probe: GuiProbe, evidence: InspectionEvidence
+        ) -> None:
+            session = editor.current
             nonlocal stage, index, entered, started
             active, dashboard = session.loader.active, session.explorer.active
             if active is None or dashboard is None:
@@ -43,7 +48,7 @@ def main() -> None:
                 session.analysis.controls.features = [
                     f"feature_{i}" for i in range(args.columns)
                 ]
-                session.exploration.tab = "Scatter"
+                editor.choose_route("Relationships")
                 stage = 1
             if stage == 1:
                 started = perf_counter()
@@ -54,10 +59,14 @@ def main() -> None:
                 result = jobs.results.get(algorithms[index])
                 if result is None:
                     raise RuntimeError(jobs.message)
+                session.open_analysis_result(algorithms[index])
                 if isinstance(result, ClusteringResult):
                     if dashboard.scatters[0].colors is None:
                         return
-                elif session.analysis.plots.active is None:
+                elif (
+                    session.analysis.plots.active is None
+                    or session.analysis.plots.active.x_name != f"{algorithms[index]} 1"
+                ):
                     return
                 assert result.revision == active.dataset.revision
                 timings.append(
@@ -76,7 +85,7 @@ def main() -> None:
                 else:
                     stage = 1
 
-        evidence = run_gui(source, smoke_frames=15000, on_frame=frame)
+        evidence = run_gui(source, smoke_frames=15000, on_probe_frame=frame)
         assert index == len(algorithms)
         parent = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
         child = resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss / 1024

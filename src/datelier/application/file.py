@@ -357,7 +357,12 @@ class FileController:
             self.analysis.plots.clear()
         try:
             settings = self.plots.settings()
-            if dataset is not None and settings != self._plot_settings:
+            previous = self._plot_settings
+            if dataset is not None and (
+                previous is None
+                or settings != previous
+                or settings.clusters is not previous.clusters
+            ):
                 self.explorer.request(dataset, settings)
                 self._plot_settings = settings
             self.plots.error = ""

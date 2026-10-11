@@ -9,12 +9,13 @@ from tempfile import TemporaryDirectory
 from time import perf_counter
 
 import numpy as np
-from imgui_bundle import hello_imgui, imgui
+from imgui_bundle import hello_imgui
 from PIL import Image
+from rebuild_input import NativeInput
 
+from datelier.application.editor import EditorController
 from datelier.gui.app import InspectionEvidence, run_gui
-from datelier.gui.editor_session import EditorSession
-from datelier.gui.tabs import EditorTabs
+from datelier.gui.components.probe import GuiProbe
 
 
 def main() -> None:
@@ -28,7 +29,9 @@ def main() -> None:
     running_frames: list[float] = []
     peak_cpu = peak_gpu = 0
     report: dict[str, object] = {}
-    baseline = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024
+    native = NativeInput()
+    cold_baseline = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024
+    baseline = cold_baseline
     with TemporaryDirectory(prefix="datelier-image-profile-live-") as directory:
         root = Path(directory)
         for index in range(100):
@@ -47,37 +50,45 @@ def main() -> None:
         }
 
         def frame(
-            editor: EditorSession, tabs: EditorTabs, evidence: InspectionEvidence
+            editor: EditorController, probe: GuiProbe, evidence: InspectionEvidence
         ) -> None:
-            nonlocal stage, entered, started, peak_cpu, peak_gpu
+            nonlocal stage, entered, started, peak_cpu, peak_gpu, baseline
             file = editor.active
             active = file.loader.active
             if active is None:
                 return
-            params, io = hello_imgui.get_runner_params(), imgui.get_io()
+            params = hello_imgui.get_runner_params()
             age = evidence.frames - entered
             peak_cpu = max(peak_cpu, file.references.retained_bytes)
-            peak_gpu = max(peak_gpu, file.reference_view.textures.retained_bytes)
+            peak_gpu = max(
+                peak_gpu,
+                int(
+                    max(
+                        (
+                            v[0]
+                            for k, v in probe.measurements.items()
+                            if k.path[-1:] == ("preview-cache",)
+                        ),
+                        default=0,
+                    )
+                ),
+            )
             if stage == 0:
                 assert (
                     not file.images.profile_jobs.busy
                     and file.images.profile_jobs.active is None
                 )
-                file.exploration.profile.selection.columns = ("path",)
-                file.exploration.tab = "Profiles"
-                params.docking_params.focus_dockable_window("Explore")
+                file.profiles.choose(("path",))
+                editor.choose_route("Profiles")
                 stage, entered = 1, evidence.frames
-            elif stage == 1 and age > 15 and file.images.profile_pixel != (0, 0):
-                io.mouse_pos = imgui.ImVec2(*file.images.profile_pixel)
-                io.want_set_mouse_pos = True
-                stage, entered = 2, evidence.frames
-            elif stage == 2 and age > 4:
-                io.add_mouse_button_event(0, True)
-                started = perf_counter()
-                stage, entered = 3, evidence.frames
-            elif stage == 3 and age > 4:
-                io.add_mouse_button_event(0, False)
-                stage, entered = 4, evidence.frames
+            elif stage == 1 and age > 15 and not file.references.busy:
+                if native.click(
+                    probe, ("image-profile-settings", "prepare", "run"), evidence.frames
+                ):
+                    baseline = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024
+                    started = perf_counter()
+                    stage, entered = 4, evidence.frames
+            native.advance(evidence.frames)
             if file.images.profile_jobs.busy and evidence.frame_intervals_ms:
                 running_frames.append(evidence.frame_intervals_ms[-1])
             elif stage == 4 and file.images.profile_jobs.active is not None:
@@ -98,7 +109,14 @@ def main() -> None:
                     and peak_gpu <= file.references.settings.gpu_bytes
                 )
                 peak_rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024
-                assert peak_rss - baseline < 96 * 1024 * 1024
+                assert peak_rss <= 1024 * 1024 * 1024
+                assert peak_rss - baseline < 96 * 1024 * 1024, (
+                    (peak_rss - baseline) / 2**20,
+                    peak_rss / 2**20,
+                    baseline / 2**20,
+                    peak_cpu,
+                    peak_gpu,
+                )
                 report.update(
                     profile_seconds=seconds,
                     running_frames=len(running_frames),
@@ -108,6 +126,8 @@ def main() -> None:
                     profile_result_bytes=profile.retained_bytes,
                     peak_rss_bytes=peak_rss,
                     baseline_rss_bytes=baseline,
+                    cold_start_baseline_rss_bytes=cold_baseline,
+                    startup_peak_increase_bytes=baseline - cold_baseline,
                     rss_increase_bytes=peak_rss - baseline,
                 )
                 params.app_shall_exit = True
@@ -116,7 +136,7 @@ def main() -> None:
         evidence = run_gui(
             root,
             smoke_frames=2500,
-            on_editor_frame=frame,
+            on_probe_frame=frame,
             preferences_path=root / "prefs.json",
         )
         assert stage == 5, (stage, evidence.frames, running_frames, report)

@@ -1,0 +1,91 @@
+{
+  "columns": {
+    "budgets": {
+      "prepare_ms": 2000,
+      "frame_p95_ms": 33,
+      "peak_rss_mib": 1024,
+      "retained_growth_mib": 96,
+      "workers": 4
+    },
+    "rows": [
+      100000,
+      60000
+    ],
+    "columns_per_file": 4,
+    "comparisons": 2,
+    "update_cycles": 20,
+    "frames": 105,
+    "comparison_frames": 52,
+    "initial_prepare_ms": 43.3949849975761,
+    "max_prepare_ms": 55.17319100181339,
+    "frame_p95_ms": 15.228295097767841,
+    "peak_rss_mib": 474.23046875,
+    "retained_growth_mib": -34.47265625,
+    "workers": 4,
+    "outstanding_jobs": 0,
+    "fixture_disk_bytes": 386460,
+    "retained_closed_sessions": 0,
+    "source_bytes_unchanged": true,
+    "temporary_directory_removed": true,
+    "worker_threads_after_exit": 0
+  },
+  "image_live": {
+    "profile_seconds": 4.11242026599939,
+    "running_frames": 349,
+    "running_frame_p95_ms": 12.329049601248697,
+    "peak_preview_cpu_bytes": 196608,
+    "peak_preview_gpu_bytes": 131072,
+    "profile_result_bytes": 49604,
+    "peak_rss_bytes": 405495808,
+    "baseline_rss_bytes": 402333696,
+    "cold_start_baseline_rss_bytes": 177672192,
+    "startup_peak_increase_bytes": 224661504,
+    "rss_increase_bytes": 3162112,
+    "frames": 375,
+    "images": 100,
+    "dimensions": [
+      256,
+      256
+    ],
+    "source_preserved": true
+  },
+  "analysis": {
+    "rows": 1000000,
+    "features": 6,
+    "frames": 2813,
+    "frame_p95_ms": 19.16263280218118,
+    "parent_peak_mib": 785.33984375,
+    "worker_peak_mib": 785.33984375,
+    "combined_peak_upper_bound_mib": 1570.6796875,
+    "memory_budget_mib": 2048,
+    "memory_passed": true,
+    "frame_budget_passed": true,
+    "explicit_jobs": [
+      {
+        "algorithm": "PCA",
+        "wall_seconds": 1.6415342779946513,
+        "sampled_rows": 10000,
+        "fit_seconds": 0.20129970800189767
+      },
+      {
+        "algorithm": "K-means",
+        "wall_seconds": 2.289198104997922,
+        "sampled_rows": 10000,
+        "fit_seconds": 0.04612621499836678
+      },
+      {
+        "algorithm": "t-SNE",
+        "wall_seconds": 10.3006779990028,
+        "sampled_rows": 2000,
+        "fit_seconds": 8.817285447003087
+      },
+      {
+        "algorithm": "UMAP",
+        "wall_seconds": 33.17358004400012,
+        "sampled_rows": 5000,
+        "fit_seconds": 31.6747948609991
+      }
+    ],
+    "source_preserved": true
+  }
+}

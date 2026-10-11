@@ -12,6 +12,42 @@ from datelier.pipeline.operations import Sort
 from datelier.workspace.session_jobs import save_snapshot
 
 
+def test_raw_scatter_refreshes_cluster_colors_on_fit_refit_and_clear(
+    tmp_path: Path,
+) -> None:
+    source = tmp_path / "clusters.csv"
+    source.write_text("x,y\n0.0,0.0\n0.1,0.2\n4.0,4.0\n4.1,4.2\n9.0,9.0\n9.1,9.2\n")
+    original = source.read_bytes()
+    editor = EditorController()
+    try:
+        file = editor.active
+        file.open(source)
+        until(editor, lambda: file.explorer.active is not None)
+        file.plots.choose_color("K-means")
+        file.analysis.controls.features = ["x", "y"]
+        for clusters in (2, 3):
+            file.analysis.controls.clusters = clusters
+            file.analysis.start(Algorithm.KMEANS)
+            until(
+                editor,
+                lambda: not file.analysis.jobs.busy and editor.workers.pending == 0,
+            )
+            dashboard = file.explorer.active
+            assert dashboard and dashboard.scatters
+            points = dashboard.scatters[0]
+            assert points.colors is not None
+            assert len(set(points.colors.rgba.tolist())) == clusters
+            assert points.row_ids.tolist() == list(range(6))
+            assert file.analysis.source is None
+        file.plots.choose_color("Uniform")
+        until(editor, lambda: editor.workers.pending == 0)
+        dashboard = file.explorer.active
+        assert dashboard and dashboard.scatters[0].colors is None
+        assert source.read_bytes() == original
+    finally:
+        editor.close()
+
+
 def test_fitted_coordinate_switch_drops_previous_result_and_never_fits_implicitly(
     tmp_path: Path,
 ) -> None:
