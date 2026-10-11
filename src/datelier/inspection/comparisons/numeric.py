@@ -5,7 +5,7 @@ import math
 import numpy as np
 import polars as pl
 
-from datelier.core.column_roles import ColumnRole
+from datelier.core import ColumnRole
 from datelier.inspection.comparison_settings import ComparisonSettings, Normalization
 from datelier.inspection.comparisons.types import (
     ComparisonInput,

@@ -6,7 +6,7 @@ import numpy as np
 import polars as pl
 import soundfile as sf
 
-from datelier.core.dataset import Dataset, SourceReference
+from datelier.core import Dataset, SourceReference
 from datelier.inspection.audio.collections.settings import (
     AudioCollectionSettings,
     AudioProfileMode,

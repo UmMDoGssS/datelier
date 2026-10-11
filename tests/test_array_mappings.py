@@ -3,7 +3,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from datelier.inspection.arrays.mapping import (
+from datelier.inspection.arrays import (
     ArrayLayout,
     ArrayRecordMapping,
     SupportingArray,
@@ -14,8 +14,7 @@ from datelier.inspection.arrays.slices import prepare_slice
 from datelier.io.arrays import ArrayStore
 from datelier.io.arrays.metadata import inspect_arrays
 from datelier.io.arrays.records import prepare_array_records
-from datelier.pipeline.history import Pipeline
-from datelier.pipeline.operations import Sort
+from datelier.pipeline import Pipeline, Sort
 
 
 def test_editable_suggestions_are_header_only_with_unique_support_names(

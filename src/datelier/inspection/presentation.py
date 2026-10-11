@@ -8,8 +8,7 @@ from enum import StrEnum
 
 import polars as pl
 
-from datelier.core.column_roles import ColumnRole
-from datelier.core.dataset import Dataset
+from datelier.core import ColumnRole, Dataset
 
 
 class NumericScale(StrEnum):

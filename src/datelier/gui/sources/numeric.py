@@ -6,7 +6,7 @@ from collections.abc import Callable
 
 from imgui_bundle import imgui, implot
 
-from datelier.application.sources.numeric import NumericSourceController
+from datelier.application.sources import NumericSourceController
 from datelier.gui.components.layout import Component, Container, FrameContext
 from datelier.gui.components.layout.groups import Conditional
 from datelier.gui.components.layout.viewport import ResizableViewport, ViewportContent

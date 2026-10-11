@@ -19,7 +19,7 @@ from datelier.inspection.text.types import (
     TokenMode,
     TokenSettings,
 )
-from datelier.pipeline.operations import Sort
+from datelier.pipeline import Sort
 
 
 def main() -> None:

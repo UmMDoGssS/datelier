@@ -2,7 +2,7 @@
 
 import json
 
-from datelier.core.scalars import Scalar
+from datelier.core import Scalar
 
 
 def scalar_input(text: str) -> Scalar:

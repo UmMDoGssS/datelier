@@ -1,6 +1,6 @@
 """Distinguish mapped payload identity from ordinary supporting table fields."""
 
-from datelier.inspection.arrays.mapping import ArrayRecordMapping
+from datelier.inspection.arrays import ArrayRecordMapping
 from datelier.inspection.table import Inspection
 from datelier.io.types import ArrayOptions
 

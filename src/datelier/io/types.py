@@ -4,11 +4,10 @@ from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
 
-from datelier.core.dataset import Dataset
-from datelier.inspection.arrays.mapping import ArrayRecordMapping
-from datelier.inspection.arrays.types import ArrayCatalog
-from datelier.inspection.checkpoints.types import CheckpointCatalog
-from datelier.inspection.objects.types import NodePath, ObjectNode
+from datelier.core import Dataset
+from datelier.inspection.arrays import ArrayCatalog, ArrayRecordMapping
+from datelier.inspection.checkpoints import CheckpointCatalog
+from datelier.inspection.objects import NodePath, ObjectNode
 
 
 class ImportFormat(StrEnum):

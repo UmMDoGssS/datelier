@@ -3,7 +3,7 @@
 from collections.abc import Callable
 from dataclasses import replace
 
-from datelier.application.annotations.controller import AnnotationController
+from datelier.application.annotations import AnnotationController
 from datelier.application.tabular import MultiSelection, SingleSelection
 from datelier.gui.annotations.sources import SourceForm
 from datelier.gui.components.actions import CommandButton, JobFeedback, JobSnapshot

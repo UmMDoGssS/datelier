@@ -6,7 +6,7 @@ from contextlib import contextmanager
 from threading import Event, RLock
 from typing import cast
 
-from datelier.inspection.checkpoints.types import CheckpointCatalog
+from datelier.inspection.checkpoints import CheckpointCatalog
 from datelier.io.checkpoints.runtime import TensorValue, load_restricted, require_torch
 
 

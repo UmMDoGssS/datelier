@@ -24,10 +24,9 @@ from datelier.analysis.types import (
 )
 from datelier.inspection.exploration import PlotSettings, prepare_dashboard
 from datelier.inspection.table import prepare_inspection
-from datelier.io.exporting import ExportFormat, export_dataset
 from datelier.io.importing import load_file
-from datelier.pipeline.history import Pipeline
-from datelier.pipeline.operations import Comparison, Filter, Sort
+from datelier.io.jobs import ExportFormat, export_dataset
+from datelier.pipeline import Comparison, Filter, Pipeline, Sort
 from datelier.pipeline.transforms import DerivedColumn
 from datelier.plotting.scatter import LinkedSelection
 from datelier.workspace.single import Workspace

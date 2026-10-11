@@ -10,8 +10,8 @@ import soundfile as sf
 
 from datelier.application.sessions import EditorController
 from datelier.application.sessions.workspace import capture_session
-from datelier.core.column_roles import ColumnRole
-from datelier.inspection.audio.playback.settings import PlaybackSettings
+from datelier.core import ColumnRole
+from datelier.inspection.audio.playback import PlaybackSettings
 from datelier.inspection.audio.profiles import AudioThresholds
 from datelier.inspection.audio.settings import AudioSettings
 from datelier.inspection.audio.signal import (

@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from datelier.inspection.objects.types import node_label
+from datelier.inspection.objects import node_label
 from datelier.io.importing import load_file
 from datelier.io.types import ImportFailure, ImportFormat, JsonOptions, ObjectOptions
 from datelier.workspace.recipes.codec import decode_record, encode

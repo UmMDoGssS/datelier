@@ -11,9 +11,8 @@ import polars as pl
 from tokenizers import Tokenizer, models
 
 from datelier.application.sessions import EditorController
-from datelier.core.dataset import Dataset, SourceReference
-from datelier.core.jobs import SharedWorkers
-from datelier.inspection.references.types import ReferenceSettings
+from datelier.core import Dataset, SharedWorkers, SourceReference
+from datelier.inspection.references import ReferenceSettings
 from datelier.inspection.text.jobs import TextJobs, prepare_document
 from datelier.inspection.text.types import (
     Normalization,

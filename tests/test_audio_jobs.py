@@ -15,7 +15,7 @@ from datelier.inspection.audio.jobs import AudioJobs
 from datelier.inspection.audio.profiles import AudioThresholds
 from datelier.inspection.audio.profiles.statistics import profile_signal
 from datelier.inspection.audio.types import AudioRange
-from datelier.inspection.references.types import ReferenceSettings
+from datelier.inspection.references import ReferenceSettings
 from datelier.io.arrays import ArrayStore
 from datelier.io.media import load_media
 

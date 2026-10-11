@@ -11,8 +11,8 @@ import polars as pl
 import pytest
 from PIL import Image
 
-from datelier.core.dataset import Dataset, SourceReference
-from datelier.inspection.arrays.mapping import ArrayLayout, ArrayRecordMapping
+from datelier.core import Dataset, SourceReference
+from datelier.inspection.arrays import ArrayLayout, ArrayRecordMapping
 from datelier.inspection.images.comparisons.jobs import ImageComparisonJobs
 from datelier.inspection.images.comparisons.prepare import prepare_comparison
 from datelier.inspection.images.comparisons.selection import select_dimension_bin
@@ -37,7 +37,7 @@ from datelier.inspection.images.profiles import (
 )
 from datelier.inspection.images.profiles.prepare import finish_image_profile
 from datelier.inspection.images.profiles.scan import ImageProfileScan
-from datelier.inspection.references.types import ReferenceSettings
+from datelier.inspection.references import ReferenceSettings
 from datelier.io.arrays import ArrayStore
 from datelier.io.arrays.metadata import inspect_arrays
 from datelier.plotting.scatter import SELECTION_LIMIT

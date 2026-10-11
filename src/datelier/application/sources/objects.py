@@ -1,9 +1,12 @@
 """Bounded object navigation prepared before drawing, without source reads."""
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
-from datelier.application.sessions.records import RecordViews
-from datelier.inspection.objects.types import NodePath, ObjectNode, node_label
+from datelier.inspection.objects import NodePath, ObjectNode, node_label
+
+if TYPE_CHECKING:
+    from datelier.application.sessions.records import RecordViews
 
 
 @dataclass(frozen=True)

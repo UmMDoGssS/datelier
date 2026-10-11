@@ -13,10 +13,10 @@ from datelier.gui.components.inputs import (
     ColumnPicker,
 )
 from datelier.gui.components.layout import Component, Container
-from datelier.pipeline.editing import DatasetEditor
-from datelier.pipeline.operations import (
+from datelier.pipeline import (
     Operation,
 )
+from datelier.pipeline.editing import DatasetEditor
 
 
 class OperationForm(Container, ABC):

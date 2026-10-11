@@ -12,14 +12,14 @@ import numpy as np
 import soundfile as sf
 
 from datelier.inspection.audio.decoding import prepare_metadata
+from datelier.inspection.audio.playback import PlaybackRequest
 from datelier.inspection.audio.playback.controller import (
     AudioPlayback,
     PlaybackPhase,
     PlaybackSnapshot,
 )
-from datelier.inspection.audio.playback.types import PlaybackRequest
 from datelier.inspection.audio.types import AudioRange
-from datelier.inspection.references.types import ReferenceSettings
+from datelier.inspection.references import ReferenceSettings
 from datelier.io.arrays import ArrayStore
 from datelier.io.media import load_media
 

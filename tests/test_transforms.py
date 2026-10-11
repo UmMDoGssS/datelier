@@ -3,9 +3,8 @@ from pathlib import Path
 import polars as pl
 import pytest
 
-from datelier.core.dataset import Dataset, SourceReference
-from datelier.pipeline.history import Pipeline, replay
-from datelier.pipeline.operations import OperationFailure, Sort
+from datelier.core import Dataset, SourceReference
+from datelier.pipeline import OperationFailure, Pipeline, Sort, replay
 from datelier.pipeline.transforms import (
     CastColumn,
     DropMissing,

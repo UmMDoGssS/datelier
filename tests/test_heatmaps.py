@@ -10,8 +10,8 @@ import polars as pl
 import pytest
 from numpy.typing import NDArray
 
-from datelier.core.dataset import Dataset
-from datelier.inspection.arrays.mapping import ArrayLayout, ArrayRecordMapping
+from datelier.core import Dataset
+from datelier.inspection.arrays import ArrayLayout, ArrayRecordMapping
 from datelier.inspection.arrays.slices import SliceSettings, prepare_slice
 from datelier.inspection.heatmaps import Colormap, normalize, ramp_colors
 from datelier.inspection.images.decoding import (
@@ -21,7 +21,7 @@ from datelier.inspection.images.decoding import (
 )
 from datelier.inspection.images.decoding.sources import image_metadata, locate_image
 from datelier.inspection.images.types import ImageDisplay, ImageMetadata, ImageWindow
-from datelier.inspection.references.types import ReferenceSettings
+from datelier.inspection.references import ReferenceSettings
 from datelier.io.arrays import ArrayStore
 from datelier.io.arrays.metadata import inspect_arrays
 from datelier.workspace.recipes.codec import decode_record, encode

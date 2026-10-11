@@ -3,8 +3,7 @@
 from concurrent.futures import Executor, Future
 from threading import Event
 
-from datelier.core.dataset import Dataset
-from datelier.core.jobs import JobExecutor
+from datelier.core import Dataset, JobExecutor
 from datelier.inspection.audio.collections.settings import AudioScopeMode
 from datelier.inspection.audio.collections.types import CollectionProgress
 from datelier.inspection.audio.comparisons.prepare import (
@@ -17,7 +16,7 @@ from datelier.inspection.audio.comparisons.types import (
     AudioMetric,
     PreparedAudioComparison,
 )
-from datelier.inspection.comparisons.types import ComparisonSelection
+from datelier.inspection.comparisons import ComparisonSelection
 
 
 class AudioComparisonJobs:

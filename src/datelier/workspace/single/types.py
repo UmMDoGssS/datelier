@@ -9,15 +9,15 @@ from datelier.inspection.audio.settings import AudioSettings
 from datelier.inspection.exploration import PlotSettings
 from datelier.inspection.images.settings import ImageSettings
 from datelier.inspection.presentation import TablePresentation
-from datelier.inspection.records.types import InspectSettings
-from datelier.inspection.references.types import ReferenceSettings
+from datelier.inspection.records import InspectSettings
+from datelier.inspection.references import ReferenceSettings
 from datelier.inspection.text.types import TextSettings
 from datelier.io.types import (
     ImportFormat,
     ImportOptions,
     validate_import_options,
 )
-from datelier.pipeline.operations import Operation
+from datelier.pipeline import Operation
 
 
 @dataclass(frozen=True)

@@ -18,7 +18,7 @@ from datelier.analysis.types import (
     AnalysisRequest,
     ClusteringResult,
 )
-from datelier.core.dataset import Dataset, SourceReference
+from datelier.core import Dataset, SourceReference
 from datelier.feasibility.fixtures import make_table
 
 

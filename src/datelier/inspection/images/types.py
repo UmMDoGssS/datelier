@@ -5,11 +5,10 @@ from dataclasses import dataclass
 import numpy as np
 from numpy.typing import NDArray
 
-from datelier.core.dataset import DatasetRevision
-from datelier.inspection.arrays.mapping import ArrayRecordMapping
-from datelier.inspection.arrays.types import ArrayCatalog
+from datelier.core import DatasetRevision
+from datelier.inspection.arrays import ArrayCatalog, ArrayRecordMapping
 from datelier.inspection.heatmaps import Colormap, validate_range
-from datelier.inspection.references.types import AssetIdentity
+from datelier.inspection.references import AssetIdentity
 
 
 @dataclass(frozen=True)

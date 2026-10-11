@@ -5,12 +5,11 @@ from time import monotonic, sleep
 import polars as pl
 import pytest
 
-from datelier.core.dataset import Dataset, SourceReference
+from datelier.core import Dataset, SourceReference
+from datelier.inspection.records import InspectSettings, RecordMode, RecordSet
 from datelier.inspection.records.jobs import RecordJobs
 from datelier.inspection.records.prepare import prepare_record_page, prepare_records
-from datelier.inspection.records.types import InspectSettings, RecordMode, RecordSet
-from datelier.pipeline.history import Pipeline
-from datelier.pipeline.operations import Comparison, Filter, Sort
+from datelier.pipeline import Comparison, Filter, Pipeline, Sort
 
 
 def data() -> Dataset:
@@ -61,7 +60,7 @@ def test_supporting_columns_are_not_limited_by_table_page_width() -> None:
 
 def test_restored_inspect_fields_recover_against_already_bound_columns() -> None:
     from datelier.application.media.records import RecordController
-    from datelier.core.jobs import SharedWorkers
+    from datelier.core import SharedWorkers
     from datelier.plotting.scatter import LinkedSelection
 
     source = data()
@@ -115,7 +114,7 @@ def test_closing_during_record_preparation_safely_abandons_publication(
 ) -> None:
     from threading import Event
 
-    from datelier.core.jobs import SharedWorkers
+    from datelier.core import SharedWorkers
     from datelier.inspection.records import jobs as module
 
     started, release = Event(), Event()

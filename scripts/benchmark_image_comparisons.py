@@ -17,9 +17,8 @@ import polars as pl
 from numpy.typing import NDArray
 from PIL import Image
 
-from datelier.core.dataset import Dataset
-from datelier.inspection.arrays.mapping import ArrayLayout, ArrayRecordMapping
-from datelier.inspection.arrays.types import ArrayCatalog
+from datelier.core import Dataset
+from datelier.inspection.arrays import ArrayCatalog, ArrayLayout, ArrayRecordMapping
 from datelier.inspection.images.comparisons.prepare import prepare_comparison
 from datelier.inspection.images.comparisons.settings import (
     ImageComparisonSettings,
@@ -32,7 +31,7 @@ from datelier.inspection.images.profiles import (
     ImageProgress,
     PixelScope,
 )
-from datelier.inspection.references.types import AssetIdentity
+from datelier.inspection.references import AssetIdentity
 from datelier.io.arrays import ArrayStore
 from datelier.io.arrays.metadata import inspect_arrays
 from datelier.io.media import load_media

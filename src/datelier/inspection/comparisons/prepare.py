@@ -2,8 +2,7 @@
 
 import polars as pl
 
-from datelier.core.column_roles import ColumnRole
-from datelier.core.dataset import Dataset
+from datelier.core import ColumnRole, Dataset
 from datelier.inspection.comparison_settings import ComparisonSettings
 from datelier.inspection.comparisons.categorical import (
     categorical_comparison,

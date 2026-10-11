@@ -1,12 +1,12 @@
 """Trusted tabular recipe records; never selected by file-supplied imports."""
 
-from datelier.inspection.arrays.mapping import ArrayRecordMapping, SupportingArray
+from datelier.inspection.arrays import ArrayRecordMapping, SupportingArray
 from datelier.inspection.arrays.slices import SliceSettings
 from datelier.inspection.comparison_settings import ComparisonSettings, ComparisonSource
 from datelier.inspection.exploration import PlotSettings
 from datelier.inspection.presentation import TablePresentation
-from datelier.inspection.records.types import InspectSettings
-from datelier.inspection.references.types import ReferenceMapping, ReferenceSettings
+from datelier.inspection.records import InspectSettings
+from datelier.inspection.references import ReferenceMapping, ReferenceSettings
 from datelier.io.types import (
     ArrayOptions,
     CheckpointOptions,
@@ -17,7 +17,7 @@ from datelier.io.types import (
     ParquetOptions,
     XmlOptions,
 )
-from datelier.pipeline.operations import Filter, SelectColumns, SetColumnRole, Sort
+from datelier.pipeline import Filter, SelectColumns, SetColumnRole, Sort
 from datelier.pipeline.transforms import (
     CastColumn,
     DerivedColumn,

@@ -3,7 +3,7 @@
 from concurrent.futures import Executor, Future
 from threading import Event
 
-from datelier.core.jobs import JobExecutor
+from datelier.core import JobExecutor
 from datelier.inspection.annotations.association import PreparedAnnotations
 from datelier.inspection.annotations.profiles.prepare import prepare_profiles
 from datelier.inspection.annotations.profiles.types import AnnotationProfiles

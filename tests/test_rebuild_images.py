@@ -10,7 +10,7 @@ from PIL import Image
 
 from datelier.application.exploration import ProfileFamily
 from datelier.application.sessions import EditorController
-from datelier.inspection.arrays.mapping import (
+from datelier.inspection.arrays import (
     ArrayLayout,
     ArrayRecordMapping,
     SupportingArray,
@@ -22,7 +22,7 @@ from datelier.inspection.images.profiles import (
     PixelScope,
 )
 from datelier.inspection.images.types import ImageDisplay, ImageWindow
-from datelier.pipeline.operations import SelectColumns, Sort
+from datelier.pipeline import SelectColumns, Sort
 
 
 def until(editor: EditorController, condition: Callable[[], bool]) -> None:

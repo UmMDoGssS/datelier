@@ -6,12 +6,11 @@ from time import monotonic, sleep
 import polars as pl
 from PIL import Image
 
-from datelier.core.dataset import Dataset, SourceReference
-from datelier.core.jobs import SharedWorkers
+from datelier.core import Dataset, SharedWorkers, SourceReference
+from datelier.inspection.references import ReferenceMapping, ReferenceSettings
 from datelier.inspection.references.decode import decode
 from datelier.inspection.references.index import IndexProgress, discover, resolve
 from datelier.inspection.references.jobs import ReferenceJobs
-from datelier.inspection.references.types import ReferenceMapping, ReferenceSettings
 
 
 def fixture(tmp_path: Path) -> tuple[Path, ReferenceSettings]:

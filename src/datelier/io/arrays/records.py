@@ -7,10 +7,8 @@ import numpy as np
 import polars as pl
 from numpy.typing import NDArray
 
-from datelier.core.column_roles import ColumnRole
-from datelier.core.dataset import Dataset
-from datelier.inspection.arrays.mapping import ArrayRecordMapping
-from datelier.inspection.arrays.types import ArrayCatalog
+from datelier.core import ColumnRole, Dataset
+from datelier.inspection.arrays import ArrayCatalog, ArrayRecordMapping
 from datelier.io.arrays.storage import ArrayStore
 
 

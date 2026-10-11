@@ -9,14 +9,14 @@ from datelier.application.comparisons.columns import (
     ColumnComparisonController,
     ColumnSeries,
 )
-from datelier.core.column_roles import ColumnRole
+from datelier.core import ColumnRole
 from datelier.gui.components.layout import FrameContext
 from datelier.gui.components.layout.viewport import ViewportContent
 from datelier.gui.components.native import label_text, target
 from datelier.gui.components.plots import AxisPlot, apply_axes, observe_axes
 from datelier.gui.profiles.distributions import profile_color
 from datelier.inspection.comparison_settings import Normalization
-from datelier.inspection.comparisons.types import PreparedComparison
+from datelier.inspection.comparisons import PreparedComparison
 
 
 class ColumnComparisonPlot(AxisPlot, ABC):

@@ -2,8 +2,7 @@
 
 from concurrent.futures import Executor, Future
 
-from datelier.core.dataset import Dataset, DatasetRevision
-from datelier.core.jobs import JobExecutor
+from datelier.core import Dataset, DatasetRevision, JobExecutor
 from datelier.plotting.distributions.numeric import (
     Comparison,
     DistributionSettings,

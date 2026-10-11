@@ -11,7 +11,7 @@ import soundfile as sf
 
 from datelier.application.comparisons import ComparisonFamily
 from datelier.application.sessions import EditorController
-from datelier.inspection.arrays.mapping import (
+from datelier.inspection.arrays import (
     ArrayLayout,
     ArrayRecordMapping,
     SupportingArray,
@@ -27,9 +27,9 @@ from datelier.inspection.audio.comparisons import (
     AudioComparisonViewSettings,
 )
 from datelier.inspection.audio.playback.controller import PlaybackPhase
-from datelier.inspection.references.types import ReferenceSettings
-from datelier.io.loading import LoadPhase
-from datelier.pipeline.operations import Sort
+from datelier.inspection.references import ReferenceSettings
+from datelier.io.jobs import LoadPhase
+from datelier.pipeline import Sort
 from datelier.workspace.recipes.codec import decode_record, encode
 from datelier.workspace.sessions import SessionFile, SessionWorkspace
 from datelier.workspace.sessions.storage import read_session_workspace

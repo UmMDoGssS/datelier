@@ -1,7 +1,6 @@
 """Generic mapped-array records reuse the source slice display family."""
 
-from datelier.application.sources.numeric import NumericSourceController
-from datelier.application.sources.records import ArrayRecordController
+from datelier.application.sources import ArrayRecordController, NumericSourceController
 from datelier.gui.components.actions import CommandButton
 from datelier.gui.components.layout import FrameContext
 from datelier.gui.records.base import RecordContent

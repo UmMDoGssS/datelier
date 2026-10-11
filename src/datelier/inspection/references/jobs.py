@@ -7,8 +7,7 @@ from pathlib import Path
 from threading import Event
 from time import monotonic
 
-from datelier.core.dataset import DatasetRevision
-from datelier.core.jobs import JobExecutor
+from datelier.core import DatasetRevision, JobExecutor
 from datelier.inspection.references.decode import decode
 from datelier.inspection.references.index import (
     IndexProgress,

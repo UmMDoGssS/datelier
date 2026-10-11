@@ -15,7 +15,7 @@ from datelier.inspection.comparison_settings import (
 from datelier.inspection.exploration import PlotSettings
 from datelier.io.importing import load_file
 from datelier.io.types import CsvOptions, ImportFormat
-from datelier.pipeline.operations import Sort
+from datelier.pipeline import Sort
 from datelier.workspace.sessions import SessionFile, SessionWorkspace, SourceDraft
 from datelier.workspace.sessions.restore import (
     SourceRecovery,

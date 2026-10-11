@@ -7,7 +7,7 @@ import numpy as np
 from imgui_bundle import hello_imgui, imgui
 from numpy.typing import NDArray
 
-from datelier.inspection.references.types import AssetPreview
+from datelier.inspection.references import AssetPreview
 
 
 class TextureCache:

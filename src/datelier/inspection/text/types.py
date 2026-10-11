@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 from enum import StrEnum
 
-from datelier.core.dataset import DatasetRevision
+from datelier.core import DatasetRevision
 from datelier.inspection.text.display import TextViewport
 
 

@@ -5,7 +5,7 @@ from weakref import ref
 
 import pytest
 
-from datelier.core.jobs import JobExecutor, SharedWorkers
+from datelier.core import JobExecutor, SharedWorkers
 
 
 def test_idle_workers_release_completed_source_arguments() -> None:

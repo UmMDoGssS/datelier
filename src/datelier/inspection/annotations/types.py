@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
 
-from datelier.inspection.references.types import AssetIdentity
+from datelier.inspection.references import AssetIdentity
 
 
 class AnnotationFormat(StrEnum):

@@ -15,7 +15,7 @@ import numpy as np
 
 from datelier.application.sessions import EditorController, FileController
 from datelier.feasibility.multimodal import make_multimodal
-from datelier.inspection.arrays.mapping import (
+from datelier.inspection.arrays import (
     ArrayLayout,
     ArrayRecordMapping,
     SupportingArray,
@@ -35,15 +35,15 @@ from datelier.inspection.images.comparisons.settings import (
 )
 from datelier.inspection.images.profiles import ImageProfileSettings
 from datelier.inspection.images.types import ImageDisplay, ImageWindow
-from datelier.inspection.references.types import ReferenceSettings
+from datelier.inspection.references import ReferenceSettings
 from datelier.inspection.text.comparisons import (
     TextComparisonSettings,
     TextComparisonSource,
 )
 from datelier.inspection.text.types import CorpusMode, TextScope, TextSource
-from datelier.io.loading import LoadPhase
+from datelier.io.jobs import LoadPhase
 from datelier.io.types import ArrayOptions
-from datelier.pipeline.operations import Sort
+from datelier.pipeline import Sort
 
 
 def wait(editor: EditorController, ready: Callable[[], bool]) -> float:

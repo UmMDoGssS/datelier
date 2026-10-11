@@ -4,7 +4,7 @@ from concurrent.futures import Executor, Future
 from dataclasses import replace
 from pathlib import Path
 
-from datelier.core.jobs import JobExecutor
+from datelier.core import JobExecutor
 from datelier.workspace.preferences import (
     Preferences,
     read_preferences,

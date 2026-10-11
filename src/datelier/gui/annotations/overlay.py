@@ -4,7 +4,7 @@ from collections.abc import Callable
 
 from imgui_bundle import imgui
 
-from datelier.application.annotations.controller import AnnotationController
+from datelier.application.annotations import AnnotationController
 from datelier.gui.components.layout import Component, Container, FrameContext
 from datelier.gui.records.media import PixelSurface
 from datelier.inspection.annotations.association import AssociatedBox

@@ -4,8 +4,8 @@ from collections.abc import Mapping
 from dataclasses import dataclass, field
 from types import MappingProxyType
 
-from datelier.core.dataset import SourceReference
-from datelier.inspection.objects.types import NodePath, ObjectNode
+from datelier.core import SourceReference
+from datelier.inspection.objects import NodePath, ObjectNode
 
 
 @dataclass(frozen=True)

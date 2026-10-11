@@ -7,14 +7,13 @@ from threading import Event
 
 import polars as pl
 
-from datelier.core.dataset import Dataset
+from datelier.core import Dataset
 from datelier.inspection.annotations.settings import AnnotationSource, ImageMatch
 from datelier.inspection.annotations.types import AnnotationImage
-from datelier.inspection.arrays.mapping import ArrayRecordMapping
-from datelier.inspection.arrays.types import ArrayCatalog
+from datelier.inspection.arrays import ArrayCatalog, ArrayRecordMapping
 from datelier.inspection.images.decoding.sources import locate_image
+from datelier.inspection.references import ReferenceSettings
 from datelier.inspection.references.index import ReferenceIndex
-from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.annotations.manifest_paths import local_path
 
 

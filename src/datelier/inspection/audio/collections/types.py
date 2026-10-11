@@ -5,8 +5,8 @@ from threading import Lock
 
 import polars as pl
 
-from datelier.core.dataset import DatasetRevision, SourceReference
-from datelier.inspection.arrays.mapping import ArrayRecordMapping
+from datelier.core import DatasetRevision, SourceReference
+from datelier.inspection.arrays import ArrayRecordMapping
 from datelier.inspection.audio.collections.settings import AudioCollectionSettings
 
 

@@ -4,11 +4,11 @@ from concurrent.futures import Executor
 from dataclasses import replace
 from typing import TYPE_CHECKING
 
-from datelier.inspection.arrays.mapping import ArrayRecordMapping
+from datelier.inspection.arrays import ArrayRecordMapping
 from datelier.inspection.audio.playback.controller import AudioPlayback
-from datelier.inspection.objects.types import NodePath, node_label
+from datelier.inspection.objects import NodePath, node_label
 from datelier.io.arrays.records import prepare_array_records
-from datelier.io.loading import DatasetLoader, LoadPhase
+from datelier.io.jobs import DatasetLoader, LoadPhase
 from datelier.io.objects import object_record_view
 from datelier.io.types import (
     ArrayOptions,

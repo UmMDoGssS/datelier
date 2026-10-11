@@ -5,8 +5,8 @@ from threading import Event
 import numpy as np
 from numpy.typing import NDArray
 
+from datelier.inspection.audio.playback import PlaybackRequest, RenderAction
 from datelier.inspection.audio.playback.device import Renderer
-from datelier.inspection.audio.playback.types import PlaybackRequest, RenderAction
 
 
 class FakeDevice:

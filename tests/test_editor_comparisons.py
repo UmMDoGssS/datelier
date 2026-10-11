@@ -7,8 +7,8 @@ from datelier.inspection.comparison_settings import (
     ComparisonSource,
     Normalization,
 )
-from datelier.io.loading import LoadPhase
-from datelier.pipeline.operations import Sort
+from datelier.io.jobs import LoadPhase
+from datelier.pipeline import Sort
 from datelier.workspace.sessions.storage import read_session_workspace
 
 

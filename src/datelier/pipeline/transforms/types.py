@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 from enum import StrEnum
 
-from datelier.core.scalars import Scalar
+from datelier.core import Scalar
 
 
 class TargetType(StrEnum):

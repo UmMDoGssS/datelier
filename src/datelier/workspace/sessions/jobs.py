@@ -4,8 +4,7 @@ from concurrent.futures import Executor, Future
 from dataclasses import dataclass, replace
 from pathlib import Path
 
-from datelier.core.dataset import DatasetRevision, SourceReference
-from datelier.core.jobs import JobExecutor
+from datelier.core import DatasetRevision, JobExecutor, SourceReference
 from datelier.workspace.sessions.restore import (
     RestoredSession,
     RestoredSessionFile,

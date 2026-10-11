@@ -8,8 +8,7 @@ from datelier.analysis.input import prepare_input
 from datelier.analysis.parameters import DBSCANParameters
 from datelier.analysis.runner import run_analysis
 from datelier.analysis.types import AnalysisRequest, ClusteringResult
-from datelier.core.column_roles import ColumnRole
-from datelier.core.dataset import Dataset, SourceReference
+from datelier.core import ColumnRole, Dataset, SourceReference
 from datelier.plotting.colors import (
     NEUTRAL,
     PointColors,

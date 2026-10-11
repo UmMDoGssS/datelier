@@ -3,7 +3,7 @@
 from dataclasses import dataclass, replace
 from pathlib import Path
 
-from datelier.inspection.arrays.types import ArrayCatalog
+from datelier.inspection.arrays import ArrayCatalog
 from datelier.inspection.exploration import PlotSettings
 from datelier.io.types import ArrayOptions, ImportResult
 from datelier.workspace.sessions import SessionFile

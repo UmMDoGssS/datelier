@@ -6,9 +6,8 @@ from threading import Event
 import numpy as np
 import polars as pl
 
-from datelier.core.dataset import Dataset
-from datelier.inspection.arrays.mapping import ArrayRecordMapping
-from datelier.inspection.arrays.types import ArrayCatalog
+from datelier.core import Dataset
+from datelier.inspection.arrays import ArrayCatalog, ArrayRecordMapping
 from datelier.inspection.images.decoding import ImageStore
 from datelier.inspection.images.decoding.pixels import (
     check_cancelled,
@@ -33,10 +32,10 @@ from datelier.inspection.images.profiles.types import (
     ImageProgress,
     ImageScopeMode,
 )
+from datelier.inspection.records import InspectSettings, RecordMode
 from datelier.inspection.records.prepare import prepare_records
-from datelier.inspection.records.types import InspectSettings, RecordMode
+from datelier.inspection.references import ReferenceSettings
 from datelier.inspection.references.index import ReferenceIndex
-from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.arrays import ArrayStore
 
 

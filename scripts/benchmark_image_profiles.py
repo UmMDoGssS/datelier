@@ -17,8 +17,8 @@ import polars as pl
 from numpy.typing import NDArray
 from PIL import Image
 
-from datelier.core.dataset import Dataset
-from datelier.inspection.arrays.mapping import ArrayLayout, ArrayRecordMapping
+from datelier.core import Dataset
+from datelier.inspection.arrays import ArrayLayout, ArrayRecordMapping
 from datelier.inspection.images.decoding import ImageStore
 from datelier.inspection.images.profiles import (
     ImageProfileSettings,
@@ -26,7 +26,7 @@ from datelier.inspection.images.profiles import (
     PixelScope,
 )
 from datelier.inspection.images.profiles.prepare import prepare_image_profile
-from datelier.inspection.references.types import AssetIdentity, ReferenceSettings
+from datelier.inspection.references import AssetIdentity, ReferenceSettings
 from datelier.io.arrays import ArrayStore
 from datelier.io.arrays.metadata import inspect_arrays
 from datelier.io.media import load_media

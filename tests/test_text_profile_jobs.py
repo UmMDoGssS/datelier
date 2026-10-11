@@ -8,8 +8,8 @@ from unittest.mock import patch
 
 import polars as pl
 
-from datelier.core.jobs import SharedWorkers
-from datelier.inspection.references.types import ReferenceSettings
+from datelier.core import SharedWorkers
+from datelier.inspection.references import ReferenceSettings
 from datelier.inspection.text.jobs import TextJobs
 from datelier.inspection.text.profiles.prepare import (
     PreparedTextProfile,

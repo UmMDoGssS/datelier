@@ -4,7 +4,7 @@ from pathlib import Path
 from time import monotonic, sleep
 
 from datelier.application.sessions import EditorController, FileController
-from datelier.pipeline.operations import Sort
+from datelier.pipeline import Sort
 
 
 def ready(editor: EditorController, file: FileController) -> None:

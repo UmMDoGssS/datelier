@@ -7,8 +7,7 @@ from enum import StrEnum
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
-from datelier.core.dataset import Dataset, DatasetRevision
-from datelier.core.jobs import JobExecutor
+from datelier.core import Dataset, DatasetRevision, JobExecutor
 from datelier.io.protection import destination_is_source
 
 

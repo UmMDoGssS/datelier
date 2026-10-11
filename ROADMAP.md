@@ -985,4 +985,4 @@ Preserve class/recipe identifiers, data invariants, computation and GUI behavior
 - [x] Group inspection profiles, media decoding/display and annotation preparation; focused verification and commit.
 - [x] Group application controllers and settings; focused verification and commit.
 - [x] Group shared GUI controls, context forms, profiles, relationships and comparisons; verification and commit.
-- [ ] Audit the entire source tree, imports and wheel; full suite and native workflow/restoration acceptance.
+- [x] Audit the entire source tree, imports and wheel; full suite and native workflow/restoration acceptance.

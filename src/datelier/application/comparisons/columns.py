@@ -9,10 +9,10 @@ from numpy.typing import NDArray
 
 from datelier.application.comparisons.base import ComparisonFamily, RecipeController
 from datelier.application.comparisons.catalog import SourceCatalog
-from datelier.core.column_roles import ColumnRole
+from datelier.core import ColumnRole
 from datelier.inspection.comparison_settings import ComparisonSettings, ComparisonSource
+from datelier.inspection.comparisons import PreparedComparison
 from datelier.inspection.comparisons.jobs import ComparisonJobs
-from datelier.inspection.comparisons.types import PreparedComparison
 
 
 @dataclass(frozen=True)

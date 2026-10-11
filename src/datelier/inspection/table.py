@@ -4,8 +4,8 @@ from dataclasses import dataclass
 
 import polars as pl
 
+from datelier.core import Dataset, DatasetRevision
 from datelier.core.column_roles import REFERENCE_ROLES
-from datelier.core.dataset import Dataset, DatasetRevision
 from datelier.inspection.presentation import (
     CellPresentation,
     NumericBounds,

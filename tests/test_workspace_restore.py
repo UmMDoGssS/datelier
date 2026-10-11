@@ -9,8 +9,7 @@ import pytest
 
 from datelier.io.importing import load_file
 from datelier.io.types import ImportFormat, ImportOptions, ImportResult
-from datelier.pipeline.history import Pipeline
-from datelier.pipeline.operations import Comparison, Filter, Sort
+from datelier.pipeline import Comparison, Filter, Pipeline, Sort
 from datelier.workspace.single import Workspace
 from datelier.workspace.single.jobs import WorkspaceJobs
 from datelier.workspace.single.restore import (
@@ -40,7 +39,7 @@ def saved_recipe(tmp_path: Path) -> tuple[Path, Path]:
 def await_job(jobs: WorkspaceJobs, revision: object = None) -> RestoredWorkspace | None:
     from typing import cast
 
-    from datelier.core.dataset import DatasetRevision
+    from datelier.core import DatasetRevision
 
     deadline = monotonic() + 5
     result = None

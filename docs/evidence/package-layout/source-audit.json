@@ -1,0 +1,2371 @@
+{
+  "source_modules": 537,
+  "packages": [
+    {
+      "package": "datelier",
+      "exports": [],
+      "modules": []
+    },
+    {
+      "package": "datelier.analysis",
+      "exports": [],
+      "modules": [
+        "algorithm",
+        "cluster_colors",
+        "embedding_result",
+        "input",
+        "jobs",
+        "parameter_fields",
+        "plots",
+        "provenance",
+        "runner",
+        "schema",
+        "types"
+      ]
+    },
+    {
+      "package": "datelier.analysis.algorithms",
+      "exports": [
+        "Algorithm",
+        "ClusteringAlgorithm",
+        "DecompositionAlgorithm",
+        "ALGORITHMS",
+        "AlgorithmInstance",
+        "is_clustering"
+      ],
+      "modules": [
+        "base",
+        "registry"
+      ]
+    },
+    {
+      "package": "datelier.analysis.algorithms.clustering",
+      "exports": [
+        "AffinityPropagationAlgorithm",
+        "AgglomerativeAlgorithm",
+        "BayesianMixtureAlgorithm",
+        "BirchAlgorithm",
+        "DBSCANAlgorithm",
+        "GaussianMixtureAlgorithm",
+        "HDBSCANAlgorithm",
+        "KMeansAlgorithm",
+        "MeanShiftAlgorithm",
+        "MiniBatchAlgorithm",
+        "OPTICSAlgorithm",
+        "SpectralClusteringAlgorithm"
+      ],
+      "modules": [
+        "affinity_propagation",
+        "agglomerative",
+        "bayesian_mixture",
+        "birch",
+        "dbscan",
+        "gaussian_mixture",
+        "hdbscan",
+        "kmeans",
+        "mean_shift",
+        "mini_batch",
+        "optics",
+        "spectral_clustering"
+      ]
+    },
+    {
+      "package": "datelier.analysis.algorithms.decomposition",
+      "exports": [
+        "FactorAnalysisAlgorithm",
+        "ICAAlgorithm",
+        "KernelPCAAlgorithm",
+        "NMFAlgorithm",
+        "PCAAlgorithm",
+        "SVDAlgorithm"
+      ],
+      "modules": [
+        "factor_analysis",
+        "ica",
+        "kernel_pca",
+        "nmf",
+        "pca",
+        "svd"
+      ]
+    },
+    {
+      "package": "datelier.analysis.algorithms.manifold",
+      "exports": [
+        "IsomapAlgorithm",
+        "LLEAlgorithm",
+        "MDSAlgorithm",
+        "SpectralEmbeddingAlgorithm",
+        "TSNEAlgorithm",
+        "UMAPAlgorithm"
+      ],
+      "modules": [
+        "isomap",
+        "lle",
+        "mds",
+        "spectral_embedding",
+        "tsne",
+        "umap"
+      ]
+    },
+    {
+      "package": "datelier.analysis.algorithms.projection",
+      "exports": [
+        "GaussianProjectionAlgorithm",
+        "SparseProjectionAlgorithm"
+      ],
+      "modules": [
+        "gaussian_projection",
+        "sparse_projection"
+      ]
+    },
+    {
+      "package": "datelier.analysis.embedding_parameters",
+      "exports": [
+        "DecompositionParameters",
+        "FactorAnalysisParameters",
+        "ICAParameters",
+        "KernelPCAParameters",
+        "NMFParameters",
+        "SVDParameters",
+        "IsomapParameters",
+        "LLEParameters",
+        "ManifoldParameters",
+        "MDSParameters",
+        "SpectralEmbeddingParameters",
+        "GaussianProjectionParameters",
+        "ProjectionParameters",
+        "SparseProjectionParameters"
+      ],
+      "modules": []
+    },
+    {
+      "package": "datelier.analysis.embedding_parameters.decomposition",
+      "exports": [
+        "FactorAnalysisParameters",
+        "ICAParameters",
+        "KernelPCAParameters",
+        "NMFParameters",
+        "SVDParameters"
+      ],
+      "modules": []
+    },
+    {
+      "package": "datelier.analysis.embedding_parameters.manifold",
+      "exports": [
+        "IsomapParameters",
+        "LLEParameters",
+        "MDSParameters",
+        "SpectralEmbeddingParameters"
+      ],
+      "modules": []
+    },
+    {
+      "package": "datelier.analysis.embedding_parameters.projection",
+      "exports": [
+        "GaussianProjectionParameters",
+        "SparseProjectionParameters"
+      ],
+      "modules": []
+    },
+    {
+      "package": "datelier.analysis.parameters",
+      "exports": [
+        "EmbeddingParameters",
+        "FactorAnalysisParameters",
+        "GaussianProjectionParameters",
+        "ICAParameters",
+        "IsomapParameters",
+        "KernelPCAParameters",
+        "LLEParameters",
+        "MDSParameters",
+        "NMFParameters",
+        "SparseProjectionParameters",
+        "SpectralEmbeddingParameters",
+        "SVDParameters",
+        "AffinityPropagationParameters",
+        "AgglomerativeParameters",
+        "BayesianMixtureParameters",
+        "BirchParameters",
+        "ClusteringParameters",
+        "DBSCANParameters",
+        "GaussianMixtureParameters",
+        "HDBSCANParameters",
+        "MeanShiftParameters",
+        "MiniBatchParameters",
+        "OPTICSParameters",
+        "SpectralClusteringParameters",
+        "validate_parameters"
+      ],
+      "modules": []
+    },
+    {
+      "package": "datelier.analysis.parameters.clustering",
+      "exports": [
+        "AffinityPropagationParameters",
+        "AgglomerativeParameters",
+        "BayesianMixtureParameters",
+        "BirchParameters",
+        "DBSCANParameters",
+        "GaussianMixtureParameters",
+        "HDBSCANParameters",
+        "MeanShiftParameters",
+        "MiniBatchParameters",
+        "OPTICSParameters",
+        "SpectralClusteringParameters"
+      ],
+      "modules": []
+    },
+    {
+      "package": "datelier.application",
+      "exports": [],
+      "modules": [
+        "browser"
+      ]
+    },
+    {
+      "package": "datelier.application.analysis",
+      "exports": [
+        "AnalysisController",
+        "AnalysisSettings"
+      ],
+      "modules": [
+        "controller",
+        "settings"
+      ]
+    },
+    {
+      "package": "datelier.application.annotations",
+      "exports": [
+        "AnnotationController"
+      ],
+      "modules": [
+        "controller",
+        "navigation",
+        "recipes"
+      ]
+    },
+    {
+      "package": "datelier.application.comparisons",
+      "exports": [
+        "ComparisonController",
+        "ComparisonEntry",
+        "ComparisonFamily",
+        "ComparisonHub"
+      ],
+      "modules": [
+        "audio",
+        "base",
+        "catalog",
+        "choices",
+        "columns",
+        "histograms",
+        "hub",
+        "images",
+        "text"
+      ]
+    },
+    {
+      "package": "datelier.application.exploration",
+      "exports": [
+        "AxisScale",
+        "AxisState",
+        "Range",
+        "Ranges",
+        "validate_range",
+        "PlotState",
+        "ProfileController",
+        "ProfileFamily"
+      ],
+      "modules": [
+        "axes",
+        "plots",
+        "profiles",
+        "restore"
+      ]
+    },
+    {
+      "package": "datelier.application.imports",
+      "exports": [
+        "ImportController",
+        "DEFAULTS",
+        "import_draft"
+      ],
+      "modules": [
+        "base",
+        "controller",
+        "drafts",
+        "media",
+        "structured",
+        "tabular"
+      ]
+    },
+    {
+      "package": "datelier.application.media",
+      "exports": [
+        "MediaController",
+        "MediaInput"
+      ],
+      "modules": [
+        "base"
+      ]
+    },
+    {
+      "package": "datelier.application.media.audio",
+      "exports": [
+        "AudioCollectionController",
+        "AudioController"
+      ],
+      "modules": [
+        "collection",
+        "controller"
+      ]
+    },
+    {
+      "package": "datelier.application.media.images",
+      "exports": [
+        "ImageController",
+        "summary_row",
+        "ArrayGalleryController"
+      ],
+      "modules": [
+        "controller",
+        "gallery"
+      ]
+    },
+    {
+      "package": "datelier.application.media.records",
+      "exports": [
+        "RecordController",
+        "RecordKind",
+        "record_kind",
+        "MappingTarget",
+        "ReferenceController"
+      ],
+      "modules": [
+        "controller",
+        "references"
+      ]
+    },
+    {
+      "package": "datelier.application.media.text",
+      "exports": [
+        "TextController",
+        "length_rows",
+        "statistic_rows"
+      ],
+      "modules": [
+        "controller",
+        "profiles"
+      ]
+    },
+    {
+      "package": "datelier.application.sessions",
+      "exports": [
+        "EditorController",
+        "FileController",
+        "WorkbenchNavigation"
+      ],
+      "modules": [
+        "dataset",
+        "editor",
+        "file",
+        "navigation",
+        "preferences",
+        "records",
+        "workspace"
+      ]
+    },
+    {
+      "package": "datelier.application.sources",
+      "exports": [
+        "NumericSourceController",
+        "ObjectController",
+        "ArrayRecordController"
+      ],
+      "modules": [
+        "columns",
+        "mapping",
+        "numeric",
+        "objects",
+        "records",
+        "slicing"
+      ]
+    },
+    {
+      "package": "datelier.application.tabular",
+      "exports": [
+        "ColumnChoice",
+        "MultiSelection",
+        "ProfileSelectionPolicy",
+        "SelectionPolicy",
+        "SingleSelection",
+        "PresentationController",
+        "SchemaColumn",
+        "SchemaController",
+        "SchemaSnapshot",
+        "TableColumn",
+        "TableController",
+        "TableSnapshot",
+        "lookup_entries",
+        "scalar_input"
+      ],
+      "modules": [
+        "columns",
+        "presentation",
+        "schema",
+        "table",
+        "values"
+      ]
+    },
+    {
+      "package": "datelier.core",
+      "exports": [
+        "ColumnRole",
+        "RoleInfo",
+        "Dataset",
+        "DatasetRevision",
+        "SourceReference",
+        "JobExecutor",
+        "SharedWorkers",
+        "Scalar"
+      ],
+      "modules": [
+        "column_roles",
+        "dataset",
+        "jobs",
+        "sampling",
+        "scalars"
+      ]
+    },
+    {
+      "package": "datelier.feasibility",
+      "exports": [],
+      "modules": [
+        "analysis",
+        "fixtures",
+        "gui",
+        "multimodal",
+        "plot_data"
+      ]
+    },
+    {
+      "package": "datelier.gui",
+      "exports": [],
+      "modules": [
+        "app",
+        "fonts"
+      ]
+    },
+    {
+      "package": "datelier.gui.analysis",
+      "exports": [
+        "AnalysisSettingsView"
+      ],
+      "modules": [
+        "parameters",
+        "view"
+      ]
+    },
+    {
+      "package": "datelier.gui.audio",
+      "exports": [],
+      "modules": [
+        "charts",
+        "playback"
+      ]
+    },
+    {
+      "package": "datelier.gui.comparisons",
+      "exports": [],
+      "modules": [
+        "assembly",
+        "base"
+      ]
+    },
+    {
+      "package": "datelier.gui.comparisons.audio",
+      "exports": [
+        "AudioComparisonContent",
+        "AudioComparisonTools",
+        "AudioSourceForm"
+      ],
+      "modules": [
+        "content",
+        "tools"
+      ]
+    },
+    {
+      "package": "datelier.gui.comparisons.controls",
+      "exports": [
+        "RecipeControls",
+        "RowLinkControls",
+        "SourceCaption",
+        "ContributorControls"
+      ],
+      "modules": [
+        "recipes",
+        "sources"
+      ]
+    },
+    {
+      "package": "datelier.gui.comparisons.images",
+      "exports": [
+        "ImageComparisonContent",
+        "ImageComparisonTools",
+        "ImageSourceForm"
+      ],
+      "modules": [
+        "content",
+        "tools"
+      ]
+    },
+    {
+      "package": "datelier.gui.comparisons.tabular",
+      "exports": [
+        "CategoryComparisonPlot",
+        "ColumnChart",
+        "ColumnComparisonPlot",
+        "NumericComparisonPlot",
+        "ColumnComparisonContent",
+        "ComparisonHistogram",
+        "ColumnComparisonTools",
+        "ColumnSourceForm",
+        "SourceColor"
+      ],
+      "modules": [
+        "charts",
+        "content",
+        "histograms",
+        "tools"
+      ]
+    },
+    {
+      "package": "datelier.gui.comparisons.text",
+      "exports": [
+        "TextComparisonChart",
+        "TextFrequencyComparison",
+        "TextLengthComparison",
+        "TextComparisonContent",
+        "TextComparisonTools",
+        "TextSourceForm"
+      ],
+      "modules": [
+        "charts",
+        "content",
+        "tools"
+      ]
+    },
+    {
+      "package": "datelier.gui.components",
+      "exports": [],
+      "modules": [
+        "actions",
+        "native",
+        "probe"
+      ]
+    },
+    {
+      "package": "datelier.gui.components.inputs",
+      "exports": [
+        "StateFields",
+        "ColumnList",
+        "ColumnPicker",
+        "ColumnRow",
+        "BooleanField",
+        "ChoiceField",
+        "Field",
+        "FloatField",
+        "IntegerField",
+        "TextField",
+        "DisplayRange"
+      ],
+      "modules": [
+        "bindings",
+        "columns",
+        "fields",
+        "ranges"
+      ]
+    },
+    {
+      "package": "datelier.gui.components.layout",
+      "exports": [
+        "Component",
+        "Container",
+        "FrameContext",
+        "Group",
+        "Page",
+        "Panel",
+        "SharedView",
+        "Tab"
+      ],
+      "modules": [
+        "base",
+        "groups",
+        "routing",
+        "viewport"
+      ]
+    },
+    {
+      "package": "datelier.gui.components.plots",
+      "exports": [
+        "SCALES",
+        "AxisControls",
+        "AxisFields",
+        "AxisPlot",
+        "apply_axes",
+        "observe_axes",
+        "native_colormap"
+      ],
+      "modules": [
+        "axes",
+        "colors"
+      ]
+    },
+    {
+      "package": "datelier.gui.components.tables",
+      "exports": [
+        "ArrayTable",
+        "SequenceTable",
+        "VirtualTable",
+        "DataFrameTable",
+        "FactsTable"
+      ],
+      "modules": [
+        "arrays",
+        "base",
+        "dataframe",
+        "facts"
+      ]
+    },
+    {
+      "package": "datelier.gui.context",
+      "exports": [],
+      "modules": [
+        "distributions",
+        "mapping",
+        "profiles",
+        "records",
+        "relationships",
+        "slices"
+      ]
+    },
+    {
+      "package": "datelier.gui.context.audio",
+      "exports": [
+        "AudioProfileSettings",
+        "AudioSamplingFields",
+        "SignalSettings",
+        "SpectralDisplaySettings",
+        "SpectrumSettings"
+      ],
+      "modules": [
+        "profiles",
+        "sampling",
+        "signal"
+      ]
+    },
+    {
+      "package": "datelier.gui.context.images",
+      "exports": [
+        "ImageProfileSettings",
+        "ImageSamplingFields"
+      ],
+      "modules": [
+        "profiles",
+        "sampling"
+      ]
+    },
+    {
+      "package": "datelier.gui.context.media",
+      "exports": [
+        "InspectSettings",
+        "TokenSettings"
+      ],
+      "modules": [
+        "audio",
+        "base",
+        "images",
+        "inspect",
+        "tokenization"
+      ]
+    },
+    {
+      "package": "datelier.gui.context.text",
+      "exports": [
+        "TextScopeFields",
+        "TokenizationFields"
+      ],
+      "modules": [
+        "profiles",
+        "scope",
+        "tokenization",
+        "training"
+      ]
+    },
+    {
+      "package": "datelier.gui.context.transforms",
+      "exports": [
+        "OperationForm",
+        "HistoryView",
+        "ColumnsForm",
+        "FilterForm",
+        "SortForm",
+        "CastForm",
+        "DerivedForm",
+        "DropForm",
+        "FillForm",
+        "LookupForm",
+        "FORMS",
+        "TransformSettings"
+      ],
+      "modules": [
+        "base",
+        "history",
+        "selection",
+        "values",
+        "view"
+      ]
+    },
+    {
+      "package": "datelier.gui.profiles",
+      "exports": [],
+      "modules": [
+        "base",
+        "content"
+      ]
+    },
+    {
+      "package": "datelier.gui.profiles.distributions",
+      "exports": [
+        "CHARTS",
+        "BoxChart",
+        "CumulativeChart",
+        "DensityChart",
+        "DistributionChart",
+        "HistogramChart",
+        "ViolinChart",
+        "profile_color",
+        "DistributionFacts",
+        "HistogramContent",
+        "box_label",
+        "draw_box",
+        "SERIES_TYPES",
+        "BoxSeries",
+        "CumulativeSeries",
+        "DensitySeries",
+        "DistributionSeries",
+        "HistogramSeries",
+        "ViolinSeries"
+      ],
+      "modules": [
+        "charts",
+        "colors",
+        "facts",
+        "histograms",
+        "primitives",
+        "series"
+      ]
+    },
+    {
+      "package": "datelier.gui.profiles.media",
+      "exports": [
+        "AudioProfileContent",
+        "ImageProfileContent",
+        "TextLengthChart",
+        "TextProfileContent",
+        "TokenFrequencyChart"
+      ],
+      "modules": [
+        "audio",
+        "images",
+        "text"
+      ]
+    },
+    {
+      "package": "datelier.gui.records",
+      "exports": [],
+      "modules": [
+        "arrays",
+        "base",
+        "collection",
+        "values"
+      ]
+    },
+    {
+      "package": "datelier.gui.records.media",
+      "exports": [
+        "PixelSurface",
+        "TextureCache"
+      ],
+      "modules": [
+        "pixels",
+        "textures"
+      ]
+    },
+    {
+      "package": "datelier.gui.records.media.views",
+      "exports": [
+        "AudioContent",
+        "AudioMetadataView",
+        "SignalProvenance",
+        "ImageContent",
+        "OriginalText",
+        "TextContent",
+        "TokenPiece",
+        "TokenRows",
+        "Tokens"
+      ],
+      "modules": [
+        "audio",
+        "images",
+        "text"
+      ]
+    },
+    {
+      "package": "datelier.gui.references",
+      "exports": [],
+      "modules": [
+        "cache",
+        "preview",
+        "settings"
+      ]
+    },
+    {
+      "package": "datelier.gui.relationships",
+      "exports": [],
+      "modules": [
+        "categories",
+        "content"
+      ]
+    },
+    {
+      "package": "datelier.gui.relationships.grid",
+      "exports": [
+        "CorrelationContent",
+        "CorrelationPlot",
+        "CountDiagonal",
+        "DiagonalContent",
+        "distribution",
+        "PairCell",
+        "PairGrid"
+      ],
+      "modules": [
+        "content",
+        "correlations",
+        "diagonals",
+        "pairs"
+      ]
+    },
+    {
+      "package": "datelier.gui.relationships.scatter",
+      "exports": [
+        "draw_color_items",
+        "item_label",
+        "legend_hovered",
+        "rgba_color",
+        "with_color_scale",
+        "ScatterRouter",
+        "ScatterSummary",
+        "FACE_VIEWS",
+        "CameraFaceChoice",
+        "CameraState",
+        "NativeScatter3D",
+        "ProjectedInput",
+        "Scatter3DPlot",
+        "NativeScatter2D",
+        "ScatterInput",
+        "ScatterPlot"
+      ],
+      "modules": [
+        "primitives",
+        "router",
+        "summary",
+        "three_dimensional",
+        "two_dimensional"
+      ]
+    },
+    {
+      "package": "datelier.gui.shell",
+      "exports": [],
+      "modules": []
+    },
+    {
+      "package": "datelier.gui.shell.browser",
+      "exports": [
+        "BrowserEntry",
+        "BrowserListing",
+        "FileBrowserDialog",
+        "FileEntry",
+        "FolderEntry",
+        "RecentEntry",
+        "RecentSources",
+        "Welcome"
+      ],
+      "modules": [
+        "panel",
+        "welcome"
+      ]
+    },
+    {
+      "package": "datelier.gui.shell.commands",
+      "exports": [
+        "ExportDialog",
+        "ExportPort",
+        "SourceState",
+        "SourceStatus",
+        "WorkbenchNotice",
+        "WorkspaceDialog"
+      ],
+      "modules": [
+        "export",
+        "status",
+        "workspace"
+      ]
+    },
+    {
+      "package": "datelier.gui.shell.composition",
+      "exports": [
+        "FileComponents",
+        "assemble_file",
+        "InspectComponents",
+        "assemble_inspect",
+        "WorkbenchPage"
+      ],
+      "modules": [
+        "files",
+        "inspect",
+        "page"
+      ]
+    },
+    {
+      "package": "datelier.gui.shell.layout",
+      "exports": [
+        "DockHost",
+        "DockPanel",
+        "Menu",
+        "MenuAction",
+        "MenuBar",
+        "RecentMenu",
+        "CanvasTabs",
+        "FileTab",
+        "FileTabs",
+        "NamedTab",
+        "native_order"
+      ],
+      "modules": [
+        "docking",
+        "menu",
+        "navigation"
+      ]
+    },
+    {
+      "package": "datelier.gui.sources",
+      "exports": [],
+      "modules": [
+        "browser",
+        "columns",
+        "numeric",
+        "routing",
+        "views"
+      ]
+    },
+    {
+      "package": "datelier.gui.sources.imports",
+      "exports": [
+        "ImportSettings"
+      ],
+      "modules": [
+        "base",
+        "media",
+        "structured",
+        "tabular",
+        "view"
+      ]
+    },
+    {
+      "package": "datelier.gui.table",
+      "exports": [
+        "TableView"
+      ],
+      "modules": [
+        "cells",
+        "headers",
+        "settings",
+        "view"
+      ]
+    },
+    {
+      "package": "datelier.inspection",
+      "exports": [],
+      "modules": [
+        "comparison_settings",
+        "exploration",
+        "heatmaps",
+        "presentation",
+        "preview",
+        "table"
+      ]
+    },
+    {
+      "package": "datelier.inspection.annotations",
+      "exports": [],
+      "modules": [
+        "geometry",
+        "jobs",
+        "settings",
+        "types",
+        "view_settings"
+      ]
+    },
+    {
+      "package": "datelier.inspection.annotations.association",
+      "exports": [
+        "AssociatedBox",
+        "AssociatedImage",
+        "AssociatedSource",
+        "PreparedAnnotations"
+      ],
+      "modules": [
+        "associate",
+        "matching",
+        "prepare",
+        "types"
+      ]
+    },
+    {
+      "package": "datelier.inspection.annotations.overlay",
+      "exports": [
+        "OverlayClass",
+        "OverlaySettings",
+        "hits",
+        "screen_box",
+        "visible"
+      ],
+      "modules": [
+        "geometry",
+        "jobs",
+        "labels",
+        "scene"
+      ]
+    },
+    {
+      "package": "datelier.inspection.annotations.profiles",
+      "exports": [
+        "AnnotationProfile",
+        "AnnotationProfiles",
+        "ClassCount"
+      ],
+      "modules": [
+        "jobs",
+        "prepare",
+        "types"
+      ]
+    },
+    {
+      "package": "datelier.inspection.arrays",
+      "exports": [
+        "ArrayLayout",
+        "ArrayRecordMapping",
+        "MappingSuggestion",
+        "SupportingArray",
+        "suggest_mapping",
+        "ArrayCatalog",
+        "ArrayMember"
+      ],
+      "modules": [
+        "jobs",
+        "mapping",
+        "mapping_jobs",
+        "settings",
+        "slices",
+        "types",
+        "windows"
+      ]
+    },
+    {
+      "package": "datelier.inspection.audio",
+      "exports": [],
+      "modules": [
+        "jobs",
+        "settings",
+        "types"
+      ]
+    },
+    {
+      "package": "datelier.inspection.audio.collections",
+      "exports": [
+        "AudioCollectionSettings",
+        "AudioScope",
+        "AudioCollectionProfile"
+      ],
+      "modules": [
+        "records",
+        "scan",
+        "settings",
+        "types"
+      ]
+    },
+    {
+      "package": "datelier.inspection.audio.comparisons",
+      "exports": [
+        "AudioComparisonSettings",
+        "AudioComparisonSource",
+        "AudioComparisonViewSettings"
+      ],
+      "modules": [
+        "distributions",
+        "jobs",
+        "prepare",
+        "selection",
+        "settings",
+        "types"
+      ]
+    },
+    {
+      "package": "datelier.inspection.audio.decoding",
+      "exports": [
+        "audio_blocks",
+        "prepare_window",
+        "audio_metadata",
+        "locate_audio",
+        "prepare_metadata"
+      ],
+      "modules": [
+        "reading",
+        "sources"
+      ]
+    },
+    {
+      "package": "datelier.inspection.audio.playback",
+      "exports": [
+        "PlaybackSettings",
+        "PlaybackRequest",
+        "RenderAction"
+      ],
+      "modules": [
+        "buffer",
+        "controller",
+        "conversion",
+        "device",
+        "outputs",
+        "requests",
+        "settings",
+        "types",
+        "worker"
+      ]
+    },
+    {
+      "package": "datelier.inspection.audio.profiles",
+      "exports": [
+        "AudioChannelSummary",
+        "AudioProgress",
+        "AudioSignalProfile",
+        "AudioThresholds"
+      ],
+      "modules": [
+        "statistics",
+        "types"
+      ]
+    },
+    {
+      "package": "datelier.inspection.audio.signal",
+      "exports": [
+        "AudioViewKind",
+        "AudioWindow",
+        "PreparedSignalView",
+        "SignalViewSettings",
+        "SpectralTile",
+        "SpectralView",
+        "SpectrumScale",
+        "WaveformEnvelope"
+      ],
+      "modules": [
+        "display",
+        "frames",
+        "jobs",
+        "mel",
+        "spectra",
+        "types",
+        "waveforms"
+      ]
+    },
+    {
+      "package": "datelier.inspection.checkpoints",
+      "exports": [
+        "CheckpointCatalog",
+        "TensorInfo"
+      ],
+      "modules": [
+        "jobs",
+        "slices",
+        "types"
+      ]
+    },
+    {
+      "package": "datelier.inspection.comparisons",
+      "exports": [
+        "ComparisonInput",
+        "ComparisonSelection",
+        "Origin",
+        "PreparedComparison",
+        "SeriesSummary"
+      ],
+      "modules": [
+        "categorical",
+        "jobs",
+        "numeric",
+        "prepare",
+        "types"
+      ]
+    },
+    {
+      "package": "datelier.inspection.images",
+      "exports": [],
+      "modules": [
+        "gallery",
+        "geometry",
+        "jobs",
+        "settings",
+        "types",
+        "viewport"
+      ]
+    },
+    {
+      "package": "datelier.inspection.images.comparisons",
+      "exports": [
+        "ImageComparisonSettings",
+        "ImageComparisonSource",
+        "ImageComparisonViewSettings"
+      ],
+      "modules": [
+        "jobs",
+        "prepare",
+        "selection",
+        "settings",
+        "types"
+      ]
+    },
+    {
+      "package": "datelier.inspection.images.decoding",
+      "exports": [
+        "channel_display",
+        "display_pixels",
+        "prepare_window",
+        "ImageStore"
+      ],
+      "modules": [
+        "pixels",
+        "png",
+        "prepare",
+        "sources",
+        "storage"
+      ]
+    },
+    {
+      "package": "datelier.inspection.images.profiles",
+      "exports": [
+        "ChannelKey",
+        "ChannelSummary",
+        "ImageBounds",
+        "ImageHistogram",
+        "ImageProfile",
+        "ImageProfileSettings",
+        "ImageProgress",
+        "ImageScope",
+        "ImageScopeMode",
+        "PixelScope"
+      ],
+      "modules": [
+        "histograms",
+        "jobs",
+        "moments",
+        "prepare",
+        "records",
+        "scan",
+        "types"
+      ]
+    },
+    {
+      "package": "datelier.inspection.objects",
+      "exports": [
+        "NodeKey",
+        "NodePath",
+        "ObjectChild",
+        "ObjectNode",
+        "ObjectScalar",
+        "node_label"
+      ],
+      "modules": [
+        "types"
+      ]
+    },
+    {
+      "package": "datelier.inspection.profiles",
+      "exports": [
+        "NumericStatistics",
+        "prepare_numeric_statistics",
+        "COUNT_ROW_LIMIT",
+        "MAX_PROFILE_COLUMNS",
+        "ColumnProfile",
+        "Distribution",
+        "ProfileKind",
+        "Profiles",
+        "prepare_profiles",
+        "prepare_range_profile",
+        "profile_kind",
+        "ProfileSelection"
+      ],
+      "modules": [
+        "lists",
+        "numeric",
+        "prepare",
+        "preview",
+        "selection"
+      ]
+    },
+    {
+      "package": "datelier.inspection.records",
+      "exports": [
+        "InspectSettings",
+        "RecordCard",
+        "RecordField",
+        "RecordMode",
+        "RecordPage",
+        "RecordSet"
+      ],
+      "modules": [
+        "jobs",
+        "prepare",
+        "types"
+      ]
+    },
+    {
+      "package": "datelier.inspection.references",
+      "exports": [
+        "AssetIdentity",
+        "AssetPreview",
+        "ReferenceMapping",
+        "ReferenceSettings",
+        "Resolution"
+      ],
+      "modules": [
+        "decode",
+        "index",
+        "jobs",
+        "types"
+      ]
+    },
+    {
+      "package": "datelier.inspection.text",
+      "exports": [],
+      "modules": [
+        "jobs",
+        "records",
+        "types"
+      ]
+    },
+    {
+      "package": "datelier.inspection.text.comparisons",
+      "exports": [
+        "TextComparisonSettings",
+        "TextComparisonSource",
+        "TextComparisonViewSettings"
+      ],
+      "modules": [
+        "jobs",
+        "prepare",
+        "settings",
+        "types"
+      ]
+    },
+    {
+      "package": "datelier.inspection.text.display",
+      "exports": [
+        "TextViewport"
+      ],
+      "modules": [
+        "jobs",
+        "pages",
+        "viewport"
+      ]
+    },
+    {
+      "package": "datelier.inspection.text.profiles",
+      "exports": [
+        "LengthStatistics",
+        "TextProfile",
+        "calculate_profile",
+        "length_histogram",
+        "summarize_lengths"
+      ],
+      "modules": [
+        "corpus",
+        "lists",
+        "prepare",
+        "statistics"
+      ]
+    },
+    {
+      "package": "datelier.inspection.text.tokenizers",
+      "exports": [
+        "TextTokenizer",
+        "canonical_steps",
+        "import_tokenizer",
+        "normalization",
+        "source_span"
+      ],
+      "modules": [
+        "prepare",
+        "tokenization",
+        "training"
+      ]
+    },
+    {
+      "package": "datelier.io",
+      "exports": [],
+      "modules": [
+        "catalog",
+        "importing",
+        "objects",
+        "protection",
+        "source",
+        "types"
+      ]
+    },
+    {
+      "package": "datelier.io.annotations",
+      "exports": [
+        "load_annotations"
+      ],
+      "modules": [
+        "loading",
+        "manifest_paths",
+        "source",
+        "values",
+        "yaml_source"
+      ]
+    },
+    {
+      "package": "datelier.io.annotations.readers",
+      "exports": [
+        "read_coco",
+        "read_ultralytics",
+        "read_voc",
+        "read_yolo"
+      ],
+      "modules": [
+        "coco",
+        "ultralytics",
+        "voc",
+        "yolo"
+      ]
+    },
+    {
+      "package": "datelier.io.arrays",
+      "exports": [
+        "load_arrays",
+        "ArrayStore"
+      ],
+      "modules": [
+        "aligned",
+        "importing",
+        "metadata",
+        "records",
+        "storage"
+      ]
+    },
+    {
+      "package": "datelier.io.checkpoints",
+      "exports": [
+        "load_checkpoint"
+      ],
+      "modules": [
+        "importing",
+        "metadata",
+        "runtime",
+        "storage"
+      ]
+    },
+    {
+      "package": "datelier.io.jobs",
+      "exports": [
+        "DatasetExporter",
+        "ExportFailure",
+        "ExportFormat",
+        "ExportResult",
+        "export_dataset",
+        "guard_destination",
+        "DatasetLoader",
+        "LoadPhase",
+        "LoadRequest",
+        "LoadStatus",
+        "OpeningJobs",
+        "OpeningRequest",
+        "resolve_sources"
+      ],
+      "modules": [
+        "exporting",
+        "loading",
+        "opening"
+      ]
+    },
+    {
+      "package": "datelier.io.media",
+      "exports": [
+        "load_media",
+        "directory_signature",
+        "media_members"
+      ],
+      "modules": [
+        "loading",
+        "manifest"
+      ]
+    },
+    {
+      "package": "datelier.io.tabular",
+      "exports": [
+        "CsvImport",
+        "CsvOptions",
+        "load_csv",
+        "load_tsv",
+        "decode_json",
+        "load_json",
+        "load_parquet",
+        "RecordValue",
+        "records_to_table",
+        "load_xml"
+      ],
+      "modules": [
+        "csv",
+        "json",
+        "json_records",
+        "parquet",
+        "records",
+        "xml",
+        "xml_records",
+        "xml_types"
+      ]
+    },
+    {
+      "package": "datelier.pipeline",
+      "exports": [
+        "Pipeline",
+        "replay",
+        "Comparison",
+        "Filter",
+        "Operation",
+        "OperationFailure",
+        "SelectColumns",
+        "SetColumnRole",
+        "Sort",
+        "apply_operation"
+      ],
+      "modules": [
+        "editing",
+        "history",
+        "operations"
+      ]
+    },
+    {
+      "package": "datelier.pipeline.transforms",
+      "exports": [
+        "CastColumn",
+        "DerivedColumn",
+        "DropMissing",
+        "FillMissing",
+        "Lookup",
+        "TargetType",
+        "Transform",
+        "Unmatched"
+      ],
+      "modules": [
+        "apply",
+        "expressions",
+        "types"
+      ]
+    },
+    {
+      "package": "datelier.plotting",
+      "exports": [],
+      "modules": [
+        "colors",
+        "relationships"
+      ]
+    },
+    {
+      "package": "datelier.plotting.categories",
+      "exports": [
+        "CategoryChart",
+        "CategoryRepresentation",
+        "CategorySettings",
+        "prepare_category_chart"
+      ],
+      "modules": [
+        "prepare"
+      ]
+    },
+    {
+      "package": "datelier.plotting.distributions",
+      "exports": [
+        "prepare_category_distributions",
+        "Comparison",
+        "DistributionSettings",
+        "NumericDistribution",
+        "prepare_comparison",
+        "prepare_series_comparison"
+      ],
+      "modules": [
+        "categories",
+        "numeric",
+        "preview"
+      ]
+    },
+    {
+      "package": "datelier.plotting.scatter",
+      "exports": [
+        "Correlation",
+        "Scatter",
+        "numeric_columns",
+        "prepare_scatter",
+        "projected_nearest",
+        "projected_rectangle",
+        "SELECTION_LIMIT",
+        "LinkedSelection"
+      ],
+      "modules": [
+        "prepare",
+        "projection",
+        "selection"
+      ]
+    },
+    {
+      "package": "datelier.workspace",
+      "exports": [],
+      "modules": [
+        "layout",
+        "preferences",
+        "recent"
+      ]
+    },
+    {
+      "package": "datelier.workspace.recipes",
+      "exports": [
+        "RECORDS",
+        "decode",
+        "decode_record",
+        "encode"
+      ],
+      "modules": [
+        "codec"
+      ]
+    },
+    {
+      "package": "datelier.workspace.recipes.registry",
+      "exports": [
+        "ANALYSIS_RECORDS",
+        "ANNOTATIONS_RECORDS",
+        "AUDIO_RECORDS",
+        "IMAGES_RECORDS",
+        "TABULAR_RECORDS",
+        "TEXT_RECORDS",
+        "WORKSPACE_RECORDS"
+      ],
+      "modules": [
+        "analysis",
+        "annotations",
+        "audio",
+        "images",
+        "tabular",
+        "text",
+        "workspace"
+      ]
+    },
+    {
+      "package": "datelier.workspace.sessions",
+      "exports": [
+        "SessionFile",
+        "SessionWorkspace",
+        "SourceDraft"
+      ],
+      "modules": [
+        "jobs",
+        "restore",
+        "storage",
+        "types"
+      ]
+    },
+    {
+      "package": "datelier.workspace.single",
+      "exports": [
+        "Workspace",
+        "WorkspaceSource",
+        "WorkspaceViews"
+      ],
+      "modules": [
+        "arrays",
+        "jobs",
+        "restore",
+        "storage",
+        "types"
+      ]
+    }
+  ],
+  "fresh_process_checks": [
+    {
+      "check": "domain_forward",
+      "modules_imported": 366,
+      "forbidden_runtimes": [],
+      "loaded_runtimes": [],
+      "recipe_kinds": [
+        "AffinityPropagationParameters",
+        "AgglomerativeParameters",
+        "AnalysisRequest",
+        "AnnotationClass",
+        "AnnotationSettings",
+        "AnnotationSource",
+        "AnnotationViewSettings",
+        "ArrayOptions",
+        "ArrayRecordMapping",
+        "AudioCollectionSettings",
+        "AudioComparisonSettings",
+        "AudioComparisonSource",
+        "AudioComparisonViewSettings",
+        "AudioRange",
+        "AudioScope",
+        "AudioSettings",
+        "AudioThresholds",
+        "BayesianMixtureParameters",
+        "BirchParameters",
+        "CastColumn",
+        "CategorySettings",
+        "CheckpointOptions",
+        "ComparisonSettings",
+        "ComparisonSource",
+        "CsvOptions",
+        "DBSCANParameters",
+        "DerivedColumn",
+        "DistributionSettings",
+        "DropMissing",
+        "FactorAnalysisParameters",
+        "FillMissing",
+        "Filter",
+        "GaussianMixtureParameters",
+        "GaussianProjectionParameters",
+        "HDBSCANParameters",
+        "ICAParameters",
+        "ImageAssociationMapping",
+        "ImageComparisonSettings",
+        "ImageComparisonSource",
+        "ImageComparisonViewSettings",
+        "ImageDisplay",
+        "ImageProfileSettings",
+        "ImageProfileViewSettings",
+        "ImageScope",
+        "ImageSettings",
+        "ImageViewport",
+        "InspectSettings",
+        "IsomapParameters",
+        "JsonOptions",
+        "KMeansParameters",
+        "KernelPCAParameters",
+        "LLEParameters",
+        "Lookup",
+        "MDSParameters",
+        "MeanShiftParameters",
+        "MediaOptions",
+        "MiniBatchParameters",
+        "NMFParameters",
+        "OPTICSParameters",
+        "ObjectOptions",
+        "OverlayClass",
+        "OverlaySettings",
+        "PCAParameters",
+        "ParquetOptions",
+        "PlaybackSettings",
+        "PlotSettings",
+        "Preprocessing",
+        "RecentSource",
+        "ReferenceMapping",
+        "ReferenceSettings",
+        "SVDParameters",
+        "SelectColumns",
+        "SessionFile",
+        "SessionWorkspace",
+        "SetColumnRole",
+        "SignalViewSettings",
+        "SliceSettings",
+        "Sort",
+        "SourceDraft",
+        "SparseProjectionParameters",
+        "SpectralClusteringParameters",
+        "SpectralEmbeddingParameters",
+        "SupportingArray",
+        "TSNEParameters",
+        "TablePresentation",
+        "TextComparisonSettings",
+        "TextComparisonSource",
+        "TextComparisonViewSettings",
+        "TextScope",
+        "TextSettings",
+        "TextViewport",
+        "TokenSettings",
+        "TokenizerReference",
+        "TrainingSettings",
+        "UMAPParameters",
+        "Workspace",
+        "WorkspaceSource",
+        "WorkspaceViews",
+        "XmlOptions"
+      ]
+    },
+    {
+      "check": "domain_reverse",
+      "modules_imported": 366,
+      "forbidden_runtimes": [],
+      "loaded_runtimes": [],
+      "recipe_kinds": [
+        "AffinityPropagationParameters",
+        "AgglomerativeParameters",
+        "AnalysisRequest",
+        "AnnotationClass",
+        "AnnotationSettings",
+        "AnnotationSource",
+        "AnnotationViewSettings",
+        "ArrayOptions",
+        "ArrayRecordMapping",
+        "AudioCollectionSettings",
+        "AudioComparisonSettings",
+        "AudioComparisonSource",
+        "AudioComparisonViewSettings",
+        "AudioRange",
+        "AudioScope",
+        "AudioSettings",
+        "AudioThresholds",
+        "BayesianMixtureParameters",
+        "BirchParameters",
+        "CastColumn",
+        "CategorySettings",
+        "CheckpointOptions",
+        "ComparisonSettings",
+        "ComparisonSource",
+        "CsvOptions",
+        "DBSCANParameters",
+        "DerivedColumn",
+        "DistributionSettings",
+        "DropMissing",
+        "FactorAnalysisParameters",
+        "FillMissing",
+        "Filter",
+        "GaussianMixtureParameters",
+        "GaussianProjectionParameters",
+        "HDBSCANParameters",
+        "ICAParameters",
+        "ImageAssociationMapping",
+        "ImageComparisonSettings",
+        "ImageComparisonSource",
+        "ImageComparisonViewSettings",
+        "ImageDisplay",
+        "ImageProfileSettings",
+        "ImageProfileViewSettings",
+        "ImageScope",
+        "ImageSettings",
+        "ImageViewport",
+        "InspectSettings",
+        "IsomapParameters",
+        "JsonOptions",
+        "KMeansParameters",
+        "KernelPCAParameters",
+        "LLEParameters",
+        "Lookup",
+        "MDSParameters",
+        "MeanShiftParameters",
+        "MediaOptions",
+        "MiniBatchParameters",
+        "NMFParameters",
+        "OPTICSParameters",
+        "ObjectOptions",
+        "OverlayClass",
+        "OverlaySettings",
+        "PCAParameters",
+        "ParquetOptions",
+        "PlaybackSettings",
+        "PlotSettings",
+        "Preprocessing",
+        "RecentSource",
+        "ReferenceMapping",
+        "ReferenceSettings",
+        "SVDParameters",
+        "SelectColumns",
+        "SessionFile",
+        "SessionWorkspace",
+        "SetColumnRole",
+        "SignalViewSettings",
+        "SliceSettings",
+        "Sort",
+        "SourceDraft",
+        "SparseProjectionParameters",
+        "SpectralClusteringParameters",
+        "SpectralEmbeddingParameters",
+        "SupportingArray",
+        "TSNEParameters",
+        "TablePresentation",
+        "TextComparisonSettings",
+        "TextComparisonSource",
+        "TextComparisonViewSettings",
+        "TextScope",
+        "TextSettings",
+        "TextViewport",
+        "TokenSettings",
+        "TokenizerReference",
+        "TrainingSettings",
+        "UMAPParameters",
+        "Workspace",
+        "WorkspaceSource",
+        "WorkspaceViews",
+        "XmlOptions"
+      ]
+    },
+    {
+      "check": "production_forward",
+      "modules_imported": 531,
+      "forbidden_runtimes": [],
+      "loaded_runtimes": [
+        "imgui_bundle"
+      ],
+      "recipe_kinds": [
+        "AffinityPropagationParameters",
+        "AgglomerativeParameters",
+        "AnalysisRequest",
+        "AnnotationClass",
+        "AnnotationSettings",
+        "AnnotationSource",
+        "AnnotationViewSettings",
+        "ArrayOptions",
+        "ArrayRecordMapping",
+        "AudioCollectionSettings",
+        "AudioComparisonSettings",
+        "AudioComparisonSource",
+        "AudioComparisonViewSettings",
+        "AudioRange",
+        "AudioScope",
+        "AudioSettings",
+        "AudioThresholds",
+        "BayesianMixtureParameters",
+        "BirchParameters",
+        "CastColumn",
+        "CategorySettings",
+        "CheckpointOptions",
+        "ComparisonSettings",
+        "ComparisonSource",
+        "CsvOptions",
+        "DBSCANParameters",
+        "DerivedColumn",
+        "DistributionSettings",
+        "DropMissing",
+        "FactorAnalysisParameters",
+        "FillMissing",
+        "Filter",
+        "GaussianMixtureParameters",
+        "GaussianProjectionParameters",
+        "HDBSCANParameters",
+        "ICAParameters",
+        "ImageAssociationMapping",
+        "ImageComparisonSettings",
+        "ImageComparisonSource",
+        "ImageComparisonViewSettings",
+        "ImageDisplay",
+        "ImageProfileSettings",
+        "ImageProfileViewSettings",
+        "ImageScope",
+        "ImageSettings",
+        "ImageViewport",
+        "InspectSettings",
+        "IsomapParameters",
+        "JsonOptions",
+        "KMeansParameters",
+        "KernelPCAParameters",
+        "LLEParameters",
+        "Lookup",
+        "MDSParameters",
+        "MeanShiftParameters",
+        "MediaOptions",
+        "MiniBatchParameters",
+        "NMFParameters",
+        "OPTICSParameters",
+        "ObjectOptions",
+        "OverlayClass",
+        "OverlaySettings",
+        "PCAParameters",
+        "ParquetOptions",
+        "PlaybackSettings",
+        "PlotSettings",
+        "Preprocessing",
+        "RecentSource",
+        "ReferenceMapping",
+        "ReferenceSettings",
+        "SVDParameters",
+        "SelectColumns",
+        "SessionFile",
+        "SessionWorkspace",
+        "SetColumnRole",
+        "SignalViewSettings",
+        "SliceSettings",
+        "Sort",
+        "SourceDraft",
+        "SparseProjectionParameters",
+        "SpectralClusteringParameters",
+        "SpectralEmbeddingParameters",
+        "SupportingArray",
+        "TSNEParameters",
+        "TablePresentation",
+        "TextComparisonSettings",
+        "TextComparisonSource",
+        "TextComparisonViewSettings",
+        "TextScope",
+        "TextSettings",
+        "TextViewport",
+        "TokenSettings",
+        "TokenizerReference",
+        "TrainingSettings",
+        "UMAPParameters",
+        "Workspace",
+        "WorkspaceSource",
+        "WorkspaceViews",
+        "XmlOptions"
+      ]
+    },
+    {
+      "check": "production_reverse",
+      "modules_imported": 531,
+      "forbidden_runtimes": [],
+      "loaded_runtimes": [
+        "imgui_bundle"
+      ],
+      "recipe_kinds": [
+        "AffinityPropagationParameters",
+        "AgglomerativeParameters",
+        "AnalysisRequest",
+        "AnnotationClass",
+        "AnnotationSettings",
+        "AnnotationSource",
+        "AnnotationViewSettings",
+        "ArrayOptions",
+        "ArrayRecordMapping",
+        "AudioCollectionSettings",
+        "AudioComparisonSettings",
+        "AudioComparisonSource",
+        "AudioComparisonViewSettings",
+        "AudioRange",
+        "AudioScope",
+        "AudioSettings",
+        "AudioThresholds",
+        "BayesianMixtureParameters",
+        "BirchParameters",
+        "CastColumn",
+        "CategorySettings",
+        "CheckpointOptions",
+        "ComparisonSettings",
+        "ComparisonSource",
+        "CsvOptions",
+        "DBSCANParameters",
+        "DerivedColumn",
+        "DistributionSettings",
+        "DropMissing",
+        "FactorAnalysisParameters",
+        "FillMissing",
+        "Filter",
+        "GaussianMixtureParameters",
+        "GaussianProjectionParameters",
+        "HDBSCANParameters",
+        "ICAParameters",
+        "ImageAssociationMapping",
+        "ImageComparisonSettings",
+        "ImageComparisonSource",
+        "ImageComparisonViewSettings",
+        "ImageDisplay",
+        "ImageProfileSettings",
+        "ImageProfileViewSettings",
+        "ImageScope",
+        "ImageSettings",
+        "ImageViewport",
+        "InspectSettings",
+        "IsomapParameters",
+        "JsonOptions",
+        "KMeansParameters",
+        "KernelPCAParameters",
+        "LLEParameters",
+        "Lookup",
+        "MDSParameters",
+        "MeanShiftParameters",
+        "MediaOptions",
+        "MiniBatchParameters",
+        "NMFParameters",
+        "OPTICSParameters",
+        "ObjectOptions",
+        "OverlayClass",
+        "OverlaySettings",
+        "PCAParameters",
+        "ParquetOptions",
+        "PlaybackSettings",
+        "PlotSettings",
+        "Preprocessing",
+        "RecentSource",
+        "ReferenceMapping",
+        "ReferenceSettings",
+        "SVDParameters",
+        "SelectColumns",
+        "SessionFile",
+        "SessionWorkspace",
+        "SetColumnRole",
+        "SignalViewSettings",
+        "SliceSettings",
+        "Sort",
+        "SourceDraft",
+        "SparseProjectionParameters",
+        "SpectralClusteringParameters",
+        "SpectralEmbeddingParameters",
+        "SupportingArray",
+        "TSNEParameters",
+        "TablePresentation",
+        "TextComparisonSettings",
+        "TextComparisonSource",
+        "TextComparisonViewSettings",
+        "TextScope",
+        "TextSettings",
+        "TextViewport",
+        "TokenSettings",
+        "TokenizerReference",
+        "TrainingSettings",
+        "UMAPParameters",
+        "Workspace",
+        "WorkspaceSource",
+        "WorkspaceViews",
+        "XmlOptions"
+      ]
+    },
+    {
+      "check": "all_forward",
+      "modules_imported": 537,
+      "forbidden_runtimes": [],
+      "loaded_runtimes": [
+        "imgui_bundle",
+        "numba",
+        "sklearn",
+        "umap"
+      ],
+      "recipe_kinds": [
+        "AffinityPropagationParameters",
+        "AgglomerativeParameters",
+        "AnalysisRequest",
+        "AnnotationClass",
+        "AnnotationSettings",
+        "AnnotationSource",
+        "AnnotationViewSettings",
+        "ArrayOptions",
+        "ArrayRecordMapping",
+        "AudioCollectionSettings",
+        "AudioComparisonSettings",
+        "AudioComparisonSource",
+        "AudioComparisonViewSettings",
+        "AudioRange",
+        "AudioScope",
+        "AudioSettings",
+        "AudioThresholds",
+        "BayesianMixtureParameters",
+        "BirchParameters",
+        "CastColumn",
+        "CategorySettings",
+        "CheckpointOptions",
+        "ComparisonSettings",
+        "ComparisonSource",
+        "CsvOptions",
+        "DBSCANParameters",
+        "DerivedColumn",
+        "DistributionSettings",
+        "DropMissing",
+        "FactorAnalysisParameters",
+        "FillMissing",
+        "Filter",
+        "GaussianMixtureParameters",
+        "GaussianProjectionParameters",
+        "HDBSCANParameters",
+        "ICAParameters",
+        "ImageAssociationMapping",
+        "ImageComparisonSettings",
+        "ImageComparisonSource",
+        "ImageComparisonViewSettings",
+        "ImageDisplay",
+        "ImageProfileSettings",
+        "ImageProfileViewSettings",
+        "ImageScope",
+        "ImageSettings",
+        "ImageViewport",
+        "InspectSettings",
+        "IsomapParameters",
+        "JsonOptions",
+        "KMeansParameters",
+        "KernelPCAParameters",
+        "LLEParameters",
+        "Lookup",
+        "MDSParameters",
+        "MeanShiftParameters",
+        "MediaOptions",
+        "MiniBatchParameters",
+        "NMFParameters",
+        "OPTICSParameters",
+        "ObjectOptions",
+        "OverlayClass",
+        "OverlaySettings",
+        "PCAParameters",
+        "ParquetOptions",
+        "PlaybackSettings",
+        "PlotSettings",
+        "Preprocessing",
+        "RecentSource",
+        "ReferenceMapping",
+        "ReferenceSettings",
+        "SVDParameters",
+        "SelectColumns",
+        "SessionFile",
+        "SessionWorkspace",
+        "SetColumnRole",
+        "SignalViewSettings",
+        "SliceSettings",
+        "Sort",
+        "SourceDraft",
+        "SparseProjectionParameters",
+        "SpectralClusteringParameters",
+        "SpectralEmbeddingParameters",
+        "SupportingArray",
+        "TSNEParameters",
+        "TablePresentation",
+        "TextComparisonSettings",
+        "TextComparisonSource",
+        "TextComparisonViewSettings",
+        "TextScope",
+        "TextSettings",
+        "TextViewport",
+        "TokenSettings",
+        "TokenizerReference",
+        "TrainingSettings",
+        "UMAPParameters",
+        "Workspace",
+        "WorkspaceSource",
+        "WorkspaceViews",
+        "XmlOptions"
+      ]
+    },
+    {
+      "check": "all_reverse",
+      "modules_imported": 537,
+      "forbidden_runtimes": [],
+      "loaded_runtimes": [
+        "imgui_bundle",
+        "numba",
+        "sklearn",
+        "umap"
+      ],
+      "recipe_kinds": [
+        "AffinityPropagationParameters",
+        "AgglomerativeParameters",
+        "AnalysisRequest",
+        "AnnotationClass",
+        "AnnotationSettings",
+        "AnnotationSource",
+        "AnnotationViewSettings",
+        "ArrayOptions",
+        "ArrayRecordMapping",
+        "AudioCollectionSettings",
+        "AudioComparisonSettings",
+        "AudioComparisonSource",
+        "AudioComparisonViewSettings",
+        "AudioRange",
+        "AudioScope",
+        "AudioSettings",
+        "AudioThresholds",
+        "BayesianMixtureParameters",
+        "BirchParameters",
+        "CastColumn",
+        "CategorySettings",
+        "CheckpointOptions",
+        "ComparisonSettings",
+        "ComparisonSource",
+        "CsvOptions",
+        "DBSCANParameters",
+        "DerivedColumn",
+        "DistributionSettings",
+        "DropMissing",
+        "FactorAnalysisParameters",
+        "FillMissing",
+        "Filter",
+        "GaussianMixtureParameters",
+        "GaussianProjectionParameters",
+        "HDBSCANParameters",
+        "ICAParameters",
+        "ImageAssociationMapping",
+        "ImageComparisonSettings",
+        "ImageComparisonSource",
+        "ImageComparisonViewSettings",
+        "ImageDisplay",
+        "ImageProfileSettings",
+        "ImageProfileViewSettings",
+        "ImageScope",
+        "ImageSettings",
+        "ImageViewport",
+        "InspectSettings",
+        "IsomapParameters",
+        "JsonOptions",
+        "KMeansParameters",
+        "KernelPCAParameters",
+        "LLEParameters",
+        "Lookup",
+        "MDSParameters",
+        "MeanShiftParameters",
+        "MediaOptions",
+        "MiniBatchParameters",
+        "NMFParameters",
+        "OPTICSParameters",
+        "ObjectOptions",
+        "OverlayClass",
+        "OverlaySettings",
+        "PCAParameters",
+        "ParquetOptions",
+        "PlaybackSettings",
+        "PlotSettings",
+        "Preprocessing",
+        "RecentSource",
+        "ReferenceMapping",
+        "ReferenceSettings",
+        "SVDParameters",
+        "SelectColumns",
+        "SessionFile",
+        "SessionWorkspace",
+        "SetColumnRole",
+        "SignalViewSettings",
+        "SliceSettings",
+        "Sort",
+        "SourceDraft",
+        "SparseProjectionParameters",
+        "SpectralClusteringParameters",
+        "SpectralEmbeddingParameters",
+        "SupportingArray",
+        "TSNEParameters",
+        "TablePresentation",
+        "TextComparisonSettings",
+        "TextComparisonSource",
+        "TextComparisonViewSettings",
+        "TextScope",
+        "TextSettings",
+        "TextViewport",
+        "TokenSettings",
+        "TokenizerReference",
+        "TrainingSettings",
+        "UMAPParameters",
+        "Workspace",
+        "WorkspaceSource",
+        "WorkspaceViews",
+        "XmlOptions"
+      ]
+    }
+  ]
+}

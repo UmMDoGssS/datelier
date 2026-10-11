@@ -10,8 +10,7 @@ from numpy.typing import NDArray
 
 from datelier.analysis.cluster_colors import prepare_cluster_colors
 from datelier.analysis.types import ClusteringResult
-from datelier.core.column_roles import ColumnRole
-from datelier.core.dataset import Dataset, DatasetRevision
+from datelier.core import ColumnRole, Dataset, DatasetRevision
 from datelier.inspection.profiles import ColumnProfile
 from datelier.plotting.colors import PointColors, prepare_colors
 

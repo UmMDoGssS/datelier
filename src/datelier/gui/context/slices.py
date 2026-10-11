@@ -2,8 +2,7 @@
 
 from imgui_bundle import imgui
 
-from datelier.application.sources.numeric import NumericSourceController
-from datelier.application.sources.records import ArrayRecordController
+from datelier.application.sources import ArrayRecordController, NumericSourceController
 from datelier.gui.components.actions import CommandButton, JobFeedback, JobSnapshot
 from datelier.gui.components.inputs import (
     BooleanField,

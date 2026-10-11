@@ -13,7 +13,7 @@ from datelier.inspection.images.comparisons.settings import (
     ImageComparisonSettings,
     ImageComparisonViewSettings,
 )
-from datelier.inspection.objects.types import NodePath
+from datelier.inspection.objects import NodePath
 from datelier.inspection.text.comparisons import (
     TextComparisonSettings,
     TextComparisonViewSettings,

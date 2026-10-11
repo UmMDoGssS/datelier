@@ -11,7 +11,7 @@ from datelier.gui.components.inputs import TextField
 from datelier.gui.components.layout import Component, Container, FrameContext
 from datelier.gui.components.native import label_text, target
 from datelier.gui.references.cache import PreviewTextures
-from datelier.inspection.references.types import AssetPreview, Resolution
+from datelier.inspection.references import AssetPreview, Resolution
 
 
 class CandidateList(Component):

@@ -4,10 +4,8 @@ from dataclasses import replace
 
 import polars as pl
 
-from datelier.core.column_roles import ColumnRole
-from datelier.core.dataset import Dataset
-from datelier.inspection.arrays.mapping import ArrayLayout, ArrayRecordMapping
-from datelier.inspection.arrays.types import ArrayCatalog
+from datelier.core import ColumnRole, Dataset
+from datelier.inspection.arrays import ArrayCatalog, ArrayLayout, ArrayRecordMapping
 from datelier.io.arrays.records import _supporting_series
 from datelier.io.arrays.storage import ArrayStore
 

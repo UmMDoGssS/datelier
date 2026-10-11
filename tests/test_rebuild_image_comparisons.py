@@ -9,13 +9,13 @@ from test_rebuild_comparisons import until
 
 from datelier.application.sessions import EditorController
 from datelier.application.sessions.workspace import capture_session
-from datelier.inspection.arrays.mapping import (
+from datelier.inspection.arrays import (
     ArrayLayout,
     ArrayRecordMapping,
     SupportingArray,
 )
 from datelier.inspection.images.profiles import PixelScope
-from datelier.pipeline.operations import Sort
+from datelier.pipeline import Sort
 from datelier.workspace.sessions.jobs import save_snapshot
 
 

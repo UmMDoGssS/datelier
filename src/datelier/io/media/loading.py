@@ -5,13 +5,13 @@ from pathlib import Path
 
 import polars as pl
 
+from datelier.core import Dataset, SourceReference
 from datelier.core.column_roles import (
     AUDIO_EXTENSIONS,
     IMAGE_EXTENSIONS,
     TEXT_EXTENSIONS,
     ColumnRole,
 )
-from datelier.core.dataset import Dataset, SourceReference
 from datelier.io.media.manifest import directory_signature, media_members
 from datelier.io.types import ImportFailure, ImportFormat, ImportResult, MediaOptions
 

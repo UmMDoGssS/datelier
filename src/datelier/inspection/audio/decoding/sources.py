@@ -3,17 +3,16 @@
 import numpy as np
 import soundfile as sf
 
-from datelier.core.dataset import Dataset
-from datelier.inspection.arrays.mapping import ArrayLayout, ArrayRecordMapping
-from datelier.inspection.arrays.types import ArrayCatalog
+from datelier.core import Dataset
+from datelier.inspection.arrays import ArrayCatalog, ArrayLayout, ArrayRecordMapping
 from datelier.inspection.audio.types import (
     AudioLocator,
     AudioMetadata,
     AudioOrigin,
     validate_sample_rate,
 )
+from datelier.inspection.references import AssetIdentity, ReferenceSettings
 from datelier.inspection.references.index import ReferenceIndex, resolve
-from datelier.inspection.references.types import AssetIdentity, ReferenceSettings
 from datelier.io.arrays import ArrayStore
 
 

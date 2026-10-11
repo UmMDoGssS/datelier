@@ -7,7 +7,7 @@ from datelier.analysis.plots import AnalysisPlots
 from datelier.analysis.types import Algorithm, ClusteringResult, EmbeddingResult
 from datelier.application.analysis.settings import AnalysisSettings
 from datelier.application.exploration import PlotState
-from datelier.core.dataset import Dataset
+from datelier.core import Dataset
 
 
 @dataclass

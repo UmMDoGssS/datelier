@@ -10,7 +10,7 @@ from datelier.analysis.types import (
     AnalysisRequest,
     Preprocessing,
 )
-from datelier.core.dataset import Dataset
+from datelier.core import Dataset
 from datelier.plotting.scatter.prepare import feature_columns
 
 

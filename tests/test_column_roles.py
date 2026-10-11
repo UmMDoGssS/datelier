@@ -5,11 +5,9 @@ import pytest
 
 from datelier.application.analysis import AnalysisSettings
 from datelier.application.exploration import PlotState
-from datelier.core.column_roles import ColumnRole
-from datelier.core.dataset import Dataset, SourceReference
+from datelier.core import ColumnRole, Dataset, SourceReference
 from datelier.inspection.profiles import ProfileKind, prepare_profiles
-from datelier.pipeline.history import Pipeline
-from datelier.pipeline.operations import OperationFailure, SetColumnRole, Sort
+from datelier.pipeline import OperationFailure, Pipeline, SetColumnRole, Sort
 from datelier.plotting.scatter.prepare import prepare_correlations
 from datelier.workspace.recipes.codec import decode_record, encode
 

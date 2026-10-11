@@ -9,7 +9,7 @@ from uuid import uuid4
 
 import pytest
 
-from datelier.core.dataset import DatasetRevision
+from datelier.core import DatasetRevision
 from datelier.inspection.annotations.association import (
     AssociatedBox,
     AssociatedImage,
@@ -40,7 +40,7 @@ from datelier.inspection.annotations.types import (
 from datelier.inspection.images.profiles import ImageProgress
 from datelier.inspection.images.types import ImageOrigin
 from datelier.inspection.images.viewport import ImageViewport
-from datelier.inspection.references.types import AssetIdentity
+from datelier.inspection.references import AssetIdentity
 
 
 def prepared() -> PreparedAnnotations:

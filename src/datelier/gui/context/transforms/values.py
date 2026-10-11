@@ -13,10 +13,10 @@ from datelier.gui.components.inputs import (
     TextField,
 )
 from datelier.gui.context.transforms.base import OperationForm
-from datelier.pipeline.editing import DatasetEditor
-from datelier.pipeline.operations import (
+from datelier.pipeline import (
     Operation,
 )
+from datelier.pipeline.editing import DatasetEditor
 from datelier.pipeline.transforms import (
     CastColumn,
     DerivedColumn,

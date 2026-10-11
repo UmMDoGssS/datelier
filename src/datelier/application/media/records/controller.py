@@ -8,16 +8,15 @@ import polars as pl
 
 from datelier.application.sources.columns import record_mapping
 from datelier.application.tabular import ColumnChoice
-from datelier.core.column_roles import ColumnRole
-from datelier.core.dataset import Dataset, DatasetRevision
-from datelier.inspection.arrays.mapping import ArrayLayout
-from datelier.inspection.records.jobs import RecordJobs
-from datelier.inspection.records.types import (
+from datelier.core import ColumnRole, Dataset, DatasetRevision
+from datelier.inspection.arrays import ArrayLayout
+from datelier.inspection.records import (
     InspectSettings,
     RecordCard,
     RecordField,
     RecordMode,
 )
+from datelier.inspection.records.jobs import RecordJobs
 from datelier.inspection.table import Inspection
 from datelier.inspection.text.profiles.lists import is_text_list
 from datelier.io.types import ArrayOptions

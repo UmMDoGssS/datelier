@@ -15,8 +15,8 @@ from datelier.inspection.images.comparisons.settings import (
     ImageComparisonViewSettings,
 )
 from datelier.inspection.images.profiles import ImageProfileSettings
-from datelier.inspection.references.types import ReferenceSettings
-from datelier.io.loading import LoadPhase
+from datelier.inspection.references import ReferenceSettings
+from datelier.io.jobs import LoadPhase
 from datelier.workspace.recipes.codec import decode_record, encode
 from datelier.workspace.sessions import SessionFile, SessionWorkspace
 from datelier.workspace.sessions.storage import read_session_workspace

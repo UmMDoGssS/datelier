@@ -1,0 +1,243 @@
+[
+  {
+    "command": [
+      "rebuild_analysis_smoke.py"
+    ],
+    "return_code": 0,
+    "seconds": 4.2695435140049085,
+    "log": "native-00.log"
+  },
+  {
+    "command": [
+      "rebuild_annotations_smoke.py"
+    ],
+    "return_code": 0,
+    "seconds": 4.189431060003699,
+    "log": "native-01.log"
+  },
+  {
+    "command": [
+      "rebuild_audio_comparisons_smoke.py"
+    ],
+    "return_code": 0,
+    "seconds": 4.310117518994957,
+    "log": "native-02.log"
+  },
+  {
+    "command": [
+      "rebuild_audio_smoke.py"
+    ],
+    "return_code": 0,
+    "seconds": 3.085427065001568,
+    "log": "native-03.log"
+  },
+  {
+    "command": [
+      "rebuild_axes_smoke.py"
+    ],
+    "return_code": 0,
+    "seconds": 7.122817790994304,
+    "log": "native-04.log"
+  },
+  {
+    "command": [
+      "rebuild_browser_smoke.py"
+    ],
+    "return_code": 0,
+    "seconds": 4.986101036993205,
+    "log": "native-05.log"
+  },
+  {
+    "command": [
+      "rebuild_categories_smoke.py"
+    ],
+    "return_code": 0,
+    "seconds": 3.0720633290038677,
+    "log": "native-06.log"
+  },
+  {
+    "command": [
+      "rebuild_comparisons_smoke.py"
+    ],
+    "return_code": 0,
+    "seconds": 2.9935429229954025,
+    "log": "native-07.log"
+  },
+  {
+    "command": [
+      "rebuild_docking_smoke.py"
+    ],
+    "return_code": 0,
+    "seconds": 1.937145996009349,
+    "log": "native-08.log"
+  },
+  {
+    "command": [
+      "rebuild_fonts_smoke.py"
+    ],
+    "return_code": 0,
+    "seconds": 1.3460194740036968,
+    "log": "native-09.log"
+  },
+  {
+    "command": [
+      "rebuild_gallery_smoke.py"
+    ],
+    "return_code": 0,
+    "seconds": 1.6836500689969398,
+    "log": "native-10.log"
+  },
+  {
+    "command": [
+      "rebuild_gui_smoke.py"
+    ],
+    "return_code": 0,
+    "seconds": 3.614727120992029,
+    "log": "native-11.log"
+  },
+  {
+    "command": [
+      "rebuild_image_comparisons_smoke.py"
+    ],
+    "return_code": 0,
+    "seconds": 5.063471181012574,
+    "log": "native-12.log"
+  },
+  {
+    "command": [
+      "rebuild_image_profiles_smoke.py"
+    ],
+    "return_code": 0,
+    "seconds": 3.4001354749925667,
+    "log": "native-13.log"
+  },
+  {
+    "command": [
+      "rebuild_imports_smoke.py"
+    ],
+    "return_code": 0,
+    "seconds": 4.823583743011113,
+    "log": "native-14.log"
+  },
+  {
+    "command": [
+      "rebuild_layout_restore_smoke.py"
+    ],
+    "return_code": 0,
+    "seconds": 2.993792624998605,
+    "log": "native-15.log"
+  },
+  {
+    "command": [
+      "rebuild_numeric_smoke.py"
+    ],
+    "return_code": 0,
+    "seconds": 4.56683701100701,
+    "log": "native-16.log"
+  },
+  {
+    "command": [
+      "rebuild_pairs_smoke.py"
+    ],
+    "return_code": 0,
+    "seconds": 3.152378405997297,
+    "log": "native-17.log"
+  },
+  {
+    "command": [
+      "rebuild_pending_views_smoke.py"
+    ],
+    "return_code": 0,
+    "seconds": 2.1878485180059215,
+    "log": "native-18.log"
+  },
+  {
+    "command": [
+      "rebuild_records_smoke.py"
+    ],
+    "return_code": 0,
+    "seconds": 2.2357886289973976,
+    "log": "native-19.log"
+  },
+  {
+    "command": [
+      "rebuild_scatter_smoke.py"
+    ],
+    "return_code": 0,
+    "seconds": 2.9282941869896604,
+    "log": "native-20.log"
+  },
+  {
+    "command": [
+      "rebuild_sources_smoke.py"
+    ],
+    "return_code": 0,
+    "seconds": 4.083865165011957,
+    "log": "native-21.log"
+  },
+  {
+    "command": [
+      "rebuild_splitter_smoke.py"
+    ],
+    "return_code": 0,
+    "seconds": 2.1411399109929334,
+    "log": "native-22.log"
+  },
+  {
+    "command": [
+      "rebuild_table_smoke.py"
+    ],
+    "return_code": 0,
+    "seconds": 5.3211694409983465,
+    "log": "native-23.log"
+  },
+  {
+    "command": [
+      "rebuild_tabs_smoke.py"
+    ],
+    "return_code": 0,
+    "seconds": 1.9294449979934143,
+    "log": "native-24.log"
+  },
+  {
+    "command": [
+      "rebuild_text_comparisons_smoke.py"
+    ],
+    "return_code": 0,
+    "seconds": 3.8182103719882434,
+    "log": "native-25.log"
+  },
+  {
+    "command": [
+      "rebuild_text_profiles_smoke.py"
+    ],
+    "return_code": 0,
+    "seconds": 2.274517397992895,
+    "log": "native-26.log"
+  },
+  {
+    "command": [
+      "rebuild_workflow_smoke.py"
+    ],
+    "return_code": 0,
+    "seconds": 4.320631009002682,
+    "log": "native-27.log"
+  },
+  {
+    "command": [
+      "rebuild_workspace_smoke.py"
+    ],
+    "return_code": 0,
+    "seconds": 3.0107502960017882,
+    "log": "native-28.log"
+  },
+  {
+    "command": [
+      "rebuild_annotations_smoke.py",
+      "--distinct"
+    ],
+    "return_code": 0,
+    "seconds": 6.539704683003947,
+    "log": "native-29.log"
+  }
+]

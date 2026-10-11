@@ -11,7 +11,7 @@ from numpy.typing import NDArray
 from scipy.stats import gaussian_kde
 from threadpoolctl import threadpool_limits
 
-from datelier.core.dataset import Dataset
+from datelier.core import Dataset
 from datelier.core.sampling import seeded_sample
 from datelier.plotting.scatter import numeric_columns
 

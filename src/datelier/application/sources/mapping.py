@@ -7,13 +7,13 @@ import numpy as np
 
 from datelier.application.sources.slicing import indices
 from datelier.application.tabular import ColumnChoice
-from datelier.inspection.arrays.mapping import (
+from datelier.inspection.arrays import (
+    ArrayCatalog,
     ArrayLayout,
     ArrayRecordMapping,
     SupportingArray,
     suggest_mapping,
 )
-from datelier.inspection.arrays.types import ArrayCatalog
 
 
 @dataclass

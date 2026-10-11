@@ -3,11 +3,10 @@ from pathlib import Path
 import pytest
 from PIL import Image
 
-from datelier.core.column_roles import ColumnRole
+from datelier.core import ColumnRole
 from datelier.io.importing import load_file
 from datelier.io.types import ImportFailure, ImportFormat, MediaOptions
-from datelier.pipeline.history import Pipeline
-from datelier.pipeline.operations import Sort
+from datelier.pipeline import Pipeline, Sort
 from datelier.workspace.single import Workspace
 from datelier.workspace.single.restore import SourceIssue, restore_workspace
 from datelier.workspace.single.storage import reference_source, save_workspace
@@ -193,7 +192,7 @@ def test_relinked_line_file_keeps_original_line_identity(tmp_path: Path) -> None
 def test_exports_and_workspace_writes_preserve_collection_members_and_aliases(
     tmp_path: Path,
 ) -> None:
-    from datelier.io.exporting import ExportFailure, ExportFormat, export_dataset
+    from datelier.io.jobs import ExportFailure, ExportFormat, export_dataset
 
     folder = tmp_path / "protected"
     folder.mkdir()

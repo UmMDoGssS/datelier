@@ -8,7 +8,7 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import cast
 
-from datelier.core.dataset import SourceReference
+from datelier.core import SourceReference
 from datelier.io.media import directory_signature
 from datelier.io.protection import destination_is_source
 from datelier.workspace.recipes.codec import decode_record, encode

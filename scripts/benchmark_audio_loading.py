@@ -11,7 +11,7 @@ from time import perf_counter
 import numpy as np
 import soundfile as sf
 
-from datelier.inspection.arrays.mapping import ArrayLayout, ArrayRecordMapping
+from datelier.inspection.arrays import ArrayLayout, ArrayRecordMapping
 from datelier.inspection.audio.decoding import (
     audio_blocks,
     audio_metadata,
@@ -21,7 +21,7 @@ from datelier.inspection.audio.decoding import (
 from datelier.inspection.audio.profiles import AudioThresholds
 from datelier.inspection.audio.profiles.statistics import profile_signal
 from datelier.inspection.audio.types import AudioRange
-from datelier.inspection.references.types import ReferenceSettings
+from datelier.inspection.references import ReferenceSettings
 from datelier.io.arrays import ArrayStore
 from datelier.io.arrays.metadata import inspect_arrays
 from datelier.io.arrays.records import prepare_array_records

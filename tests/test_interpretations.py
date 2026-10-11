@@ -3,11 +3,9 @@ from pathlib import Path
 import polars as pl
 import pytest
 
-from datelier.core.column_roles import ColumnRole
-from datelier.core.dataset import Dataset, SourceReference
+from datelier.core import ColumnRole, Dataset, SourceReference
 from datelier.inspection.profiles import prepare_profiles
-from datelier.pipeline.history import Pipeline
-from datelier.pipeline.operations import Comparison, Filter, SetColumnRole, Sort
+from datelier.pipeline import Comparison, Filter, Pipeline, SetColumnRole, Sort
 
 
 def dataset(values: pl.Series) -> Dataset:

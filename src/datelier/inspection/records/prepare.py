@@ -5,8 +5,8 @@ from dataclasses import replace
 
 import polars as pl
 
+from datelier.core import Dataset
 from datelier.core.column_roles import REFERENCE_ROLES
-from datelier.core.dataset import Dataset
 from datelier.inspection.records.types import (
     InspectSettings,
     RecordCard,

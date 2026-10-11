@@ -3,9 +3,8 @@
 from concurrent.futures import Executor, Future
 from threading import Event
 
-from datelier.core.dataset import Dataset
-from datelier.core.jobs import JobExecutor
-from datelier.inspection.comparisons.types import ComparisonSelection
+from datelier.core import Dataset, JobExecutor
+from datelier.inspection.comparisons import ComparisonSelection
 from datelier.inspection.images.comparisons.prepare import (
     prepare_comparison,
 )

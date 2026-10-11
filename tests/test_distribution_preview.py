@@ -4,7 +4,7 @@ from time import monotonic, sleep
 
 import polars as pl
 
-from datelier.core.dataset import Dataset, SourceReference
+from datelier.core import Dataset, SourceReference
 from datelier.plotting.distributions import Comparison, DistributionSettings
 from datelier.plotting.distributions.preview import DistributionPreview
 

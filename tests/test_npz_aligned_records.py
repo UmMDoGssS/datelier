@@ -5,10 +5,10 @@ import numpy as np
 import polars as pl
 import pytest
 
-from datelier.core.column_roles import ColumnRole
-from datelier.inspection.arrays.mapping import ArrayLayout
+from datelier.core import ColumnRole
+from datelier.inspection.arrays import ArrayLayout
 from datelier.inspection.images.decoding.sources import image_metadata, locate_image
-from datelier.inspection.references.types import ReferenceSettings
+from datelier.inspection.references import ReferenceSettings
 from datelier.io.arrays import ArrayStore, load_arrays
 from datelier.io.arrays.aligned import (
     aligned_record_count,
@@ -17,8 +17,7 @@ from datelier.io.arrays.aligned import (
 )
 from datelier.io.arrays.metadata import inspect_arrays
 from datelier.io.types import ArrayOptions
-from datelier.pipeline.history import Pipeline
-from datelier.pipeline.operations import Sort
+from datelier.pipeline import Pipeline, Sort
 from datelier.workspace.recipes.codec import decode_record, encode
 
 

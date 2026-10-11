@@ -7,16 +7,15 @@ import numpy as np
 import polars as pl
 import pytest
 
-from datelier.core.column_roles import ColumnRole
-from datelier.core.dataset import Dataset, SourceReference
+from datelier.core import ColumnRole, Dataset, SourceReference
 from datelier.inspection.comparison_settings import (
     ComparisonSettings,
     ComparisonSource,
     Normalization,
 )
+from datelier.inspection.comparisons import ComparisonInput, PreparedComparison
 from datelier.inspection.comparisons.prepare import prepare_comparison, select_bin
-from datelier.inspection.comparisons.types import ComparisonInput, PreparedComparison
-from datelier.pipeline.operations import Sort, apply_operation
+from datelier.pipeline import Sort, apply_operation
 from datelier.plotting.scatter import LinkedSelection
 
 

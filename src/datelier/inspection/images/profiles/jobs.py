@@ -3,10 +3,8 @@
 from concurrent.futures import Executor, Future
 from threading import Event
 
-from datelier.core.dataset import Dataset, DatasetRevision
-from datelier.core.jobs import JobExecutor
-from datelier.inspection.arrays.mapping import ArrayRecordMapping
-from datelier.inspection.arrays.types import ArrayCatalog
+from datelier.core import Dataset, DatasetRevision, JobExecutor
+from datelier.inspection.arrays import ArrayCatalog, ArrayRecordMapping
 from datelier.inspection.images.profiles.prepare import prepare_image_profile
 from datelier.inspection.images.profiles.types import (
     ImageProfile,
@@ -14,8 +12,8 @@ from datelier.inspection.images.profiles.types import (
     ImageProgress,
     ImageScopeMode,
 )
+from datelier.inspection.references import ReferenceSettings
 from datelier.inspection.references.index import ReferenceIndex
-from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.arrays import ArrayStore
 
 

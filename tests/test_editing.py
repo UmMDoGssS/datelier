@@ -4,9 +4,8 @@ from time import monotonic, sleep
 
 from datelier.inspection.table import Inspection, prepare_inspection
 from datelier.io.tabular import load_csv
+from datelier.pipeline import Comparison, Filter, Pipeline, Sort
 from datelier.pipeline.editing import DatasetEditor, HistoryAction
-from datelier.pipeline.history import Pipeline
-from datelier.pipeline.operations import Comparison, Filter, Sort
 
 
 def wait_edit(editor: DatasetEditor, active: Inspection) -> Inspection | None:

@@ -4,12 +4,11 @@ from pathlib import Path
 import polars as pl
 import pytest
 
-from datelier.core.dataset import Dataset, SourceReference
+from datelier.core import Dataset, SourceReference
 from datelier.inspection.presentation import NumericScale, TablePresentation, cell_style
 from datelier.inspection.table import Inspection, prepare_inspection
 from datelier.io.types import CsvOptions, ImportResult
-from datelier.pipeline.history import Pipeline
-from datelier.pipeline.operations import Comparison, Filter, Sort
+from datelier.pipeline import Comparison, Filter, Pipeline, Sort
 
 
 def inspect(table: pl.DataFrame) -> Inspection:

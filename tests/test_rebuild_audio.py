@@ -132,12 +132,12 @@ def test_confirmed_payload_survives_removing_display_identity_column(
     tmp_path: Path,
 ) -> None:
     from datelier.application.media.records import RecordKind
-    from datelier.inspection.arrays.mapping import (
+    from datelier.inspection.arrays import (
         ArrayLayout,
         ArrayRecordMapping,
         SupportingArray,
     )
-    from datelier.pipeline.operations import SelectColumns, Sort
+    from datelier.pipeline import SelectColumns, Sort
 
     source = tmp_path / "waves.npz"
     values = np.arange(24, dtype=np.float32).reshape(3, 8)

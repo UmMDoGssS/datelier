@@ -4,7 +4,7 @@ import numpy as np
 import polars as pl
 import pytest
 
-from datelier.core.dataset import Dataset, SourceReference
+from datelier.core import Dataset, SourceReference
 from datelier.plotting.distributions import DistributionSettings, prepare_comparison
 
 

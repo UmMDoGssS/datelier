@@ -5,13 +5,12 @@ from pathlib import Path
 import polars as pl
 import pytest
 
+from datelier.core import Dataset, SourceReference
 from datelier.core.column_roles import ColumnRole, allowed_roles
-from datelier.core.dataset import Dataset, SourceReference
 from datelier.inspection.profiles import ProfileKind
 from datelier.inspection.profiles.preview import ProfileRequest, prepare_profile_group
 from datelier.io.importing import load_file
-from datelier.pipeline.history import Pipeline
-from datelier.pipeline.operations import OperationFailure, SetColumnRole, Sort
+from datelier.pipeline import OperationFailure, Pipeline, SetColumnRole, Sort
 from datelier.plotting.distributions import DistributionSettings
 from datelier.plotting.scatter import numeric_columns
 from datelier.workspace.recipes.codec import decode_record, encode

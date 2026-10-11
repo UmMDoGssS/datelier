@@ -26,7 +26,7 @@ if TYPE_CHECKING:
         KMeansFit,
         PreparedInput,
     )
-    from datelier.core.dataset import Dataset
+    from datelier.core import Dataset
 
 
 type Details = tuple[tuple[str, str], ...]

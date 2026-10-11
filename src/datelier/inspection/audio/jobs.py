@@ -3,10 +3,8 @@
 from concurrent.futures import Executor, Future
 from threading import Event
 
-from datelier.core.dataset import Dataset, DatasetRevision
-from datelier.core.jobs import JobExecutor
-from datelier.inspection.arrays.mapping import ArrayRecordMapping
-from datelier.inspection.arrays.types import ArrayCatalog
+from datelier.core import Dataset, DatasetRevision, JobExecutor
+from datelier.inspection.arrays import ArrayCatalog, ArrayRecordMapping
 from datelier.inspection.audio.decoding import prepare_metadata, prepare_window
 from datelier.inspection.audio.profiles import (
     AudioProgress,
@@ -21,8 +19,8 @@ from datelier.inspection.audio.types import (
     PreparedAudio,
     validate_sample_rate,
 )
+from datelier.inspection.references import ReferenceSettings
 from datelier.inspection.references.index import ReferenceIndex
-from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.arrays import ArrayStore
 
 

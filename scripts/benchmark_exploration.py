@@ -27,8 +27,7 @@ from datelier.inspection.exploration import PlotSettings, prepare_dashboard
 from datelier.inspection.profiles import prepare_profiles
 from datelier.inspection.table import prepare_inspection, prepare_page
 from datelier.io.tabular import load_csv
-from datelier.pipeline.history import Pipeline
-from datelier.pipeline.operations import Comparison, Filter, Sort
+from datelier.pipeline import Comparison, Filter, Pipeline, Sort
 from datelier.plotting.distributions import DistributionSettings, prepare_comparison
 from datelier.plotting.scatter import LinkedSelection
 

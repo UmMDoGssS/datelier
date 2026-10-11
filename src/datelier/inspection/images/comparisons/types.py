@@ -2,9 +2,8 @@
 
 from dataclasses import dataclass
 
-from datelier.core.dataset import Dataset
-from datelier.inspection.arrays.mapping import ArrayRecordMapping
-from datelier.inspection.arrays.types import ArrayCatalog
+from datelier.core import Dataset
+from datelier.inspection.arrays import ArrayCatalog, ArrayRecordMapping
 from datelier.inspection.images.comparisons.settings import (
     ImageComparisonSettings,
     ImageComparisonSource,
@@ -15,8 +14,8 @@ from datelier.inspection.images.profiles import (
     ImageHistogram,
     ImageProfile,
 )
+from datelier.inspection.references import ReferenceSettings
 from datelier.inspection.references.index import ReferenceIndex
-from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.arrays import ArrayStore
 
 

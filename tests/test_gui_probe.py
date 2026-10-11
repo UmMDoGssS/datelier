@@ -2,7 +2,7 @@
 
 from uuid import uuid4
 
-from datelier.core.dataset import DatasetRevision
+from datelier.core import DatasetRevision
 from datelier.gui.components.layout import FrameContext
 from datelier.gui.components.probe import GuiProbe, ViewScope
 

@@ -7,8 +7,7 @@ import numpy as np
 import polars as pl
 from numpy.typing import NDArray
 
-from datelier.core.column_roles import ColumnRole
-from datelier.core.dataset import Dataset, DatasetRevision
+from datelier.core import ColumnRole, Dataset, DatasetRevision
 from datelier.inspection.profiles import COUNT_ROW_LIMIT
 from datelier.plotting.distributions import (
     DistributionSettings,

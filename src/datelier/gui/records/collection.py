@@ -11,7 +11,7 @@ from datelier.gui.components.layout.viewport import ResizableViewport
 from datelier.gui.components.native import target
 from datelier.gui.records.base import RecordContent
 from datelier.gui.records.values import NestedContent, ValueContent
-from datelier.inspection.records.types import RecordCard
+from datelier.inspection.records import RecordCard
 
 
 class RecordHeader(Component):

@@ -5,8 +5,8 @@ from dataclasses import dataclass
 from datelier.application.sources.columns import record_mapping
 from datelier.application.tabular.columns import ColumnChoice
 from datelier.application.tabular.presentation import PresentationController
+from datelier.core import DatasetRevision
 from datelier.core.column_roles import REFERENCE_ROLES, ColumnRole
-from datelier.core.dataset import DatasetRevision
 from datelier.inspection.presentation import NumericBounds
 from datelier.inspection.preview import PreviewCache
 from datelier.inspection.table import Inspection

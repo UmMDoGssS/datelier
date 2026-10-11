@@ -4,12 +4,12 @@ from dataclasses import dataclass, replace
 from pathlib import Path
 
 from datelier.core.column_roles import TEXT_EXTENSIONS
-from datelier.inspection.arrays.types import ArrayCatalog
+from datelier.inspection.arrays import ArrayCatalog
 from datelier.inspection.table import prepare_inspection
 from datelier.io.importing import load_file
 from datelier.io.objects import object_record_view
 from datelier.io.types import ArrayOptions, ImportResult, MediaOptions, ObjectOptions
-from datelier.pipeline.history import Pipeline
+from datelier.pipeline import Pipeline
 from datelier.workspace.sessions.storage import read_session_with_notice
 from datelier.workspace.sessions.types import SessionFile, SessionWorkspace
 from datelier.workspace.single import Workspace

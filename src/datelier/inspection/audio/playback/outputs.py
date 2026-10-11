@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from importlib import import_module
 from typing import Protocol, cast
 
-from datelier.core.jobs import JobExecutor
+from datelier.core import JobExecutor
 
 
 @dataclass(frozen=True)

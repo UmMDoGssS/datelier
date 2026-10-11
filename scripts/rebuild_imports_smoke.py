@@ -11,9 +11,9 @@ from rebuild_input import NativeInput, NativeText
 from datelier.application.sessions import EditorController
 from datelier.gui.app import InspectionEvidence, run_gui
 from datelier.gui.components.probe import GuiProbe
-from datelier.io.loading import LoadPhase
+from datelier.io.jobs import LoadPhase
 from datelier.io.types import CsvOptions, ImportFormat
-from datelier.pipeline.operations import Sort
+from datelier.pipeline import Sort
 
 
 def main() -> None:

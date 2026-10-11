@@ -5,8 +5,8 @@ from dataclasses import replace
 
 from datelier.application.media import MediaInput
 from datelier.application.sources.columns import record_mapping
+from datelier.inspection.arrays import ArrayRecordMapping
 from datelier.inspection.arrays.jobs import ArrayJobs
-from datelier.inspection.arrays.mapping import ArrayRecordMapping
 from datelier.io.arrays import ArrayStore
 from datelier.io.types import ArrayOptions
 

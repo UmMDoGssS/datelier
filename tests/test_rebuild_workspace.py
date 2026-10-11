@@ -7,7 +7,7 @@ from time import monotonic, sleep
 
 from datelier.application.sessions import EditorController
 from datelier.application.sessions.workspace import capture_session
-from datelier.pipeline.operations import Sort
+from datelier.pipeline import Sort
 from datelier.workspace.sessions.storage import read_session_workspace
 
 

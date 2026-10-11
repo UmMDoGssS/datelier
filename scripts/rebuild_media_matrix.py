@@ -37,7 +37,7 @@ from datelier.inspection.images.comparisons.settings import (
     ImageComparisonSource,
 )
 from datelier.inspection.images.profiles import ImageProfileSettings
-from datelier.inspection.references.types import ReferenceSettings
+from datelier.inspection.references import ReferenceSettings
 from datelier.inspection.text.comparisons import (
     TextComparisonSettings,
     TextComparisonSource,

@@ -5,8 +5,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from datelier.analysis.types import Algorithm
-from datelier.core.dataset import SourceReference
-from datelier.io.loading import LoadPhase, LoadStatus
+from datelier.core import SourceReference
+from datelier.io.jobs import LoadPhase, LoadStatus
 from datelier.workspace.sessions import SessionFile, SourceDraft
 from datelier.workspace.sessions.jobs import SessionSnapshot
 from datelier.workspace.sessions.restore import RestoredSessionFile

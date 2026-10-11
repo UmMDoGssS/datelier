@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass, field
 
-from datelier.core.dataset import DatasetRevision
+from datelier.core import DatasetRevision
 
 
 @dataclass(frozen=True)

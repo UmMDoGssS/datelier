@@ -13,9 +13,9 @@ from threading import Event
 import tokenizers
 from tokenizers import Tokenizer, models, pre_tokenizers, trainers
 
-from datelier.core.dataset import Dataset
+from datelier.core import Dataset
+from datelier.inspection.references import ReferenceSettings
 from datelier.inspection.references.index import ReferenceIndex
-from datelier.inspection.references.types import ReferenceSettings
 from datelier.inspection.text.profiles.corpus import (
     TextProgress,
     check_abandoned,

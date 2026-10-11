@@ -10,7 +10,7 @@ from datelier.analysis.algorithms import ALGORITHMS, AlgorithmInstance
 from datelier.analysis.algorithms.clustering import KMeansAlgorithm
 from datelier.analysis.algorithms.decomposition import PCAAlgorithm
 from datelier.analysis.algorithms.manifold import TSNEAlgorithm, UMAPAlgorithm
-from datelier.core.dataset import DatasetRevision
+from datelier.core import DatasetRevision
 
 # Compatibility imports refer to executable algorithm classes, not parameter records.
 PCAParameters = PCAAlgorithm

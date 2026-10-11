@@ -5,11 +5,10 @@ from dataclasses import dataclass, replace
 from pathlib import Path
 
 from datelier.analysis.types import AnalysisRequest
-from datelier.core.dataset import DatasetRevision
-from datelier.core.jobs import JobExecutor
+from datelier.core import DatasetRevision, JobExecutor
 from datelier.inspection.exploration import PlotSettings
 from datelier.io.types import ImportResult
-from datelier.pipeline.history import Pipeline
+from datelier.pipeline import Pipeline
 from datelier.workspace.single.restore import (
     RestoredWorkspace,
     SourceIssue,

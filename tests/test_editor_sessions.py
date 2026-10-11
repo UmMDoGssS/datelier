@@ -5,7 +5,7 @@ import pytest
 
 from datelier.application.sessions import EditorController, FileController
 from datelier.gui.shell.layout import FileTab
-from datelier.io.loading import LoadPhase
+from datelier.io.jobs import LoadPhase
 
 
 def wait_for_files(*files: FileController) -> None:
@@ -63,7 +63,7 @@ def test_duplicate_filenames_have_distinct_native_ids(tmp_path: Path) -> None:
         second = editor.new_file()
         first.imports.path = str(tmp_path / "first" / "data.csv")
         second.imports.path = str(tmp_path / "second" / "data.csv")
-        from datelier.io.loading import LoadStatus
+        from datelier.io.jobs import LoadStatus
 
         first.loader.status = LoadStatus(path=Path(first.imports.path))
         second.loader.status = LoadStatus(path=Path(second.imports.path))

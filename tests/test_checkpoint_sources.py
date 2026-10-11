@@ -6,7 +6,7 @@ from types import ModuleType
 
 import pytest
 
-from datelier.core.column_roles import ColumnRole
+from datelier.core import ColumnRole
 from datelier.io.importing import detect_format, load_file
 from datelier.io.types import CheckpointOptions, ImportFailure, ImportFormat
 from datelier.workspace.recipes.codec import decode_record, encode

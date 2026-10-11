@@ -4,8 +4,8 @@ from dataclasses import dataclass
 
 import polars as pl
 
+from datelier.core import Dataset
 from datelier.core.column_roles import LIST_ROLES, PLOTTABLE_ROLES, ColumnRole, RoleInfo
-from datelier.core.dataset import Dataset
 
 PROFILE_ROLES = (
     *PLOTTABLE_ROLES,

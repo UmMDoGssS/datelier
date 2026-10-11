@@ -8,7 +8,7 @@ import pytest
 
 from datelier.application.imports import ImportController
 from datelier.application.sessions import EditorController
-from datelier.io.loading import LoadPhase
+from datelier.io.jobs import LoadPhase
 from datelier.io.types import (
     CsvOptions,
     ImportFormat,
@@ -16,7 +16,7 @@ from datelier.io.types import (
     ParquetOptions,
     XmlOptions,
 )
-from datelier.pipeline.operations import Sort
+from datelier.pipeline import Sort
 from datelier.workspace.preferences import (
     Preferences,
     Theme,

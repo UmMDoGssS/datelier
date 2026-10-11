@@ -3,7 +3,7 @@
 from collections import OrderedDict
 from concurrent.futures import Executor, Future
 
-from datelier.core.jobs import JobExecutor
+from datelier.core import JobExecutor
 from datelier.inspection.table import PAGE_ROWS, Inspection, PreviewPage, prepare_page
 
 

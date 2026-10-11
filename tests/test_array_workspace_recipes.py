@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from datelier.inspection.arrays.mapping import (
+from datelier.inspection.arrays import (
     ArrayLayout,
     ArrayRecordMapping,
     SupportingArray,
@@ -12,8 +12,7 @@ from datelier.inspection.arrays.mapping import (
 from datelier.io.arrays import ArrayStore
 from datelier.io.importing import load_file
 from datelier.io.types import ArrayOptions
-from datelier.pipeline.history import Pipeline
-from datelier.pipeline.operations import Sort
+from datelier.pipeline import Pipeline, Sort
 from datelier.workspace.sessions import SessionFile, SessionWorkspace
 from datelier.workspace.sessions.restore import (
     SourceRecovery,

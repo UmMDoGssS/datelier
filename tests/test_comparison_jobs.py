@@ -6,17 +6,16 @@ from time import monotonic, sleep
 import polars as pl
 import pytest
 
-from datelier.core.dataset import Dataset, SourceReference
-from datelier.core.jobs import SharedWorkers
+from datelier.core import Dataset, SharedWorkers, SourceReference
 from datelier.inspection.comparison_settings import ComparisonSettings, ComparisonSource
-from datelier.inspection.comparisons import jobs as module
-from datelier.inspection.comparisons.jobs import ComparisonJobs
-from datelier.inspection.comparisons.types import (
+from datelier.inspection.comparisons import (
     ComparisonInput,
     ComparisonSelection,
     PreparedComparison,
 )
-from datelier.pipeline.operations import Sort, apply_operation
+from datelier.inspection.comparisons import jobs as module
+from datelier.inspection.comparisons.jobs import ComparisonJobs
+from datelier.pipeline import Sort, apply_operation
 
 
 def sources() -> dict[str, Dataset]:

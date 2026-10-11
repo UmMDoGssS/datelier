@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass, field
 
-from datelier.core.dataset import DatasetRevision
+from datelier.core import DatasetRevision
 from datelier.inspection.annotations.settings import AnnotationSource
 from datelier.inspection.annotations.types import (
     AnnotationCatalog,

@@ -16,7 +16,7 @@ from PIL import Image, TiffImagePlugin
 
 from datelier.inspection.images.decoding.sources import check_asset, image_mode
 from datelier.inspection.images.geometry import orient_array
-from datelier.inspection.references.types import AssetIdentity
+from datelier.inspection.references import AssetIdentity
 
 
 @dataclass

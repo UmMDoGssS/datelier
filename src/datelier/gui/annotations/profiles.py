@@ -5,7 +5,7 @@ from dataclasses import replace
 
 from imgui_bundle import imgui
 
-from datelier.application.annotations.controller import AnnotationController
+from datelier.application.annotations import AnnotationController
 from datelier.gui.components.layout import Container, FrameContext, Group
 from datelier.gui.components.layout.viewport import ResizableViewport
 from datelier.gui.components.tables import DataFrameTable, FactsTable, SequenceTable

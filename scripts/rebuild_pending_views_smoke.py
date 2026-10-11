@@ -14,7 +14,7 @@ from datelier.application.sessions import EditorController
 from datelier.gui.app import InspectionEvidence, run_gui
 from datelier.gui.components.probe import GuiProbe
 from datelier.inspection.table import Inspection
-from datelier.io import loading
+from datelier.io.jobs import loading
 from datelier.io.types import ImportFormat, ImportResult, ObjectOptions
 
 

@@ -4,8 +4,7 @@ from concurrent.futures import Executor, Future
 from dataclasses import dataclass
 from pathlib import Path
 
-from datelier.core.dataset import Dataset, DatasetRevision
-from datelier.core.jobs import JobExecutor
+from datelier.core import Dataset, DatasetRevision, JobExecutor
 from datelier.inspection.comparison_settings import ComparisonSettings
 from datelier.inspection.comparisons.prepare import prepare_comparison, select_bin
 from datelier.inspection.comparisons.types import (

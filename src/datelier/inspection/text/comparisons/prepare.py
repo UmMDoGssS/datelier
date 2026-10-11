@@ -6,8 +6,8 @@ from threading import Event
 import numpy as np
 import polars as pl
 
-from datelier.core.dataset import Dataset
-from datelier.inspection.comparisons.types import ComparisonSelection, Origin
+from datelier.core import Dataset
+from datelier.inspection.comparisons import ComparisonSelection, Origin
 from datelier.inspection.text.comparisons.settings import (
     TextComparisonSettings,
     TextScale,

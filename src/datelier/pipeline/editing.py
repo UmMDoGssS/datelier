@@ -4,8 +4,7 @@ from concurrent.futures import Executor, Future
 from dataclasses import dataclass, replace
 from enum import StrEnum
 
-from datelier.core.dataset import DatasetRevision
-from datelier.core.jobs import JobExecutor
+from datelier.core import DatasetRevision, JobExecutor
 from datelier.inspection.table import Inspection, prepare_inspection
 from datelier.pipeline.history import Pipeline
 from datelier.pipeline.operations import Operation

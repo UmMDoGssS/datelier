@@ -5,9 +5,8 @@ from threading import Event
 
 import polars as pl
 
-from datelier.core.dataset import Dataset
-from datelier.inspection.arrays.mapping import ArrayLayout, ArrayRecordMapping
-from datelier.inspection.arrays.types import ArrayCatalog
+from datelier.core import Dataset
+from datelier.inspection.arrays import ArrayCatalog, ArrayLayout, ArrayRecordMapping
 from datelier.inspection.images.decoding import ImageStore
 from datelier.inspection.images.decoding.pixels import check_cancelled
 from datelier.inspection.images.decoding.sources import (
@@ -28,8 +27,8 @@ from datelier.inspection.images.profiles.types import (
     ImageProfileSettings,
     ImageProgress,
 )
+from datelier.inspection.references import ReferenceSettings
 from datelier.inspection.references.index import ReferenceIndex
-from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.arrays import ArrayStore
 
 

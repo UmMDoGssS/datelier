@@ -11,7 +11,7 @@ import polars as pl
 import pytest
 from PIL import Image
 
-from datelier.core.dataset import Dataset, SourceReference
+from datelier.core import Dataset, SourceReference
 from datelier.inspection.annotations.association import PreparedAnnotations
 from datelier.inspection.annotations.association.prepare import prepare_annotations
 from datelier.inspection.annotations.settings import (
@@ -21,9 +21,9 @@ from datelier.inspection.annotations.settings import (
     ImageMatch,
 )
 from datelier.inspection.annotations.types import AnnotationCatalog, AnnotationFormat
-from datelier.inspection.arrays.mapping import ArrayLayout, ArrayRecordMapping
+from datelier.inspection.arrays import ArrayLayout, ArrayRecordMapping
 from datelier.inspection.images.profiles import ImageProgress
-from datelier.inspection.references.types import ReferenceSettings
+from datelier.inspection.references import ReferenceSettings
 from datelier.io.annotations import load_annotations
 from datelier.io.arrays import ArrayStore
 from datelier.io.arrays.metadata import inspect_arrays

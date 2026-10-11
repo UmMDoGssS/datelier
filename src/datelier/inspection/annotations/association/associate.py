@@ -4,7 +4,7 @@ from concurrent.futures import CancelledError
 from dataclasses import replace
 from threading import Event
 
-from datelier.core.dataset import Dataset
+from datelier.core import Dataset
 from datelier.inspection.annotations.association.matching import (
     source_key,
     target_index,
@@ -23,13 +23,12 @@ from datelier.inspection.annotations.types import (
     AnnotationIssue,
     BoxRecord,
 )
-from datelier.inspection.arrays.mapping import ArrayRecordMapping
-from datelier.inspection.arrays.types import ArrayCatalog
+from datelier.inspection.arrays import ArrayCatalog, ArrayRecordMapping
 from datelier.inspection.images.decoding.sources import image_metadata, locate_image
 from datelier.inspection.images.profiles import ImageProgress
 from datelier.inspection.images.types import ImageLocator, ImageMetadata
+from datelier.inspection.references import ReferenceSettings
 from datelier.inspection.references.index import ReferenceIndex
-from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.annotations.source import verify_sources
 
 

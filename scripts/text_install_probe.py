@@ -15,7 +15,7 @@ import tokenizers
 import datelier
 from datelier.gui.app import run_gui
 from datelier.gui.fonts import FALLBACK_FONTS
-from datelier.inspection.references.types import ReferenceSettings
+from datelier.inspection.references import ReferenceSettings
 from datelier.inspection.text.comparisons import (
     TextComparisonSettings,
     TextComparisonSource,

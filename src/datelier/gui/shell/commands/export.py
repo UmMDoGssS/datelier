@@ -10,7 +10,7 @@ from datelier.gui.components.actions import CommandButton, JobFeedback, JobSnaps
 from datelier.gui.components.inputs import BooleanField, ChoiceField, TextField
 from datelier.gui.components.layout import Container, FrameContext
 from datelier.gui.components.native import window_close_target
-from datelier.io.exporting import ExportFormat
+from datelier.io.jobs import ExportFormat
 
 
 @dataclass(frozen=True)

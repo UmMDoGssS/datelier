@@ -3,7 +3,7 @@
 from dataclasses import replace
 from uuid import uuid4
 
-from datelier.application.annotations.controller import AnnotationController
+from datelier.application.annotations import AnnotationController
 from datelier.application.annotations.recipes import class_names, confirm_mapping
 from datelier.application.tabular import ColumnChoice, SingleSelection
 from datelier.gui.components.actions import CommandButton

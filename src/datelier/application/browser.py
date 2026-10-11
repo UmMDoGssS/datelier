@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
 
-from datelier.core.jobs import JobExecutor
+from datelier.core import JobExecutor
 from datelier.io.catalog import DirectoryListing, list_directory
 
 

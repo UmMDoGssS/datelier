@@ -10,7 +10,7 @@ import numpy as np
 import polars as pl
 import pytest
 
-from datelier.core.jobs import SharedWorkers
+from datelier.core import SharedWorkers
 from datelier.inspection.text.comparisons.jobs import TextComparisonJobs
 from datelier.inspection.text.comparisons.prepare import (
     compare_profiles,

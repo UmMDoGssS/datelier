@@ -5,11 +5,11 @@ from typing import Protocol
 
 from datelier.application.sources.mapping import RecordMappingDraft
 from datelier.application.sources.slicing import SliceDraft
+from datelier.inspection.arrays import ArrayCatalog
 from datelier.inspection.arrays.settings import SliceSettings
 from datelier.inspection.arrays.slices import PreparedSlice
-from datelier.inspection.arrays.types import ArrayCatalog
+from datelier.inspection.checkpoints import CheckpointCatalog
 from datelier.inspection.checkpoints.slices import PreparedTensorSlice
-from datelier.inspection.checkpoints.types import CheckpointCatalog
 
 
 class SliceJobs(Protocol):

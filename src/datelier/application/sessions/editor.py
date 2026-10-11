@@ -10,12 +10,10 @@ from datelier.application.sessions.file import FileController
 from datelier.application.sessions.navigation import WorkbenchNavigation
 from datelier.application.sessions.preferences import PreferenceController
 from datelier.application.sessions.workspace import capture_session, install_file
-from datelier.core.jobs import SharedWorkers
+from datelier.core import SharedWorkers
 from datelier.inspection.audio.playback.controller import AudioPlayback, PlaybackPhase
 from datelier.inspection.audio.playback.device import DeviceFactory, SoundDeviceOutput
-from datelier.io.exporting import DatasetExporter
-from datelier.io.loading import LoadPhase
-from datelier.io.opening import OpeningJobs
+from datelier.io.jobs import DatasetExporter, LoadPhase, OpeningJobs
 from datelier.workspace.recent import RecentKind, RecentSource
 from datelier.workspace.sessions import SessionFile, SessionWorkspace
 from datelier.workspace.sessions.jobs import SessionJobs, SessionStamp

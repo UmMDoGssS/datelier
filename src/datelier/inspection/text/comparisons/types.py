@@ -6,9 +6,9 @@ import numpy as np
 import polars as pl
 from numpy.typing import NDArray
 
-from datelier.core.dataset import Dataset
+from datelier.core import Dataset
+from datelier.inspection.references import ReferenceSettings
 from datelier.inspection.references.index import ReferenceIndex
-from datelier.inspection.references.types import ReferenceSettings
 from datelier.inspection.text.comparisons.settings import (
     TextComparisonSettings,
     TextComparisonSource,

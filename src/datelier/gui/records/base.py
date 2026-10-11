@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 
 from datelier.gui.components.layout import FrameContext
 from datelier.gui.components.layout.viewport import ViewportContent
-from datelier.inspection.records.types import RecordCard
+from datelier.inspection.records import RecordCard
 
 
 class RecordContent(ViewportContent, ABC):

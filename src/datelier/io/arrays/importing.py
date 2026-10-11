@@ -6,8 +6,8 @@ from typing import BinaryIO
 
 import polars as pl
 
-from datelier.core.column_roles import ColumnRole
-from datelier.inspection.arrays.types import ArrayCatalog
+from datelier.core import ColumnRole
+from datelier.inspection.arrays import ArrayCatalog
 from datelier.io.arrays.aligned import aligned_record_count, prepare_aligned_records
 from datelier.io.arrays.metadata import inspect_arrays
 from datelier.io.arrays.records import prepare_array_records

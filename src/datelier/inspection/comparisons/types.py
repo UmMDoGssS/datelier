@@ -5,8 +5,7 @@ from dataclasses import dataclass
 import numpy as np
 from numpy.typing import NDArray
 
-from datelier.core.column_roles import ColumnRole
-from datelier.core.dataset import Dataset, DatasetRevision
+from datelier.core import ColumnRole, Dataset, DatasetRevision
 from datelier.inspection.comparison_settings import ComparisonSettings, ComparisonSource
 from datelier.inspection.profiles import NumericStatistics
 

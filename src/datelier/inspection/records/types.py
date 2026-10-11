@@ -5,7 +5,7 @@ from enum import StrEnum
 
 import polars as pl
 
-from datelier.core.dataset import DatasetRevision
+from datelier.core import DatasetRevision
 
 
 class RecordMode(StrEnum):

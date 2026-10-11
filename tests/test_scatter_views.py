@@ -7,7 +7,7 @@ from datelier.analysis.types import Algorithm
 from datelier.application.analysis import AnalysisController
 from datelier.application.exploration import PlotState
 from datelier.application.exploration.restore import restore_plots
-from datelier.core.dataset import Dataset, SourceReference
+from datelier.core import Dataset, SourceReference
 from datelier.inspection.exploration import PlotSettings
 from datelier.workspace.recipes.codec import decode_record, encode
 from datelier.workspace.single import WorkspaceViews

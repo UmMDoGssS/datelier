@@ -12,7 +12,7 @@ from datelier.analysis.types import (
     TSNEParameters,
     UMAPParameters,
 )
-from datelier.core.dataset import Dataset, SourceReference
+from datelier.core import Dataset, SourceReference
 
 
 def data(table: pl.DataFrame) -> Dataset:

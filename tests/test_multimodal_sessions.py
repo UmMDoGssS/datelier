@@ -11,7 +11,7 @@ from audio_playback_fixtures import Devices
 from datelier.application.sessions import EditorController, FileController
 from datelier.application.sessions.workspace import capture_session, install_file
 from datelier.feasibility.multimodal import make_multimodal
-from datelier.inspection.arrays.mapping import (
+from datelier.inspection.arrays import (
     ArrayLayout,
     ArrayRecordMapping,
     SupportingArray,
@@ -19,11 +19,11 @@ from datelier.inspection.arrays.mapping import (
 from datelier.inspection.audio.playback.controller import PlaybackPhase
 from datelier.inspection.audio.types import AudioRange
 from datelier.inspection.images.types import ImageDisplay, ImageWindow
-from datelier.inspection.references.types import ReferenceSettings
+from datelier.inspection.references import ReferenceSettings
 from datelier.inspection.text.types import CorpusMode, TextScope
-from datelier.io.loading import LoadPhase
+from datelier.io.jobs import LoadPhase
 from datelier.io.types import ArrayOptions
-from datelier.pipeline.operations import Sort
+from datelier.pipeline import Sort
 from datelier.pipeline.transforms import CastColumn, TargetType
 from datelier.workspace.sessions.jobs import save_snapshot
 from datelier.workspace.sessions.restore import restore_session_workspace

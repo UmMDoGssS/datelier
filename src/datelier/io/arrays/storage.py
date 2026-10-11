@@ -14,8 +14,8 @@ from zipfile import ZipFile
 import numpy as np
 from numpy.typing import NDArray
 
-from datelier.core.dataset import SourceReference
-from datelier.inspection.arrays.types import ArrayCatalog, ArrayMember
+from datelier.core import SourceReference
+from datelier.inspection.arrays import ArrayCatalog, ArrayMember
 from datelier.io.arrays.metadata import inspect_arrays
 
 CHUNK_BYTES = 1024 * 1024

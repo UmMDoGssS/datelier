@@ -7,11 +7,11 @@ import pytest
 
 from datelier.application.sessions import EditorController
 from datelier.application.sessions.workspace import capture_session
-from datelier.inspection.objects.types import ObjectNode
-from datelier.io.loading import LoadPhase
+from datelier.inspection.objects import ObjectNode
+from datelier.io.jobs import LoadPhase
 from datelier.io.types import ImportFormat
+from datelier.pipeline import Sort
 from datelier.pipeline.editing import HistoryAction
-from datelier.pipeline.operations import Sort
 from datelier.workspace.sessions.jobs import save_snapshot
 
 

@@ -3,10 +3,10 @@
 from collections.abc import Callable
 from dataclasses import dataclass
 
+from datelier.core import DatasetRevision
 from datelier.core.column_roles import ColumnRole, RoleInfo, allowed_roles
-from datelier.core.dataset import DatasetRevision
 from datelier.inspection.table import Inspection
-from datelier.pipeline.operations import SetColumnRole
+from datelier.pipeline import SetColumnRole
 
 
 @dataclass(frozen=True)

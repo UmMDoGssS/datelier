@@ -21,7 +21,7 @@ from datelier.inspection.annotations.settings import (
 )
 from datelier.inspection.annotations.types import AnnotationFormat
 from datelier.inspection.images.viewport import ImageViewport
-from datelier.inspection.references.types import ReferenceSettings
+from datelier.inspection.references import ReferenceSettings
 
 
 def main() -> None:

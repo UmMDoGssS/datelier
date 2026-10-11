@@ -23,8 +23,7 @@ from datelier.io.types import (
     ParquetOptions,
     XmlOptions,
 )
-from datelier.pipeline.history import replay
-from datelier.pipeline.operations import Comparison, Filter, SelectColumns, Sort
+from datelier.pipeline import Comparison, Filter, SelectColumns, Sort, replay
 from datelier.pipeline.transforms import (
     CastColumn,
     DerivedColumn,

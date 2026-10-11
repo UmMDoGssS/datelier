@@ -9,8 +9,8 @@ import numpy as np
 import polars as pl
 from numpy.typing import NDArray
 
-from datelier.core.dataset import DatasetRevision, SourceReference
-from datelier.inspection.arrays.mapping import ArrayRecordMapping
+from datelier.core import DatasetRevision, SourceReference
+from datelier.inspection.arrays import ArrayRecordMapping
 
 
 class ImageScopeMode(StrEnum):

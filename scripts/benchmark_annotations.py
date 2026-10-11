@@ -21,7 +21,7 @@ from datelier.inspection.annotations.settings import (
 )
 from datelier.inspection.annotations.types import AnnotationFormat
 from datelier.inspection.images.profiles import ImageProgress
-from datelier.inspection.references.types import ReferenceSettings
+from datelier.inspection.references import ReferenceSettings
 from datelier.io.importing import load_inspectable_file
 
 

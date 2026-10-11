@@ -8,12 +8,12 @@ import numpy as np
 import pytest
 
 from datelier.application.sessions import EditorController
-from datelier.inspection.arrays.mapping import (
+from datelier.inspection.arrays import (
     ArrayLayout,
     SupportingArray,
 )
 from datelier.io.types import ArrayOptions, ImportFormat, ObjectOptions
-from datelier.pipeline.operations import Sort
+from datelier.pipeline import Sort
 
 
 def until(editor: EditorController, condition: Callable[[], bool]) -> None:
@@ -176,9 +176,9 @@ def test_explicit_pending_view_activation_and_completion_preserve_navigation(
     from dataclasses import replace
     from threading import Event
 
-    from datelier.inspection.arrays.mapping import ArrayRecordMapping
+    from datelier.inspection.arrays import ArrayRecordMapping
     from datelier.inspection.table import Inspection
-    from datelier.io import loading
+    from datelier.io.jobs import loading
     from datelier.io.types import ImportResult
 
     editor = EditorController()

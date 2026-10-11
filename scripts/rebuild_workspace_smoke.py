@@ -15,7 +15,7 @@ from imgui_bundle import hello_imgui, imgui
 from datelier.application.sessions import EditorController
 from datelier.gui.app import InspectionEvidence, run_gui
 from datelier.gui.components.probe import GuiProbe
-from datelier.pipeline.operations import Sort
+from datelier.pipeline import Sort
 
 
 def run(root: Path, restore: bool) -> dict[str, object]:

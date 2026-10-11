@@ -154,7 +154,7 @@ def test_manual_axes_can_swap_without_duplicate_coordinates() -> None:
 def test_profile_summary_accounts_for_missing_and_nonfinite(tmp_path: Path) -> None:
     import polars as pl
 
-    from datelier.core.dataset import Dataset, SourceReference
+    from datelier.core import Dataset, SourceReference
 
     data = Dataset.from_source(
         pl.DataFrame({"x": [1.0, 2.0, None, float("inf")]}),

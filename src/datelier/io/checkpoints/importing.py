@@ -7,9 +7,9 @@ from zipfile import is_zipfile
 
 import polars as pl
 
-from datelier.core.column_roles import ColumnRole
-from datelier.inspection.checkpoints.types import CheckpointCatalog, TensorInfo
-from datelier.inspection.objects.types import ObjectNode
+from datelier.core import ColumnRole
+from datelier.inspection.checkpoints import CheckpointCatalog, TensorInfo
+from datelier.inspection.objects import ObjectNode
 from datelier.io.checkpoints.metadata import checkpoint_tree
 from datelier.io.checkpoints.runtime import load_restricted
 from datelier.io.source import read_source

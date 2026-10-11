@@ -14,7 +14,7 @@ from datelier.analysis.types import (
 )
 from datelier.application.sessions import EditorController, WorkbenchNavigation
 from datelier.inspection.comparison_settings import ComparisonSettings
-from datelier.io.loading import LoadPhase
+from datelier.io.jobs import LoadPhase
 
 
 def tiny_embedding(inputs: PreparedInput) -> EmbeddingResult:

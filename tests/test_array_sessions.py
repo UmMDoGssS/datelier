@@ -9,14 +9,13 @@ import pytest
 
 from datelier.application.sessions import EditorController
 from datelier.application.sessions.workspace import capture_session
-from datelier.core.column_roles import ColumnRole
-from datelier.core.dataset import DatasetRevision
+from datelier.core import ColumnRole, DatasetRevision
+from datelier.inspection.arrays import ArrayCatalog
 from datelier.inspection.arrays.jobs import ArrayJobs
 from datelier.inspection.arrays.slices import PreparedSlice, SliceSettings
-from datelier.inspection.arrays.types import ArrayCatalog
 from datelier.io.arrays import ArrayStore
 from datelier.io.arrays.metadata import inspect_arrays
-from datelier.io.loading import LoadPhase
+from datelier.io.jobs import LoadPhase
 from datelier.io.types import ArrayOptions, ImportFormat
 from datelier.workspace.sessions.jobs import save_snapshot
 

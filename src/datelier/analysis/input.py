@@ -9,7 +9,7 @@ from datelier.analysis.types import (
     PreparedInput,
     PreprocessingModel,
 )
-from datelier.core.dataset import Dataset
+from datelier.core import Dataset
 from datelier.core.sampling import seeded_sample
 from datelier.plotting.scatter import numeric_columns
 

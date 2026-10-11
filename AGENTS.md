@@ -195,6 +195,15 @@ generic GUI forms when extending methods; keep estimator imports and fitting
 inside explicit workers, and preserve existing recipe names and values. Legacy
 parameter import names are aliases to the same executable classes.
 
+The codebase package layout follow-up passes automated acceptance;
+[docs/package-layout.md](docs/package-layout.md) records the full-tree audit,
+family APIs, preserved implementation bodies, wheel imports and native workflows.
+Group related modules by responsibility and export bounded public family APIs;
+keep contracts independent of preparation, session composition and optional
+runtimes. Do not use eager parent exports to pull higher-level consumers into
+lower-level contracts. Numerical pipelines and saved recipe identifiers are
+unchanged by this source-layout follow-up.
+
 ## Architecture and data integrity
 
 - Separate import adapters, dataset and operation state, profiling, plotting

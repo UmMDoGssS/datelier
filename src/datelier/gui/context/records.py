@@ -12,7 +12,7 @@ from datelier.gui.components.inputs import (
 )
 from datelier.gui.components.layout import Container
 from datelier.gui.components.layout.groups import Conditional
-from datelier.inspection.records.types import RecordMode
+from datelier.inspection.records import RecordMode
 
 
 class RecordSettings(Container):

@@ -3,8 +3,7 @@
 from concurrent.futures import Executor, Future
 from threading import Event
 
-from datelier.core.dataset import DatasetRevision
-from datelier.core.jobs import JobExecutor
+from datelier.core import DatasetRevision, JobExecutor
 from datelier.inspection.arrays.slices import (
     PreparedSlice,
     SliceSettings,

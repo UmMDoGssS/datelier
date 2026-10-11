@@ -7,8 +7,8 @@ from test_rebuild_comparisons import until
 
 from datelier.application.sessions import EditorController
 from datelier.application.sessions.workspace import capture_session
-from datelier.core.column_roles import ColumnRole
-from datelier.pipeline.operations import SetColumnRole, Sort
+from datelier.core import ColumnRole
+from datelier.pipeline import SetColumnRole, Sort
 from datelier.plotting.categories import CategoryRepresentation
 from datelier.workspace.sessions.jobs import save_snapshot
 

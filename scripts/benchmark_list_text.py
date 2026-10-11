@@ -10,8 +10,8 @@ from time import perf_counter
 
 import polars as pl
 
-from datelier.core.dataset import Dataset, SourceReference
-from datelier.inspection.references.types import ReferenceSettings
+from datelier.core import Dataset, SourceReference
+from datelier.inspection.references import ReferenceSettings
 from datelier.inspection.text.profiles.corpus import TextProgress
 from datelier.inspection.text.profiles.prepare import prepare_profile
 from datelier.inspection.text.tokenizers.prepare import prepare_document

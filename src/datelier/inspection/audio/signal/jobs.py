@@ -4,7 +4,7 @@ from concurrent.futures import Executor, Future
 from dataclasses import replace
 from threading import Event
 
-from datelier.core.jobs import JobExecutor
+from datelier.core import JobExecutor
 from datelier.inspection.audio.profiles import AudioProgress
 from datelier.inspection.audio.signal.display import spectral_display
 from datelier.inspection.audio.signal.spectra import prepare_spectrogram

@@ -11,10 +11,9 @@ from datelier.inspection.annotations.types import (
     BoxCoordinates,
     BoxRecord,
 )
-from datelier.inspection.references.types import AssetIdentity
+from datelier.inspection.references import AssetIdentity
+from datelier.io.annotations.readers import read_voc, read_yolo
 from datelier.io.annotations.source import annotation_source
-from datelier.io.annotations.voc import read_voc
-from datelier.io.annotations.yolo import read_yolo
 
 
 def voc(objects: str, *, header: str = "") -> str:

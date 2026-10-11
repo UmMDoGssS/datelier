@@ -11,8 +11,8 @@ import pytest
 import soundfile as sf
 from audio_comparison_fixtures import fixture
 
-from datelier.core.dataset import Dataset
-from datelier.inspection.arrays.mapping import ArrayLayout, ArrayRecordMapping
+from datelier.core import Dataset
+from datelier.inspection.arrays import ArrayLayout, ArrayRecordMapping
 from datelier.inspection.audio.collections.scan import scan_collection
 from datelier.inspection.audio.collections.settings import (
     AudioCollectionSettings,
@@ -33,8 +33,8 @@ from datelier.inspection.audio.comparisons.types import (
     PreparedAudioComparison,
 )
 from datelier.inspection.audio.types import AudioLocator
+from datelier.inspection.references import ReferenceSettings
 from datelier.inspection.references.index import ReferenceIndex
-from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.arrays import ArrayStore
 from datelier.io.arrays.metadata import inspect_arrays
 

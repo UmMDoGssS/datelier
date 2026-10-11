@@ -29,7 +29,7 @@ from datelier.gui.shell.layout import (
     MenuBar,
     RecentMenu,
 )
-from datelier.io.exporting import ExportFormat
+from datelier.io.jobs import ExportFormat
 from datelier.pipeline.editing import HistoryAction
 from datelier.workspace.preferences import Theme
 

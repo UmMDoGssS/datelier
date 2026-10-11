@@ -3,8 +3,8 @@
 import numpy as np
 import polars as pl
 
-from datelier.core.dataset import Dataset
-from datelier.inspection.comparisons.types import ComparisonSelection, Origin
+from datelier.core import Dataset
+from datelier.inspection.comparisons import ComparisonSelection, Origin
 from datelier.inspection.images.comparisons.types import PreparedImageComparison
 from datelier.plotting.scatter import SELECTION_LIMIT
 

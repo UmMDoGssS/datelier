@@ -6,8 +6,7 @@ from pathlib import Path
 from datelier.inspection.table import Inspection, prepare_inspection
 from datelier.io.importing import load_file
 from datelier.io.types import ImportResult
-from datelier.pipeline.history import Pipeline
-from datelier.pipeline.operations import apply_operation
+from datelier.pipeline import Pipeline, apply_operation
 from datelier.workspace.single.storage import fingerprint, read_workspace
 from datelier.workspace.single.types import Workspace
 

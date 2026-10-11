@@ -21,7 +21,7 @@ from PIL import Image
 from datelier.application.sessions import EditorController
 from datelier.gui.app import InspectionEvidence, run_gui
 from datelier.gui.components.probe import GuiProbe
-from datelier.inspection.records.types import RecordMode
+from datelier.inspection.records import RecordMode
 
 BUDGETS = {
     "metadata_ms": 2000,

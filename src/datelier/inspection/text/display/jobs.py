@@ -2,7 +2,7 @@
 
 from concurrent.futures import Executor, Future
 
-from datelier.core.jobs import JobExecutor
+from datelier.core import JobExecutor
 from datelier.inspection.text.display.pages import (
     TextPage,
     TextViewport,

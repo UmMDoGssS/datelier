@@ -9,12 +9,12 @@ import pytest
 
 from datelier.application.exploration import ProfileFamily
 from datelier.application.sessions import EditorController, FileController
-from datelier.core.dataset import SourceReference
+from datelier.core import SourceReference
 from datelier.inspection.comparison_settings import ComparisonSettings, ComparisonSource
 from datelier.io.importing import load_file
-from datelier.io.loading import DatasetLoader, LoadPhase
+from datelier.io.jobs import DatasetLoader, LoadPhase
 from datelier.io.types import ImportOptions, ImportResult
-from datelier.pipeline.operations import Sort
+from datelier.pipeline import Sort
 from datelier.workspace.sessions import SessionFile
 from datelier.workspace.sessions.restore import (
     RestoredSession,
@@ -325,8 +325,8 @@ def test_reference_controls_restore_without_payloads(tmp_path: Path) -> None:
     from dataclasses import replace
 
     from datelier.inspection.presentation import NumericScale, TablePresentation
-    from datelier.inspection.records.types import InspectSettings, RecordMode
-    from datelier.inspection.references.types import ReferenceMapping
+    from datelier.inspection.records import InspectSettings, RecordMode
+    from datelier.inspection.references import ReferenceMapping
     from datelier.workspace.recipes.codec import decode_record, encode
     from datelier.workspace.single import WorkspaceViews
 
@@ -390,7 +390,7 @@ def test_global_preview_defaults_do_not_apply_other_sources_mappings(
     from dataclasses import replace
 
     from datelier.inspection.presentation import NumericScale, TablePresentation
-    from datelier.inspection.references.types import ReferenceMapping
+    from datelier.inspection.references import ReferenceMapping
 
     source = tmp_path / "new.csv"
     source.write_text("image\na.png\nb.png\n")

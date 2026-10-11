@@ -5,11 +5,11 @@ from concurrent.futures import Executor, Future
 
 from datelier.application.media.base import MediaController, MediaInput
 from datelier.application.sources.columns import record_mapping
-from datelier.core.jobs import JobExecutor
-from datelier.inspection.arrays.mapping import ArrayLayout
+from datelier.core import JobExecutor
+from datelier.inspection.arrays import ArrayLayout
 from datelier.inspection.images.gallery import GalleryImage, prepare_gallery_image
 from datelier.inspection.images.types import ImageDisplay, ImageOrigin
-from datelier.inspection.records.types import RecordCard
+from datelier.inspection.records import RecordCard
 from datelier.inspection.references.jobs import ReferenceJobs
 
 

@@ -4,15 +4,15 @@ from collections.abc import Callable
 
 from imgui_bundle import imgui
 
+from datelier.application.sources import NumericSourceController
 from datelier.application.sources.mapping import RecordMappingDraft, SupportingDraft
-from datelier.application.sources.numeric import NumericSourceController
 from datelier.application.tabular import SingleSelection
 from datelier.gui.components.actions import CommandButton
 from datelier.gui.components.inputs import ChoiceField, ColumnPicker, TextField
 from datelier.gui.components.layout import Container, FrameContext
 from datelier.gui.components.layout.groups import Conditional
 from datelier.gui.components.native import target
-from datelier.inspection.arrays.mapping import ArrayLayout, ArrayRecordMapping
+from datelier.inspection.arrays import ArrayLayout, ArrayRecordMapping
 
 
 class SupportingForm(Container):

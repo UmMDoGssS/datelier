@@ -5,9 +5,9 @@ from enum import StrEnum
 
 from datelier.application.sources.columns import record_mapping
 from datelier.application.tabular import ColumnChoice, ProfileSelectionPolicy
+from datelier.core import Dataset
 from datelier.core.column_roles import ColumnRole, list_element_role
-from datelier.core.dataset import Dataset
-from datelier.inspection.arrays.mapping import ArrayLayout
+from datelier.inspection.arrays import ArrayLayout
 from datelier.inspection.exploration import Explorer
 from datelier.inspection.profiles.preview import ProfileRequest
 from datelier.inspection.table import Inspection

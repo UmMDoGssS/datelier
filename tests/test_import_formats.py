@@ -101,7 +101,7 @@ def test_each_format_failure_preserves_active_inspection(
 ) -> None:
     from time import monotonic, sleep
 
-    from datelier.io.loading import DatasetLoader, LoadPhase
+    from datelier.io.jobs import DatasetLoader, LoadPhase
 
     valid = tmp_path / "valid.csv"
     valid.write_text("id\n9\n")

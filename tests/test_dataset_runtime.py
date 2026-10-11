@@ -6,15 +6,14 @@ from threading import Event
 from time import monotonic, sleep
 
 from datelier.application.sessions.dataset import DatasetRuntime
-from datelier.core.jobs import SharedWorkers
+from datelier.core import SharedWorkers
 from datelier.inspection.exploration import Explorer
 from datelier.inspection.preview import PreviewCache
-from datelier.io.exporting import DatasetExporter
-from datelier.io.loading import DatasetLoader
+from datelier.io.jobs import DatasetExporter, DatasetLoader
 from datelier.io.tabular import CsvImport, load_csv
 from datelier.io.types import CsvOptions, ImportOptions
+from datelier.pipeline import Sort
 from datelier.pipeline.editing import DatasetEditor, HistoryAction
-from datelier.pipeline.operations import Sort
 from datelier.plotting.scatter import LinkedSelection
 from datelier.workspace.single import Workspace
 from datelier.workspace.single.jobs import WorkspaceJobs

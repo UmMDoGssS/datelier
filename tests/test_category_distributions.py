@@ -4,8 +4,8 @@ import numpy as np
 import polars as pl
 import pytest
 
-from datelier.core.dataset import Dataset, SourceReference
-from datelier.pipeline.operations import Sort, apply_operation
+from datelier.core import Dataset, SourceReference
+from datelier.pipeline import Sort, apply_operation
 from datelier.plotting.categories import CategoryRepresentation as Mode
 from datelier.plotting.categories import CategorySettings, prepare_category_chart
 from datelier.workspace.recipes.codec import decode_record, encode

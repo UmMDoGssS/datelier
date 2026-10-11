@@ -6,7 +6,7 @@ import pytest
 
 from datelier.application.sessions import EditorController
 from datelier.io.catalog import DirectoryListing, list_directory
-from datelier.io.loading import LoadPhase
+from datelier.io.jobs import LoadPhase
 from datelier.io.types import CsvOptions, ImportFormat
 
 
@@ -110,7 +110,7 @@ def test_closed_origin_abandons_executing_open_resolution(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from datelier.io import opening
+    from datelier.io.jobs import opening
 
     source = tmp_path / "good.csv"
     source.write_text("x,y\n1,2\n3,4\n")
@@ -291,7 +291,7 @@ def test_recent_retry_does_not_replace_an_executing_import(
 
     # The loader's default adapter imports lazily inside its worker boundary.
     monkeypatch.setattr(importing, "load_inspectable_file", blocked)
-    from datelier.io import loading
+    from datelier.io.jobs import loading
 
     monkeypatch.setattr(loading, "load_inspectable_file", blocked)
     editor = EditorController()

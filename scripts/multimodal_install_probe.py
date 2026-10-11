@@ -19,7 +19,7 @@ import soundfile as sf
 import datelier
 from datelier.feasibility.multimodal import MultimodalFixtures, make_multimodal
 from datelier.gui.fonts import FALLBACK_FONTS
-from datelier.inspection.arrays.mapping import (
+from datelier.inspection.arrays import (
     ArrayLayout,
     ArrayRecordMapping,
     SupportingArray,
@@ -54,7 +54,7 @@ from datelier.inspection.images.comparisons.settings import (
 )
 from datelier.inspection.images.comparisons.types import ImageComparisonInput
 from datelier.inspection.images.profiles import ImageProfileSettings, ImageProgress
-from datelier.inspection.references.types import ReferenceSettings
+from datelier.inspection.references import ReferenceSettings
 from datelier.inspection.text.comparisons import (
     TextComparisonSettings,
     TextComparisonSource,

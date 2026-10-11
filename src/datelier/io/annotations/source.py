@@ -6,7 +6,7 @@ from math import isfinite
 from pathlib import Path
 from typing import BinaryIO
 
-from datelier.inspection.references.types import AssetIdentity
+from datelier.inspection.references import AssetIdentity
 
 
 @contextmanager

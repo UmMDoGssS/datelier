@@ -17,7 +17,7 @@ from datelier.gui.app import InspectionEvidence, run_gui
 from datelier.gui.components.probe import GuiProbe
 from datelier.inspection.audio.collections.settings import AudioProfileMode
 from datelier.inspection.audio.playback.controller import PlaybackPhase
-from datelier.pipeline.operations import Sort
+from datelier.pipeline import Sort
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tests"))
 from audio_playback_fixtures import Devices  # noqa: E402

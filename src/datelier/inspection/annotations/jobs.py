@@ -4,16 +4,14 @@ from concurrent.futures import Executor, Future
 from dataclasses import dataclass, replace
 from threading import Event
 
-from datelier.core.dataset import Dataset, DatasetRevision
-from datelier.core.jobs import JobExecutor
+from datelier.core import Dataset, DatasetRevision, JobExecutor
 from datelier.inspection.annotations.association import PreparedAnnotations
 from datelier.inspection.annotations.association.prepare import prepare_annotations
 from datelier.inspection.annotations.settings import AnnotationSettings
-from datelier.inspection.arrays.mapping import ArrayRecordMapping
-from datelier.inspection.arrays.types import ArrayCatalog
+from datelier.inspection.arrays import ArrayCatalog, ArrayRecordMapping
 from datelier.inspection.images.profiles import ImageProgress
+from datelier.inspection.references import ReferenceSettings
 from datelier.inspection.references.index import ReferenceIndex
-from datelier.inspection.references.types import ReferenceSettings
 
 
 @dataclass(frozen=True)

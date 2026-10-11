@@ -3,7 +3,7 @@
 import struct
 import zlib
 
-from datelier.inspection.references.types import AssetIdentity
+from datelier.inspection.references import AssetIdentity
 
 
 def exif_chunk(asset: AssetIdentity) -> bytes | None:

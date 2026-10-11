@@ -6,7 +6,7 @@ from types import MappingProxyType
 
 import numpy as np
 
-from datelier.core.dataset import SourceReference
+from datelier.core import SourceReference
 
 
 @dataclass(frozen=True)

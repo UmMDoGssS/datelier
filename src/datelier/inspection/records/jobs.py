@@ -4,8 +4,7 @@ from collections import OrderedDict
 from concurrent.futures import Executor, Future
 from dataclasses import replace
 
-from datelier.core.dataset import Dataset, DatasetRevision
-from datelier.core.jobs import JobExecutor
+from datelier.core import Dataset, DatasetRevision, JobExecutor
 from datelier.inspection.records.prepare import (
     RECORD_PAGE_SIZE,
     prepare_record_page,

@@ -40,7 +40,7 @@ from datelier.gui.shell.layout import CanvasTabs, NamedTab
 from datelier.gui.sources.columns import ColumnCatalog
 from datelier.gui.sources.imports import ImportSettings
 from datelier.gui.table import TableView
-from datelier.io.loading import LoadPhase
+from datelier.io.jobs import LoadPhase
 from datelier.plotting.relationships import Relationships
 from datelier.plotting.scatter import Scatter
 

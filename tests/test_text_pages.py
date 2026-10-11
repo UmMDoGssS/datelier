@@ -8,8 +8,7 @@ from unittest.mock import patch
 from uuid import uuid4
 
 from datelier.application.sessions import EditorController
-from datelier.core.dataset import DatasetRevision
-from datelier.core.jobs import SharedWorkers
+from datelier.core import DatasetRevision, SharedWorkers
 from datelier.inspection.text.display import TextViewport
 from datelier.inspection.text.display.jobs import TextPageJobs
 from datelier.inspection.text.display.pages import (

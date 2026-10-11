@@ -5,10 +5,9 @@ from dataclasses import replace
 from pathlib import Path
 from threading import Event
 
-from datelier.core.dataset import Dataset, DatasetRevision
-from datelier.core.jobs import JobExecutor
+from datelier.core import Dataset, DatasetRevision, JobExecutor
+from datelier.inspection.references import ReferenceSettings
 from datelier.inspection.references.index import ReferenceIndex
-from datelier.inspection.references.types import ReferenceSettings
 from datelier.inspection.text.display import TextViewport
 from datelier.inspection.text.profiles.corpus import TextProgress
 from datelier.inspection.text.profiles.prepare import (

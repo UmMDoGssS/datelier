@@ -5,9 +5,8 @@ from threading import Event
 
 import polars as pl
 
-from datelier.core.dataset import Dataset
-from datelier.inspection.arrays.mapping import ArrayLayout, ArrayRecordMapping
-from datelier.inspection.arrays.types import ArrayCatalog
+from datelier.core import Dataset
+from datelier.inspection.arrays import ArrayCatalog, ArrayLayout, ArrayRecordMapping
 from datelier.inspection.audio.collections.records import (
     CHANNEL_SCHEMA,
     RECORD_SCHEMA,
@@ -27,10 +26,10 @@ from datelier.inspection.audio.decoding.reading import check_stopped
 from datelier.inspection.audio.decoding.sources import check_asset, prepare_metadata
 from datelier.inspection.audio.profiles.statistics import profile_signal
 from datelier.inspection.audio.types import AudioLocator, AudioRange
+from datelier.inspection.records import InspectSettings, RecordMode
 from datelier.inspection.records.prepare import prepare_records
-from datelier.inspection.records.types import InspectSettings, RecordMode
+from datelier.inspection.references import ReferenceSettings
 from datelier.inspection.references.index import ReferenceIndex
-from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.arrays import ArrayStore
 
 

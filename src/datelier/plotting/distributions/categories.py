@@ -7,7 +7,7 @@ import numpy as np
 import polars as pl
 from numpy.typing import NDArray
 
-from datelier.core.dataset import Dataset
+from datelier.core import Dataset
 from datelier.plotting.distributions.numeric import (
     DistributionSettings,
     NumericDistribution,

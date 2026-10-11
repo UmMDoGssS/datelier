@@ -11,8 +11,8 @@ import polars as pl
 import pytest
 import soundfile as sf
 
-from datelier.core.dataset import Dataset, SourceReference
-from datelier.inspection.arrays.mapping import (
+from datelier.core import Dataset, SourceReference
+from datelier.inspection.arrays import (
     ArrayLayout,
     ArrayRecordMapping,
     SupportingArray,
@@ -24,7 +24,7 @@ from datelier.inspection.audio.decoding import (
     prepare_window,
 )
 from datelier.inspection.audio.types import AudioRange
-from datelier.inspection.references.types import ReferenceMapping, ReferenceSettings
+from datelier.inspection.references import ReferenceMapping, ReferenceSettings
 from datelier.io.arrays import ArrayStore
 from datelier.io.arrays.metadata import inspect_arrays
 from datelier.io.arrays.records import prepare_array_records

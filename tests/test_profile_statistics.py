@@ -4,7 +4,7 @@ from pathlib import Path
 import polars as pl
 import pytest
 
-from datelier.core.dataset import Dataset, SourceReference
+from datelier.core import Dataset, SourceReference
 from datelier.inspection.profiles import prepare_numeric_statistics, prepare_profiles
 
 

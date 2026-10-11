@@ -5,7 +5,7 @@ from threading import Event
 
 from datelier.application.media.base import MediaInput
 from datelier.application.sources.columns import record_mapping
-from datelier.core.jobs import JobExecutor
+from datelier.core import JobExecutor
 from datelier.inspection.audio.collections.scan import scan_collection
 from datelier.inspection.audio.collections.settings import (
     AudioCollectionSettings,

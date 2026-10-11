@@ -11,11 +11,11 @@ import polars as pl
 from imgui_bundle import hello_imgui, imgui, immapp
 from PIL import Image, __version__
 
-from datelier.core.dataset import Dataset, SourceReference
+from datelier.core import Dataset, SourceReference
 from datelier.inspection.images.decoding import ImageStore, prepare_window
 from datelier.inspection.images.decoding.sources import prepare_metadata
 from datelier.inspection.images.types import ImageDisplay, ImageWindow
-from datelier.inspection.references.types import ReferenceSettings
+from datelier.inspection.references import ReferenceSettings
 from datelier.io.arrays import ArrayStore
 
 

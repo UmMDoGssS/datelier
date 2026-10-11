@@ -22,7 +22,7 @@ from datelier.inspection.audio.signal import (
 from datelier.inspection.audio.signal.jobs import SignalViewJobs
 from datelier.inspection.audio.types import AudioRange
 from datelier.inspection.heatmaps import Colormap
-from datelier.inspection.references.types import ReferenceSettings
+from datelier.inspection.references import ReferenceSettings
 from datelier.io.arrays import ArrayStore
 from datelier.io.media import load_media
 

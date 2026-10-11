@@ -9,8 +9,8 @@ import polars as pl
 import pytest
 from PIL import Image
 
-from datelier.core.dataset import Dataset, SourceReference
-from datelier.inspection.arrays.mapping import ArrayLayout, ArrayRecordMapping
+from datelier.core import Dataset, SourceReference
+from datelier.inspection.arrays import ArrayLayout, ArrayRecordMapping
 from datelier.inspection.images.decoding import ImageStore
 from datelier.inspection.images.profiles import (
     ChannelKey,
@@ -27,8 +27,8 @@ from datelier.inspection.images.profiles.prepare import (
     prepare_image_profile,
 )
 from datelier.inspection.images.profiles.scan import scan_image_profile
+from datelier.inspection.references import ReferenceSettings
 from datelier.inspection.references.index import ReferenceIndex
-from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.arrays import ArrayStore
 from datelier.io.arrays.metadata import inspect_arrays
 

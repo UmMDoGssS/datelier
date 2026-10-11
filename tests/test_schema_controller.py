@@ -3,11 +3,10 @@
 from pathlib import Path
 
 from datelier.application.tabular import SchemaController
-from datelier.core.column_roles import ColumnRole
+from datelier.core import ColumnRole
 from datelier.inspection.table import prepare_inspection
 from datelier.io.importing import load_file
-from datelier.pipeline.history import Pipeline
-from datelier.pipeline.operations import SetColumnRole
+from datelier.pipeline import Pipeline, SetColumnRole
 
 
 def test_prepared_schema_reuse_and_reversible_role_command(tmp_path: Path) -> None:

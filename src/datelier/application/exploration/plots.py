@@ -3,8 +3,7 @@
 from dataclasses import dataclass, field
 
 from datelier.analysis.types import Algorithm, ClusteringResult
-from datelier.core.column_roles import ColumnRole
-from datelier.core.dataset import Dataset
+from datelier.core import ColumnRole, Dataset
 from datelier.inspection.exploration import PlotSettings
 from datelier.plotting.categories import CategoryRepresentation, CategorySettings
 from datelier.plotting.distributions import DistributionSettings

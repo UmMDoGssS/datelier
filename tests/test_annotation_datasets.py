@@ -10,10 +10,9 @@ from PIL import Image
 from datelier.inspection.annotations.geometry import pixel_box
 from datelier.inspection.images.decoding.sources import file_metadata
 from datelier.inspection.images.types import ImageMetadata
-from datelier.inspection.references.types import AssetIdentity
-from datelier.io.annotations.coco import read_coco
+from datelier.inspection.references import AssetIdentity
 from datelier.io.annotations.manifest_paths import label_path
-from datelier.io.annotations.ultralytics import read_ultralytics
+from datelier.io.annotations.readers import read_coco, read_ultralytics
 from datelier.io.annotations.yaml_source import decode_manifest
 
 
@@ -256,7 +255,9 @@ def test_changed_label_between_manifest_records_rejects_complete_result(
             label.write_text("external edit")
         return file_metadata(asset)
 
-    monkeypatch.setattr("datelier.io.annotations.ultralytics.file_metadata", changed)
+    monkeypatch.setattr(
+        "datelier.io.annotations.readers.ultralytics.file_metadata", changed
+    )
     with pytest.raises(ValueError, match="changed during command"):
         read_ultralytics(manifest)
     assert label.read_text() == "external edit"

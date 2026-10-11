@@ -15,8 +15,7 @@ from datelier.analysis.types import (
 )
 from datelier.inspection.exploration import PlotSettings, prepare_dashboard
 from datelier.io.importing import load_file
-from datelier.pipeline.history import Pipeline
-from datelier.pipeline.operations import Comparison, Filter, Sort
+from datelier.pipeline import Comparison, Filter, Pipeline, Sort
 from datelier.plotting.scatter import LinkedSelection
 
 

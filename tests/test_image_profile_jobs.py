@@ -10,7 +10,7 @@ import polars as pl
 import pytest
 from PIL import Image
 
-from datelier.core.dataset import Dataset, DatasetRevision, SourceReference
+from datelier.core import Dataset, DatasetRevision, SourceReference
 from datelier.inspection.images.profiles import (
     ImageProfile,
     ImageProfileSettings,
@@ -18,7 +18,7 @@ from datelier.inspection.images.profiles import (
     ImageScopeMode,
 )
 from datelier.inspection.images.profiles.jobs import ImageProfileJobs
-from datelier.inspection.references.types import ReferenceSettings
+from datelier.inspection.references import ReferenceSettings
 from datelier.io.arrays import ArrayStore
 
 

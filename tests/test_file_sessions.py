@@ -4,12 +4,12 @@ from time import monotonic, sleep
 
 from datelier.analysis.types import EmbeddingResult, PreparedInput
 from datelier.application.sessions import FileController
-from datelier.core.jobs import SharedWorkers
-from datelier.io.loading import DatasetLoader, LoadPhase
+from datelier.core import SharedWorkers
+from datelier.io.jobs import DatasetLoader, LoadPhase
 from datelier.io.tabular import load_csv
 from datelier.io.types import ImportOptions, ImportResult
+from datelier.pipeline import Sort
 from datelier.pipeline.editing import HistoryAction
-from datelier.pipeline.operations import Sort
 
 
 def wait_for_files(*files: FileController) -> None:

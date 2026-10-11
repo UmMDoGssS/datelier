@@ -5,13 +5,12 @@ from pathlib import Path
 import polars as pl
 import pytest
 
+from datelier.inspection.records import InspectSettings
 from datelier.inspection.records.prepare import prepare_record_page, prepare_records
-from datelier.inspection.records.types import InspectSettings
 from datelier.inspection.table import prepare_inspection
 from datelier.io.importing import load_file, load_inspectable_file
 from datelier.io.types import ImportFailure, ImportFormat, JsonOptions, ObjectOptions
-from datelier.pipeline.history import Pipeline
-from datelier.pipeline.operations import Sort
+from datelier.pipeline import Pipeline, Sort
 from datelier.workspace.recipes.codec import decode_record, encode
 from datelier.workspace.single import Workspace
 from datelier.workspace.single.restore import restore_recipe

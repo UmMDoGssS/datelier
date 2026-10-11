@@ -12,12 +12,12 @@ from datelier.inspection.annotations.types import (
     BoxRecord,
 )
 from datelier.inspection.images.decoding.sources import file_metadata
-from datelier.inspection.references.types import AssetIdentity
+from datelier.inspection.references import AssetIdentity
 from datelier.io.annotations.manifest_paths import label_path, local_path, split_images
+from datelier.io.annotations.readers.yolo import read_yolo
 from datelier.io.annotations.source import annotation_source, verify_sources
 from datelier.io.annotations.values import integer, mapping, text
 from datelier.io.annotations.yaml_source import decode_manifest
-from datelier.io.annotations.yolo import read_yolo
 
 
 def manifest_classes(value: dict[str, object]) -> tuple[AnnotationClass, ...]:

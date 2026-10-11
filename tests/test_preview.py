@@ -4,7 +4,7 @@ from time import monotonic, sleep
 import polars as pl
 import pytest
 
-from datelier.core.dataset import Dataset, SourceReference
+from datelier.core import Dataset, SourceReference
 from datelier.inspection.preview import PreviewCache
 from datelier.inspection.table import (
     PAGE_COLUMNS,
@@ -20,7 +20,7 @@ def test_closing_cache_releases_pages_and_rejects_executing_page(
 ) -> None:
     from threading import Event
 
-    from datelier.core.jobs import SharedWorkers
+    from datelier.core import SharedWorkers
     from datelier.inspection import preview
 
     data = Dataset.from_source(

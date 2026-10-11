@@ -15,7 +15,7 @@ from datelier.inspection.images.profiles import (
     PixelScope,
 )
 from datelier.inspection.images.settings import ImageProfileViewSettings
-from datelier.inspection.references.types import ReferenceSettings
+from datelier.inspection.references import ReferenceSettings
 from datelier.workspace.recipes.codec import decode_record, encode
 from datelier.workspace.sessions.jobs import save_snapshot
 from datelier.workspace.single import WorkspaceViews

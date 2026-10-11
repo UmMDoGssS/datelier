@@ -10,11 +10,10 @@ import pytest
 from datelier.application.exploration import ProfileFamily
 from datelier.application.media.records import RecordKind
 from datelier.application.sessions import EditorController
-from datelier.core.column_roles import ColumnRole
-from datelier.core.dataset import Dataset, SourceReference
+from datelier.core import ColumnRole, Dataset, SourceReference
 from datelier.inspection.profiles import ProfileSelection
 from datelier.inspection.profiles.preview import ProfileRequest, prepare_profile_group
-from datelier.inspection.references.types import ReferenceSettings
+from datelier.inspection.references import ReferenceSettings
 from datelier.inspection.text.comparisons import (
     TextComparisonSettings,
     TextComparisonSource,
@@ -36,8 +35,7 @@ from datelier.inspection.text.types import (
     TrainingSettings,
 )
 from datelier.io.importing import load_file
-from datelier.pipeline.history import Pipeline
-from datelier.pipeline.operations import SetColumnRole, Sort
+from datelier.pipeline import Pipeline, SetColumnRole, Sort
 from datelier.plotting.distributions import DistributionSettings
 from datelier.workspace.recipes.codec import decode_record, encode
 

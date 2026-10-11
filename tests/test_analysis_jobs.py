@@ -13,7 +13,7 @@ from datelier.analysis.types import (
     PreparedInput,
     Provenance,
 )
-from datelier.core.dataset import Dataset, SourceReference
+from datelier.core import Dataset, SourceReference
 
 
 def fake_result(prepared: PreparedInput) -> EmbeddingResult:

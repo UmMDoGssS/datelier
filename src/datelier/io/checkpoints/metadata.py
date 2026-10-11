@@ -3,8 +3,8 @@
 from collections.abc import Mapping
 from typing import cast
 
-from datelier.inspection.checkpoints.types import TensorInfo
-from datelier.inspection.objects.types import (
+from datelier.inspection.checkpoints import TensorInfo
+from datelier.inspection.objects import (
     NodePath,
     ObjectChild,
     ObjectNode,

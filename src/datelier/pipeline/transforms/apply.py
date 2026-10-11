@@ -2,7 +2,7 @@
 
 import polars as pl
 
-from datelier.core.scalars import Scalar
+from datelier.core import Scalar
 from datelier.pipeline.operations import OperationFailure, require_columns
 from datelier.pipeline.transforms.types import (
     CastColumn,

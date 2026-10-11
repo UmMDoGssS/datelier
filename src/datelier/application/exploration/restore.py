@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from datelier.application.analysis import AnalysisSettings
 from datelier.application.exploration.plots import PlotState
-from datelier.core.dataset import Dataset
+from datelier.core import Dataset
 from datelier.inspection.exploration import PlotSettings
 from datelier.plotting.categories import CategoryRepresentation
 from datelier.workspace.single import Workspace

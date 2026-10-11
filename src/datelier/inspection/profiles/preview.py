@@ -5,9 +5,8 @@ from dataclasses import dataclass
 
 import polars as pl
 
+from datelier.core import Dataset, DatasetRevision, JobExecutor
 from datelier.core.column_roles import LIST_ROLES, PLOTTABLE_ROLES, ColumnRole
-from datelier.core.dataset import Dataset, DatasetRevision
-from datelier.core.jobs import JobExecutor
 from datelier.inspection.profiles.lists import flatten_elements
 from datelier.inspection.profiles.prepare import ProfileKind, Profiles, prepare_profiles
 from datelier.plotting.distributions import (

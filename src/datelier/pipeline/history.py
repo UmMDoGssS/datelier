@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 
-from datelier.core.dataset import Dataset
+from datelier.core import Dataset
 from datelier.pipeline.operations import Operation, OperationFailure, apply_operation
 
 

@@ -6,16 +6,16 @@ import pytest
 
 from datelier.application.sessions import EditorController
 from datelier.application.sessions.workspace import capture_session
-from datelier.inspection.arrays.mapping import (
+from datelier.inspection.arrays import (
     ArrayLayout,
     ArrayRecordMapping,
     SupportingArray,
 )
-from datelier.inspection.records.types import InspectSettings, RecordMode
+from datelier.inspection.records import InspectSettings, RecordMode
 from datelier.io.arrays import ArrayStore
-from datelier.io.loading import LoadPhase
+from datelier.io.jobs import LoadPhase
+from datelier.pipeline import Comparison, Filter, Sort
 from datelier.pipeline.editing import HistoryAction
-from datelier.pipeline.operations import Comparison, Filter, Sort
 from datelier.workspace.sessions.jobs import save_snapshot
 
 

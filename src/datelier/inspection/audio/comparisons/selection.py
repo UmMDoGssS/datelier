@@ -2,7 +2,7 @@
 
 import polars as pl
 
-from datelier.core.dataset import Dataset
+from datelier.core import Dataset
 from datelier.inspection.audio.comparisons.distributions import (
     metric_records,
     normalized_values,
@@ -11,7 +11,7 @@ from datelier.inspection.audio.comparisons.types import (
     AudioMetric,
     PreparedAudioComparison,
 )
-from datelier.inspection.comparisons.types import ComparisonSelection, Origin
+from datelier.inspection.comparisons import ComparisonSelection, Origin
 from datelier.plotting.scatter import SELECTION_LIMIT
 
 

@@ -6,7 +6,7 @@ import polars as pl
 import pytest
 from imgui_bundle import implot3d
 
-from datelier.core.dataset import Dataset, SourceReference
+from datelier.core import Dataset, SourceReference
 from datelier.gui.relationships.scatter import FACE_VIEWS
 from datelier.plotting.scatter import (
     prepare_scatter,

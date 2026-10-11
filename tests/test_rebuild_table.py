@@ -9,10 +9,10 @@ from test_rebuild_comparisons import until
 
 from datelier.application.sessions import EditorController
 from datelier.application.sessions.workspace import capture_session
-from datelier.core.column_roles import ColumnRole
+from datelier.core import ColumnRole
 from datelier.inspection.presentation import NumericScale, cell_style
-from datelier.inspection.references.types import ReferenceMapping, Resolution
-from datelier.pipeline.operations import Sort
+from datelier.inspection.references import ReferenceMapping, Resolution
+from datelier.pipeline import Sort
 from datelier.workspace.sessions.jobs import save_snapshot
 
 

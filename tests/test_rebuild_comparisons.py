@@ -29,7 +29,7 @@ from datelier.inspection.text.comparisons import (
     TextComparisonSource,
 )
 from datelier.io.types import ImportFormat, ObjectOptions
-from datelier.pipeline.operations import Sort
+from datelier.pipeline import Sort
 from datelier.workspace.sessions.jobs import save_snapshot
 
 
@@ -207,7 +207,7 @@ def test_export_ports_capture_the_named_view_and_protect_a_pending_source(
 
     from datelier.gui.components.probe import GuiProbe
     from datelier.gui.shell.composition import WorkbenchPage
-    from datelier.io.exporting import ExportFormat
+    from datelier.io.jobs import ExportFormat
 
     source, next_source, output = (
         tmp_path / "records.json",

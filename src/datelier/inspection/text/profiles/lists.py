@@ -6,8 +6,8 @@ from threading import Event
 
 import polars as pl
 
+from datelier.core import Dataset
 from datelier.core.column_roles import list_leaf_dtype
-from datelier.core.dataset import Dataset
 from datelier.inspection.text.types import TextDocument, TextOrigin, TextStatus
 
 

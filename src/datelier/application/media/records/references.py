@@ -3,13 +3,13 @@
 from dataclasses import dataclass, replace
 
 from datelier.application.tabular import ColumnChoice
-from datelier.core.dataset import DatasetRevision
-from datelier.inspection.references.jobs import ReferenceJobs
-from datelier.inspection.references.types import (
+from datelier.core import DatasetRevision
+from datelier.inspection.references import (
     ReferenceMapping,
     ReferenceSettings,
     Resolution,
 )
+from datelier.inspection.references.jobs import ReferenceJobs
 
 
 @dataclass(frozen=True)

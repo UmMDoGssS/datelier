@@ -10,15 +10,14 @@ import pytest
 
 from datelier.application.sessions import EditorController
 from datelier.application.sessions.workspace import capture_session
-from datelier.core.dataset import DatasetRevision
-from datelier.core.jobs import SharedWorkers
+from datelier.core import DatasetRevision, SharedWorkers
 from datelier.inspection.arrays.settings import SliceSettings
+from datelier.inspection.checkpoints import CheckpointCatalog
 from datelier.inspection.checkpoints.jobs import CheckpointJobs
 from datelier.inspection.checkpoints.slices import PreparedTensorSlice
-from datelier.inspection.checkpoints.types import CheckpointCatalog
 from datelier.io.checkpoints.storage import CheckpointStore
 from datelier.io.importing import load_file
-from datelier.io.loading import LoadPhase
+from datelier.io.jobs import LoadPhase
 from datelier.workspace.sessions.jobs import save_snapshot
 
 

@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 import polars as pl
 
-from datelier.core.dataset import Dataset, SourceReference
+from datelier.core import Dataset, SourceReference
 from datelier.plotting.colors import NEUTRAL, prepare_colors
 from datelier.plotting.scatter import prepare_scatter
 

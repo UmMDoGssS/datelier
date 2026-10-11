@@ -15,13 +15,15 @@ from datelier.inspection.annotations.types import (
     AnnotationIssue,
     BoxRecord,
 )
-from datelier.inspection.references.types import AssetIdentity
-from datelier.io.annotations.coco import read_coco
+from datelier.inspection.references import AssetIdentity
 from datelier.io.annotations.manifest_paths import local_path
+from datelier.io.annotations.readers import (
+    read_coco,
+    read_ultralytics,
+    read_voc,
+    read_yolo,
+)
 from datelier.io.annotations.source import verify_sources
-from datelier.io.annotations.ultralytics import read_ultralytics
-from datelier.io.annotations.voc import read_voc
-from datelier.io.annotations.yolo import read_yolo
 
 
 def read_annotation_file(source: AnnotationSource, path: Path) -> AnnotationCatalog:

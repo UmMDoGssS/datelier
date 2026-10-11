@@ -17,7 +17,7 @@ from datelier.inspection.audio.signal import (
 from datelier.inspection.audio.signal.mel import hz_to_mel, mel_filters, mel_to_hz
 from datelier.inspection.audio.signal.spectra import prepare_spectrogram
 from datelier.inspection.audio.types import AudioRange
-from datelier.inspection.references.types import ReferenceSettings
+from datelier.inspection.references import ReferenceSettings
 from datelier.io.arrays import ArrayStore
 from datelier.io.media import load_media
 

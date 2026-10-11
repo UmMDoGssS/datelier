@@ -16,7 +16,7 @@ from datelier.inspection.text.types import (
     TokenSettings,
 )
 from datelier.io.types import ImportFormat, ObjectOptions
-from datelier.pipeline.operations import Sort
+from datelier.pipeline import Sort
 from datelier.workspace.sessions.jobs import save_snapshot
 
 

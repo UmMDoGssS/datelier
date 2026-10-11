@@ -6,13 +6,13 @@ from enum import StrEnum
 
 import polars as pl
 
+from datelier.core import Dataset, DatasetRevision
 from datelier.core.column_roles import (
     LIST_ROLES,
     PLOTTABLE_ROLES,
     ColumnRole,
     list_element_role,
 )
-from datelier.core.dataset import Dataset, DatasetRevision
 from datelier.inspection.profiles.lists import ListStatistics, prepare_list
 from datelier.inspection.profiles.numeric import (
     NumericStatistics,

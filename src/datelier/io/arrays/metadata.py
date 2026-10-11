@@ -11,8 +11,8 @@ from zipfile import ZIP_STORED, BadZipFile, ZipFile, is_zipfile
 import numpy as np
 from numpy.lib import format as npformat
 
-from datelier.core.dataset import SourceReference
-from datelier.inspection.arrays.types import ArrayCatalog, ArrayMember
+from datelier.core import SourceReference
+from datelier.inspection.arrays import ArrayCatalog, ArrayMember
 from datelier.io.types import ImportFailure
 
 DEFAULT_HEADER_BYTES = 10_000

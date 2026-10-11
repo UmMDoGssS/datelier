@@ -5,13 +5,12 @@ import warnings
 import numpy as np
 from PIL import Image, TiffImagePlugin
 
-from datelier.core.dataset import Dataset
-from datelier.inspection.arrays.mapping import ArrayLayout, ArrayRecordMapping
-from datelier.inspection.arrays.types import ArrayCatalog
+from datelier.core import Dataset
+from datelier.inspection.arrays import ArrayCatalog, ArrayLayout, ArrayRecordMapping
 from datelier.inspection.images.decoding.png import exif_chunk
 from datelier.inspection.images.types import ImageLocator, ImageMetadata, ImageOrigin
+from datelier.inspection.references import AssetIdentity, ReferenceSettings
 from datelier.inspection.references.index import ReferenceIndex, resolve
-from datelier.inspection.references.types import AssetIdentity, ReferenceSettings
 
 
 class ImageReferenceError(ValueError):

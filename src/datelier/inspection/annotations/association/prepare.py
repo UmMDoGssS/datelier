@@ -2,7 +2,7 @@
 
 from threading import Event
 
-from datelier.core.dataset import Dataset
+from datelier.core import Dataset
 from datelier.inspection.annotations.association.associate import (
     associate_source,
     check_cancelled,
@@ -15,12 +15,11 @@ from datelier.inspection.annotations.association.types import (
 )
 from datelier.inspection.annotations.settings import AnnotationSettings
 from datelier.inspection.annotations.types import AnnotationClass
-from datelier.inspection.arrays.mapping import ArrayRecordMapping
-from datelier.inspection.arrays.types import ArrayCatalog
+from datelier.inspection.arrays import ArrayCatalog, ArrayRecordMapping
 from datelier.inspection.images.profiles import ImageProgress
 from datelier.inspection.images.types import ImageLocator, ImageMetadata, ImageOrigin
+from datelier.inspection.references import ReferenceSettings
 from datelier.inspection.references.index import ReferenceIndex
-from datelier.inspection.references.types import ReferenceSettings
 from datelier.io.annotations import load_annotations
 from datelier.io.arrays import ArrayStore
 

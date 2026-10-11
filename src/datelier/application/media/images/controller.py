@@ -3,7 +3,7 @@
 from concurrent.futures import Executor
 from dataclasses import replace
 
-from datelier.application.annotations.controller import AnnotationController
+from datelier.application.annotations import AnnotationController
 from datelier.application.media.base import MediaController, MediaInput
 from datelier.application.sources.columns import record_mapping
 from datelier.inspection.images.jobs import ImageJobs

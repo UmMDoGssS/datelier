@@ -9,8 +9,8 @@ from typing import BinaryIO
 
 import polars as pl
 
-from datelier.core.dataset import Dataset, SourceReference
-from datelier.inspection.objects.types import (
+from datelier.core import Dataset, SourceReference
+from datelier.inspection.objects import (
     ObjectChild,
     ObjectNode,
     node_label,

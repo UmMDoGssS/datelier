@@ -9,7 +9,7 @@ from datelier.inspection.text.comparisons import (
     TextComparisonSource,
 )
 from datelier.inspection.text.types import CorpusMode, TextScope, TextSource
-from datelier.io.loading import LoadPhase
+from datelier.io.jobs import LoadPhase
 from datelier.workspace.sessions.storage import read_session_workspace
 
 

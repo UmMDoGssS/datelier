@@ -5,7 +5,7 @@ from numpy.typing import NDArray
 
 from datelier.analysis.algorithms import ClusteringAlgorithm
 from datelier.analysis.types import ClusteringResult
-from datelier.core.dataset import Dataset
+from datelier.core import Dataset
 from datelier.plotting.colors import NEUTRAL, PALETTE, PointColors, color_series
 
 

@@ -6,8 +6,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
 
-from datelier.core.dataset import DatasetRevision
-from datelier.core.jobs import JobExecutor
+from datelier.core import DatasetRevision, JobExecutor
 from datelier.inspection.table import Inspection, prepare_inspection
 from datelier.io.importing import load_inspectable_file
 from datelier.io.types import ImportFormat, ImportOptions, ImportResult

@@ -3,9 +3,9 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
-from datelier.inspection.records.types import InspectSettings, RecordSet
+from datelier.inspection.records import InspectSettings, RecordSet
+from datelier.inspection.references import ReferenceSettings
 from datelier.inspection.references.index import ReferenceIndex
-from datelier.inspection.references.types import ReferenceSettings
 from datelier.inspection.table import Inspection
 from datelier.io.arrays import ArrayStore
 
