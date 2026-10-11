@@ -58,7 +58,7 @@ class PlotState:
 
     @property
     def chart_choices(self) -> tuple[str, ...]:
-        choices = ["Scatter 2D"]
+        choices = ["Scatter 2D", "Scatter 3D"]
         if self.categories:
             choices.append(CategoryRepresentation.COUNTS.value)
             if len(self.categories) > 1:

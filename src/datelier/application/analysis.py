@@ -36,6 +36,13 @@ class AnalysisController:
     def sync_dimensions(self, plots: PlotState) -> None:
         self.controls.dimensions = plots.scatter_dimensions
 
+    def choose_source(self, algorithm: Algorithm | None) -> None:
+        if algorithm is not None and algorithm.is_clustering:
+            raise ValueError(
+                "Clustering colors rows; choose an embedding for coordinates"
+            )
+        self.source = algorithm
+
     def selected_algorithm(self, plots: PlotState) -> Algorithm:
         return (
             self.panel_source
@@ -47,7 +54,13 @@ class AnalysisController:
     def sync_colors(self, plots: PlotState) -> bool:
         algorithm = plots.cluster_algorithm
         result = self.jobs.results.get(algorithm) if algorithm is not None else None
-        cluster = result if isinstance(result, ClusteringResult) else None
+        cluster = (
+            result
+            if isinstance(result, ClusteringResult)
+            and self.dataset is not None
+            and result.revision == self.dataset.revision
+            else None
+        )
         if cluster is plots.cluster_result:
             return False
         plots.cluster_result = cluster

@@ -25,7 +25,7 @@ from datelier.gui.profiles.text import TextProfileContent
 from datelier.gui.relationships.categories import CategoryRouter
 from datelier.gui.relationships.content import RelationshipContent
 from datelier.gui.relationships.correlations import CorrelationPlot
-from datelier.gui.relationships.scatter import ScatterPlot
+from datelier.gui.relationships.scatter_router import ScatterRouter
 from datelier.gui.shell.inspect_assembly import assemble_inspect
 from datelier.gui.shell.navigation import CanvasTabs, NamedTab
 from datelier.gui.shell.status import SourceState, SourceStatus
@@ -85,11 +85,28 @@ def assemble_file(
         file.open_analysis_result(algorithm)
         editor.choose_route("Relationships")
 
+    def write_category_height(value: float) -> None:
+        file.views = replace(file.views, category_height=value)
+
+    height_writers = {
+        "Scatter 2D": lambda value: setattr(
+            file, "views", replace(file.views, scatter_height=value)
+        ),
+        "Scatter 3D": lambda value: setattr(
+            file, "views", replace(file.views, scatter3d_height=value)
+        ),
+    }
+
     def scatter_viewport() -> ResizableViewport:
         return ResizableViewport(
             "scatter",
             RelationshipContent(
-                ScatterPlot(points, file.selection, file.table.go_to),
+                ScatterRouter(
+                    points,
+                    file.selection,
+                    file.table.go_to,
+                    lambda: file.plots.scatter_dimensions,
+                ),
                 CategoryRouter(
                     lambda: (
                         file.explorer.active.category_chart
@@ -101,18 +118,13 @@ def assemble_file(
                 ),
                 lambda: file.plots.relationship_chart != "Scatter",
             ),
-            read_height=lambda: (
-                file.views.category_height
-                if file.plots.relationship_chart != "Scatter"
-                else file.views.scatter_height
-            ),
-            write_height=lambda value: setattr(
-                file,
-                "views",
-                replace(file.views, category_height=value)
-                if file.plots.relationship_chart != "Scatter"
-                else replace(file.views, scatter_height=value),
-            ),
+            read_height=lambda: {
+                "Scatter 2D": file.views.scatter_height,
+                "Scatter 3D": file.views.scatter3d_height,
+            }.get(file.plots.chart_choice, file.views.category_height),
+            write_height=lambda value: height_writers.get(
+                file.plots.chart_choice, write_category_height
+            )(value),
         )
 
     def correlation_viewport() -> ResizableViewport:
@@ -207,7 +219,9 @@ def assemble_file(
                             "relationship-tools",
                             (
                                 RelationshipSettings(
-                                    file.plots, editor.choose_relationship_chart
+                                    file.plots,
+                                    editor.choose_relationship_chart,
+                                    file.analysis,
                                 ),
                                 AnalysisSettingsView(file.analysis, open_result),
                             ),

@@ -8,6 +8,7 @@ from datelier.gui.components.probe import GuiProbe
 class NativeInput:
     def __init__(self) -> None:
         self.point: tuple[float, float] | None = None
+        self._drag_end: tuple[float, float] | None = None
         self.entered = self.phase = 0
 
     def advance(self, frame: int) -> bool:
@@ -18,12 +19,17 @@ class NativeInput:
         io.want_set_mouse_pos = True
         if frame - self.entered < 4:
             return True
-        if self.phase < 2:
-            io.add_mouse_button_event(0, self.phase == 0)
-            self.phase += 1
-            self.entered = frame
+        if self.phase == 0:
+            io.add_mouse_button_event(0, True)
+            self.phase, self.entered = 1, frame
+        elif self.phase == 1 and self._drag_end is not None:
+            self.point = self._drag_end
+            self.phase, self.entered = 2, frame
+        elif self.phase in (1, 2):
+            io.add_mouse_button_event(0, False)
+            self.phase, self.entered = 3, frame
         else:
-            self.point = None
+            self.point = self._drag_end = None
         return True
 
     def find(
@@ -77,3 +83,8 @@ class NativeInput:
 
     def click_point(self, point: tuple[float, float], frame: int) -> None:
         self.point, self.entered, self.phase = point, frame, 0
+
+    def drag(
+        self, start: tuple[float, float], end: tuple[float, float], frame: int
+    ) -> None:
+        self.point, self._drag_end, self.entered, self.phase = start, end, frame, 0

@@ -427,6 +427,33 @@ links after sorting, Expand/Restore and count-to-Profile navigation pass in
 import/table/mapping controls, full old caller migration and final integrated
 resource/size/theme acceptance remain open.
 
+## Fresh Stage E6 — Scatter dimensions, cameras and coordinate sources
+
+Scatter now composes independent 2D/3D canvas and input components, a common
+summary/selection control and explicit camera-face fields. The 3D native input
+preserves projected source-row picking, depth tie handling, Ctrl toggles and
+Shift-drag visible brushing. Both scatter dimensions use the shared viewport,
+retain independent heights and stable native IDs across Expand/Restore, and
+provide continuous color scales and native legend visibility. Raw coordinate
+selectors are contextual; embedding sources and clustering colors remain explicit
+independent choices. Opening a fitted result selects its actual dimension.
+Switching to an unavailable/stale coordinate source clears earlier prepared
+coordinates; stale cluster colors likewise cannot enter the current dashboard.
+Restoring the saved scatter dimension never fits an algorithm.
+
+Verification: production/migrated caller Pyrefly zero errors; 99 focused scatter/
+category/controller/analysis tests, full Ruff lint/format (703 files) and whitespace
+checks pass. Native 2D/3D picks after sorting, keyboard camera-face selection,
+projected Shift brushing, continuous colors and Expand/Restore pass in 119 frames/
+16.02 ms p95 with source bytes and zero implicit analysis preserved.
+[Scatter report](evidence/gui-overhaul/fresh-scatter.json).
+Categorical interactions regress at 126 frames/17.22 ms p95. Explicit analysis
+Run/Open result and focus preservation regress at 220 frames/14.58 ms p95.
+Full-project Pyrefly still reports 369 obsolete GUI test/script caller errors;
+production and migrated callers are clean. Pair-grid/diagonal views, remaining
+axis/plot styling, import/table/mapping controls, full caller migration and final
+integrated resource/size/theme acceptance remain open.
+
 ## Baseline evidence
 
 Before implementation, 38 targeted editor/session/schema-role/profile-selection/

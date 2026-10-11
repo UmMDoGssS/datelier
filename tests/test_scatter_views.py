@@ -4,10 +4,10 @@ import polars as pl
 import pytest
 
 from datelier.analysis.types import Algorithm
+from datelier.application.analysis import AnalysisController
+from datelier.application.plot_settings import PlotState
+from datelier.application.settings_restore import restore_plots
 from datelier.core.dataset import Dataset, SourceReference
-from datelier.gui.analysis.session import AnalysisSession
-from datelier.gui.plots.controls import PlotControls
-from datelier.gui.workspace.state import restore_plots
 from datelier.inspection.exploration import PlotSettings
 from datelier.workspace.codec import decode_record, encode
 from datelier.workspace.types import WorkspaceViews
@@ -24,9 +24,9 @@ def data() -> Dataset:
 def test_every_reduction_follows_the_plot_without_launching_analysis(
     dimensions: int,
 ) -> None:
-    plots = PlotControls()
+    plots = PlotState()
     plots.bind(data())
-    analysis = AnalysisSession()
+    analysis = AnalysisController()
     try:
         analysis.controls.features = list(plots.numeric)
         plots.choose_chart(f"Scatter {dimensions}D")
@@ -44,7 +44,7 @@ def test_every_reduction_follows_the_plot_without_launching_analysis(
 
 
 def test_separate_scatter_choices_preserve_distinct_raw_axes_and_colors() -> None:
-    plots = PlotControls()
+    plots = PlotState()
     plots.bind(data())
     plots.choose_color("K-means")
     plots.z_index = plots.x_index
@@ -60,7 +60,7 @@ def test_separate_scatter_choices_preserve_distinct_raw_axes_and_colors() -> Non
 
 
 def test_legacy_raw_scatter_recipes_keep_their_dimension() -> None:
-    plots = PlotControls()
+    plots = PlotState()
     saved = PlotSettings(scatter_pair=("x", "y"), scatter_z="z")
     assert not restore_plots(plots, data(), saved)
     assert plots.chart_choice == "Scatter 3D"

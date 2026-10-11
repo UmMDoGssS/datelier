@@ -2,6 +2,8 @@
 
 from collections.abc import Callable
 
+from datelier.analysis.types import Algorithm, EmbeddingResult
+from datelier.application.analysis import AnalysisController
 from datelier.application.columns import ColumnChoice, MultiSelection, SingleSelection
 from datelier.application.plot_settings import PlotState
 from datelier.gui.components.actions import JobFeedback, JobSnapshot
@@ -13,7 +15,12 @@ from datelier.plotting.categories import CategoryRepresentation
 
 
 class RelationshipSettings(Container):
-    def __init__(self, plots: PlotState, choose_chart: Callable[[str], None]) -> None:
+    def __init__(
+        self,
+        plots: PlotState,
+        choose_chart: Callable[[str], None],
+        analysis: AnalysisController,
+    ) -> None:
         def axis(attr: str, label: str) -> ColumnPicker:
             def selected() -> tuple[str, ...]:
                 index = getattr(plots, attr)
@@ -63,26 +70,88 @@ class RelationshipSettings(Container):
                     "scatter",
                     lambda: plots.relationship_chart == "Scatter",
                     (
-                        axis("x_index", "X coordinate"),
-                        axis("y_index", "Y coordinate"),
+                        ChoiceField(
+                            "coordinates",
+                            "Coordinates",
+                            (None, *(a for a in Algorithm if not a.is_clustering)),
+                            lambda: analysis.source,
+                            analysis.choose_source,
+                            labels=lambda: tuple(
+                                [
+                                    "Raw columns",
+                                    *(
+                                        f"{a.value} ({r.values.shape[1]}D)"
+                                        if isinstance(
+                                            r := analysis.jobs.results.get(a),
+                                            EmbeddingResult,
+                                        )
+                                        and analysis.dataset is not None
+                                        and r.revision == analysis.dataset.revision
+                                        else f"{a.value} (prepare explicitly)"
+                                        for a in Algorithm
+                                        if not a.is_clustering
+                                    ),
+                                ]
+                            ),
+                        ),
+                        Conditional(
+                            "raw-coordinates",
+                            lambda: analysis.source is None,
+                            (
+                                axis("x_index", "X coordinate"),
+                                axis("y_index", "Y coordinate"),
+                                Conditional(
+                                    "z",
+                                    lambda: plots.three_d,
+                                    (axis("z_index", "Z coordinate"),),
+                                ),
+                            ),
+                        ),
                         ChoiceField(
                             "colors",
                             "Colors",
-                            ("Uniform", "Column"),
+                            (
+                                "Uniform",
+                                "Column",
+                                *(a.value for a in Algorithm if a.is_clustering),
+                            ),
                             lambda: plots.color_source,
                             plots.choose_color,
                         ),
-                        ColumnPicker(
-                            "color-column",
-                            "Color column",
-                            lambda: tuple(ColumnChoice(n) for n in plots.color_columns),
-                            lambda: (plots.color_column,) if plots.color_column else (),
-                            lambda names: setattr(
-                                plots,
-                                "color_index",
-                                plots.color_columns.index(names[0]) + 1 if names else 0,
+                        Conditional(
+                            "column-colors",
+                            lambda: plots.color_source == "Column",
+                            (
+                                ColumnPicker(
+                                    "color-column",
+                                    "Color column",
+                                    lambda: tuple(
+                                        ColumnChoice(n) for n in plots.color_columns
+                                    ),
+                                    lambda: (
+                                        (plots.color_column,)
+                                        if plots.color_column
+                                        else ()
+                                    ),
+                                    lambda names: setattr(
+                                        plots,
+                                        "color_index",
+                                        plots.color_columns.index(names[0]) + 1
+                                        if names
+                                        else 0,
+                                    ),
+                                    SingleSelection(),
+                                ),
                             ),
-                            SingleSelection(),
+                        ),
+                        JobFeedback(
+                            "color-feedback",
+                            lambda: JobSnapshot(
+                                f"{plots.color_source}: no current fitted colors. "
+                                "run the analysis explicitly."
+                                if plots.cluster_color and plots.cluster_result is None
+                                else ""
+                            ),
                         ),
                     ),
                 ),

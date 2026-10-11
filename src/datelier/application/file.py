@@ -183,6 +183,8 @@ class FileController:
             self.tensor_source.member_mode = self.views.checkpoint_member_mode
         self._bind()
         restore_plots(self.plots, restored.inspection.dataset, restored.workspace.plots)
+        if self.views.scatter_dimensions is not None:
+            self.plots.three_d = self.views.scatter_dimensions == 3
         restore_analysis(
             self.analysis.controls, restored.workspace, restored.inspection.dataset
         )
@@ -269,8 +271,16 @@ class FileController:
             return
         if algorithm.is_clustering:
             self.plots.choose_color(algorithm.value)
+            self.plots.choose_chart(
+                "Scatter 3D" if self.plots.three_d else "Scatter 2D"
+            )
         else:
             self.analysis.source = algorithm
+            self.plots.choose_chart(
+                "Scatter 3D"
+                if isinstance(result, EmbeddingResult) and result.values.shape[1] == 3
+                else "Scatter 2D"
+            )
         self.analysis.pending_result = None
         self.views = replace(self.views, tab="Relationships")
 
@@ -307,6 +317,12 @@ class FileController:
                     self.plots.color_column,
                     self.plots.cluster_result if self.plots.cluster_color else None,
                 )
+        if (
+            dataset is None
+            or not isinstance(result, EmbeddingResult)
+            or result.revision != dataset.revision
+        ):
+            self.analysis.plots.clear()
         try:
             settings = self.plots.settings()
             if dataset is not None and settings != self._plot_settings:

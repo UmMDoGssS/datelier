@@ -98,6 +98,13 @@ class AnalysisPlots:
         except Exception as error:
             self.message = f"Embedding plot failed: {error}"
 
+    def clear(self) -> None:
+        if self._future is not None:
+            self._future.cancel()
+        self._future = None
+        self._key = None
+        self.active = None
+
     def close(self) -> None:
         self._closed = True
         self._future = None

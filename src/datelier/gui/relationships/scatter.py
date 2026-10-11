@@ -5,10 +5,15 @@ from collections.abc import Callable
 import numpy as np
 from imgui_bundle import imgui, implot
 
-from datelier.gui.components.base import Component, FrameContext
-from datelier.gui.components.native import help_tip
+from datelier.gui.components.base import Component, Container, FrameContext
+from datelier.gui.components.native import help_tip, target
 from datelier.gui.components.viewport import ViewportContent
-from datelier.gui.relationships.primitives import draw_color_items, legend_hovered
+from datelier.gui.relationships.primitives import (
+    draw_color_items,
+    legend_hovered,
+    with_color_scale,
+)
+from datelier.gui.relationships.summary import ScatterSummary
 from datelier.plotting.data import Scatter
 from datelier.plotting.projection import projected_nearest
 from datelier.plotting.selection import LinkedSelection
@@ -32,6 +37,12 @@ class ScatterInput(Component):
             return
         implot.get_input_map().pan = imgui.MouseButton_.middle
         pos, size = implot.get_plot_pos(), implot.get_plot_size()
+        if len(points.x):
+            index = len(points.x) // 2
+            point = implot.plot_to_pixels(
+                float(points.x[index]), float(points.y[index])
+            )
+            frame.record("point", (point.x, point.y))
         mouse = implot.get_plot_mouse_pos()
         if implot.is_plot_hovered() and not legend_hovered():
             if imgui.is_mouse_clicked(imgui.MouseButton_.left):
@@ -100,6 +111,51 @@ class ScatterInput(Component):
             )
 
 
+class NativeScatter2D(Container):
+    def __init__(
+        self,
+        prepared: Callable[[], Scatter | None],
+        selection: LinkedSelection,
+        jump: Callable[[int], None],
+    ) -> None:
+        self.input = ScatterInput(prepared, selection, jump)
+        super().__init__("canvas", (self.input,))
+        self.prepared, self.selection = prepared, selection
+        self.height = 200.0
+        self.fit = True
+
+    def draw(self, width: float, frame: FrameContext) -> bool:
+        points = self.prepared()
+        if points is None:
+            return False
+        if self.fit:
+            implot.set_next_axes_to_fit()
+        if not implot.begin_plot("##scatter", (width, self.height)):
+            return False
+        implot.setup_axes(points.x_name, points.y_name)
+        chosen = (
+            np.isin(points.row_ids, tuple(self.selection.row_ids))
+            if self.selection.revision == points.revision
+            else np.zeros(len(points.x), dtype=bool)
+        )
+        self.input.visible = draw_color_items(points, chosen)
+        super().render(frame)
+        implot.end_plot()
+        target(frame, "plot")
+        self.fit = False
+        return True
+
+    def render(self, frame: FrameContext) -> None:
+        points = self.prepared()
+        if points:
+            with_color_scale(points, self.height, lambda width: self.draw(width, frame))
+
+    def close(self) -> None:
+        self.input.visible = None
+        self.input.brush = None
+        super().close()
+
+
 class ScatterPlot(ViewportContent):
     def __init__(
         self,
@@ -107,38 +163,36 @@ class ScatterPlot(ViewportContent):
         selection: LinkedSelection,
         jump: Callable[[int], None],
     ) -> None:
-        super().__init__("scatter")
-        self.prepared, self.selection = prepared, selection
-        self.input = ScatterInput(prepared, selection, jump)
-        self.children = (self.input,)
+        super().__init__("scatter2d")
+        self.prepared = prepared
         self._points: Scatter | None = None
+        self.canvas = NativeScatter2D(prepared, selection, jump)
+        self.children = (ScatterSummary(prepared, selection), self.canvas)
 
     def render(self, frame: FrameContext) -> None:
         points = self.prepared()
         if points is None:
-            imgui.text("Choose at least two numeric columns.")
+            self.canvas.input.brush = None
+            imgui.text_wrapped(
+                "Choose two numeric columns or explicitly prepare "
+                "the selected analysis source."
+            )
             return
         if points is not self._points:
             self.fit = True
             self._points = points
-            self.input.brush = None
-        imgui.text_wrapped(
-            f"{len(points.x):,} displayed of {points.eligible_rows:,} eligible · "
-            f"{points.total_rows - points.eligible_rows:,} excluded · "
-            f"{len(self.selection.row_ids):,} selected"
+            self.canvas.input.brush = None
+        self.canvas.height, self.canvas.fit = (
+            max(120, self.height - 55),
+            self.fit or self.canvas.fit,
         )
-        if points.colors and points.colors.note:
-            imgui.text_wrapped(points.colors.note)
-        if self.fit:
-            implot.set_next_axes_to_fit()
-        if implot.begin_plot("##scatter", (-1, max(120, self.height - 45))):
-            implot.setup_axes(points.x_name, points.y_name)
-            chosen = np.isin(points.row_ids, tuple(self.selection.row_ids))
-            self.input.visible = draw_color_items(points, chosen)
-            super().render(frame)
-            implot.end_plot()
-            self.fit = False
+        super().render(frame)
+        self.fit = self.canvas.fit
         help_tip(
             "Wheel zooms; middle drag pans; double click fits. Click selects, "
             "Ctrl-click toggles and Shift-drag brushes visible points."
         )
+
+    def close(self) -> None:
+        self._points = None
+        super().close()
