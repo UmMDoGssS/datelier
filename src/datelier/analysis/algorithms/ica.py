@@ -8,8 +8,8 @@ from numpy.typing import NDArray
 
 from datelier.analysis.algorithm import Algorithm as AlgorithmId
 from datelier.analysis.algorithms.base import (
+    DecompositionAlgorithm,
     EmbeddingEstimator,
-    FittedDecompositionAlgorithm,
 )
 from datelier.analysis.parameter_fields import choice, setting
 
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class ICAAlgorithm(FittedDecompositionAlgorithm):
+class ICAAlgorithm(DecompositionAlgorithm):
     algorithm: ClassVar[AlgorithmId] = AlgorithmId.ICA
     function: str = choice("logcosh", "Contrast function", ("logcosh", "exp", "cube"))
     iterations: int = setting(500, "Iterations", 1, 10000)
@@ -62,7 +62,3 @@ class ICAAlgorithm(FittedDecompositionAlgorithm):
             raise ValueError(
                 "Output dimensions exceed sampled rows or varying feature count"
             )
-
-
-# Legacy recipe/import name refers to this same algorithm, not a second record.
-ICAParameters = ICAAlgorithm

@@ -1,18 +1,21 @@
 """TSNEAlgorithm: parameter ownership, fitting and input constraints."""
 
 from dataclasses import dataclass, field
-from time import perf_counter
 from typing import TYPE_CHECKING, ClassVar, cast
 
 import numpy as np
 from numpy.typing import NDArray
 
 from datelier.analysis.algorithm import Algorithm as AlgorithmId
-from datelier.analysis.algorithms.base import DecompositionAlgorithm
+from datelier.analysis.algorithms.base import (
+    DecompositionAlgorithm,
+    Details,
+    EmbeddingEstimator,
+)
 from datelier.analysis.parameter_fields import choice, setting
 
 if TYPE_CHECKING:
-    from datelier.analysis.types import AnalysisRequest, EmbeddingResult, PreparedInput
+    from datelier.analysis.types import AnalysisRequest, PreparedInput
 
 
 @dataclass(frozen=True)
@@ -36,17 +39,13 @@ class TSNEAlgorithm(DecompositionAlgorithm):
     row_limit: ClassVar[int] = 10000
     default_row_limit: ClassVar[int] = 2000
 
-    def fit(self, prepared: PreparedInput) -> EmbeddingResult:
-        from threadpoolctl import threadpool_limits
-
-        from datelier.analysis.embedding_result import embedding_result
-
-        self.check_input(prepared)
-        started = perf_counter()
-        request = prepared.request
+    def build(
+        self, prepared: PreparedInput
+    ) -> tuple[EmbeddingEstimator, NDArray[np.float64], Details]:
         from sklearn.manifold import TSNE
 
-        tsne = TSNE(
+        request = prepared.request
+        estimator = TSNE(
             n_components=request.dimensions,
             perplexity=self.perplexity,
             max_iter=self.iterations,
@@ -59,20 +58,17 @@ class TSNEAlgorithm(DecompositionAlgorithm):
             random_state=request.seed,
             n_jobs=1,
         )
-        with threadpool_limits(limits=1):
-            coordinates = cast(
-                NDArray[np.float64], tsne.fit_transform(prepared.values)
-            ).astype(np.float64)
-        return embedding_result(
-            prepared,
-            coordinates,
-            started,
-            (
-                ("KL divergence", f"{tsne.kl_divergence_:.6g}"),
-                ("Completed iterations", str(tsne.n_iter_)),
-                ("Distance", "Euclidean"),
-                ("Method", "Barnes-Hut"),
-            ),
+        return estimator, prepared.values, ()
+
+    def diagnostics(self, estimator: EmbeddingEstimator) -> Details:
+        from sklearn.manifold import TSNE
+
+        model = cast(TSNE, estimator)
+        return (
+            ("KL divergence", f"{model.kl_divergence_:.6g}"),
+            ("Completed iterations", str(model.n_iter_)),
+            ("Distance", "Euclidean"),
+            ("Method", "Barnes-Hut"),
         )
 
     def validate_input(
@@ -87,7 +83,3 @@ class TSNEAlgorithm(DecompositionAlgorithm):
             raise ValueError(
                 "PCA initialization needs enough varying features for the dimensions"
             )
-
-
-# Legacy recipe/import name refers to this same algorithm, not a second record.
-TSNEParameters = TSNEAlgorithm

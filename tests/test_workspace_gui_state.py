@@ -78,12 +78,12 @@ def test_analysis_controls_round_trip_without_launching_jobs(tmp_path: Path) -> 
         dimensions=3,
         seed=19,
     )
-    before.parameters[Algorithm.PCA] = PCAParameters(solver="full", whiten=True)
-    before.parameters[Algorithm.TSNE] = TSNEParameters(
+    before.algorithms[Algorithm.PCA] = PCAParameters(solver="full", whiten=True)
+    before.algorithms[Algorithm.TSNE] = TSNEParameters(
         perplexity=4, learning_rate=55, initialization="random"
     )
-    before.parameters[Algorithm.UMAP] = UMAPParameters(neighbors=7, metric="cosine")
-    before.parameters[Algorithm.KMEANS] = KMeansParameters(clusters=5)
+    before.algorithms[Algorithm.UMAP] = UMAPParameters(neighbors=7, metric="cosine")
+    before.algorithms[Algorithm.KMEANS] = KMeansParameters(clusters=5)
     requests = tuple(before.request(a) for a in Algorithm)
     workspace = Workspace(
         reference_source(imported.dataset.source),
@@ -211,8 +211,8 @@ def test_every_method_recipe_round_trips_through_strict_codec(tmp_path: Path) ->
     path.write_text("x,y,z\n1.0,2,3\n3.0,4,5\n6.0,8,9\n")
     imported = load_file(path)
     before = AnalysisSettings(features=["z", "x", "y"], dimensions=3, seed=19)
-    before.parameters[Algorithm.DBSCAN] = DBSCANParameters(epsilon=0.75)
-    before.parameters[Algorithm.LLE] = LLEParameters(method="hessian", neighbors=20)
+    before.algorithms[Algorithm.DBSCAN] = DBSCANParameters(epsilon=0.75)
+    before.algorithms[Algorithm.LLE] = LLEParameters(method="hessian", neighbors=20)
     requests = tuple(before.request(a) for a in Algorithm)
     saved = Workspace(
         reference_source(imported.dataset.source),

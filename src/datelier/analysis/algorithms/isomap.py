@@ -8,8 +8,8 @@ from numpy.typing import NDArray
 
 from datelier.analysis.algorithm import Algorithm as AlgorithmId
 from datelier.analysis.algorithms.base import (
+    DecompositionAlgorithm,
     EmbeddingEstimator,
-    FittedDecompositionAlgorithm,
 )
 from datelier.analysis.parameter_fields import choice, setting
 
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class IsomapAlgorithm(FittedDecompositionAlgorithm):
+class IsomapAlgorithm(DecompositionAlgorithm):
     algorithm: ClassVar[AlgorithmId] = AlgorithmId.ISOMAP
     neighbors: int = setting(15, "Neighbors", 2, 100)
     metric: str = choice("euclidean", "Distance", ("euclidean", "manhattan"))
@@ -54,7 +54,3 @@ class IsomapAlgorithm(FittedDecompositionAlgorithm):
             )
         if self.neighbors >= rows:
             raise ValueError("Neighbors must be smaller than the sampled row count")
-
-
-# Legacy recipe/import name refers to this same algorithm, not a second record.
-IsomapParameters = IsomapAlgorithm

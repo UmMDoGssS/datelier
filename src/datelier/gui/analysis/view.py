@@ -59,7 +59,7 @@ class Provenance(Component):
             if request.preprocessing.impute
             else "Invalid rows excluded"
         )
-        for name, value in asdict(request.parameters).items():
+        for name, value in asdict(request.method).items():
             imgui.text_wrapped(f"{name.replace('_', ' ')}: {value}")
         for name, version in provenance.versions:
             imgui.text_wrapped(f"{name} {version}")

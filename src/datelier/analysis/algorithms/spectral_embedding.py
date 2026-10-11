@@ -8,8 +8,8 @@ from numpy.typing import NDArray
 
 from datelier.analysis.algorithm import Algorithm as AlgorithmId
 from datelier.analysis.algorithms.base import (
+    DecompositionAlgorithm,
     EmbeddingEstimator,
-    FittedDecompositionAlgorithm,
 )
 from datelier.analysis.parameter_fields import choice
 
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class SpectralEmbeddingAlgorithm(FittedDecompositionAlgorithm):
+class SpectralEmbeddingAlgorithm(DecompositionAlgorithm):
     algorithm: ClassVar[AlgorithmId] = AlgorithmId.SPECTRAL_EMBEDDING
     affinity: str = choice(
         "nearest_neighbors", "Affinity", ("nearest_neighbors", "rbf")
@@ -77,7 +77,3 @@ class SpectralEmbeddingAlgorithm(FittedDecompositionAlgorithm):
         uses_neighbors = self.affinity == "nearest_neighbors"
         if uses_neighbors and self.neighbors >= rows:
             raise ValueError("Neighbors must be smaller than the sampled row count")
-
-
-# Legacy recipe/import name refers to this same algorithm, not a second record.
-SpectralEmbeddingParameters = SpectralEmbeddingAlgorithm

@@ -37,7 +37,3 @@ class DBSCANAlgorithm(ClusteringAlgorithm):
             n_jobs=1,
         )
         return (estimator, values, ())
-
-
-# Legacy recipe/import name refers to this same algorithm, not a second record.
-DBSCANParameters = DBSCANAlgorithm

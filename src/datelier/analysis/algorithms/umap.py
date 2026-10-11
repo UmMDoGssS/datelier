@@ -1,19 +1,21 @@
 """UMAPAlgorithm: parameter ownership, fitting and input constraints."""
 
 from dataclasses import dataclass
-from time import perf_counter
-from typing import TYPE_CHECKING, ClassVar, cast
-from warnings import catch_warnings
+from typing import TYPE_CHECKING, ClassVar
 
 import numpy as np
 from numpy.typing import NDArray
 
 from datelier.analysis.algorithm import Algorithm as AlgorithmId
-from datelier.analysis.algorithms.base import DecompositionAlgorithm
+from datelier.analysis.algorithms.base import (
+    DecompositionAlgorithm,
+    Details,
+    EmbeddingEstimator,
+)
 from datelier.analysis.parameter_fields import choice, setting
 
 if TYPE_CHECKING:
-    from datelier.analysis.types import AnalysisRequest, EmbeddingResult, PreparedInput
+    from datelier.analysis.types import AnalysisRequest, PreparedInput
 
 
 @dataclass(frozen=True)
@@ -26,19 +28,24 @@ class UMAPAlgorithm(DecompositionAlgorithm):
     row_limit: ClassVar[int] = 50000
     default_row_limit: ClassVar[int] = 5000
 
-    def fit(self, prepared: PreparedInput) -> EmbeddingResult:
-        from threadpoolctl import threadpool_limits
+    libraries: ClassVar[tuple[str, ...]] = (
+        "numpy",
+        "polars",
+        "scikit-learn",
+        "umap-learn",
+        "numba",
+        "threadpoolctl",
+    )
 
-        from datelier.analysis.embedding_result import embedding_result
-
-        self.check_input(prepared)
-        started = perf_counter()
-        request = prepared.request
+    def build(
+        self, prepared: PreparedInput
+    ) -> tuple[EmbeddingEstimator, NDArray[np.float64], Details]:
         from numba import set_num_threads
         from umap import UMAP
 
+        request = prepared.request
         set_num_threads(1)
-        reducer = UMAP(
+        estimator = UMAP(
             n_components=request.dimensions,
             n_neighbors=self.neighbors,
             min_dist=self.min_distance,
@@ -49,22 +56,14 @@ class UMAPAlgorithm(DecompositionAlgorithm):
             n_jobs=1,
             low_memory=True,
         )
-        with catch_warnings(record=True) as captured, threadpool_limits(limits=1):
-            coordinates = cast(
-                NDArray[np.float64], reducer.fit_transform(prepared.values)
-            ).astype(np.float64)
-        warnings = tuple(("Fit warning", str(item.message)) for item in captured)
-        return embedding_result(
-            prepared,
-            coordinates,
-            started,
+        return (
+            estimator,
+            prepared.values,
             (
                 ("Distance", self.metric),
                 ("Initialization", "spectral"),
                 ("Threads", "1"),
-                *warnings,
             ),
-            ("numpy", "polars", "scikit-learn", "umap-learn", "numba", "threadpoolctl"),
         )
 
     def validate_input(
@@ -79,7 +78,3 @@ class UMAPAlgorithm(DecompositionAlgorithm):
             raise ValueError(
                 "Cosine distance is undefined for zero-valued preprocessed rows"
             )
-
-
-# Legacy recipe/import name refers to this same algorithm, not a second record.
-UMAPParameters = UMAPAlgorithm

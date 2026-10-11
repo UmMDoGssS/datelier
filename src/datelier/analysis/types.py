@@ -6,19 +6,19 @@ import numpy as np
 from numpy.typing import NDArray
 
 from datelier.analysis.algorithm import Algorithm as Algorithm
-from datelier.analysis.algorithms.kmeans import KMeansParameters as KMeansParameters
-from datelier.analysis.algorithms.pca import PCAParameters as PCAParameters
-from datelier.analysis.algorithms.registry import ALGORITHMS
-from datelier.analysis.algorithms.tsne import TSNEParameters as TSNEParameters
-from datelier.analysis.algorithms.umap import UMAPParameters as UMAPParameters
-from datelier.analysis.parameters import (
-    ExtraParameters,
-)
+from datelier.analysis.algorithms.kmeans import KMeansAlgorithm
+from datelier.analysis.algorithms.pca import PCAAlgorithm
+from datelier.analysis.algorithms.registry import ALGORITHMS, AlgorithmInstance
+from datelier.analysis.algorithms.tsne import TSNEAlgorithm
+from datelier.analysis.algorithms.umap import UMAPAlgorithm
 from datelier.core.dataset import DatasetRevision
 
-Parameters = (
-    PCAParameters | TSNEParameters | UMAPParameters | KMeansParameters | ExtraParameters
-)
+# Compatibility imports refer to executable algorithm classes, not parameter records.
+PCAParameters = PCAAlgorithm
+KMeansParameters = KMeansAlgorithm
+TSNEParameters = TSNEAlgorithm
+UMAPParameters = UMAPAlgorithm
+Parameters = AlgorithmInstance
 LIMITS = {a: builder.row_limit for a, builder in ALGORITHMS.items()}
 DEFAULT_LIMITS = {a: builder.default_row_limit for a, builder in ALGORITHMS.items()}
 
@@ -32,15 +32,20 @@ class Preprocessing:
 @dataclass(frozen=True)
 class AnalysisRequest:
     features: tuple[str, ...]
-    parameters: Parameters = PCAParameters()
+    parameters: AlgorithmInstance = PCAAlgorithm()
     preprocessing: Preprocessing = Preprocessing()
     seed: int = 42
     row_limit: int = 10_000
     dimensions: int = 2
 
     @property
+    def method(self) -> AlgorithmInstance:
+        """The executable algorithm; parameters is the preserved recipe field name."""
+        return self.parameters
+
+    @property
     def algorithm(self) -> Algorithm:
-        return self.parameters.algorithm
+        return self.method.algorithm
 
     def validate(self) -> None:
         if not 1 <= len(self.features) <= 128 or len(set(self.features)) != len(
@@ -56,9 +61,9 @@ class AnalysisRequest:
             )
         if self.dimensions not in (2, 3):
             raise ValueError("Embedding dimensions must be two or three")
-        if type(self.parameters) is not ALGORITHMS[self.algorithm]:
+        if type(self.method) is not ALGORITHMS[self.algorithm]:
             raise ValueError("Algorithm is not registered")
-        self.parameters.validate()
+        self.method.validate()
 
 
 @dataclass(frozen=True)

@@ -8,8 +8,8 @@ from numpy.typing import NDArray
 
 from datelier.analysis.algorithm import Algorithm as AlgorithmId
 from datelier.analysis.algorithms.base import (
+    DecompositionAlgorithm,
     EmbeddingEstimator,
-    FittedDecompositionAlgorithm,
 )
 
 if TYPE_CHECKING:
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class GaussianProjectionAlgorithm(FittedDecompositionAlgorithm):
+class GaussianProjectionAlgorithm(DecompositionAlgorithm):
     algorithm: ClassVar[AlgorithmId] = AlgorithmId.GAUSSIAN_PROJECTION
     recipe_kind: ClassVar[str] = "GaussianProjectionParameters"
     row_limit: ClassVar[int] = 100000
@@ -33,7 +33,3 @@ class GaussianProjectionAlgorithm(FittedDecompositionAlgorithm):
         dims, seed = (request.dimensions, request.seed)
         estimator = GaussianRandomProjection(n_components=dims, random_state=seed)
         return (estimator, values, ())
-
-
-# Legacy recipe/import name refers to this same algorithm, not a second record.
-GaussianProjectionParameters = GaussianProjectionAlgorithm

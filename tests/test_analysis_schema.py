@@ -112,5 +112,5 @@ def test_legacy_tsne_recipe_retains_auto_or_numeric_rate() -> None:
         assert controls.request(Algorithm.TSNE) == request
         assert controls.matches_result(request)
         assert isinstance(request.parameters, TSNEParameters)
-        controls.parameters[Algorithm.TSNE] = replace(request.parameters, perplexity=6)
+        controls.algorithms[Algorithm.TSNE] = replace(request.parameters, perplexity=6)
         assert not controls.matches_result(request)

@@ -12,7 +12,7 @@ from datelier.plotting.colors import NEUTRAL, PALETTE, PointColors, color_series
 def predict_clusters(
     dataset: Dataset, positions: NDArray[np.uint64], result: ClusteringResult
 ) -> NDArray[np.int64]:
-    builder = result.provenance.request.parameters
+    builder = result.provenance.request.method
     if not isinstance(builder, ClusteringAlgorithm):
         raise ValueError("Cluster prediction requires a clustering algorithm")
     return builder.predict(dataset, positions, result)

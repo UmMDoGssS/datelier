@@ -8,8 +8,8 @@ from numpy.typing import NDArray
 
 from datelier.analysis.algorithm import Algorithm as AlgorithmId
 from datelier.analysis.algorithms.base import (
+    DecompositionAlgorithm,
     EmbeddingEstimator,
-    FittedDecompositionAlgorithm,
 )
 from datelier.analysis.parameter_fields import setting
 
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class SVDAlgorithm(FittedDecompositionAlgorithm):
+class SVDAlgorithm(DecompositionAlgorithm):
     algorithm: ClassVar[AlgorithmId] = AlgorithmId.SVD
     iterations: int = setting(5, "Power iterations", 1, 100)
     recipe_kind: ClassVar[str] = "SVDParameters"
@@ -62,7 +62,3 @@ class SVDAlgorithm(FittedDecompositionAlgorithm):
             )
         if width < 2:
             raise ValueError("Truncated SVD needs at least two varying features")
-
-
-# Legacy recipe/import name refers to this same algorithm, not a second record.
-SVDParameters = SVDAlgorithm

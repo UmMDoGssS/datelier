@@ -80,7 +80,7 @@ class Algorithm(ABC):
         )
 
     def check_input(self, prepared: PreparedInput) -> None:
-        if not self.same_configuration(prepared.request.parameters):
+        if not self.same_configuration(prepared.request.method):
             raise ValueError("Prepared request does not match the algorithm parameters")
         prepared.request.validate()
 
@@ -90,11 +90,13 @@ class Algorithm(ABC):
 
 
 class DecompositionAlgorithm(Algorithm, ABC):
-    @abstractmethod
-    def fit(self, prepared: PreparedInput) -> EmbeddingResult: ...
+    libraries: ClassVar[tuple[str, ...]] = (
+        "numpy",
+        "polars",
+        "scikit-learn",
+        "threadpoolctl",
+    )
 
-
-class FittedDecompositionAlgorithm(DecompositionAlgorithm, ABC):
     @abstractmethod
     def build(
         self, prepared: PreparedInput
@@ -124,6 +126,7 @@ class FittedDecompositionAlgorithm(DecompositionAlgorithm, ABC):
                 *self.diagnostics(estimator),
                 *(("Fit warning", str(w.message)) for w in captured),
             ),
+            self.libraries,
         )
 
 
@@ -148,7 +151,7 @@ class ClusteringAlgorithm(Algorithm, ABC):
     ) -> NDArray[np.int64]:
         import polars as pl
 
-        if not self.same_configuration(result.provenance.request.parameters):
+        if not self.same_configuration(result.provenance.request.method):
             raise ValueError("Cluster predictor does not match the fitted parameters")
         if dataset.revision != result.revision or len(positions) > 10000:
             raise ValueError(

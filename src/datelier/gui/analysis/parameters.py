@@ -130,23 +130,23 @@ def parameter_field(
 class AlgorithmSettings(Container):
     def __init__(self, model: AnalysisSettings, algorithm: Algorithm) -> None:
         self.model, self.algorithm = model, algorithm
-        builder = model.parameters[algorithm]
-        self.schema = builder.schema
+        method = model.algorithms[algorithm]
+        self.schema = method.schema
         children: list[Component] = [
             IntegerField(
                 "limit",
-                f"Rows (max {builder.row_limit:,})",
+                f"Rows (max {method.row_limit:,})",
                 lambda: model.limits[algorithm],
                 lambda value: model.limits.__setitem__(algorithm, value),
                 1,
-                builder.row_limit,
+                method.row_limit,
             )
         ]
         for descriptor in self.schema:
             name = descriptor.name
 
             def get(name: str = name) -> ParameterValue:
-                return cast(ParameterValue, getattr(model.parameters[algorithm], name))
+                return cast(ParameterValue, getattr(model.algorithms[algorithm], name))
 
             def set_value(value: ParameterValue, name: str = name) -> None:
                 model.update(algorithm, name, value)
@@ -155,8 +155,8 @@ class AlgorithmSettings(Container):
         super().__init__(algorithm.value, tuple(children))
 
     def render(self, frame: FrameContext) -> None:
-        parameters = self.model.parameters[self.algorithm]
-        visible = {item.name for item in self.schema if item.visible(parameters)}
+        method = self.model.algorithms[self.algorithm]
+        visible = {item.name for item in self.schema if item.visible(method)}
         for child in self.children:
             if child.key == "limit" or child.key in visible:
                 child.render(frame.child(child.key))
@@ -169,7 +169,7 @@ class AlgorithmEditors(Container):
         self.selected = selected
         self.registry = {
             algorithm: AlgorithmSettings(model, algorithm)
-            for algorithm in model.parameters
+            for algorithm in model.algorithms
         }
         super().__init__("parameters", ())
 

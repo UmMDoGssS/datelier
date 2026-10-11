@@ -82,7 +82,3 @@ class MeanShiftAlgorithm(ClusteringAlgorithm):
             n_jobs=1,
         )
         return (estimator, values, tuple(details))
-
-
-# Legacy recipe/import name refers to this same algorithm, not a second record.
-MeanShiftParameters = MeanShiftAlgorithm

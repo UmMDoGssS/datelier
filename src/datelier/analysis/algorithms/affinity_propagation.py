@@ -62,7 +62,3 @@ class AffinityPropagationAlgorithm(ClusteringAlgorithm):
                 "adjust damping, preference or iterations"
             )
         return ()
-
-
-# Legacy recipe/import name refers to this same algorithm, not a second record.
-AffinityPropagationParameters = AffinityPropagationAlgorithm

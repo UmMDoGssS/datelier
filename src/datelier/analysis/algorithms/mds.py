@@ -9,8 +9,8 @@ from numpy.typing import NDArray
 
 from datelier.analysis.algorithm import Algorithm as AlgorithmId
 from datelier.analysis.algorithms.base import (
+    DecompositionAlgorithm,
     EmbeddingEstimator,
-    FittedDecompositionAlgorithm,
 )
 from datelier.analysis.parameter_fields import choice, setting
 
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class MDSAlgorithm(FittedDecompositionAlgorithm):
+class MDSAlgorithm(DecompositionAlgorithm):
     algorithm: ClassVar[AlgorithmId] = AlgorithmId.MDS
     metric: bool = field(default=True, metadata={"label": "Metric MDS"})
     initialization: str = choice(
@@ -80,7 +80,3 @@ class MDSAlgorithm(FittedDecompositionAlgorithm):
         rows, width = values.shape
         if rows <= request.dimensions:
             raise ValueError("MDS needs more sampled rows than dimensions")
-
-
-# Legacy recipe/import name refers to this same algorithm, not a second record.
-MDSParameters = MDSAlgorithm

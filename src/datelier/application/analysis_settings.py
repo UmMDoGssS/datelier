@@ -2,13 +2,12 @@
 
 from dataclasses import dataclass, field, replace
 
-from datelier.analysis.algorithms.registry import ALGORITHMS
+from datelier.analysis.algorithms.registry import ALGORITHMS, AlgorithmInstance
 from datelier.analysis.jobs import AnalysisJobs
 from datelier.analysis.schema import ParameterValue
 from datelier.analysis.types import (
     Algorithm,
     AnalysisRequest,
-    Parameters,
     Preprocessing,
 )
 from datelier.core.dataset import Dataset
@@ -24,7 +23,7 @@ class AnalysisSettings:
     dimensions: int = 2
     seed: int = 42
     error: str = ""
-    parameters: dict[Algorithm, Parameters] = field(
+    algorithms: dict[Algorithm, AlgorithmInstance] = field(
         default_factory=lambda: {a: builder() for a, builder in ALGORITHMS.items()}
     )
     limits: dict[Algorithm, int] = field(
@@ -34,11 +33,11 @@ class AnalysisSettings:
     )
 
     def update(self, algorithm: Algorithm, name: str, value: ParameterValue) -> None:
-        builder = self.parameters[algorithm]
-        self.parameters[algorithm] = builder.with_parameter(name, value)
+        method = self.algorithms[algorithm]
+        self.algorithms[algorithm] = method.with_parameter(name, value)
 
     def restore(self, request: AnalysisRequest) -> None:
-        self.parameters[request.algorithm] = request.parameters
+        self.algorithms[request.algorithm] = request.method
         self.limits[request.algorithm] = request.row_limit
 
     def bind(self, dataset: Dataset) -> None:
@@ -48,7 +47,7 @@ class AnalysisSettings:
     def request(self, algorithm: Algorithm) -> AnalysisRequest:
         return AnalysisRequest(
             tuple(self.features),
-            self.parameters[algorithm],
+            self.algorithms[algorithm],
             Preprocessing(self.standardize, self.impute),
             self.seed,
             self.limits[algorithm],

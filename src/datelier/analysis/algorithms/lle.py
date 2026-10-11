@@ -8,8 +8,8 @@ from numpy.typing import NDArray
 
 from datelier.analysis.algorithm import Algorithm as AlgorithmId
 from datelier.analysis.algorithms.base import (
+    DecompositionAlgorithm,
     EmbeddingEstimator,
-    FittedDecompositionAlgorithm,
 )
 from datelier.analysis.parameter_fields import choice, setting
 
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class LLEAlgorithm(FittedDecompositionAlgorithm):
+class LLEAlgorithm(DecompositionAlgorithm):
     algorithm: ClassVar[AlgorithmId] = AlgorithmId.LLE
     method: str = choice(
         "standard", "LLE method", ("standard", "modified", "hessian", "ltsa")
@@ -88,7 +88,3 @@ class LLEAlgorithm(FittedDecompositionAlgorithm):
         )
         if self.neighbors <= minimum:
             raise ValueError(f"{self.method} LLE needs more than {minimum:g} neighbors")
-
-
-# Legacy recipe/import name refers to this same algorithm, not a second record.
-LLEParameters = LLEAlgorithm

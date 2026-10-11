@@ -48,7 +48,3 @@ class OPTICSAlgorithm(ClusteringAlgorithm):
             raise ValueError(
                 "Minimum neighbors and cluster size exceed the sampled rows"
             )
-
-
-# Legacy recipe/import name refers to this same algorithm, not a second record.
-OPTICSParameters = OPTICSAlgorithm

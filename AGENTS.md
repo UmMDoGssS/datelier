@@ -188,10 +188,12 @@ Titanic usability and platform/rendering assumptions retain their status.
 
 The analysis ownership refactor passes automated acceptance;
 [docs/analysis-refactor.md](docs/analysis-refactor.md) records algorithm, schema,
-recipe, native and resource evidence. Concrete algorithm classes own parameter
-schemas, limits, input constraints and estimator pipelines. Use the trusted
-catalog and generic GUI forms when extending methods; keep estimator imports and
-fitting inside explicit workers, and preserve existing recipe names and values.
+recipe, native and resource evidence. Each immutable concrete algorithm object owns its tunable fields, GUI schema,
+limits, input constraints, estimator construction and fit facade. Do not create
+separate per-method parameter records or wrappers. Use the trusted catalog and
+generic GUI forms when extending methods; keep estimator imports and fitting
+inside explicit workers, and preserve existing recipe names and values. Legacy
+parameter import names are aliases to the same executable classes.
 
 ## Architecture and data integrity
 

@@ -42,7 +42,3 @@ class BirchAlgorithm(ClusteringAlgorithm):
     ) -> None:
         if self.clusters > len(np.unique(values, axis=0)):
             raise ValueError("Cluster count exceeds distinct sampled inputs")
-
-
-# Legacy recipe/import name refers to this same algorithm, not a second record.
-BirchParameters = BirchAlgorithm

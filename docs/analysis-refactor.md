@@ -5,7 +5,9 @@ algorithm families, concrete builders, and dynamically rendered parameter schema
 Preserve all 26 methods, explicit execution, bounded worker resources, stable row
 identity, provenance, prediction capabilities and saved workspace recipes.
 
-Automated acceptance is complete. The entries below retain the evidence for each
+Corrected-design acceptance is complete: each concrete algorithm is a single
+immutable object with tunable fields, a GUI schema, estimator construction and a
+fit facade. The entries below retain the evidence for each
 verified delivery step.
 
 ## Delivery and acceptance
@@ -146,3 +148,74 @@ passes selector/Run/Open-result and completion focus: 225 frames,
 **15.87 ms p95**. Both preserve source bytes.
 
 Shared fitting simplification and final corrected-design acceptance remain open.
+
+### Step 5 — Shared facades and final acceptance
+
+`DecompositionAlgorithm.fit` and `ClusteringAlgorithm.fit` are the two shared
+facades over estimator fitting, transforming or predicting. All concrete methods,
+including PCA, t-SNE and UMAP, own their fields and estimator construction while
+sharing thread bounds, fit warnings, result validation and provenance. The extra
+fitted-decomposition family is removed. UMAP retains its own NumPy/Numba/UMAP
+setup and package provenance. Clustering retains the existing nearest-center and
+label-only prediction capabilities.
+
+Application drafts explicitly store algorithm instances in `algorithms`.
+`AnalysisRequest.method` returns that same executable object; `parameters` is
+only the preserved recipe field name. Legacy `*Parameters` import aliases live
+in compatibility exports; no algorithm module defines a separate parameter
+record or a parameter alias. The finite `AlgorithmInstance` union supplies both
+static typing and the catalog, eliminating a second list of registered types.
+The [corrected catalog audit](evidence/analysis-refactor/unified-catalog.json)
+records all 26 combined objects and their schemas.
+
+```python
+method = PCAAlgorithm(solver="full", whiten=True)
+request = AnalysisRequest(("x", "y", "z"), method)
+result = method.fit(prepare_input(dataset, request))
+```
+
+The algorithm's immutable configuration stays separate from the runtime estimator
+lifecycle: `fit` constructs and executes its estimator inside the explicit worker
+and returns the established bounded result. Fitted estimators are not serialized
+into drafts/workspaces. Editing a tunable field creates a new instance through
+`with_parameter`, preserving earlier requests and result provenance.
+
+Final corrected-design gates:
+
+- Full pytest: **1,188 passed**, three existing dependency warnings, **33.57 s**.
+  All 26 methods, nondefault configurations, row identity, prediction,
+  direct fit facade, immutability, legacy recipes and worker lifecycles pass.
+  The final application naming cleanup also passes **48 focused settings/recipe
+  tests**.
+- Full Pyrefly: **0 errors**, the existing one HDBSCAN stub suppression and
+  37 warnings. Ruff lint/format (**715 files**), whitespace and evidence links pass.
+- [Native schemas](evidence/analysis-refactor/unified-native-schemas.json): all
+  26 objects, boolean/real/integer/choice edits, conditional controls,
+  automatic/manual retention and no implicit ML; **14.98 ms p95**, 381 frames.
+- [Explicit fitting](evidence/analysis-refactor/unified-native-workflow.json):
+  features, Run, completion focus and Open result; **16.15 ms p95**, 222 frames.
+- [Workspace processes](evidence/analysis-refactor/unified-native-workspace.json):
+  save and restore without implicit operations; **24.25 / 10.86 ms p95**.
+  All native checks preserve source bytes.
+- The original million-row × six-feature worker benchmark, two fits at existing
+  default sample limits per method: [PCA](evidence/analysis-refactor/unified-pca-resources.json)
+  **757 MiB**, [K-means](evidence/analysis-refactor/unified-kmeans-resources.json)
+  **774 MiB**, [t-SNE](evidence/analysis-refactor/unified-tsne-resources.json)
+  **754 MiB**, [UMAP](evidence/analysis-refactor/unified-umap-resources.json)
+  **943 MiB** combined peak upper bounds; all below **2,048 MiB**.
+- [Cancellation](evidence/analysis-refactor/unified-cancel-resources.json):
+  confirmed worker exit in **0.163 s**, zero published results.
+
+To extend the implementation, add one immutable concrete algorithm dataclass:
+define its tunable fields/metadata, identifier, limits and recipe kind; implement
+its estimator construction, input constraints and any special diagnostics or
+prediction. Add it to `AlgorithmInstance` and the finite identifier. The catalog,
+GUI, requests and workspace codec consume this one definition. Introduce legacy
+import aliases only when compatibility requires them. Keep estimator imports and
+fitting off GUI frames.
+
+The correction is committed directly on the user's current `main` branch.
+Existing Linux Mesa, accelerated-rendering/platform and deferred human usability
+or listening assumptions are unchanged. Import adapters, Polars preprocessing,
+worker ownership/cancellation, immutable result contracts and recipe formats
+retain their established behavior.

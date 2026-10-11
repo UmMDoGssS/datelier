@@ -1,18 +1,21 @@
 """PCAAlgorithm: parameter ownership, fitting and input constraints."""
 
 from dataclasses import dataclass, field
-from time import perf_counter
 from typing import TYPE_CHECKING, ClassVar, cast
 
 import numpy as np
 from numpy.typing import NDArray
 
 from datelier.analysis.algorithm import Algorithm as AlgorithmId
-from datelier.analysis.algorithms.base import DecompositionAlgorithm
+from datelier.analysis.algorithms.base import (
+    DecompositionAlgorithm,
+    Details,
+    EmbeddingEstimator,
+)
 from datelier.analysis.parameter_fields import choice
 
 if TYPE_CHECKING:
-    from datelier.analysis.types import AnalysisRequest, EmbeddingResult, PreparedInput
+    from datelier.analysis.types import AnalysisRequest, PreparedInput
 
 
 @dataclass(frozen=True)
@@ -24,36 +27,26 @@ class PCAAlgorithm(DecompositionAlgorithm):
     row_limit: ClassVar[int] = 100000
     default_row_limit: ClassVar[int] = 10000
 
-    def fit(self, prepared: PreparedInput) -> EmbeddingResult:
-        from threadpoolctl import threadpool_limits
-
-        from datelier.analysis.embedding_result import embedding_result
-
-        self.check_input(prepared)
-        started = perf_counter()
-        request = prepared.request
+    def build(
+        self, prepared: PreparedInput
+    ) -> tuple[EmbeddingEstimator, NDArray[np.float64], Details]:
         from sklearn.decomposition import PCA
 
-        pca = PCA(
+        request = prepared.request
+        estimator = PCA(
             n_components=request.dimensions,
             svd_solver="full" if self.solver == "full" else "randomized",
             whiten=self.whiten,
             random_state=request.seed,
         )
-        with threadpool_limits(limits=1):
-            coordinates = cast(
-                NDArray[np.float64], pca.fit_transform(prepared.values)
-            ).astype(np.float64)
-        return embedding_result(
-            prepared,
-            coordinates,
-            started,
-            (
-                (
-                    "Explained variance ratio",
-                    str(pca.explained_variance_ratio_.tolist()),
-                ),
-            ),
+        return estimator, prepared.values, ()
+
+    def diagnostics(self, estimator: EmbeddingEstimator) -> Details:
+        from sklearn.decomposition import PCA
+
+        model = cast(PCA, estimator)
+        return (
+            ("Explained variance ratio", str(model.explained_variance_ratio_.tolist())),
         )
 
     def validate_input(
@@ -64,7 +57,3 @@ class PCAAlgorithm(DecompositionAlgorithm):
             raise ValueError(
                 "PCA dimensions exceed the sampled rows or varying feature count"
             )
-
-
-# Legacy recipe/import name refers to this same algorithm, not a second record.
-PCAParameters = PCAAlgorithm

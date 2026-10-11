@@ -71,7 +71,7 @@ def prepare_input(dataset: Dataset, request: AnalysisRequest) -> PreparedInput:
     )
     values, _ = model.transform(matrix)
     rows = values.shape[0]
-    request.parameters.validate_input(values, request)
+    request.method.validate_input(values, request)
     ids, positions = (sample["id"].to_numpy(), sample["position"].to_numpy())
     for array in (
         values,

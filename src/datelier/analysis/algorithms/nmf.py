@@ -8,8 +8,8 @@ from numpy.typing import NDArray
 
 from datelier.analysis.algorithm import Algorithm as AlgorithmId
 from datelier.analysis.algorithms.base import (
+    DecompositionAlgorithm,
     EmbeddingEstimator,
-    FittedDecompositionAlgorithm,
 )
 from datelier.analysis.parameter_fields import choice, setting
 
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class NMFAlgorithm(FittedDecompositionAlgorithm):
+class NMFAlgorithm(DecompositionAlgorithm):
     algorithm: ClassVar[AlgorithmId] = AlgorithmId.NMF
     scaling: str = choice("minmax", "NMF input scaling", ("minmax", "none"))
     iterations: int = setting(500, "Iterations", 1, 10000)
@@ -79,7 +79,3 @@ class NMFAlgorithm(FittedDecompositionAlgorithm):
                 "NMF needs nonnegative inputs; choose minmax scaling "
                 "or disable standardization"
             )
-
-
-# Legacy recipe/import name refers to this same algorithm, not a second record.
-NMFParameters = NMFAlgorithm

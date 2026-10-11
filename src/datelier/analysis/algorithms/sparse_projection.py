@@ -8,8 +8,8 @@ from numpy.typing import NDArray
 
 from datelier.analysis.algorithm import Algorithm as AlgorithmId
 from datelier.analysis.algorithms.base import (
+    DecompositionAlgorithm,
     EmbeddingEstimator,
-    FittedDecompositionAlgorithm,
 )
 from datelier.analysis.parameter_fields import setting
 
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class SparseProjectionAlgorithm(FittedDecompositionAlgorithm):
+class SparseProjectionAlgorithm(DecompositionAlgorithm):
     algorithm: ClassVar[AlgorithmId] = AlgorithmId.SPARSE_PROJECTION
     density: float = setting(0.3, "Projection density", 1e-06, 1.0)
     recipe_kind: ClassVar[str] = "SparseProjectionParameters"
@@ -40,7 +40,3 @@ class SparseProjectionAlgorithm(FittedDecompositionAlgorithm):
             random_state=seed,
         )
         return (estimator, values, ())
-
-
-# Legacy recipe/import name refers to this same algorithm, not a second record.
-SparseProjectionParameters = SparseProjectionAlgorithm

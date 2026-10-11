@@ -8,8 +8,8 @@ from numpy.typing import NDArray
 
 from datelier.analysis.algorithm import Algorithm as AlgorithmId
 from datelier.analysis.algorithms.base import (
+    DecompositionAlgorithm,
     EmbeddingEstimator,
-    FittedDecompositionAlgorithm,
 )
 from datelier.analysis.parameter_fields import choice
 
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class KernelPCAAlgorithm(FittedDecompositionAlgorithm):
+class KernelPCAAlgorithm(DecompositionAlgorithm):
     algorithm: ClassVar[AlgorithmId] = AlgorithmId.KERNEL_PCA
     kernel: str = choice("rbf", "Kernel", ("rbf", "poly", "cosine", "linear"))
     gamma: float = field(
@@ -79,7 +79,3 @@ class KernelPCAAlgorithm(FittedDecompositionAlgorithm):
             raise ValueError(
                 "Kernel PCA needs more sampled rows than output dimensions"
             )
-
-
-# Legacy recipe/import name refers to this same algorithm, not a second record.
-KernelPCAParameters = KernelPCAAlgorithm

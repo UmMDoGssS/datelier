@@ -72,7 +72,3 @@ class SpectralClusteringAlgorithm(ClusteringAlgorithm):
             raise ValueError(
                 "Spectral clustering needs more sampled rows than neighbors"
             )
-
-
-# Legacy recipe/import name refers to this same algorithm, not a second record.
-SpectralClusteringParameters = SpectralClusteringAlgorithm

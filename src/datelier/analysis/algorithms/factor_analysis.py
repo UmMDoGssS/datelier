@@ -8,8 +8,8 @@ from numpy.typing import NDArray
 
 from datelier.analysis.algorithm import Algorithm as AlgorithmId
 from datelier.analysis.algorithms.base import (
+    DecompositionAlgorithm,
     EmbeddingEstimator,
-    FittedDecompositionAlgorithm,
 )
 from datelier.analysis.parameter_fields import choice, setting
 
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class FactorAnalysisAlgorithm(FittedDecompositionAlgorithm):
+class FactorAnalysisAlgorithm(DecompositionAlgorithm):
     algorithm: ClassVar[AlgorithmId] = AlgorithmId.FACTOR_ANALYSIS
     rotation: str = choice("none", "Rotation", ("none", "varimax", "quartimax"))
     iterations: int = setting(1000, "Iterations", 1, 10000)
@@ -66,7 +66,3 @@ class FactorAnalysisAlgorithm(FittedDecompositionAlgorithm):
             raise ValueError(
                 "Output dimensions exceed sampled rows or varying feature count"
             )
-
-
-# Legacy recipe/import name refers to this same algorithm, not a second record.
-FactorAnalysisParameters = FactorAnalysisAlgorithm

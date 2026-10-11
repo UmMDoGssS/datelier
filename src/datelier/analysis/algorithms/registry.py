@@ -1,6 +1,6 @@
 """Explicit trusted algorithm catalog; importing it never loads estimators."""
 
-from typing import TYPE_CHECKING
+from typing import cast, get_args
 
 from datelier.analysis.algorithm import Algorithm as AlgorithmId
 from datelier.analysis.algorithms.affinity_propagation import (
@@ -33,39 +33,40 @@ from datelier.analysis.algorithms.svd import SVDAlgorithm
 from datelier.analysis.algorithms.tsne import TSNEAlgorithm
 from datelier.analysis.algorithms.umap import UMAPAlgorithm
 
-if TYPE_CHECKING:
-    from datelier.analysis.types import Parameters
-
-ALGORITHMS: dict[AlgorithmId, type[Parameters]] = {
-    builder.algorithm: builder
-    for builder in (
-        KMeansAlgorithm,
-        DBSCANAlgorithm,
-        HDBSCANAlgorithm,
-        OPTICSAlgorithm,
-        MiniBatchAlgorithm,
-        GaussianMixtureAlgorithm,
-        BayesianMixtureAlgorithm,
-        AgglomerativeAlgorithm,
-        BirchAlgorithm,
-        MeanShiftAlgorithm,
-        SpectralClusteringAlgorithm,
-        AffinityPropagationAlgorithm,
-        SVDAlgorithm,
-        ICAAlgorithm,
-        FactorAnalysisAlgorithm,
-        KernelPCAAlgorithm,
-        NMFAlgorithm,
-        GaussianProjectionAlgorithm,
-        SparseProjectionAlgorithm,
-        IsomapAlgorithm,
-        MDSAlgorithm,
-        SpectralEmbeddingAlgorithm,
-        LLEAlgorithm,
-        PCAAlgorithm,
-        TSNEAlgorithm,
-        UMAPAlgorithm,
-    )
+AlgorithmInstance = (
+    KMeansAlgorithm
+    | DBSCANAlgorithm
+    | HDBSCANAlgorithm
+    | OPTICSAlgorithm
+    | MiniBatchAlgorithm
+    | GaussianMixtureAlgorithm
+    | BayesianMixtureAlgorithm
+    | AgglomerativeAlgorithm
+    | BirchAlgorithm
+    | MeanShiftAlgorithm
+    | SpectralClusteringAlgorithm
+    | AffinityPropagationAlgorithm
+    | SVDAlgorithm
+    | ICAAlgorithm
+    | FactorAnalysisAlgorithm
+    | KernelPCAAlgorithm
+    | NMFAlgorithm
+    | GaussianProjectionAlgorithm
+    | SparseProjectionAlgorithm
+    | IsomapAlgorithm
+    | MDSAlgorithm
+    | SpectralEmbeddingAlgorithm
+    | LLEAlgorithm
+    | PCAAlgorithm
+    | TSNEAlgorithm
+    | UMAPAlgorithm
+)
+# This union is defined from trusted local classes, never from recipe contents.
+_ALGORITHM_TYPES = cast(
+    tuple[type[AlgorithmInstance], ...], get_args(AlgorithmInstance)
+)
+ALGORITHMS: dict[AlgorithmId, type[AlgorithmInstance]] = {
+    method.algorithm: method for method in _ALGORITHM_TYPES
 }
 
 

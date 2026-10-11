@@ -56,7 +56,7 @@ def main() -> None:
                     return
                 if age < 6:
                     return
-                builder = controls.parameters[algorithm]
+                builder = controls.algorithms[algorithm]
                 expected: set[tuple[str, ...]] = {("limit", "value")}
                 for descriptor in builder.schema:
                     if descriptor.visible(builder):
@@ -80,14 +80,14 @@ def main() -> None:
                 if age > 6 and pointer.click(probe, ("PCA", "whiten", "value"), count):
                     stage, entered = stage + 1, count
             elif step == 1:
-                assert controls.parameters[Algorithm.PCA] == PCAParameters(whiten=True)
+                assert controls.algorithms[Algorithm.PCA] == PCAParameters(whiten=True)
                 file.analysis.panel_source = Algorithm.TSNE
                 if age > 6 and pointer.click(
                     probe, ("t-SNE", "learning_rate", "automatic", "value"), count
                 ):
                     stage, entered = stage + 1, count
             elif step == 2:
-                params = controls.parameters[Algorithm.TSNE]
+                params = controls.algorithms[Algorithm.TSNE]
                 assert (
                     isinstance(params, TSNEParameters) and params.learning_rate == 200
                 )
@@ -99,14 +99,14 @@ def main() -> None:
                 text.start("55", count)
                 stage, entered = stage + 1, count
             elif step == 4:
-                params = controls.parameters[Algorithm.TSNE]
+                params = controls.algorithms[Algorithm.TSNE]
                 assert isinstance(params, TSNEParameters) and params.learning_rate == 55
                 if pointer.click(
                     probe, ("t-SNE", "learning_rate", "automatic", "value"), count
                 ):
                     stage, entered = stage + 1, count
             elif step == 5:
-                params = controls.parameters[Algorithm.TSNE]
+                params = controls.algorithms[Algorithm.TSNE]
                 assert (
                     isinstance(params, TSNEParameters)
                     and params.learning_rate == "auto"
@@ -120,7 +120,7 @@ def main() -> None:
                 ):
                     stage, entered = stage + 1, count
             elif step == 6:
-                params = controls.parameters[Algorithm.TSNE]
+                params = controls.algorithms[Algorithm.TSNE]
                 assert isinstance(params, TSNEParameters) and params.learning_rate == 55
                 file.analysis.panel_source = Algorithm.MEAN_SHIFT
                 if age > 6 and pointer.click(
@@ -141,7 +141,7 @@ def main() -> None:
                 text.start("4", count)
                 stage, entered = stage + 1, count
             elif step == 10:
-                params = controls.parameters[Algorithm.KMEANS]
+                params = controls.algorithms[Algorithm.KMEANS]
                 assert isinstance(params, KMeansParameters) and params.clusters == 4
                 file.analysis.panel_source = Algorithm.PCA
                 stage, entered = stage + 1, count
@@ -159,7 +159,7 @@ def main() -> None:
                 imgui.get_io().add_key_event(imgui.Key.enter, False)
                 stage, entered = stage + 1, count
             elif step == 15 and age > 4:
-                assert controls.parameters[Algorithm.PCA] == PCAParameters(
+                assert controls.algorithms[Algorithm.PCA] == PCAParameters(
                     solver="full", whiten=True
                 )
                 assert path.read_bytes() == original

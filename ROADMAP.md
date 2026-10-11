@@ -955,4 +955,4 @@ The user clarified the analysis API on 2026-10-11: tunable fields and estimator
 execution must belong to the same algorithm object, with an explicit fit facade.
 
 - [x] Combine parameter records and executable algorithms; preserve recipe wire compatibility.
-- [ ] Simplify shared fit facades and verify the corrected design's full acceptance gates.
+- [x] Simplify shared fit facades and verify the corrected design's full acceptance gates.
