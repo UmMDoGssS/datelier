@@ -6,7 +6,7 @@ from collections.abc import Callable
 from imgui_bundle import imgui
 
 from datelier.gui.components.base import Component, FrameContext
-from datelier.gui.components.native import target
+from datelier.gui.components.native import label_text, target
 
 
 class Field(Component, ABC):
@@ -56,7 +56,7 @@ class ChoiceField[T](Field):
         changed, index = imgui.combo(
             "##" + self.key,
             choices.index(value) if value in choices else 0,
-            list(labels),
+            [label_text(label) for label in labels],
         )
         target(frame, "value")
         if changed:

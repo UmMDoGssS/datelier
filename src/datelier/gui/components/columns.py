@@ -130,7 +130,7 @@ class ColumnPicker(Container):
         caption = ", ".join(labels.get(name, name) for name in names[:2]) + (
             f" +{len(names) - 2}" if len(names) > 2 else ""
         )
-        if imgui.button((caption or "Choose columns") + "##open", (-1, 0)):
+        if imgui.button(label_text(caption or "Choose columns") + "##open", (-1, 0)):
             imgui.open_popup("picker")
         target(frame, "open")
         imgui.set_next_window_size((330, 310), imgui.Cond_.appearing)

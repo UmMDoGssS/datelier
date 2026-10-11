@@ -273,7 +273,7 @@ class WorkbenchPage(Page):
             (self.host.table, components.table),
         ):
             panel.children = (content,)
-        return FrameContext(
+        frame = FrameContext(
             ViewScope(
                 self.editor.active_id,
                 file.identity if file is not self.editor.active else "",
@@ -281,6 +281,14 @@ class WorkbenchPage(Page):
             ),
             self.probe,
         )
+        frame.measure(
+            "preview-gpu-retained",
+            (
+                sum(c.previews.retained_bytes for c in self.files.values()),
+                float(len(self.files)),
+            ),
+        )
+        return frame
 
     def _load_layout(
         self, layout: str, hidden: tuple[str, ...], customized: bool

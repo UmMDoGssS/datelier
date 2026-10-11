@@ -860,6 +860,32 @@ shell and browser regressions pass 179/281 frames at 16.26/14.94 ms p95. No impl
 analysis/playback or source modification. Remaining harness replacement and final
 integrated acceptance gates stay open.
 
+## Fresh Stage E21 — Specialized viewport and integrated GPU acceptance
+
+All nine sizes/themes pass native drag (+35 px), Expand, Restore and Auto for
+15 viewport instances: original images, complete text/token tables, waveform and
+spectrogram audio, mapped array pixels, numeric profiles, text length/frequency
+profiles, image dimension/color profiles and all four comparison families.
+Preparation/navigation use explicit controller commands; viewport gestures use
+actual synthetic native pointer input. This is automation evidence, not human UX
+acceptance. Shared picker captions and dynamic choice labels now also escape
+literal source hashes consistently.
+
+Each process additionally reopens/closes six file/array galleries, checking visible
+preview latency, current RSS growth, bounded application GPU texture payloads and
+zero retained textures after every closure. Transparent native-handle owners are
+used only by this gate because the ImGui binding does not support weak references;
+they track all production texture allocation sites, including focused images and
+spectrograms. Frame p95 is 18.61–31.78 ms; previews, RSS, close time and four workers
+pass the declared budgets. Source bytes and zero implicit ML/training/playback
+pass. This measures application texture payloads, not driver VRAM overhead.
+[Complete media matrix](evidence/gui-overhaul/fresh-media-matrix.json).
+
+Verification: 20 architecture/selector/media checks, scoped production/test/native
+script types (zero errors), full Ruff lint/format and whitespace checks pass.
+Full-project types remain open for historical GUI harnesses. Final caller
+consolidation, end-to-end/native regression and capability audit remain open.
+
 ## Baseline evidence
 
 Before implementation, 38 targeted editor/session/schema-role/profile-selection/
