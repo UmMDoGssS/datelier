@@ -20,6 +20,7 @@ from datelier.application.plot_settings import PlotState
 from datelier.application.profiles import ProfileController
 from datelier.application.record_views import RecordViews
 from datelier.application.records import RecordController
+from datelier.application.references import ReferenceController
 from datelier.application.schema import SchemaController
 from datelier.application.settings_restore import restore_analysis, restore_plots
 from datelier.application.sources.numeric import NumericSourceController
@@ -89,6 +90,7 @@ class FileController:
         )
         self.records = RecordController(self.selection, executor)
         self.references = ReferenceJobs(executor)
+        self.reference_tools = ReferenceController(self.references)
         self.arrays = ArrayJobs(executor, store=array_store)
         self.checkpoints = CheckpointJobs(executor)
         self.text = TextController(executor)
@@ -170,6 +172,8 @@ class FileController:
         self.images.settings = self.views.image
         self.audio.settings = self.views.audio
         self.references.settings = self.views.references
+        self.reference_tools.thumbnails = self.views.thumbnails
+        self.table.presentation.restore(self.views.presentation)
         imported = restored.inspection.imported
         if imported.array_catalog is not None:
             self.arrays.bind(
@@ -354,6 +358,7 @@ class FileController:
             self.plots.error = str(error)
         self.runtime.poll_prepared()
         self.table.refresh(active)
+        self.reference_tools.sync(self.table.reference_columns)
         self.profiles.poll(active, self.choices)
         if active and any(
             c.role in REFERENCE_ROLES for c in active.dataset.roles or ()

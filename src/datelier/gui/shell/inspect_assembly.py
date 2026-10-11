@@ -22,6 +22,7 @@ from datelier.gui.sources.browser import NumericBrowser, ObjectBrowser, SourceRo
 from datelier.gui.sources.numeric import NumericContent
 from datelier.gui.sources.routing import SourceInspection
 from datelier.gui.sources.views import RecordViewSelector
+from datelier.gui.table.cells import ReferenceFactory
 from datelier.inspection.annotations.association_types import AssociatedBox
 
 
@@ -33,7 +34,7 @@ class InspectComponents:
 
 
 def assemble_inspect(
-    file: FileController, editor: EditorController
+    file: FileController, editor: EditorController, preview: ReferenceFactory
 ) -> InspectComponents:
     viewport_factories = {
         RecordKind.IMAGE: lambda content: ResizableViewport(
@@ -78,7 +79,7 @@ def assemble_inspect(
 
     body = RecordBody(
         file.records,
-        file.references,
+        preview,
         {
             RecordKind.IMAGE: ImageContent(
                 file.images, annotation_rows, annotation_box

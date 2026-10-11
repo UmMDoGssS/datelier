@@ -30,6 +30,8 @@ def capture_views(file: FileController) -> WorkspaceViews:
         column_start=file.table.column_start,
         target_row=file.table.target_row,
         references=file.references.settings,
+        thumbnails=file.reference_tools.thumbnails,
+        presentation=file.table.presentation.settings,
         inspect=file.records.settings,
         array_slice=file.arrays.settings,
         array_retention_bytes=file.arrays.store.limit,

@@ -11,8 +11,8 @@ from datelier.gui.components.native import target
 from datelier.gui.components.viewport import ResizableViewport
 from datelier.gui.records.base import RecordContent
 from datelier.gui.records.values import GalleryContent, NestedContent, ValueContent
+from datelier.gui.table.cells import ReferenceFactory
 from datelier.inspection.records.types import RecordCard
-from datelier.inspection.references.jobs import ReferenceJobs
 
 
 class RecordHeader(Component):
@@ -73,7 +73,7 @@ class RecordBody(Container):
     def __init__(
         self,
         model: RecordController,
-        references: ReferenceJobs,
+        preview: ReferenceFactory,
         content: dict[RecordKind, RecordContent],
         viewport: Callable[[RecordKind, RecordContent], ResizableViewport],
     ) -> None:
@@ -89,7 +89,7 @@ class RecordBody(Container):
             for kind, child in self.content.items()
             if kind not in (RecordKind.TEXT, RecordKind.ARRAY)
         }
-        self.preview = GalleryContent(references)
+        self.preview = GalleryContent(preview)
         self.card: RecordCard | None = None
         self.gallery = True
         super().__init__("body", ())
@@ -160,7 +160,6 @@ class RecordCollection(Container):
     def render(self, frame: FrameContext) -> None:
         model, records = self.model, self.model.jobs.active
         imgui.text_wrapped(model.jobs.message)
-        self.body.preview.textures.begin_frame()
         if records is None or not len(records.positions):
             return
         if model.settings.gallery:
@@ -185,7 +184,18 @@ class RecordCollection(Container):
                             super().render(frame)
                         else:
                             imgui.text("Preparing record…")
-                        imgui.set_cursor_pos_y(y + 210)
+                        imgui.dummy(
+                            (
+                                0,
+                                max(
+                                    0,
+                                    y
+                                    + 210
+                                    - imgui.get_cursor_pos_y()
+                                    - imgui.get_style().item_spacing.y,
+                                ),
+                            )
+                        )
             imgui.end_child()
         else:
             focus = min(model.settings.focus, len(records.positions) - 1)

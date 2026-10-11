@@ -254,6 +254,7 @@ class WorkbenchPage(Page):
                 )
         file = self.editor.current
         components = self.files[file.identity]
+        components.prepare()
         for panel, content in (
             (
                 self.host.source,

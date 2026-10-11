@@ -537,6 +537,39 @@ Source bytes and zero implicit analysis/playback/collection work pass. Remaining
 table/reference/mapping controls, old caller migration and final integrated
 resource/size/theme acceptance remain open.
 
+## Fresh Stage E10 — Prepared table cells and shared reference previews
+
+The virtual table now composes prepared headers, source rows and styled
+text/reference cells. Physical types, interpretations, null/distinct counts and
+inference evidence are available without frame-time preparation. Numeric shading
+supports percentile, linear and validated custom ranges; categorical colors,
+null/nonfinite/out-of-range markers, badges and whole-row selection return.
+Native column identities stay stable when badges change. Array payload aliases
+remain distinct from filesystem references.
+
+Table and gallery reference renderers inherit a common preview family and borrow
+one file-owned texture cache. Pre-frame preparation owns invalidation, upload
+budget and teardown. Gallery images/text stay bounded, including fixed card
+spacing for short previews. Reference roots, filters, cache sizes, explicit
+retry/abandon and literal value mappings use shared fields/selectors. Ambiguity
+choosers virtualize candidates and retain their source revision; stale choices
+cannot map another row. Mapping never rewrites original cells. Styles, thumbnails
+and reference recipes restore independently per file/view.
+
+Verification: production/migrated caller Pyrefly zero errors; 73 rebuilt
+controller/session/reference/presentation checks and 11 focused new table/reference
+checks pass (with overlap). Full Ruff lint/format (740 files) and whitespace
+checks pass. Native mapping, custom shading/badges, sorted original-row selection,
+bounded text gallery and fresh-process restoration pass in 177/31 frames with
+17.55/12.23 ms p95. Three image assets retain 9,216 GPU bytes under the configured
+1 MiB budget; the shared cache uploads at most three per frame (limit four).
+[Table report](evidence/gui-overhaul/fresh-table.json).
+Original image pixels/text spans/audio waveform regress at 55 frames/23.56 ms
+p95. Basic sizing/navigation regresses at 64 frames/13.88 ms p95. Source bytes
+and zero implicit collection analysis/playback pass. Advanced mapping/browser
+controls, full old caller migration and final integrated resource/size/theme
+acceptance remain open.
+
 ## Baseline evidence
 
 Before implementation, 38 targeted editor/session/schema-role/profile-selection/

@@ -4,8 +4,7 @@ from imgui_bundle import imgui
 
 from datelier.gui.components.base import FrameContext
 from datelier.gui.records.base import RecordContent
-from datelier.gui.records.textures import TextureCache
-from datelier.inspection.references.jobs import ReferenceJobs
+from datelier.gui.table.cells import ReferenceFactory
 
 
 class ValueContent(RecordContent):
@@ -45,10 +44,9 @@ class NestedContent(RecordContent):
 
 
 class GalleryContent(RecordContent):
-    def __init__(self, references: ReferenceJobs) -> None:
+    def __init__(self, preview: ReferenceFactory) -> None:
         super().__init__("preview")
-        self.references = references
-        self.textures = TextureCache()
+        self.preview = preview
         self.height = 80
 
     def render(self, frame: FrameContext) -> None:
@@ -56,18 +54,14 @@ class GalleryContent(RecordContent):
         if primary is None:
             return
         if primary.reference:
-            resolution, preview = self.references.get(primary.name, primary.reference)
-            if preview:
-                if not self.textures.draw(
-                    preview, self.references.settings.gpu_bytes, 80
-                ):
-                    imgui.text_wrapped(preview.description or preview.message)
-                if preview.text:
-                    imgui.text_wrapped(preview.text[:256])
-            elif resolution and resolution.message:
-                imgui.text_wrapped(resolution.message)
-            else:
-                imgui.text("Preparing preview…")
+            if imgui.begin_child("reference-preview", (0, 80)):
+                self.children = (
+                    self.preview(
+                        primary.name, primary.reference, primary.text[:256], 80
+                    ),
+                )
+                super().render(frame)
+            imgui.end_child()
         else:
             if imgui.begin_child("excerpt", (0, 65)):
                 imgui.text_wrapped(primary.text[:512])
@@ -76,5 +70,4 @@ class GalleryContent(RecordContent):
             imgui.text_disabled("Truncated preview; open the record for full content.")
 
     def close(self) -> None:
-        self.textures.clear()
         super().close()

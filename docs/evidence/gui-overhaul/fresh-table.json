@@ -1,0 +1,28 @@
+{
+  "save": {
+    "mode": "save",
+    "frames": 177,
+    "p95_ms": 17.546908200165475,
+    "native_ambiguous_reference_choice": true,
+    "native_custom_shading_and_badges": true,
+    "native_original_sorted_row_selection": true,
+    "shared_preview_gpu_bytes_max": 9216.0,
+    "shared_uploads_per_frame_max": 2.0,
+    "bounded_gallery_text_excerpt": true,
+    "source_preserved": true,
+    "implicit_analysis_playback": false
+  },
+  "restore": {
+    "mode": "restore",
+    "frames": 31,
+    "p95_ms": 12.231360000441782,
+    "native_ambiguous_reference_choice": true,
+    "native_custom_shading_and_badges": true,
+    "native_original_sorted_row_selection": true,
+    "shared_preview_gpu_bytes_max": 9216.0,
+    "shared_uploads_per_frame_max": 3.0,
+    "bounded_gallery_text_excerpt": true,
+    "source_preserved": true,
+    "implicit_analysis_playback": false
+  }
+}

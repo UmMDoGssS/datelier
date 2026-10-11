@@ -22,6 +22,12 @@ from datelier.gui.profiles.audio import AudioProfileContent
 from datelier.gui.profiles.content import ProfileRouter
 from datelier.gui.profiles.images import ImageProfileContent
 from datelier.gui.profiles.text import TextProfileContent
+from datelier.gui.references.cache import PreviewTextures
+from datelier.gui.references.preview import (
+    GalleryReferencePreview,
+    ReferenceMappingPopup,
+    TableReferencePreview,
+)
 from datelier.gui.relationships.categories import CategoryRouter
 from datelier.gui.relationships.content import RelationshipContent
 from datelier.gui.relationships.matrix import CorrelationContent
@@ -44,6 +50,10 @@ class FileComponents:
     context: Component
     table: Component
     columns: Component
+    previews: PreviewTextures
+
+    def prepare(self) -> None:
+        self.previews.prepare()
 
     def close(self) -> None:
         for component in (
@@ -54,6 +64,7 @@ class FileComponents:
             self.columns,
         ):
             component.close()
+        self.previews.clear()
 
 
 def assemble_file(
@@ -150,7 +161,22 @@ def assemble_file(
             ),
         )
 
-    inspect = assemble_inspect(file, editor)
+    previews = PreviewTextures(file.references)
+    mapping_popup = ReferenceMappingPopup(file.reference_tools)
+
+    def preview(column: str, value: str, label: str, extent: float) -> Component:
+        return TableReferencePreview(
+            file.reference_tools, previews, mapping_popup, column, value, label, extent
+        )
+
+    def gallery_preview(
+        column: str, value: str, label: str, extent: float
+    ) -> Component:
+        return GalleryReferencePreview(
+            file.reference_tools, previews, mapping_popup, column, value, label, extent
+        )
+
+    inspect = assemble_inspect(file, editor, gallery_preview)
 
     def open_image_record(index: int) -> None:
         profile = file.images.profile_jobs.active
@@ -293,6 +319,12 @@ def assemble_file(
         ),
         canvas,
         context,
-        TableView(file.table),
+        TableView(
+            file.table,
+            preview,
+            file.reference_tools,
+            lambda: (float(previews.retained_bytes), float(previews.uploads)),
+        ),
         ColumnCatalog(file.schema),
+        previews,
     )
