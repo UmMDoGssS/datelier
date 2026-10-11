@@ -19,8 +19,10 @@ import polars as pl
 from imgui_bundle import hello_imgui
 from numpy.typing import NDArray
 
+from datelier.application.editor import EditorController
 from datelier.feasibility.fixtures import make_table
-from datelier.gui.app import GuiSession, InspectionEvidence, run_gui
+from datelier.gui.app import InspectionEvidence, run_gui
+from datelier.gui.components.probe import GuiProbe
 from datelier.inspection.table import prepare_inspection, prepare_page
 from datelier.io.csv import load_csv
 from datelier.io.exporting import ExportFormat, export_dataset
@@ -150,17 +152,25 @@ def gui_measure(rows: int, columns: int, output: Path) -> None:
     index, pending, completed = 0, False, 0
     started = 0.0
     times: list[float] = []
+    max_rendered_rows = 0
     with TemporaryDirectory(prefix="datelier-operation-gui-") as directory:
         path = Path(directory) / "source.csv"
         fixture(path, rows, columns)
         original = path.stat()
 
-        def frame(session: GuiSession, evidence: InspectionEvidence) -> None:
-            nonlocal index, pending, completed, started
+        def frame(
+            editor: EditorController, probe: GuiProbe, evidence: InspectionEvidence
+        ) -> None:
+            nonlocal index, pending, completed, started, max_rendered_rows
+            session = editor.current
+            visible = [
+                int(key.path[-3])
+                for key in probe.targets
+                if key.path[-2:] == ("source", "select")
+            ]
+            max_rendered_rows = max(max_rendered_rows, len(visible))
             if evidence.frames == 1:
-                hello_imgui.get_runner_params().docking_params.focus_dockable_window(
-                    "Transform and history"
-                )
+                editor.navigation.context_tab = "Transform"
             active = session.loader.active
             if active is None or session.editor.busy or evidence.frames < 30:
                 return
@@ -181,21 +191,16 @@ def gui_measure(rows: int, columns: int, output: Path) -> None:
                     session.table.column_start = 48
                 completed = evidence.frames
             elif evidence.frames > completed + 60:
-                assert (
-                    session.table.prepared_visible_rows
-                    == session.table.rendered_rows
-                    > 0
-                )
-                assert session.table.last_visible_row >= rows // 2 - 8
-                page = session.pages.get(
-                    session.table.last_visible_row, session.table.column_start
-                )
+                assert visible
+                last_position = max(visible)
+                assert last_position >= rows // 2 - 8
+                page = session.pages.get(last_position, session.table.column_start)
                 assert page is not None
-                offset = session.table.last_visible_row - page.row_start
-                assert page.row_ids[offset] == rows - 1 - session.table.last_visible_row
+                offset = last_position - page.row_start
+                assert page.row_ids[offset] == rows - 1 - last_position
                 hello_imgui.get_runner_params().app_shall_exit = True
 
-        evidence = run_gui(path, smoke_frames=6000, on_frame=frame)
+        evidence = run_gui(path, smoke_frames=6000, on_probe_frame=frame)
         assert index == len(actions) and completed
         after = path.stat()
         assert (after.st_size, after.st_mtime_ns) == (
@@ -204,7 +209,7 @@ def gui_measure(rows: int, columns: int, output: Path) -> None:
         )
         p95 = float(np.percentile(evidence.frame_intervals_ms, 95))
         peak = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
-        assert p95 <= 33 and peak <= 1024 and evidence.max_rendered_rows < 100
+        assert p95 <= 33 and peak <= 1024 and max_rendered_rows < 100
         pixels = cast(NDArray[np.uint8], hello_imgui.final_app_window_screenshot())
         height, width = pixels.shape[:2]
         output.write_bytes(
@@ -219,7 +224,7 @@ def gui_measure(rows: int, columns: int, output: Path) -> None:
             "edit_to_prepared_ms": times,
             "source_preserved": True,
             "last_page_identity": True,
-            "max_rendered_rows": evidence.max_rendered_rows,
+            "max_rendered_rows": max_rendered_rows,
         }
         output.with_suffix(".json").write_text(json.dumps(report, indent=2) + "\n")
         print(json.dumps(report))

@@ -1,0 +1,202 @@
+{
+  "worker": {
+    "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+    "python": "3.14.7",
+    "cpu": "13th Gen Intel(R) Core(TM) i7-13620H",
+    "logical_cpus": 16,
+    "ram_bytes": 33255612416,
+    "polars_threads": 8,
+    "versions": {
+      "polars": "1.44.2",
+      "imgui-bundle": "1.92.900",
+      "numpy": "2.5.3"
+    },
+    "fixture_types": "Int64 row_id, Float64 numeric features, String category; null every 17 rows in last feature",
+    "measurements": [
+      {
+        "rows": 10000,
+        "columns": 8,
+        "source_bytes": 1230160,
+        "operations": [
+          {
+            "operation": "Sort row_id descending",
+            "ms": 2.1645349988830276
+          },
+          {
+            "operation": "Filter row_id >= 5000",
+            "ms": 1.4886460048728622
+          },
+          {
+            "operation": "Fill missing feature_5 with 0",
+            "ms": 2.0044949997100048
+          },
+          {
+            "operation": "Map category: 3 entries to String; Reject unmatched",
+            "ms": 1.398989996232558
+          },
+          {
+            "operation": "Derive score = col(\"feature_0\") * 2 + 1",
+            "ms": 1.5671270011807792
+          }
+        ],
+        "replay_ms": 5.486285997903906,
+        "undo_redo_ms": 6.760331998520996,
+        "summary_ms": 2.2579769938602112,
+        "last_page_ms": 1.1486820003483444,
+        "export_ms": {
+          "CSV": 1.7875949997687712,
+          "Parquet": 1.4175010001054034
+        },
+        "peak_rss_mib": 214.875
+      },
+      {
+        "rows": 100000,
+        "columns": 8,
+        "source_bytes": 12401156,
+        "operations": [
+          {
+            "operation": "Sort row_id descending",
+            "ms": 6.124261002696585
+          },
+          {
+            "operation": "Filter row_id >= 50000",
+            "ms": 3.374911997525487
+          },
+          {
+            "operation": "Fill missing feature_5 with 0",
+            "ms": 3.538714998285286
+          },
+          {
+            "operation": "Map category: 3 entries to String; Reject unmatched",
+            "ms": 3.4779540001181886
+          },
+          {
+            "operation": "Derive score = col(\"feature_0\") * 2 + 1",
+            "ms": 4.0382730003329925
+          }
+        ],
+        "replay_ms": 19.38027700089151,
+        "undo_redo_ms": 18.934960004116874,
+        "summary_ms": 4.504344004089944,
+        "last_page_ms": 1.1602329977904446,
+        "export_ms": {
+          "CSV": 7.147406999138184,
+          "Parquet": 2.847042000212241
+        },
+        "peak_rss_mib": 275.03515625
+      },
+      {
+        "rows": 1000000,
+        "columns": 8,
+        "source_bytes": 125011521,
+        "operations": [
+          {
+            "operation": "Sort row_id descending",
+            "ms": 44.328632997348905
+          },
+          {
+            "operation": "Filter row_id >= 500000",
+            "ms": 20.173533004708588
+          },
+          {
+            "operation": "Fill missing feature_5 with 0",
+            "ms": 17.01560400397284
+          },
+          {
+            "operation": "Map category: 3 entries to String; Reject unmatched",
+            "ms": 19.80097499472322
+          },
+          {
+            "operation": "Derive score = col(\"feature_0\") * 2 + 1",
+            "ms": 24.95830099360319
+          }
+        ],
+        "replay_ms": 113.06902899377747,
+        "undo_redo_ms": 137.76984400465153,
+        "summary_ms": 28.217497005243786,
+        "last_page_ms": 1.3006349981878884,
+        "export_ms": {
+          "CSV": 22.610168998653535,
+          "Parquet": 8.43057400197722
+        },
+        "peak_rss_mib": 702.703125
+      },
+      {
+        "rows": 100000,
+        "columns": 66,
+        "source_bytes": 119849476,
+        "operations": [
+          {
+            "operation": "Sort row_id descending",
+            "ms": 38.12724399904255
+          },
+          {
+            "operation": "Filter row_id >= 50000",
+            "ms": 18.81263700488489
+          },
+          {
+            "operation": "Fill missing feature_63 with 0",
+            "ms": 19.747325997741427
+          },
+          {
+            "operation": "Map category: 3 entries to String; Reject unmatched",
+            "ms": 20.6070770000224
+          },
+          {
+            "operation": "Derive score = col(\"feature_0\") * 2 + 1",
+            "ms": 17.43818199611269
+          }
+        ],
+        "replay_ms": 113.85101199994097,
+        "undo_redo_ms": 213.72263800003566,
+        "summary_ms": 27.050805001636036,
+        "last_page_ms": 1.3653190035256557,
+        "export_ms": {
+          "CSV": 30.395002002478577,
+          "Parquet": 6.466317005106248
+        },
+        "peak_rss_mib": 631.41015625
+      }
+    ]
+  },
+  "native": [
+    {
+      "rows": 1000000,
+      "columns": 8,
+      "frames": 180,
+      "frame_p95_ms": 17.48961789817258,
+      "peak_rss_mib": 838.31640625,
+      "edit_to_prepared_ms": [
+        254.03789200208848,
+        125.85878699610475,
+        256.9195380056044,
+        105.43465000228025,
+        173.86012900533387,
+        363.97175199817866,
+        109.18215499987127
+      ],
+      "source_preserved": true,
+      "last_page_identity": true,
+      "max_rendered_rows": 6
+    },
+    {
+      "rows": 100000,
+      "columns": 66,
+      "frames": 248,
+      "frame_p95_ms": 15.813199246986185,
+      "peak_rss_mib": 673.75,
+      "edit_to_prepared_ms": [
+        289.65584999968996,
+        223.88333799608517,
+        456.706266006222,
+        177.36014100228203,
+        207.99917800468393,
+        582.8121539962012,
+        161.09804299776442
+      ],
+      "source_preserved": true,
+      "last_page_identity": true,
+      "max_rendered_rows": 6
+    }
+  ]
+}

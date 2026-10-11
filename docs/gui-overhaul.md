@@ -962,6 +962,23 @@ Verification: 30 token/span/page/profile/comparison checks, scoped types (zero
 errors), full Ruff lint/format and whitespace checks pass. Remaining historical
 caller consolidation and final integrated acceptance stay open.
 
+## Fresh E25 — Operation benchmark caller migration
+
+The original transform/replay/export benchmark retains its four fixtures and
+budgets. Its native callback now uses the editor controller and frame-local row
+probes instead of removed widget fields. All five operations, Undo/Redo, source
+preservation and the final-page source identity pass. The isolated million-row
+run passes 180 frames at 17.49 ms p95 and 838.32 MiB peak RSS; the 100,000-row,
+66-column run passes 248 frames at 15.81 ms and 673.75 MiB. Only six visible rows
+are rendered. All four worker fixtures pass the original summary/page/memory
+budgets and CSV/Parquet round trips. Evidence is in
+[evidence/gui-overhaul/fresh-operation-resources.json](evidence/gui-overhaul/fresh-operation-resources.json).
+
+Scoped production/test/benchmark Pyrefly passes with zero errors. Focused editing
+and exporting tests, full Ruff checks and diff whitespace pass. The full type
+check still reports obsolete GUI script callers; final auditing and merge remain
+open.
+
 ## Baseline evidence
 
 Before implementation, 38 targeted editor/session/schema-role/profile-selection/
