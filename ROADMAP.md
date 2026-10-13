@@ -986,3 +986,13 @@ Preserve class/recipe identifiers, data invariants, computation and GUI behavior
 - [x] Group application controllers and settings; focused verification and commit.
 - [x] Group shared GUI controls, context forms, profiles, relationships and comparisons; verification and commit.
 - [x] Audit the entire source tree, imports and wheel; full suite and native workflow/restoration acceptance.
+
+## Row inspection presentation follow-up — authorized 2026-10-13
+
+[Presentation evidence](docs/row-inspection-presentation.md) tracks the requested
+preview colors, type-neutral Inspect layouts and wider profile comparisons.
+
+- [x] Highlight null cells in bold black on opaque white; shade Text lengths with Viridis.
+- [ ] Show all selected row fields in gallery name/value tables and ruled focused sections; retain lazy media and detailed tools.
+- [ ] Pivot profile statistics into separate columns and separate displayed plot hues deterministically.
+- [ ] Verify full-suite and native workflow acceptance.

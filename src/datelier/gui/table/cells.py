@@ -5,6 +5,7 @@ from collections.abc import Callable
 from imgui_bundle import imgui
 
 from datelier.application.tabular import TableColumn
+from datelier.gui import fonts
 from datelier.gui.components.layout import Component, Container, FrameContext
 from datelier.gui.components.native import target
 from datelier.inspection.presentation import (
@@ -56,13 +57,28 @@ class TableCell(Container):
 
     def render(self, frame: FrameContext) -> None:
         imgui.push_id(self.key)
-        if self.style and self.style.rgba and not self.selected:
+        if self.style and self.style.rgba and (not self.selected or self.style.opaque):
             light = imgui.get_style_color_vec4(imgui.Col_.window_bg).x > 0.5
             imgui.table_set_bg_color(
                 imgui.TableBgTarget_.cell_bg,
                 imgui.get_color_u32(
-                    imgui.ImVec4(*self.style.rgba, 0.25 if light else 0.35)
+                    imgui.ImVec4(
+                        *self.style.rgba,
+                        1 if self.style.opaque else 0.25 if light else 0.35,
+                    )
                 ),
             )
+        foreground = self.style.foreground if self.style else None
+        bold = bool(self.style and self.style.bold and fonts.bold_font)
+        if foreground:
+            imgui.push_style_color(imgui.Col_.text, imgui.ImVec4(*foreground, 1))
+        if bold:
+            imgui.push_font(fonts.bold_font, imgui.get_font_size())
         super().render(frame)
+        if bold:
+            imgui.pop_font()
+        if foreground:
+            imgui.pop_style_color()
+        if self.style:
+            frame.measure("style", (float(self.style.opaque), float(bold)))
         imgui.pop_id()

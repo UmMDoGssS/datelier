@@ -86,7 +86,8 @@ class TableControls(Container):
         help_tip(
             "Click a source row to select; Ctrl-click toggles. "
             "Blue/red means low/high. < / > marks values outside the scale; "
-            "= marks a flat scale; (null) is null; ! is nonfinite."
+            "Text length uses Viridis (purple to yellow). "
+            "= marks a flat scale; bold black on white is null; ! is nonfinite."
         )
 
 

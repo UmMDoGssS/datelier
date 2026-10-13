@@ -29,6 +29,9 @@ def test_typed_null_differs_from_literal_null_and_nonfinite() -> None:
     assert data.first_page.rows[0][1] == data.first_page.rows[1][1] == "NULL"
     assert cells[0][1].is_null and not cells[1][1].is_null
     assert cell_style(cells[0][1], None, TablePresentation()).marker == "(null)"
+    null_style = cell_style(cells[0][1], None, TablePresentation())
+    assert null_style.rgba == (1, 1, 1) and null_style.foreground == (0, 0, 0)
+    assert null_style.bold and null_style.opaque
     assert not cell_style(cells[1][1], None, TablePresentation()).marker
     assert cells[2][0].nonfinite and cells[3][0].nonfinite
     assert cell_style(cells[2][0], data.bounds[0], TablePresentation()).marker == "!"
@@ -91,3 +94,21 @@ def test_category_palette_is_stable_after_sort_filter_and_undo() -> None:
     )
     assert restored.first_page.cells == data.first_page.cells
     assert cell_style(original, None, TablePresentation(enabled=False)).rgba is None
+
+
+def test_text_length_uses_original_unicode_length_and_viridis() -> None:
+    data = inspect(
+        pl.DataFrame({"id": [1, 2, 3, 4], "text": ["", "中文🙂", "x" * 500, None]})
+    )
+    bounds = next(b for b in data.bounds if b.column == "text")
+    assert bounds.minimum == 0 and bounds.maximum == 500
+    cells = [row[1] for row in data.first_page.cells]
+    assert [cell.text_length for cell in cells] == [0, 3, 500, None]
+    assert len(data.first_page.rows[2][1]) == 257
+    settings = TablePresentation(scale=NumericScale.LINEAR)
+    low, high = [cell_style(cells[i], bounds, settings) for i in (0, 2)]
+    assert low.rgba == (0.267004, 0.004874, 0.329415)
+    assert high.rgba == pytest.approx((0.993248, 0.906157, 0.143936))
+    assert cell_style(cells[3], bounds, settings).opaque
+    custom = replace(settings, scale=NumericScale.CUSTOM, minimum=1, maximum=10)
+    assert cell_style(cells[2], bounds, custom).marker == ">"
