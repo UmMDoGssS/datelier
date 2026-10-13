@@ -119,17 +119,15 @@ class WorkbenchPage(Page):
                             "Reset layout",
                             lambda: setattr(self.host, "reset", True),
                         ),
-                        MenuAction(
-                            "context",
-                            "Context",
-                            self.host.toggle_context,
-                            lambda: self.host.context.visible,
-                        ),
-                        MenuAction(
-                            "table",
-                            "Table",
-                            self.host.toggle_table,
-                            lambda: self.host.table.visible,
+                        *(
+                            MenuAction(
+                                panel.key,
+                                panel.label,
+                                panel.toggle,
+                                lambda panel=panel: panel.visible,
+                            )
+                            for panel in self.host.children
+                            if isinstance(panel, DockPanel)
                         ),
                     ),
                 ),

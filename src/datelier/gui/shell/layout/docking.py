@@ -12,6 +12,9 @@ class DockPanel(Panel):
         self.visible = True
         self.drawer = False
 
+    def toggle(self) -> None:
+        self.visible = not self.visible
+
     def render(self, frame: FrameContext) -> None:
         if not self.visible:
             return

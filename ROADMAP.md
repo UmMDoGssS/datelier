@@ -1006,3 +1006,12 @@ colors, element means and sharp source-pixel rendering.
 - [x] Color lists/generic arrays and Table array-images by element means in workers.
 - [x] Preserve sharp pixels in image previews and magnification.
 - [x] Verify full-suite, native and restoration acceptance.
+
+## Panel visibility and file tabs — authorized 2026-10-13
+
+[Navigation evidence](docs/panel-visibility-and-tabs.md) tracks individual panel
+recovery and simplified file-tab controls.
+
+- [x] Add View switches for every closable panel.
+- [ ] Remove the Context/Table toolbar buttons and place `+` beside file tabs.
+- [ ] Verify native menu/tab input, restoration and the full suite.
