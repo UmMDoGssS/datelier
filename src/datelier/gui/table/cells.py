@@ -40,10 +40,11 @@ class TableCell(Container):
         reference: str | None = None,
         preview: ReferenceFactory | None = None,
         content: Component | None = None,
+        shade: bool = True,
     ) -> None:
         self.style = (
             cell_style(cell, column.bounds if column else None, settings)
-            if cell
+            if cell and shade
             else None
         )
         self.selected = selected
@@ -82,4 +83,11 @@ class TableCell(Container):
             imgui.pop_style_color()
         if self.style:
             frame.measure("style", (float(self.style.opaque), float(bold)))
+        frame.measure(
+            "background",
+            (
+                float(bool(self.style and self.style.rgba)),
+                float(bool(self.style and self.style.opaque)),
+            ),
+        )
         imgui.pop_id()

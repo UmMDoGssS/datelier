@@ -56,6 +56,14 @@ def main() -> None:
             or (args.mode == "detail" and len(fields) >= 6)
         )
         if args.mode == "detail":
+            image_backgrounds = [
+                value[0]
+                for key, value in probe.measurements.items()
+                if key.path[-1:] == ("background",)
+                and "records" in key.path
+                and ("image" in key.path or "other_image" in key.path)
+            ]
+            assert not any(image_backgrounds)
             shown = {
                 "image" if "image" in key.path else "other_image"
                 for key, value in probe.measurements.items()

@@ -996,3 +996,13 @@ preview colors, type-neutral Inspect layouts and wider profile comparisons.
 - [x] Show all selected row fields in gallery name/value tables and ruled focused sections; retain lazy media and detailed tools.
 - [x] Pivot profile statistics into separate columns and separate displayed plot hues deterministically.
 - [x] Verify full-suite and native workflow acceptance.
+
+## Container colors and pixel rendering — authorized 2026-10-13
+
+[Refinement evidence](docs/container-colors-and-pixels.md) tracks role-specific
+colors, element means and sharp source-pixel rendering.
+
+- [x] Keep identifiers neutral and remove Inspect image/heatmap backgrounds.
+- [ ] Color lists/generic arrays and Table array-images by element means in workers.
+- [ ] Preserve sharp pixels in image previews and magnification.
+- [ ] Verify full-suite, native and restoration acceptance.

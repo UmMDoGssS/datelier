@@ -4,7 +4,7 @@ from pathlib import Path
 import polars as pl
 import pytest
 
-from datelier.core import Dataset, SourceReference
+from datelier.core import ColumnRole, Dataset, SourceReference
 from datelier.inspection.presentation import NumericScale, TablePresentation, cell_style
 from datelier.inspection.table import Inspection, prepare_inspection
 from datelier.io.types import CsvOptions, ImportResult
@@ -135,3 +135,21 @@ def test_repeated_and_categorical_strings_use_crest_lengths(dtype: pl.DataType) 
     assert cell_style(
         data.first_page.cells[1][1], bounds, settings
     ).rgba == pytest.approx((0.17363177, 0.19076859, 0.44549087))
+
+
+def test_identifier_values_are_neutral_and_role_overrides_are_reversible() -> None:
+    data = inspect(pl.DataFrame({"id": ["one", "a longer identifier", None]}))
+    identifier = data.dataset.with_role("id", ColumnRole.IDENTIFIER)
+    neutral = prepare_inspection(replace(data.imported, dataset=identifier))
+    assert not neutral.bounds
+    assert (
+        cell_style(neutral.first_page.cells[0][0], None, TablePresentation()).rgba
+        is None
+    )
+    assert cell_style(neutral.first_page.cells[2][0], None, TablePresentation()).opaque
+    text = prepare_inspection(
+        replace(data.imported, dataset=identifier.with_role("id", ColumnRole.TEXT))
+    )
+    assert cell_style(
+        text.first_page.cells[0][0], text.bounds[0], TablePresentation()
+    ).rgba

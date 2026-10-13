@@ -63,11 +63,11 @@ class FieldValue(Container):
             else None
         )
         self.card = replace(card, primary=field, fields=())
+        kind = model.kind(self.card)
         self.preview = preview
         self.show_preview = (
             not field.is_null
-            and model.kind(self.card)
-            in (RecordKind.IMAGE, RecordKind.AUDIO, RecordKind.ARRAY)
+            and kind in (RecordKind.IMAGE, RecordKind.AUDIO, RecordKind.ARRAY)
             or field.reference is not None
         )
         # Mapped arbitrary arrays also have a lazy preview route (metadata text
@@ -87,6 +87,7 @@ class FieldValue(Container):
                     field.cell or CellPresentation(field.is_null),
                     table.presentation.settings,
                     content=content,
+                    shade=kind != RecordKind.IMAGE,
                 ),
             ),
         )

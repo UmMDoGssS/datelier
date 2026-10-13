@@ -210,6 +210,9 @@ The row inspection presentation follow-up passes on 2026-10-13;
 [docs/row-inspection-presentation.md](docs/row-inspection-presentation.md) tracks
 shared null/string styling, type-neutral detailed rows and profile comparisons.
 Inspect defaults to all columns and retains explicit column selection.
+The subsequent container-color and pixel-rendering refinement is authorized;
+[docs/container-colors-and-pixels.md](docs/container-colors-and-pixels.md) tracks
+neutral identifiers, untinted Inspect images, element-mean colors and sharp pixels.
 
 - Separate import adapters, dataset and operation state, profiling, plotting
   preparation, analysis, persistence, and GUI rendering. Keep boundaries typed

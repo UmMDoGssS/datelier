@@ -68,7 +68,8 @@ def prepare_bounds(dataset: Dataset) -> tuple[NumericBounds, ...]:
     strings = tuple(
         name
         for name, dtype in table.schema.items()
-        if dtype in (pl.String, pl.Categorical) or isinstance(dtype, pl.Enum)
+        if (dtype in (pl.String, pl.Categorical) or isinstance(dtype, pl.Enum))
+        and dataset.role(name).role != ColumnRole.IDENTIFIER
     )
     for name in (
         *dataset.columns_for(ColumnRole.NUMERIC),
@@ -95,9 +96,10 @@ def prepare_bounds(dataset: Dataset) -> tuple[NumericBounds, ...]:
 def prepare_cell(value: object, role: ColumnRole) -> CellPresentation:
     if value is None:
         return CellPresentation(True)
+    if role in (ColumnRole.IDENTIFIER, ColumnRole.LIST_IDENTIFIER):
+        return CellPresentation(False)
     if role in (
         ColumnRole.TEXT,
-        ColumnRole.IDENTIFIER,
         *REFERENCE_ROLES,
     ) and isinstance(value, str):
         return CellPresentation(False, text_length=len(value))
