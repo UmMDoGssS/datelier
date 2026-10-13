@@ -13,7 +13,7 @@ Images must retain sharp original pixels when enlarged.
   identity, visible diagnostics and unchanged payloads.
 - [x] Remove image smoothing in preview reduction and native magnification;
   verify original colors/pixels.
-- [ ] Full-suite, native and restoration acceptance.
+- [x] Full-suite, native and restoration acceptance.
 
 Step 1 passes 17 focused table/record tests, full Pyrefly/Ruff checks and the
 native detailed-row smoke. Identifier overrides can be changed reversibly to
@@ -43,7 +43,8 @@ interpolated colors, verifying sampling restoration. GPU textures and sampler
 objects are disposed with their GUI owners. Thumbnail reduction uses explicit
 nearest sampling, with original-palette/source-preservation tests.
 
-The installed OpenGL backend overrides per-texture filtering. Bundle's Python
+The installed [OpenGL backend](https://github.com/ocornut/imgui/blob/v1.92.9/backends/imgui_impl_opengl3.cpp)
+overrides per-texture filtering. Bundle's Python
 bindings omit draw callbacks, so a narrow Linux OpenGL bridge calls the exported
 public `ImDrawList::AddCallback` API with opaque pointers and scopes a nearest
 sampler to each image draw. It restores the previous sampler for subsequent
@@ -55,3 +56,26 @@ The complete native sorted-gallery workflow passes again with 39 frames,
 approximately 14.8 ms p95, a 56.3 ms first preview and unchanged GPU budgets.
 One preceding run missed its synthetic record-open click; the fresh rerun
 verified the input transition and exact original-pixel values.
+
+Final acceptance passes 1,214 tests (three existing PyTorch warnings), full
+Pyrefly (zero errors) and Ruff lint/format checks. Detailed Inspect passes in
+Dark and Light themes with both image fields visible. The dedicated compressed
+NPZ workspace gate saves in 27 frames and restores in a separate process in 26,
+preserving selected columns, focused row, custom color range and image viewport.
+Sorted source identity, exact element means and original pixel values match in
+both processes. The existing whole-session workspace gate also passes (24/31
+frames). Sources stay unchanged and neither ML nor playback starts implicitly.
+
+Reproduce the native gates with `LIBGL_ALWAYS_SOFTWARE=1 POLARS_MAX_THREADS=8`
+and `uv run python` for:
+
+- `scripts/rebuild_container_colors_smoke.py`
+- `scripts/rebuild_image_sampling_smoke.py` (also `--fractional`)
+- `scripts/rebuild_container_restore_smoke.py`
+- `scripts/rebuild_gallery_smoke.py`
+- `scripts/rebuild_row_inspection_smoke.py --mode detail` (Dark and `--theme Light`)
+- `scripts/rebuild_workspace_smoke.py`
+
+JSON evidence and checkerboard screenshots are written under `/tmp/datelier-*`.
+Existing human listening, Titanic usability and accelerated/platform rendering
+assumptions retain their status.

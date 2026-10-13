@@ -1003,6 +1003,6 @@ preview colors, type-neutral Inspect layouts and wider profile comparisons.
 colors, element means and sharp source-pixel rendering.
 
 - [x] Keep identifiers neutral and remove Inspect image/heatmap backgrounds.
-- [ ] Color lists/generic arrays and Table array-images by element means in workers.
-- [ ] Preserve sharp pixels in image previews and magnification.
-- [ ] Verify full-suite, native and restoration acceptance.
+- [x] Color lists/generic arrays and Table array-images by element means in workers.
+- [x] Preserve sharp pixels in image previews and magnification.
+- [x] Verify full-suite, native and restoration acceptance.
