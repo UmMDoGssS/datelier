@@ -7,6 +7,7 @@ import numpy as np
 from imgui_bundle import hello_imgui, imgui
 from numpy.typing import NDArray
 
+from datelier.gui.records.media.sampling import NearestSampling
 from datelier.inspection.references import AssetPreview
 
 
@@ -19,6 +20,7 @@ class TextureCache:
         self._invalid = False
         self.uploads = 0
         self.shown = 0
+        self.sampling = NearestSampling()
 
     @property
     def retained_bytes(self) -> int:
@@ -37,6 +39,10 @@ class TextureCache:
     def clear(self) -> None:
         self._textures.clear()
         self._used.clear()
+
+    def close(self) -> None:
+        self.clear()
+        self.sampling.close()
 
     def draw(self, preview: AssetPreview, limit: int, extent: float) -> bool:
         rgba = preview.rgba
@@ -65,9 +71,10 @@ class TextureCache:
         self._used.add(asset)
         texture = cached[0]
         scale = min(extent / texture.width, extent / texture.height)
-        imgui.image(
-            imgui.ImTextureRef(texture.texture_id()),
-            (texture.width * scale, texture.height * scale),
-        )
+        with self.sampling.draw():
+            imgui.image(
+                imgui.ImTextureRef(texture.texture_id()),
+                (texture.width * scale, texture.height * scale),
+            )
         self.shown += 1
         return True

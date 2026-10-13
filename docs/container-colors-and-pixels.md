@@ -11,7 +11,7 @@ Images must retain sharp original pixels when enlarged.
   ordinary cells, including missing identifiers.
 - [x] Prepare list/array element means in bounded workers with preserved source
   identity, visible diagnostics and unchanged payloads.
-- [ ] Remove image smoothing in preview reduction and native magnification;
+- [x] Remove image smoothing in preview reduction and native magnification;
   verify original colors/pixels.
 - [ ] Full-suite, native and restoration acceptance.
 
@@ -34,3 +34,24 @@ Sorting retains source row identity and original payloads remain unchanged.
 The native container smoke verifies neutral identifiers, unshaded Inspect image
 previews and colored generic arrays. The existing gallery smoke passes with
 39 frames, approximately 15.6 ms p95 and 42,848 retained GPU bytes.
+
+Step 3 passes 61 focused reference/image/heatmap/gallery tests, full Pyrefly/Ruff
+checks, and native integer/fractional zoom-and-pan framebuffer gates. Both the
+production preview cache and original-pixel canvas render the checkerboard with
+only its two original colors. A following control texture still has 164/244
+interpolated colors, verifying sampling restoration. GPU textures and sampler
+objects are disposed with their GUI owners. Thumbnail reduction uses explicit
+nearest sampling, with original-palette/source-preservation tests.
+
+The installed OpenGL backend overrides per-texture filtering. Bundle's Python
+bindings omit draw callbacks, so a narrow Linux OpenGL bridge calls the exported
+public `ImDrawList::AddCallback` API with opaque pointers and scopes a nearest
+sampler to each image draw. It restores the previous sampler for subsequent
+text/plots. No internal ImGui struct layouts are accessed. Rerun the framebuffer
+gate when updating ImGui Bundle. These native gates verify Linux Mesa; other
+renderers/platforms remain unverified.
+
+The complete native sorted-gallery workflow passes again with 39 frames,
+approximately 14.8 ms p95, a 56.3 ms first preview and unchanged GPU budgets.
+One preceding run missed its synthetic record-open click; the fresh rerun
+verified the input transition and exact original-pixel values.

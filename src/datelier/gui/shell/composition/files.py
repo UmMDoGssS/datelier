@@ -66,7 +66,7 @@ class FileComponents:
             self.columns,
         ):
             component.close()
-        self.previews.clear()
+        self.previews.close()
 
 
 def assemble_file(

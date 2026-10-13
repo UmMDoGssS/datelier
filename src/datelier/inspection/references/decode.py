@@ -19,7 +19,7 @@ def decode(asset: AssetIdentity, size: int) -> AssetPreview:
                     description = (
                         f"{image.width}×{image.height} {image.mode}; first frame"
                     )
-                    image.thumbnail((size, size))
+                    image.thumbnail((size, size), Image.Resampling.NEAREST)
                     oriented = ImageOps.exif_transpose(image)
                     rgba = np.asarray(oriented.convert("RGBA")).copy()
                     rgba.flags.writeable = False

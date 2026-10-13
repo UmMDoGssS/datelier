@@ -3,6 +3,7 @@ from pathlib import Path
 from threading import Event
 from time import monotonic, sleep
 
+import numpy as np
 import polars as pl
 from PIL import Image
 
@@ -81,6 +82,22 @@ def test_thumbnail_text_and_changed_or_corrupt_assets(tmp_path: Path) -> None:
     assert len(excerpt.text.encode()) == 4096 and "truncated" in excerpt.description
     text.write_text("changed")
     assert "changed while decoding" in decode(asset, 128).message
+
+
+def test_thumbnail_reduction_preserves_pixel_palette(tmp_path: Path) -> None:
+    path = tmp_path / "pixel-art.png"
+    pixels = np.zeros((257, 513, 4), dtype=np.uint8)
+    pixels[:, :, 3] = 255
+    pixels[:, :256, :3] = (255, 90, 10)
+    Image.fromarray(pixels).save(path)
+    original = path.read_bytes()
+    asset = resolve(path, "image", str(path), ReferenceSettings(), None).asset
+    assert asset
+    preview = decode(asset, 64)
+    assert preview.rgba is not None
+    palette = set(map(tuple, preview.rgba.reshape(-1, 4).tolist()))
+    assert palette <= {(0, 0, 0, 255), (255, 90, 10, 255)}
+    assert len(palette) == 2 and path.read_bytes() == original
 
 
 def wait_preview(jobs: ReferenceJobs, column: str, value: str) -> None:

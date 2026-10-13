@@ -2,6 +2,7 @@
 
 from imgui_bundle import hello_imgui, imgui
 
+from datelier.gui.records.media.sampling import NearestSampling
 from datelier.inspection.images.geometry import source_pixel
 from datelier.inspection.images.types import PreparedImage
 from datelier.inspection.images.viewport import ImageViewport
@@ -18,6 +19,7 @@ class PixelSurface:
         self.bounds: tuple[float, float, float, float] | None = None
         self.clicked: tuple[float, float] | None = None
         self._drag_view: ImageViewport | None = None
+        self.sampling = NearestSampling()
 
     @property
     def retained_bytes(self) -> int:
@@ -31,6 +33,10 @@ class PixelSurface:
         self.readout = None
         self._drag_view = None
         self.clicked = None
+
+    def close(self) -> None:
+        self.clear()
+        self.sampling.close()
 
     def draw(
         self,
@@ -75,11 +81,15 @@ class PixelSurface:
             x = origin.x + (window.left - viewport.left) * viewport.zoom
             y = origin.y + (window.top - viewport.top) * viewport.zoom
             draw.push_clip_rect(origin, (origin.x + size[0], origin.y + size[1]), True)
-            draw.add_image(
-                imgui.ImTextureRef(self.texture.texture_id()),
-                (x, y),
-                (x + window.width * viewport.zoom, y + window.height * viewport.zoom),
-            )
+            with self.sampling.draw():
+                draw.add_image(
+                    imgui.ImTextureRef(self.texture.texture_id()),
+                    (x, y),
+                    (
+                        x + window.width * viewport.zoom,
+                        y + window.height * viewport.zoom,
+                    ),
+                )
             draw.pop_clip_rect()
             self.shown += 1
             if hovered:

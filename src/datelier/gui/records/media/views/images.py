@@ -94,5 +94,5 @@ class ImageContent(RecordContent):
         super().render(frame)
 
     def close(self) -> None:
-        self.surface.clear()
+        self.surface.close()
         super().close()
