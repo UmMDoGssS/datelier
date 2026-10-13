@@ -74,13 +74,13 @@ def test_percentile_linear_custom_constant_and_overflow_ranges() -> None:
         replace(settings, maximum=0).validate()
 
 
-def test_category_palette_is_stable_after_sort_filter_and_undo() -> None:
-    data = inspect(pl.DataFrame({"id": [1, 2, 3], "category": ["a", "b", "a"]}))
+def test_nontext_category_palette_is_stable_after_sort_filter_and_undo() -> None:
+    data = inspect(pl.DataFrame({"id": [1, 2, 3], "category": [True, False, True]}))
     original = data.first_page.cells[0][1]
     pipeline = (
         Pipeline.start(data.dataset)
         .apply(Sort(("id",), True))
-        .apply(Filter("category", Comparison.EQ, "a"))
+        .apply(Filter("category", Comparison.EQ, True))
     )
     edited = prepare_inspection(replace(data.imported, dataset=pipeline.current))
     assert edited.first_page.row_ids == (2, 0)
@@ -112,3 +112,26 @@ def test_text_length_uses_original_unicode_length_and_crest() -> None:
     assert cell_style(cells[3], bounds, settings).opaque
     custom = replace(settings, scale=NumericScale.CUSTOM, minimum=1, maximum=10)
     assert cell_style(cells[2], bounds, custom).marker == ">"
+
+
+@pytest.mark.parametrize(
+    "dtype", [pl.String, pl.Categorical, pl.Enum(["a", "alphabet"])]
+)
+def test_repeated_and_categorical_strings_use_crest_lengths(dtype: pl.DataType) -> None:
+    data = inspect(
+        pl.DataFrame(
+            {"id": [1, 2, 3], "label": pl.Series(["a", "alphabet", "a"], dtype=dtype)}
+        )
+    )
+    bounds = next(b for b in data.bounds if b.column == "label")
+    assert (bounds.minimum, bounds.maximum) == (1, 8)
+    assert [row[1].text_length for row in data.first_page.cells] == [1, 8, 1]
+    settings = TablePresentation(scale=NumericScale.LINEAR)
+    assert cell_style(data.first_page.cells[0][1], bounds, settings).rgba == (
+        0.6468274,
+        0.80289262,
+        0.56592265,
+    )
+    assert cell_style(
+        data.first_page.cells[1][1], bounds, settings
+    ).rgba == pytest.approx((0.17363177, 0.19076859, 0.44549087))

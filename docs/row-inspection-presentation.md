@@ -10,9 +10,11 @@ hues for the displayed series.
 ## Verified steps
 
 - [x] Preview colors: opaque white null cells with bold black text, including
-  selected rows; original Unicode Text lengths use interpolated Crest with
+  selected rows; original Unicode string lengths use interpolated Crest with
   the existing percentile/linear/custom scale controls. Categories keep their
-  categorical palette. Shading remains a display-only setting.
+  categorical palette when their values are not strings. String/Categorical/Enum
+  text uses length shading even when repeated values infer a categorical role.
+  Shading remains a display-only setting.
 - [x] Inspect: all selected columns, shared styling, separated gallery tables,
   ruled focused fields, lazy media previews and retained detailed tools.
 - [x] Profiles: wide statistics tables and separated saturated comparison hues.
@@ -68,3 +70,9 @@ Native Dark/Light checks pass all five plot modes and the 3-row/18-column table
 also passes. `scripts/rebuild_profile_presentation_smoke.py` writes reproducible
 screenshots/reports under `/tmp/datelier-profile-presentation`. No source edits,
 implicit ML, tokenizer training or playback are introduced.
+
+The final string coverage refinement passes 16 focused table/record tests,
+Pyrefly, Ruff and native table/focused-row checks. String-valued identifiers,
+references and categorical/Enum text share the length scale; nontext categories
+retain stable category colors. A new native restore assertion verifies the
+chosen shown-column order. Selected-row null checks pass in Dark and Light.

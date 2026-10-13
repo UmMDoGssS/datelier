@@ -9,6 +9,7 @@ from enum import StrEnum
 import polars as pl
 
 from datelier.core import ColumnRole, Dataset
+from datelier.core.column_roles import REFERENCE_ROLES
 
 
 class NumericScale(StrEnum):
@@ -64,13 +65,18 @@ class CellStyle:
 def prepare_bounds(dataset: Dataset) -> tuple[NumericBounds, ...]:
     result: list[NumericBounds] = []
     table = dataset.table
+    strings = tuple(
+        name
+        for name, dtype in table.schema.items()
+        if dtype in (pl.String, pl.Categorical) or isinstance(dtype, pl.Enum)
+    )
     for name in (
         *dataset.columns_for(ColumnRole.NUMERIC),
-        *dataset.columns_for(ColumnRole.TEXT),
+        *strings,
     ):
         values = table.get_column(name).rename("value")
-        if dataset.role(name).role == ColumnRole.TEXT:
-            values = values.str.len_chars()
+        if name in strings:
+            values = values.cast(pl.String).str.len_chars()
         values = values.cast(pl.Float64)
         finite = values.filter(values.is_finite())
         if not len(finite):
@@ -89,7 +95,11 @@ def prepare_bounds(dataset: Dataset) -> tuple[NumericBounds, ...]:
 def prepare_cell(value: object, role: ColumnRole) -> CellPresentation:
     if value is None:
         return CellPresentation(True)
-    if role == ColumnRole.TEXT and isinstance(value, str):
+    if role in (
+        ColumnRole.TEXT,
+        ColumnRole.IDENTIFIER,
+        *REFERENCE_ROLES,
+    ) and isinstance(value, str):
         return CellPresentation(False, text_length=len(value))
     if role == ColumnRole.NUMERIC:
         if not isinstance(value, (int, float, Decimal)):
@@ -106,7 +116,11 @@ def prepare_cell(value: object, role: ColumnRole) -> CellPresentation:
         category = int.from_bytes(
             hashlib.blake2b(encoded, digest_size=2).digest(), "little"
         )
-        return CellPresentation(False, category=category)
+        return CellPresentation(
+            False,
+            category=category,
+            text_length=len(value) if isinstance(value, str) else None,
+        )
     return CellPresentation(False)
 
 
@@ -120,7 +134,7 @@ def cell_style(
         return CellStyle((1, 1, 1), "(null)", (0, 0, 0), True, True)
     if cell.nonfinite:
         return CellStyle((0.55, 0.45, 0.55), "!")
-    if cell.category is not None:
+    if cell.category is not None and cell.text_length is None:
         # Fixed bounded colors keep even high-cardinality labels readable.
         palette = (
             (0.3, 0.65, 0.8),

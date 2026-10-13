@@ -70,6 +70,7 @@ def run(root: Path, restore: bool = False) -> dict[str, object]:
                     root / "a" / "pic.png"
                 )
                 assert file.selection.row_ids == {2}
+                assert file.records.settings.supporting == ("note", "image", "x")
                 assert (
                     not file.analysis.jobs.results
                     and file.audio.player.snapshot.request is None
@@ -146,7 +147,10 @@ def run(root: Path, restore: bool = False) -> dict[str, object]:
         elif stage == 16 and age > 2:
             imgui.get_io().add_key_event(imgui.Key.escape, False)
             file.records.settings = replace(
-                file.records.settings, primary="note", gallery=True
+                file.records.settings,
+                primary="note",
+                supporting=("note", "image", "x"),
+                gallery=True,
             )
             editor.choose_route("Inspect")
             stage, entered = 17, evidence.frames

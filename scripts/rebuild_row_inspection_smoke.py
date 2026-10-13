@@ -30,11 +30,14 @@ def main() -> None:
     ) -> None:
         nonlocal verified, configured
         file = editor.current
-        if args.mode != "table" and file.inspection and not configured:
-            file.records.settings = replace(
-                file.records.settings, primary="id", gallery=args.mode == "gallery"
-            )
-            editor.choose_route("Inspect")
+        if file.inspection and not configured:
+            if args.mode == "table":
+                file.selection.choose(file.inspection.dataset.revision, (0,))
+            else:
+                file.records.settings = replace(
+                    file.records.settings, primary="id", gallery=args.mode == "gallery"
+                )
+                editor.choose_route("Inspect")
             configured = True
         styles = [
             value
