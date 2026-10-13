@@ -213,6 +213,10 @@ Inspect defaults to all columns and retains explicit column selection.
 The subsequent container-color and pixel-rendering refinement passes on 2026-10-13;
 [docs/container-colors-and-pixels.md](docs/container-colors-and-pixels.md) tracks
 neutral identifiers, untinted Inspect images, element-mean colors and sharp pixels.
+The panel visibility and file-tab follow-up passes on 2026-10-13;
+[docs/panel-visibility-and-tabs.md](docs/panel-visibility-and-tabs.md) records
+View-menu recovery for every closable panel, simplified toolbar controls,
+native file-tab input and saved-layout acceptance.
 
 - Separate import adapters, dataset and operation state, profiling, plotting
   preparation, analysis, persistence, and GUI rendering. Keep boundaries typed
