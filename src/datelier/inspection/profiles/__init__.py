@@ -18,3 +18,7 @@ from datelier.inspection.profiles.prepare import (
 )
 from datelier.inspection.profiles.prepare import profile_kind as profile_kind
 from datelier.inspection.profiles.selection import ProfileSelection as ProfileSelection
+from datelier.inspection.profiles.tables import ProfileTable as ProfileTable
+from datelier.inspection.profiles.tables import (
+    prepare_statistics_tables as prepare_statistics_tables,
+)

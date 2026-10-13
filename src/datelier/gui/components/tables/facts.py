@@ -15,12 +15,15 @@ class FactsTable(Component):
         headers: tuple[str, ...],
         rows: Callable[[], tuple[tuple[object, ...], ...]],
         height: float = 160,
+        freeze_columns: int = 0,
     ) -> None:
         super().__init__(key)
         self.headers, self.rows, self.height = headers, rows, height
+        self.freeze_columns = freeze_columns
 
     def render(self, frame: FrameContext) -> None:
         rows = self.rows()
+        rendered = 0
         if not rows:
             return
         flags = (
@@ -36,14 +39,17 @@ class FactsTable(Component):
                 imgui.table_setup_column(
                     header, imgui.TableColumnFlags_.width_fixed, 120
                 )
-            imgui.table_setup_scroll_freeze(0, 1)
+            imgui.table_setup_scroll_freeze(self.freeze_columns, 1)
             imgui.table_headers_row()
             clipper = imgui.ListClipper()
             clipper.begin(len(rows))
             while clipper.step():
                 for row in rows[clipper.display_start : clipper.display_end]:
+                    rendered += 1
                     imgui.table_next_row()
                     for index, value in enumerate(row):
                         if imgui.table_set_column_index(index):
                             imgui.text_unformatted(number(value))
             imgui.end_table()
+        frame.measure("shape", (float(len(rows)), float(len(self.headers))))
+        frame.measure("rendered", (float(rendered), float(len(rows))))

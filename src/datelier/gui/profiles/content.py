@@ -1,12 +1,10 @@
 """Profile content families selected by prepared presentation kind."""
 
-from dataclasses import fields
-
 import numpy as np
 from imgui_bundle import imgui, implot
 
 from datelier.application.exploration import ProfileController, ProfileFamily
-from datelier.gui.components.layout import Component, FrameContext
+from datelier.gui.components.layout import Component, Container, FrameContext
 from datelier.gui.components.layout.viewport import ResizableViewport
 from datelier.gui.components.native import label_text
 from datelier.gui.components.plots import AxisPlot, apply_axes, observe_axes
@@ -14,6 +12,7 @@ from datelier.gui.components.tables import FactsTable
 from datelier.gui.profiles.base import ProfileContent
 from datelier.gui.profiles.distributions import CHARTS, DistributionFacts
 from datelier.inspection.profiles import ProfileKind
+from datelier.inspection.profiles.preview import ProfileGroup
 
 
 class ProfileFacts(Component):
@@ -36,54 +35,38 @@ class ProfileFacts(Component):
             imgui.text_wrapped(data.message)
 
 
-def statistic_rows(model: ProfileController) -> tuple[tuple[object, ...], ...]:
-    data = model.explorer.profiles.active
-    if data is None:
-        return ()
-    rows: list[tuple[object, ...]] = []
-    for profile in data.profiles.columns:
-        statistics = profile.statistics
-        if statistics is not None:
-            rows.extend(
-                (
-                    profile.name,
-                    field.name.replace("_", " "),
-                    getattr(statistics, field.name),
-                )
-                for field in fields(statistics)
-            )
-        else:
-            rows.extend(
-                (
-                    (profile.name, "Non-null", profile.nonnull_count),
-                    (profile.name, "Unique", profile.unique_count),
-                    (profile.name, "Minimum", profile.minimum),
-                    (profile.name, "Maximum", profile.maximum),
-                )
-            )
-        lists = profile.list_statistics
-        if lists:
-            rows.extend(
-                (
-                    (profile.name, "Elements", lists.elements),
-                    (profile.name, "Null elements", lists.null_elements),
-                    (profile.name, "Rectangular", lists.rectangular),
-                    (profile.name, "Ragged", lists.ragged),
-                )
-            )
-            for dimension in lists.dimensions:
-                rows.extend(
-                    (
-                        profile.name,
-                        f"Depth {dimension.depth}: {field.name}",
-                        getattr(dimension, field.name),
+class ProfileStatistics(Container):
+    def __init__(self, model: ProfileController) -> None:
+        super().__init__("statistics", ())
+        self.model = model
+        self._data: ProfileGroup | None = None
+
+    def render(self, frame: FrameContext) -> None:
+        data = self.model.explorer.profiles.active
+        if data is not self._data:
+            self._data = data
+            self.children = (
+                tuple(
+                    FactsTable(
+                        table.key,
+                        table.headers,
+                        lambda rows=table.rows: rows,
+                        max(80, min(200, 30 + len(table.rows) * 22)),
+                        freeze_columns=1,
                     )
-                    for field in fields(dimension)
+                    for table in data.tables
                 )
-            rows.extend(
-                (profile.name, f"Shape {shape}", count) for shape, count in lists.shapes
+                if data
+                else ()
             )
-    return tuple(rows)
+        if data:
+            for child, table in zip(self.children, data.tables, strict=True):
+                imgui.separator_text(table.title)
+                child.render(frame.child(child.key))
+
+    def close(self) -> None:
+        self._data = None
+        self.children = ()
 
 
 class ColumnProfileContent(ProfileContent):
@@ -97,12 +80,7 @@ class ColumnProfileContent(ProfileContent):
         self.model = model
         facts = (
             ProfileFacts(model),
-            FactsTable(
-                "statistics",
-                ("Column", "Statistic", "Value"),
-                lambda: statistic_rows(model),
-                160,
-            ),
+            ProfileStatistics(model),
         )
         super().__init__(key, (*children, *facts))
 

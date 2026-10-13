@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Callable
 
 import numpy as np
-from imgui_bundle import implot
+from imgui_bundle import imgui, implot
 
 from datelier.gui.components.layout import Component, FrameContext
 from datelier.gui.components.native import label_text
@@ -33,6 +33,9 @@ class DistributionSeries(Component, ABC):
         self, data: Comparison, series: NumericDistribution, index: int
     ) -> None: ...
 
+    def color(self, data: Comparison, series: NumericDistribution) -> imgui.ImVec4:
+        return profile_color(series.name, tuple(s.name for s in data.series))
+
 
 class HistogramSeries(DistributionSeries):
     label = "Histogram"
@@ -40,7 +43,7 @@ class HistogramSeries(DistributionSeries):
     def draw(self, data: Comparison, series: NumericDistribution, index: int) -> None:
         if not len(series.histogram):
             return
-        color = profile_color(series.name)
+        color = self.color(data, series)
         implot.plot_stairs(
             label_text(series.name),
             np.concatenate(([data.edges[0]], data.edges, [data.edges[-1]])),
@@ -63,7 +66,7 @@ class DensitySeries(DistributionSeries):
                 label_text(series.name),
                 series.kde_x,
                 series.kde_y,
-                implot.Spec(line_color=profile_color(series.name)),
+                implot.Spec(line_color=self.color(data, series)),
             )
 
 
@@ -77,7 +80,7 @@ class CumulativeSeries(DistributionSeries):
                 label_text(series.name),
                 np.concatenate(([series.ecdf_x[0]], series.ecdf_x)),
                 np.concatenate(([0.0], series.ecdf_y)),
-                implot.Spec(line_color=profile_color(series.name)),
+                implot.Spec(line_color=self.color(data, series)),
             )
 
 
@@ -87,14 +90,14 @@ class BoxSeries(DistributionSeries):
     ylabel = "Value"
 
     def draw(self, data: Comparison, series: NumericDistribution, index: int) -> None:
-        draw_box(series, index, False, profile_color(series.name))
+        draw_box(series, index, False, self.color(data, series))
 
 
 class ViolinSeries(BoxSeries):
     label = "Violin"
 
     def draw(self, data: Comparison, series: NumericDistribution, index: int) -> None:
-        draw_box(series, index, True, profile_color(series.name))
+        draw_box(series, index, True, self.color(data, series))
 
 
 SERIES_TYPES = (

@@ -9,6 +9,7 @@ from datelier.core import Dataset, DatasetRevision, JobExecutor
 from datelier.core.column_roles import LIST_ROLES, PLOTTABLE_ROLES, ColumnRole
 from datelier.inspection.profiles.lists import flatten_elements
 from datelier.inspection.profiles.prepare import ProfileKind, Profiles, prepare_profiles
+from datelier.inspection.profiles.tables import ProfileTable, prepare_statistics_tables
 from datelier.plotting.distributions import (
     Comparison,
     DistributionSettings,
@@ -38,6 +39,7 @@ class ProfileGroup:
     bars: tuple[Bars, ...]
     comparison: Comparison | None
     message: str = ""
+    tables: tuple[ProfileTable, ...] = ()
 
 
 def prepare_profile_group(dataset: Dataset, request: ProfileRequest) -> ProfileGroup:
@@ -70,7 +72,11 @@ def prepare_profile_group(dataset: Dataset, request: ProfileRequest) -> ProfileG
             # available even when shared Float64 coordinates cannot be drawn.
             message = str(error)
     return ProfileGroup(
-        profiles, tuple(prepare_bars(p) for p in profiles.columns), comparison, message
+        profiles,
+        tuple(prepare_bars(p) for p in profiles.columns),
+        comparison,
+        message,
+        prepare_statistics_tables(profiles),
     )
 
 

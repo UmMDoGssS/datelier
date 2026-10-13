@@ -15,7 +15,7 @@ hues for the displayed series.
   categorical palette. Shading remains a display-only setting.
 - [x] Inspect: all selected columns, shared styling, separated gallery tables,
   ruled focused fields, lazy media previews and retained detailed tools.
-- [ ] Profiles: wide statistics tables and separated saturated comparison hues.
+- [x] Profiles: wide statistics tables and separated saturated comparison hues.
 - [ ] Full-suite and native acceptance.
 
 Step 1 checks: `uv run pyrefly check` (zero errors), eight focused tests in
@@ -47,3 +47,24 @@ Nested supporting values stay lazy summaries until their full-value command;
 complete nested values retain the existing line virtualization. Detailed
 pixel/token/signal tools remain explicit and operate on one column at a time,
 while all selected columns and their media previews remain available together.
+
+Step 3 checks: 29 focused profile/statistics/list/distribution tests, Pyrefly,
+Ruff lint/format and diff whitespace pass. Numeric statistics have one row per
+column and preserve original values, null/nonfinite quality and exact integer
+extrema above 2**53. Worker-prepared list structure/length/shape tables remain
+separate from leaf statistics. Summary tables freeze the Column header during
+horizontal scrolling; mean/std/min/max/median lead the numeric columns.
+
+For the displayed set, sorted unique series identities are assigned evenly
+spaced HSV hues with a deterministic hash rotation, saturation 0.78 and value
+0.95. Reordering or restoring the same set preserves colors across histogram,
+KDE, ECDF, box and violin views. Changing the selected set may reassign colors;
+the minimum circular hue gap is 1/N, so large sets necessarily have closer hues.
+Explicit comparison color overrides remain intact. The same set-based palette
+also separates overlaid image-profile histogram channels.
+
+Native Dark/Light checks pass all five plot modes and the 3-row/18-column table
+(51 frames each); the existing profile sizing/navigation/selector workflow
+also passes. `scripts/rebuild_profile_presentation_smoke.py` writes reproducible
+screenshots/reports under `/tmp/datelier-profile-presentation`. No source edits,
+implicit ML, tokenizer training or playback are introduced.

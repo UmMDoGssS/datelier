@@ -44,7 +44,7 @@ class HistogramContent(ViewportContent):
                 x = chart.normalized_plot_x if normalized else chart.plot_x
                 if x is None or chart.plot_counts is None:
                     continue
-                color = profile_color(chart.label)
+                color = profile_color(chart.label, tuple(c.label for c in charts))
                 implot.plot_stairs(
                     chart.label,
                     x,
