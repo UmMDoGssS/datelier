@@ -10,6 +10,7 @@ import polars as pl
 
 from datelier.core import ColumnRole, Dataset
 from datelier.core.column_roles import REFERENCE_ROLES
+from datelier.inspection.arrays.means import list_element_means
 
 
 class NumericScale(StrEnum):
@@ -50,7 +51,9 @@ class CellPresentation:
     number: float | None = None
     category: int | None = None
     nonfinite: bool = False
-    text_length: int | None = None
+    text_length: float | None = None
+    bounds: NumericBounds | None = None
+    note: str = ""
 
 
 @dataclass(frozen=True)
@@ -71,13 +74,22 @@ def prepare_bounds(dataset: Dataset) -> tuple[NumericBounds, ...]:
         if (dtype in (pl.String, pl.Categorical) or isinstance(dtype, pl.Enum))
         and dataset.role(name).role != ColumnRole.IDENTIFIER
     )
+    containers = tuple(
+        name
+        for name, dtype in table.schema.items()
+        if isinstance(dtype, (pl.List, pl.Array))
+        and dataset.role(name).role != ColumnRole.LIST_IDENTIFIER
+    )
     for name in (
         *dataset.columns_for(ColumnRole.NUMERIC),
         *strings,
+        *containers,
     ):
         values = table.get_column(name).rename("value")
         if name in strings:
             values = values.cast(pl.String).str.len_chars()
+        elif name in containers:
+            values = list_element_means(values).values
         values = values.cast(pl.Float64)
         finite = values.filter(values.is_finite())
         if not len(finite):
@@ -126,6 +138,35 @@ def prepare_cell(value: object, role: ColumnRole) -> CellPresentation:
     return CellPresentation(False)
 
 
+def prepare_column_cells(
+    series: pl.Series, role: ColumnRole
+) -> tuple[CellPresentation, ...]:
+    if not isinstance(series.dtype, (pl.List, pl.Array)):
+        return tuple(prepare_cell(value, role) for value in series)
+    nulls = series.is_null().to_list()
+    if role == ColumnRole.LIST_IDENTIFIER:
+        return tuple(CellPresentation(bool(value)) for value in nulls)
+    means = list_element_means(series)
+    return tuple(
+        CellPresentation(
+            bool(null),
+            number=None if means.text else value,
+            text_length=value if means.text else None,
+            nonfinite=value is None and invalid > 0,
+            note=f"Mean of {count:,} "
+            + ("text lengths" if means.text else "finite numeric elements")
+            + (f"; {invalid:,} nonfinite elements excluded" if invalid else ""),
+        )
+        for null, value, count, invalid in zip(
+            nulls,
+            means.values.to_list(),
+            means.counts.to_list(),
+            means.nonfinites.to_list(),
+            strict=True,
+        )
+    )
+
+
 def cell_style(
     cell: CellPresentation, bounds: NumericBounds | None, settings: TablePresentation
 ) -> CellStyle:
@@ -147,6 +188,7 @@ def cell_style(
             (0.5, 0.5, 0.8),
         )
         return CellStyle(palette[cell.category % len(palette)])
+    bounds = cell.bounds or bounds
     value = float(cell.text_length) if cell.text_length is not None else cell.number
     if value is None or bounds is None:
         return CellStyle()

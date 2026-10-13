@@ -19,13 +19,16 @@ DEFAULT_PRESENTATION = TablePresentation()
 
 
 class TextCell(Component):
-    def __init__(self, text: str) -> None:
+    def __init__(self, text: str, note: str = "") -> None:
         super().__init__("text")
         self.text = text
+        self.note = note
 
     def render(self, frame: FrameContext) -> None:
         imgui.text_unformatted(self.text)
         target(frame, "value")
+        if self.note and imgui.is_item_hovered():
+            imgui.set_tooltip(self.note)
 
 
 class TableCell(Container):
@@ -48,12 +51,13 @@ class TableCell(Container):
             else None
         )
         self.selected = selected
+        self.cell = cell
         marker = self.style.marker if self.style else ""
         label = f"{marker} {text}" if marker else text
         child = content or (
             preview(column.name, reference, label, 56)
             if preview and column and column.reference and reference is not None
-            else TextCell(label)
+            else TextCell(label, cell.note if cell else "")
         )
         super().__init__(key, (child,))
 
@@ -90,4 +94,12 @@ class TableCell(Container):
                 float(bool(self.style and self.style.opaque)),
             ),
         )
+        if self.cell and self.cell.note:
+            value = (
+                self.cell.text_length
+                if self.cell.text_length is not None
+                else self.cell.number
+            )
+            if value is not None:
+                frame.measure("mean", (value, float(self.cell.text_length is not None)))
         imgui.pop_id()

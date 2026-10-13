@@ -70,6 +70,7 @@ class RecordCard:
     position: int
     primary: RecordField | None
     fields: tuple[RecordField, ...]
+    payload: RecordField | None = None
 
 
 @dataclass(frozen=True)

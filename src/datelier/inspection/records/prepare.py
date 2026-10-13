@@ -7,7 +7,7 @@ import polars as pl
 
 from datelier.core import Dataset
 from datelier.core.column_roles import REFERENCE_ROLES
-from datelier.inspection.presentation import prepare_cell
+from datelier.inspection.presentation import prepare_column_cells
 from datelier.inspection.records.types import (
     InspectSettings,
     RecordCard,
@@ -80,6 +80,13 @@ def prepare_record_page(dataset: Dataset, records: RecordSet, start: int) -> Rec
             )
         )
     )
+    positions = records.positions.slice(start, RECORD_PAGE_SIZE)
+    presentations = {
+        name: prepare_column_cells(
+            table.get_column(name).gather(positions), dataset.role(name).role
+        )
+        for name in names
+    }
     for slot in range(start, min(start + RECORD_PAGE_SIZE, len(records.positions))):
         position = int(records.positions[slot])
         fields: dict[str, RecordField] = {}
@@ -99,7 +106,7 @@ def prepare_record_page(dataset: Dataset, records: RecordSet, start: int) -> Rec
                     if isinstance(series.dtype, pl.Struct)
                     else "[ ... ]",
                     is_null=is_null,
-                    cell=prepare_cell(None if is_null else "", dataset.role(name).role),
+                    cell=presentations[name][slot - start],
                 )
                 continue
             value = series[position]
@@ -125,7 +132,7 @@ def prepare_record_page(dataset: Dataset, records: RecordSet, start: int) -> Rec
                 value is None,
                 not nested and len(text) > limit,
                 tuple(text.splitlines()) if nested and value is not None else None,
-                prepare_cell(value, dataset.role(name).role),
+                presentations[name][slot - start],
             )
         cards.append(
             RecordCard(

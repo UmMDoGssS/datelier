@@ -5,6 +5,12 @@ from concurrent.futures import Executor, Future
 from dataclasses import replace
 
 from datelier.core import Dataset, DatasetRevision, JobExecutor
+from datelier.inspection.arrays.presentation import (
+    ArrayMappings,
+    array_mappings,
+    prepare_array_record_page,
+)
+from datelier.inspection.arrays.types import ArrayCatalog
 from datelier.inspection.records.prepare import (
     RECORD_PAGE_SIZE,
     prepare_record_page,
@@ -16,6 +22,8 @@ from datelier.inspection.records.types import (
     RecordPage,
     RecordSet,
 )
+from datelier.io.arrays.storage import ArrayStore
+from datelier.io.types import ImportResult
 
 
 class RecordJobs:
@@ -33,6 +41,23 @@ class RecordJobs:
         self.active: RecordSet | None = None
         self.message = "Open a source to inspect records."
         self.closed = False
+        self._array_context: (
+            tuple[ArrayCatalog, ArrayMappings, ArrayStore | None] | None
+        ) = None
+        self._array_import: ImportResult | None = None
+        self._array_store: ArrayStore | None = None
+
+    def configure_arrays(
+        self, imported: ImportResult | None, store: ArrayStore | None
+    ) -> None:
+        if self._array_import is imported and self._array_store is store:
+            return
+        self._array_import, self._array_store = imported, store
+        catalog = imported.array_catalog if imported else None
+        mappings = array_mappings(imported) if imported else ()
+        self._array_context = (
+            (catalog, mappings, store) if catalog and mappings else None
+        )
 
     def sync(
         self, dataset: Dataset, settings: InspectSettings, selection: tuple[int, ...]
@@ -92,8 +117,18 @@ class RecordJobs:
         if page:
             self._pages.move_to_end(start)
         elif start not in self._pending and len(self._pending) < 2:
-            self._pending[start] = self._executor.submit(
-                prepare_record_page, self._dataset, self.active, start
+            self._pending[start] = (
+                self._executor.submit(
+                    prepare_array_record_page,
+                    self._dataset,
+                    self.active,
+                    start,
+                    *self._array_context,
+                )
+                if self._array_context
+                else self._executor.submit(
+                    prepare_record_page, self._dataset, self.active, start
+                )
             )
         return page
 
@@ -112,4 +147,6 @@ class RecordJobs:
     def close(self) -> None:
         self.closed = True
         self.abandon()
+        self._array_context = None
+        self._array_import = self._array_store = None
         self._executor.shutdown(wait=False, cancel_futures=True)

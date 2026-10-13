@@ -61,7 +61,7 @@ class FileController:
         self.view_name = ""
         self.closed = False
         self.loader = loader or DatasetLoader(executor=executor)
-        self.pages = PreviewCache(executor=executor)
+        self.pages = PreviewCache(executor=executor, arrays=lambda: self.arrays.store)
         self.editor = DatasetEditor(executor=executor)
         self.exporter = DatasetExporter(executor=executor)
         self.explorer = Explorer(executor=executor)
@@ -376,12 +376,12 @@ class FileController:
         elif self.references.source is not None:
             self.references.unbind()
         self.references.poll()
-        self.records.poll(active)
         if active and active.imported.array_catalog:
             self.arrays.bind(active.imported.array_catalog, active.dataset.revision)
         elif self.arrays.catalog and self.recovery is None:
             self.arrays.unbind()
         self.arrays.poll()
+        self.records.poll(active, self.arrays.store)
         if active and active.imported.checkpoint_catalog:
             self.checkpoints.bind(
                 active.imported.checkpoint_catalog, active.dataset.revision

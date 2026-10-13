@@ -41,6 +41,8 @@ class FieldText(Component):
         else:
             imgui.text_wrapped(text)
             target(frame, "value")
+        if field.cell and field.cell.note and imgui.is_item_hovered():
+            imgui.set_tooltip(field.cell.note)
         if field.truncated or self.gallery and len(field.text) > 256:
             imgui.text_disabled(
                 "Preview truncated; use detailed tools for full content."

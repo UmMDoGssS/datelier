@@ -9,7 +9,7 @@ Images must retain sharp original pixels when enlarged.
 - [x] Role/view rules: identifiers stay neutral; Inspect image/heatmap previews
   have no conditional background. The existing null highlight remains for
   ordinary cells, including missing identifiers.
-- [ ] Prepare list/array element means in bounded workers with preserved source
+- [x] Prepare list/array element means in bounded workers with preserved source
   identity, visible diagnostics and unchanged payloads.
 - [ ] Remove image smoothing in preview reduction and native magnification;
   verify original colors/pixels.
@@ -21,3 +21,16 @@ Text to enable length shading. Inspect suppresses image/heatmap shading even
 for missing values; Table retains its ordinary cell styling. This supersedes
 the identifier and Inspect-image color rules recorded in the previous
 [row presentation evidence](row-inspection-presentation.md).
+
+Step 2 passes 42 focused presentation, preview, record, nested-column and aligned
+NPZ tests, full Pyrefly/Ruff checks, and native container-color, gallery and
+detailed-row smokes. Ragged/fixed containers average all finite numeric leaves;
+text leaves average Unicode character lengths with Crest. Empty containers are
+neutral and nonfinite exclusions are explained in tooltips. Exact NumPy means
+are streamed through bounded buffers from worker-owned member leases. Metadata
+opening remains decode-free. Table and Inspect share each containing 100-row
+Table page's automatic range; custom ranges support comparisons across pages.
+Sorting retains source row identity and original payloads remain unchanged.
+The native container smoke verifies neutral identifiers, unshaded Inspect image
+previews and colored generic arrays. The existing gallery smoke passes with
+39 frames, approximately 15.6 ms p95 and 42,848 retained GPU bytes.

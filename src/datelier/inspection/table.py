@@ -1,6 +1,6 @@
 """Prepared summaries and bounded preview pages; no GUI dependencies."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 import polars as pl
 
@@ -10,7 +10,7 @@ from datelier.inspection.presentation import (
     CellPresentation,
     NumericBounds,
     prepare_bounds,
-    prepare_cell,
+    prepare_column_cells,
 )
 from datelier.io.types import ImportResult
 
@@ -36,6 +36,7 @@ class PreviewPage:
     rows: tuple[tuple[str, ...], ...]
     references: tuple[tuple[str | None, ...], ...] = ()
     cells: tuple[tuple[CellPresentation, ...], ...] = ()
+    array_ready: bool = False
 
 
 @dataclass(frozen=True)
@@ -45,6 +46,7 @@ class Inspection:
     schema: tuple[ColumnSummary, ...]
     first_page: PreviewPage
     bounds: tuple[NumericBounds, ...] = ()
+    array_columns: tuple[str, ...] = ()
 
     @property
     def dataset(self) -> Dataset:
@@ -111,6 +113,10 @@ def prepare_page(
         ).iter_rows()
     )
     roles = tuple(dataset.role(name).role for name in columns)
+    presentations = tuple(
+        prepare_column_cells(table.get_column(name).slice(row_start, PAGE_ROWS), role)
+        for name, role in zip(columns, roles, strict=True)
+    )
     return PreviewPage(
         dataset.revision,
         row_start,
@@ -125,19 +131,34 @@ def prepare_page(
             )
             for row in physical_rows
         ),
-        tuple(
-            tuple(
-                prepare_cell(value, role)
-                for role, value in zip(roles, row, strict=True)
-            )
-            for row in physical_rows
-        ),
+        tuple(zip(*presentations, strict=True)),
     )
 
 
 def prepare_inspection(imported: ImportResult) -> Inspection:
+    from datelier.inspection.arrays.presentation import array_mappings
+
     table = imported.dataset.table
     nulls = table.null_count().row(0)
+    array_columns = tuple(
+        name for name, _ in array_mappings(imported) if name in table.columns
+    )
+    page = prepare_page(imported.dataset, 0)
+    if array_columns:
+        page = replace(
+            page,
+            cells=tuple(
+                tuple(
+                    CellPresentation(
+                        False, note="Element mean loads when this page is viewed."
+                    )
+                    if name in array_columns
+                    else cell
+                    for name, cell in zip(page.columns, row, strict=True)
+                )
+                for row in page.cells
+            ),
+        )
     return Inspection(
         imported,
         table.height,
@@ -145,6 +166,11 @@ def prepare_inspection(imported: ImportResult) -> Inspection:
             ColumnSummary(name, str(dtype), int(count))
             for (name, dtype), count in zip(table.schema.items(), nulls, strict=True)
         ),
-        prepare_page(imported.dataset, 0),
-        prepare_bounds(imported.dataset),
+        page,
+        tuple(
+            bound
+            for bound in prepare_bounds(imported.dataset)
+            if bound.column not in array_columns
+        ),
+        array_columns,
     )

@@ -87,6 +87,7 @@ class TableControls(Container):
             "Click a source row to select; Ctrl-click toggles. "
             "Blue/red means low/high. < / > marks values outside the scale; "
             "Text length uses Crest (light green to dark blue). "
+            "List/array colors use element means; identifiers stay neutral. "
             "= marks a flat scale; bold black on white is null; ! is nonfinite."
         )
 

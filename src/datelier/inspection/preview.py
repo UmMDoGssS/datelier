@@ -1,20 +1,35 @@
 """Small revision-bound page cache; string conversion runs in a worker."""
 
 from collections import OrderedDict
+from collections.abc import Callable
 from concurrent.futures import Executor, Future
 
 from datelier.core import JobExecutor
-from datelier.inspection.table import PAGE_ROWS, Inspection, PreviewPage, prepare_page
+from datelier.inspection.arrays.presentation import prepare_array_page
+from datelier.inspection.table import (
+    PAGE_COLUMNS,
+    PAGE_ROWS,
+    Inspection,
+    PreviewPage,
+    prepare_page,
+)
+from datelier.io.arrays.storage import ArrayStore
 
 
 class PreviewCache:
-    def __init__(self, *, executor: Executor | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        executor: Executor | None = None,
+        arrays: Callable[[], ArrayStore] | None = None,
+    ) -> None:
         self._executor = JobExecutor(executor, max_workers=1, name="preview")
         self._inspection: Inspection | None = None
         self._pages: OrderedDict[tuple[int, int], PreviewPage] = OrderedDict()
         self._pending: dict[tuple[int, int], Future[PreviewPage]] = {}
         self.error = ""
         self._closed = False
+        self._arrays = arrays
 
     @property
     def page_count(self) -> int:
@@ -59,6 +74,23 @@ class PreviewCache:
         page = self._pages.get(key)
         if page is not None:
             self._pages.move_to_end(key)
+        needs_means = bool(
+            self._inspection
+            and any(
+                name in self._inspection.array_columns
+                for name in (
+                    page.columns
+                    if page
+                    else tuple(
+                        column.name
+                        for column in self._inspection.schema[
+                            column_start : column_start + PAGE_COLUMNS
+                        ]
+                    )
+                )
+            )
+        )
+        if page is not None and (page.array_ready or not needs_means):
             return page
         if (
             self._inspection is not None
@@ -66,10 +98,17 @@ class PreviewCache:
             and len(self._pending) < 2
             and not self.error
         ):
-            self._pending[key] = self._executor.submit(
-                prepare_page, self._inspection.dataset, *key
+            self._pending[key] = (
+                self._executor.submit(
+                    prepare_array_page,
+                    self._inspection,
+                    *key,
+                    self._arrays() if self._arrays else None,
+                )
+                if needs_means
+                else self._executor.submit(prepare_page, self._inspection.dataset, *key)
             )
-        return None
+        return page
 
     def retry(self) -> None:
         self.error = ""

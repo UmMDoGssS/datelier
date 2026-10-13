@@ -19,6 +19,7 @@ from datelier.inspection.records import (
 from datelier.inspection.records.jobs import RecordJobs
 from datelier.inspection.table import Inspection
 from datelier.inspection.text.profiles.lists import is_text_list
+from datelier.io.arrays.storage import ArrayStore
 from datelier.io.types import ArrayOptions
 from datelier.plotting.scatter import LinkedSelection
 
@@ -81,8 +82,11 @@ class RecordController:
             else tuple(name for name in self.settings.supporting if name in columns),
         )
 
-    def poll(self, inspection: Inspection | None) -> None:
+    def poll(
+        self, inspection: Inspection | None, arrays: ArrayStore | None = None
+    ) -> None:
         self._inspection = inspection
+        self.jobs.configure_arrays(inspection.imported if inspection else None, arrays)
         self.choices = (
             tuple(
                 ColumnChoice(info.name, info.role.value)
@@ -116,7 +120,8 @@ class RecordController:
         ):
             return replace(
                 card,
-                primary=RecordField(
+                primary=card.payload
+                or RecordField(
                     options.mapping.member,
                     "Mapped payload; source record identity is preserved.",
                 ),
