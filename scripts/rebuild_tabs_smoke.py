@@ -31,6 +31,18 @@ def main() -> None:
         done = False
         blank = first = second = ""
 
+        def check_new_position(editor: EditorController, probe: GuiProbe) -> None:
+            tabs = [
+                native.find(probe, ("files", file.identity, "tab"))
+                for file in editor.files
+            ]
+            new = native.find(probe, ("files", "new"))
+            assert new and all(tabs)
+            last = max((point for point in tabs if point), key=lambda point: point[0])
+            assert 0 < new[0] - last[0] < 130 and abs(new[1] - last[1]) < 2, (new, last)
+            assert native.find(probe, ("files", "context")) is None
+            assert native.find(probe, ("files", "table")) is None
+
         def frame(
             editor: EditorController, probe: GuiProbe, evidence: InspectionEvidence
         ) -> None:
@@ -40,7 +52,12 @@ def main() -> None:
                 raise AssertionError((stage, [f.identity for f in editor.files]))
             if native.advance(evidence.frames):
                 return
-            if stage == 0 and native.find(probe, ("welcome", "files", "run")):
+            if (
+                stage == 0
+                and evidence.frames > 20
+                and native.find(probe, ("welcome", "files", "run"))
+            ):
+                check_new_position(editor, probe)
                 blank = editor.active_id
                 first = editor.new_file(paths[0]).identity
                 second = editor.new_file(paths[1]).identity
@@ -99,6 +116,37 @@ def main() -> None:
                     point[0] for point in points if point
                 ] == sorted(point[0] for point in points if point)
                 assert editor.active_id == first
+                check_new_position(editor, probe)
+                point = native.find(probe, ("files", "new"))
+                assert point
+                native.click_point(point, evidence.frames)
+                stage, entered = 7, evidence.frames
+            elif stage == 7 and age > 5:
+                assert len(editor.files) == 4 and editor.active_id not in (
+                    first,
+                    second,
+                    blank,
+                )
+                check_new_position(editor, probe)
+                point = native.find(probe, ("files", editor.active_id, "close"))
+                assert point
+                native.click_point(point, evidence.frames)
+                stage, entered = 8, evidence.frames
+            elif stage == 8 and age > 5:
+                assert len(editor.files) == 3
+                check_new_position(editor, probe)
+                editor.close_file(first)
+                editor.close_file(second)
+                stage, entered = 9, evidence.frames
+            elif stage == 9 and age > 5:
+                assert len(editor.files) == 1 and editor.active_id == blank
+                point = native.find(probe, ("files", blank, "close"))
+                assert point
+                native.click_point(point, evidence.frames)
+                stage, entered = 10, evidence.frames
+            elif stage == 10 and age > 5:
+                assert len(editor.files) == 1 and editor.active_id != blank
+                check_new_position(editor, probe)
                 assert tuple(path.read_bytes() for path in paths) == originals
                 assert all(not f.analysis.jobs.results for f in editor.files)
                 done = True
@@ -114,6 +162,9 @@ def main() -> None:
             "p95_ms": float(np.percentile(evidence.frame_intervals_ms, 95)),
             "native_drag_order_published_to_controller": True,
             "saved_drag_order_and_native_controller_order": True,
+            "native_new_file_button_after_tabs": True,
+            "native_close_and_last_tab_replacement": True,
+            "panel_buttons_removed_from_toolbar": True,
             "native_welcome_opening_commands": True,
             "native_duplicate_literal_filename_identity": True,
             "native_activation_preserves_comparison_draft": True,

@@ -157,8 +157,6 @@ class WorkbenchPage(Page):
             editor.new_file,
             lambda: self._history(HistoryAction.UNDO),
             lambda: self._history(HistoryAction.REDO),
-            self.host.toggle_context,
-            self.host.toggle_table,
             editor.reorder,
         )
         super().__init__(

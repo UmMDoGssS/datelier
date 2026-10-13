@@ -88,11 +88,17 @@ def main() -> None:
                 assert file.views.tab == "Correlations"
                 if args.width < 1100:
                     assert not native.find(probe, ("features", "open"))
-                    suffix = ("files", "context")
+                    suffix = ("menus", "View", "menu")
                 else:
                     phase, stage_frame = 7, evidence.frames
             elif phase == 7 and age > 3:
                 context = imgui.internal.find_window_by_name("Context")
+                if args.width < 1100 and (context is None or not context.active):
+                    point = native.find(probe, ("menus", "View", "context", "run"))
+                    if point:
+                        native.click_point(point, evidence.frames)
+                        stage_frame = evidence.frames
+                    return
                 assert context and context.size.x >= 270
                 assert bool(context.dock_id == 0) == (args.width < 1100)
                 checked["context_drawer"] = args.width < 1100

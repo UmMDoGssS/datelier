@@ -39,8 +39,6 @@ class FileTabs(Component):
         new: Callable[[], object],
         undo: Callable[[], None],
         redo: Callable[[], None],
-        toggle_context: Callable[[], None],
-        toggle_table: Callable[[], None],
         reorder: Callable[[tuple[str, ...]], None],
     ) -> None:
         super().__init__("files")
@@ -51,16 +49,11 @@ class FileTabs(Component):
             new,
         )
         self.undo, self.redo = undo, redo
-        self.toggle_context, self.toggle_table = toggle_context, toggle_table
         self.reorder = reorder
         self._active = ""
         self._order: tuple[str, ...] = ()
 
     def render(self, frame: FrameContext) -> None:
-        if imgui.button("+"):
-            self.new()
-        target(frame, "new")
-        imgui.same_line()
         if imgui.button("Undo"):
             self.undo()
         target(frame, "undo")
@@ -68,14 +61,6 @@ class FileTabs(Component):
         if imgui.button("Redo"):
             self.redo()
         target(frame, "redo")
-        imgui.same_line()
-        if imgui.button("Context"):
-            self.toggle_context()
-        target(frame, "context")
-        imgui.same_line()
-        if imgui.button("Table"):
-            self.toggle_table()
-        target(frame, "table")
         imgui.same_line()
         files = self.files()
         active = next((f.identity for f in files if f.active), "")
@@ -93,6 +78,16 @@ class FileTabs(Component):
                 )
                 opened, visible = imgui.begin_tab_item(file.label, True, flags)
                 target(frame.child(file.identity), "tab")
+                lo, hi = imgui.get_item_rect_min(), imgui.get_item_rect_max()
+                frame.child(file.identity).record(
+                    "close",
+                    (
+                        hi.x
+                        - imgui.get_style().frame_padding.x
+                        - imgui.get_font_size() / 2,
+                        (lo.y + hi.y) / 2,
+                    ),
+                )
                 if imgui.is_item_clicked() or (
                     not changed and opened and active != file.identity
                 ):
@@ -107,7 +102,14 @@ class FileTabs(Component):
                 f.identity for f in current
             ):
                 self.reorder(order)
-            self._order = tuple(file.identity for file in self.files())
+            # Track submitted tabs, so a file created by + (or by closing the
+            # last tab) rebuilds the order next frame and keeps + at the end.
+            self._order = order
+            if imgui.tab_item_button("+###new", imgui.TabItemFlags_.no_reorder):
+                self.new()
+            target(frame, "new")
+            if imgui.is_item_hovered():
+                imgui.set_tooltip("New file")
             imgui.end_tab_bar()
         self._active = active
 

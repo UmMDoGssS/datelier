@@ -52,8 +52,10 @@ def main() -> None:
                 assert source_window and canvas
                 assert source_window.dock_id != canvas.dock_id
                 assert 210 < source_window.size.x < 240
-                suffix = ("files", "context")
-            elif stage == 4 and age > 5:
+                suffix = ("menus", "View", "menu")
+            elif stage == 4 and age > 3:
+                suffix = ("menus", "View", "context", "run")
+            elif stage == 5 and age > 5:
                 context = imgui.internal.find_window_by_name("Context")
                 assert context and context.dock_id == 0
                 assert source_window and source_window.dock_id != canvas.dock_id

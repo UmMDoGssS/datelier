@@ -1013,5 +1013,5 @@ colors, element means and sharp source-pixel rendering.
 recovery and simplified file-tab controls.
 
 - [x] Add View switches for every closable panel.
-- [ ] Remove the Context/Table toolbar buttons and place `+` beside file tabs.
+- [x] Remove the Context/Table toolbar buttons and place `+` beside file tabs.
 - [ ] Verify native menu/tab input, restoration and the full suite.

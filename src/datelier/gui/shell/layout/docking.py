@@ -66,12 +66,6 @@ class DockHost(Container):
         self._work_size = (0.0, 0.0)
         self._settle = 4
 
-    def toggle_context(self) -> None:
-        self.context.visible = not self.context.visible
-
-    def toggle_table(self) -> None:
-        self.table.visible = not self.table.visible
-
     def render(self, frame: FrameContext) -> None:
         width = imgui.get_main_viewport().work_size.x
         if self.reset:
