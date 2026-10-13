@@ -31,7 +31,7 @@ class RecordSettings(Container):
                 ),
                 ColumnPicker(
                     "primary",
-                    "Primary content",
+                    "Detailed tools column",
                     lambda: model.choices,
                     lambda: (model.settings.primary,) if model.settings.primary else (),
                     lambda names: setattr(
@@ -43,7 +43,7 @@ class RecordSettings(Container):
                 ),
                 ColumnPicker(
                     "supporting",
-                    "Supporting fields",
+                    "Shown columns",
                     lambda: model.choices,
                     lambda: model.settings.supporting or (),
                     lambda names: setattr(

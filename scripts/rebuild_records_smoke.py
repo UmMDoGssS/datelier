@@ -82,7 +82,10 @@ def main() -> None:
             if stage == 0 and file.inspection:
                 editor.choose_route("Inspect")
                 file.records.settings = replace(
-                    file.records.settings, primary="image", gallery=False
+                    file.records.settings,
+                    primary="image",
+                    supporting=("image",),
+                    gallery=False,
                 )
                 stage, entered = 1, evidence.frames
             elif stage == 1 and file.images.jobs.active:
@@ -90,7 +93,9 @@ def main() -> None:
                 assert pixels.metadata.width == 80 and pixels.metadata.height == 60
                 assert pixels.pixel(5, 4) == (5, 0, 0)
                 assert not file.audio.player.snapshot.request
-                file.records.settings = replace(file.records.settings, primary="text")
+                file.records.settings = replace(
+                    file.records.settings, primary="text", supporting=("text",)
+                )
                 file.text.jobs.settings = replace(
                     file.text.jobs.settings,
                     tokens=replace(
@@ -110,7 +115,9 @@ def main() -> None:
             elif stage == 3 and file.text.jobs.active:
                 document = file.text.jobs.active
                 assert document.tokens[1].start == 2 and document.tokens[1].end == 4
-                file.records.settings = replace(file.records.settings, primary="audio")
+                file.records.settings = replace(
+                    file.records.settings, primary="audio", supporting=("audio",)
+                )
                 stage, entered = 4, evidence.frames
             elif stage == 4 and file.audio.jobs.metadata and age > 10:
                 assert file.audio.jobs.metadata[1].sample_rate == 16000

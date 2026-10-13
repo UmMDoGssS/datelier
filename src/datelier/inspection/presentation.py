@@ -155,21 +155,29 @@ def cell_style(
     )
     marker = "<" if value < lo else ">" if value > hi else "=" if lo == hi else ""
     color = (
-        viridis(position)
+        crest(position)
         if cell.text_length is not None
         else (0.2 + 0.65 * position, 0.35, 0.85 - 0.65 * position)
     )
     return CellStyle(color, marker)
 
 
-def viridis(position: float) -> tuple[float, float, float]:
-    """Interpolate fixed Viridis anchors without importing a plotting runtime."""
+def crest(position: float) -> tuple[float, float, float]:
+    """Interpolate Seaborn Crest samples without importing a plotting runtime.
+
+    Samples from seaborn/cm.py (v0.13.2), _crest_lut, indices 0:256:32
+    plus the final entry. Seaborn is BSD licensed; palette values are data.
+    """
     anchors = (
-        (0.267004, 0.004874, 0.329415),
-        (0.253935, 0.265254, 0.529983),
-        (0.127568, 0.566949, 0.550556),
-        (0.477504, 0.821444, 0.318195),
-        (0.993248, 0.906157, 0.143936),
+        (0.6468274, 0.80289262, 0.56592265),
+        (0.50711872, 0.73665492, 0.56821764),
+        (0.37890483, 0.66859548, 0.56566462),
+        (0.28251558, 0.59517119, 0.56181204),
+        (0.20094292, 0.52087429, 0.55342884),
+        (0.12709242, 0.44601517, 0.54438795),
+        (0.11646936, 0.36578429, 0.52726234),
+        (0.15138673, 0.27982444, 0.49119848),
+        (0.17363177, 0.19076859, 0.44549087),
     )
     scaled = max(0, min(1, position)) * (len(anchors) - 1)
     index = min(int(scaled), len(anchors) - 2)

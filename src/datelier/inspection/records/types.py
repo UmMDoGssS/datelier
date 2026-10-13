@@ -6,6 +6,7 @@ from enum import StrEnum
 import polars as pl
 
 from datelier.core import DatasetRevision
+from datelier.inspection.presentation import CellPresentation
 
 
 class RecordMode(StrEnum):
@@ -60,6 +61,7 @@ class RecordField:
     is_null: bool = False
     truncated: bool = False
     lines: tuple[str, ...] | None = None
+    cell: CellPresentation | None = None
 
 
 @dataclass(frozen=True)

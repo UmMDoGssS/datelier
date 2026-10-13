@@ -81,6 +81,7 @@ def assemble_inspect(
 
     body = RecordBody(
         file.records,
+        file.table,
         GalleryContent(preview, file.gallery, textures),
         {
             RecordKind.IMAGE: ImageContent(

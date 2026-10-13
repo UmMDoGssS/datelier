@@ -187,7 +187,6 @@ class TextContent(RecordContent):
             document.document.origin.column,
         ) == (card.row_id, card.primary.name)
         if not matches:
-            imgui.text_wrapped(card.primary.text)
             return
         assert document is not None
         imgui.text(

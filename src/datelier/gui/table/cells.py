@@ -39,6 +39,7 @@ class TableCell(Container):
         selected: bool = False,
         reference: str | None = None,
         preview: ReferenceFactory | None = None,
+        content: Component | None = None,
     ) -> None:
         self.style = (
             cell_style(cell, column.bounds if column else None, settings)
@@ -48,7 +49,7 @@ class TableCell(Container):
         self.selected = selected
         marker = self.style.marker if self.style else ""
         label = f"{marker} {text}" if marker else text
-        child = (
+        child = content or (
             preview(column.name, reference, label, 56)
             if preview and column and column.reference and reference is not None
             else TextCell(label)

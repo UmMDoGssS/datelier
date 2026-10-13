@@ -123,6 +123,22 @@ class RecordController:
             )
         return card
 
+    def shown_fields(self, card: RecordCard) -> tuple[RecordField, ...]:
+        """Selected source order; replace the tools field with its complete value."""
+        primary = card.primary
+        fields = tuple(
+            primary if primary and field.name == primary.name else field
+            for field in card.fields
+        )
+        # Legacy mapped views have a payload outside their supporting table.
+        displayed = self.presentation(card).primary
+        if displayed and displayed.name != (primary.name if primary else None):
+            return (*fields, displayed)
+        return fields
+
+    def show_tools(self, column: str) -> None:
+        self.settings = replace(self.settings, primary=column, mapped_payload=False)
+
     def kind(self, card: RecordCard) -> RecordKind:
         if (
             self.settings.text_elements

@@ -7,6 +7,7 @@ import polars as pl
 
 from datelier.core import Dataset
 from datelier.core.column_roles import REFERENCE_ROLES
+from datelier.inspection.presentation import prepare_cell
 from datelier.inspection.records.types import (
     InspectSettings,
     RecordCard,
@@ -34,6 +35,8 @@ def prepare_records(
 ) -> RecordSet:
     settings.validate()
     names = dataset.table.columns
+    if settings.supporting is None:
+        settings = replace(settings, supporting=tuple(names))
     requested = (
         *(settings.supporting or ()),
         *((settings.primary,) if settings.primary else ()),
@@ -96,12 +99,13 @@ def prepare_record_page(dataset: Dataset, records: RecordSet, start: int) -> Rec
                     if isinstance(series.dtype, pl.Struct)
                     else "[ ... ]",
                     is_null=is_null,
+                    cell=prepare_cell(None if is_null else "", dataset.role(name).role),
                 )
                 continue
             value = series[position]
             if isinstance(value, pl.Series):
                 value = value.to_list()
-            limit = 4096 if name == settings.primary else 256
+            limit = 4096
             text = (
                 json.dumps(value, ensure_ascii=False, indent=2, default=str)
                 if nested and value is not None
@@ -121,6 +125,7 @@ def prepare_record_page(dataset: Dataset, records: RecordSet, start: int) -> Rec
                 value is None,
                 not nested and len(text) > limit,
                 tuple(text.splitlines()) if nested and value is not None else None,
+                prepare_cell(value, dataset.role(name).role),
             )
         cards.append(
             RecordCard(

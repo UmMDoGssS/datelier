@@ -6,11 +6,12 @@ from dataclasses import replace
 from imgui_bundle import imgui
 
 from datelier.application.media.records import RecordController, RecordKind
+from datelier.application.tabular import TableController
 from datelier.gui.components.layout import Component, Container, FrameContext
 from datelier.gui.components.layout.viewport import ResizableViewport
 from datelier.gui.components.native import target
 from datelier.gui.records.base import RecordContent
-from datelier.gui.records.values import NestedContent, ValueContent
+from datelier.gui.records.fields import RecordFieldSection, RecordFieldsTable
 from datelier.inspection.records import RecordCard
 
 
@@ -51,46 +52,18 @@ class RecordHeader(Component):
             target(frame, "open")
 
 
-class SupportingFields(Component):
-    def __init__(self, card: RecordCard, gallery: bool) -> None:
-        super().__init__("supporting")
-        self.card, self.gallery = card, gallery
-
-    def render(self, frame: FrameContext) -> None:
-        if not self.card.fields:
-            return
-        if imgui.begin_child(
-            "fields",
-            (0, 65 if self.gallery else 130),
-            window_flags=imgui.WindowFlags_.horizontal_scrollbar,
-        ):
-            clipper = imgui.ListClipper()
-            clipper.begin(len(self.card.fields))
-            while clipper.step():
-                for field in self.card.fields[
-                    clipper.display_start : clipper.display_end
-                ]:
-                    imgui.text_unformatted(f"{field.name}: {field.text}")
-                    if imgui.is_item_hovered():
-                        imgui.set_tooltip(field.text)
-        imgui.end_child()
-
-
 class RecordBody(Container):
     def __init__(
         self,
         model: RecordController,
+        table: TableController,
         preview: RecordContent,
         content: dict[RecordKind, RecordContent],
         viewport: Callable[[RecordKind, RecordContent], ResizableViewport],
     ) -> None:
         self.model = model
-        self.content = {
-            RecordKind.VALUE: ValueContent(),
-            RecordKind.NESTED: NestedContent(),
-            RecordKind.ARRAY: ValueContent(),
-            **content,
-        }
+        self.table = table
+        self.content = content
         self.viewports = {
             kind: viewport(kind, child)
             for kind, child in self.content.items()
@@ -105,17 +78,41 @@ class RecordBody(Container):
         if self.card is None:
             return
         if self.gallery:
-            self.preview.bind_record(self.card)
-            self.children = (self.preview,)
-        else:
-            kind = self.model.kind(self.card)
-            content = self.content[kind]
-            content.bind_record(self.card)
             self.children = (
-                content
-                if kind in (RecordKind.TEXT, RecordKind.ARRAY)
-                else self.viewports[kind],
+                RecordFieldsTable(self.model, self.table, self.card, self.preview),
             )
+        else:
+            sections: list[Component] = []
+            primary = self.model.presentation(self.card).primary
+            for field in self.model.shown_fields(self.card):
+                card = replace(self.card, primary=field)
+                kind = self.model.kind(card)
+                detailed = None
+                if (
+                    primary
+                    and field.name == primary.name
+                    and not field.is_null
+                    and kind
+                    in (
+                        RecordKind.TEXT,
+                        RecordKind.IMAGE,
+                        RecordKind.AUDIO,
+                        RecordKind.ARRAY,
+                    )
+                ):
+                    content = self.content[kind]
+                    content.bind_record(card)
+                    detailed = (
+                        content
+                        if kind in (RecordKind.TEXT, RecordKind.ARRAY)
+                        else self.viewports[kind]
+                    )
+                sections.append(
+                    RecordFieldSection(
+                        self.model, self.table, self.card, field, self.preview, detailed
+                    )
+                )
+            self.children = tuple(sections)
         super().render(frame)
 
     def close(self) -> None:
@@ -141,7 +138,6 @@ class RecordCardView(Container):
             (
                 RecordHeader(model, card, slot, jump),
                 body,
-                SupportingFields(card, gallery),
             ),
         )
         self.model = model
@@ -150,10 +146,15 @@ class RecordCardView(Container):
     def render(self, frame: FrameContext) -> None:
         imgui.push_id(self.key)
         self.body.card, self.body.gallery = (
-            self.model.presentation(self.card),
+            self.card,
             self.gallery,
         )
-        super().render(frame)
+        if self.gallery:
+            if imgui.begin_child("record", (0, 310), imgui.ChildFlags_.borders):
+                super().render(frame)
+            imgui.end_child()
+        else:
+            super().render(frame)
         imgui.pop_id()
 
 
@@ -172,7 +173,7 @@ class RecordCollection(Container):
         if model.settings.gallery:
             if imgui.begin_child("gallery", (0, 0)):
                 clipper = imgui.ListClipper()
-                clipper.begin(len(records.positions), 210)
+                clipper.begin(len(records.positions), 326)
                 while clipper.step():
                     for slot in range(clipper.display_start, clipper.display_end):
                         page = model.jobs.get(slot)
@@ -197,7 +198,7 @@ class RecordCollection(Container):
                                 max(
                                     0,
                                     y
-                                    + 210
+                                    + 326
                                     - imgui.get_cursor_pos_y()
                                     - imgui.get_style().item_spacing.y,
                                 ),

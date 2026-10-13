@@ -96,7 +96,7 @@ def test_category_palette_is_stable_after_sort_filter_and_undo() -> None:
     assert cell_style(original, None, TablePresentation(enabled=False)).rgba is None
 
 
-def test_text_length_uses_original_unicode_length_and_viridis() -> None:
+def test_text_length_uses_original_unicode_length_and_crest() -> None:
     data = inspect(
         pl.DataFrame({"id": [1, 2, 3, 4], "text": ["", "中文🙂", "x" * 500, None]})
     )
@@ -107,8 +107,8 @@ def test_text_length_uses_original_unicode_length_and_viridis() -> None:
     assert len(data.first_page.rows[2][1]) == 257
     settings = TablePresentation(scale=NumericScale.LINEAR)
     low, high = [cell_style(cells[i], bounds, settings) for i in (0, 2)]
-    assert low.rgba == (0.267004, 0.004874, 0.329415)
-    assert high.rgba == pytest.approx((0.993248, 0.906157, 0.143936))
+    assert low.rgba == (0.6468274, 0.80289262, 0.56592265)
+    assert high.rgba == pytest.approx((0.17363177, 0.19076859, 0.44549087))
     assert cell_style(cells[3], bounds, settings).opaque
     custom = replace(settings, scale=NumericScale.CUSTOM, minimum=1, maximum=10)
     assert cell_style(cells[2], bounds, custom).marker == ">"
