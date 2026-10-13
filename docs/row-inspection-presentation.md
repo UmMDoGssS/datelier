@@ -18,7 +18,7 @@ hues for the displayed series.
 - [x] Inspect: all selected columns, shared styling, separated gallery tables,
   ruled focused fields, lazy media previews and retained detailed tools.
 - [x] Profiles: wide statistics tables and separated saturated comparison hues.
-- [ ] Full-suite and native acceptance.
+- [x] Full-suite and native acceptance.
 
 Step 1 checks: `uv run pyrefly check` (zero errors), eight focused tests in
 `test_table_presentation.py`, `test_profile_preview.py`, `test_rebuild_table.py`,
@@ -76,3 +76,25 @@ Pyrefly, Ruff and native table/focused-row checks. String-valued identifiers,
 references and categorical/Enum text share the length scale; nontext categories
 retain stable category colors. A new native restore assertion verifies the
 chosen shown-column order. Selected-row null checks pass in Dark and Light.
+
+## Final acceptance — 2026-10-13
+
+`uv run pytest -q`: **1205 passed**, 3 existing PyTorch warnings, 35.48 s.
+Full Pyrefly: zero errors (the existing one suppression remains). Full Ruff
+lint/format and `git diff --check` pass. No dependency/lockfile changes.
+
+Native Mesa checks cover Dark/Light selected null cells, gallery/focused rows,
+both image previews, all five numeric plot modes and actual statistics rows,
+original pixel/text-span/waveform tools, sorted array-gallery opening, and the
+existing profile sizing/navigation/selector workflow. Fresh-process table
+restoration retains custom ranges, badges, reference mappings, linked source
+selection and the chosen shown-column order. Final save/restore runs take
+178/31 frames, with p95 frame intervals 14.95/14.01 ms; the shared preview cache
+peaks at 9216 GPU bytes and at most three uploads in one frame. Sources are
+preserved, and restoration starts no ML, tokenizer training or playback.
+
+The implementation is delivered in verified commits `63c1d7a`, `89ffdf4`,
+`89ab54c`, and `5fe90df`. The earlier Viridis commit is superseded by the Crest
+update. Full-resolution media/token/signal tools still select one column;
+row fields and their previews are shown together. All existing Linux rendering,
+human listening and unfinished Titanic usability assumptions retain their status.

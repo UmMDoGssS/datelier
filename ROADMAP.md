@@ -995,4 +995,4 @@ preview colors, type-neutral Inspect layouts and wider profile comparisons.
 - [x] Highlight null cells in bold black on opaque white; shade string lengths with Crest (updated at the user's request).
 - [x] Show all selected row fields in gallery name/value tables and ruled focused sections; retain lazy media and detailed tools.
 - [x] Pivot profile statistics into separate columns and separate displayed plot hues deterministically.
-- [ ] Verify full-suite and native workflow acceptance.
+- [x] Verify full-suite and native workflow acceptance.

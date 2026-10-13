@@ -206,9 +206,9 @@ unchanged by this source-layout follow-up.
 
 ## Architecture and data integrity
 
-The row inspection presentation follow-up is authorized on 2026-10-13;
+The row inspection presentation follow-up passes on 2026-10-13;
 [docs/row-inspection-presentation.md](docs/row-inspection-presentation.md) tracks
-shared null/Text styling, type-neutral detailed rows and profile comparisons.
+shared null/string styling, type-neutral detailed rows and profile comparisons.
 Inspect defaults to all columns and retains explicit column selection.
 
 - Separate import adapters, dataset and operation state, profiling, plotting
