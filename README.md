@@ -123,8 +123,11 @@ Use `uv sync --no-dev` for runtime dependencies alone.
 Run the current Linux native acceptance inventory and size/theme matrix serially:
 
 ```sh
-LIBGL_ALWAYS_SOFTWARE=1 POLARS_MAX_THREADS=8 uv run scripts/rebuild_acceptance.py --matrix
+LIBGL_ALWAYS_SOFTWARE=1 POLARS_MAX_THREADS=8 uv run python -m scripts.gui.acceptance --matrix
 ```
+
+See [scripts/README.md](scripts/README.md) for individual checks, benchmarks,
+environment probes and installed-wheel verification.
 
 See the [GUI refactor audit](docs/gui-refactor-audit.md) and
 [harness migration catalog](docs/gui-harness-audit.md) for coverage and historical

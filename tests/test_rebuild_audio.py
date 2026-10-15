@@ -7,13 +7,13 @@ from time import monotonic, sleep
 
 import numpy as np
 import soundfile as sf
-from audio_playback_fixtures import Devices
 
 from datelier.application.sessions import EditorController
 from datelier.inspection.audio.collections.settings import AudioProfileMode
 from datelier.inspection.audio.playback.controller import PlaybackPhase
 from datelier.inspection.audio.signal import AudioViewKind, SpectralView
 from datelier.inspection.audio.types import AudioRange
+from scripts.support.audio_devices import Devices
 
 
 def until(editor: EditorController, condition: Callable[[], bool]) -> None:

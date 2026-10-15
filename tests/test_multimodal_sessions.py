@@ -6,8 +6,6 @@ from pathlib import Path
 from time import monotonic, sleep
 from unittest.mock import patch
 
-from audio_playback_fixtures import Devices
-
 from datelier.application.sessions import EditorController, FileController
 from datelier.application.sessions.workspace import capture_session, install_file
 from datelier.inspection.arrays import (
@@ -27,6 +25,7 @@ from datelier.pipeline.transforms import CastColumn, TargetType
 from datelier.workspace.sessions.jobs import save_snapshot
 from datelier.workspace.sessions.restore import restore_session_workspace
 from datelier.workspace.single.storage import save_workspace
+from scripts.support.audio_devices import Devices
 from scripts.support.multimodal import make_multimodal
 
 

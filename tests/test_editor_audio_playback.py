@@ -6,7 +6,6 @@ from time import monotonic, sleep
 
 import numpy as np
 import soundfile as sf
-from audio_playback_fixtures import Devices
 
 from datelier.application.sessions import EditorController, FileController
 from datelier.inspection.arrays import ArrayLayout, ArrayRecordMapping
@@ -15,6 +14,7 @@ from datelier.inspection.audio.playback.requests import playback_request
 from datelier.inspection.audio.types import AudioRange
 from datelier.io.types import ArrayOptions
 from datelier.pipeline import Sort
+from scripts.support.audio_devices import Devices
 
 
 def loaded(editor: EditorController) -> None:

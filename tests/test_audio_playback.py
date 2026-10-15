@@ -10,7 +10,6 @@ from unittest.mock import patch
 import numpy as np
 import pytest
 import soundfile as sf
-from audio_playback_fixtures import Devices, FakeDevice
 
 from datelier.inspection.arrays import ArrayLayout, ArrayRecordMapping
 from datelier.inspection.audio.decoding import (
@@ -27,6 +26,7 @@ from datelier.io.arrays import ArrayStore
 from datelier.io.arrays.metadata import inspect_arrays
 from datelier.io.arrays.records import prepare_array_records
 from datelier.io.media import load_media
+from scripts.support.audio_devices import Devices, FakeDevice
 
 
 def gated[**P, T](

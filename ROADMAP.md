@@ -1028,5 +1028,5 @@ acceptance coverage and historical evidence remain. See
 
 - [x] Retire the feasibility implementation and obsolete probes; verify the CLI,
   retained fixture consumers, Pyrefly/Ruff and a current-workbench native launch.
-- [ ] Organize retained tools, update current commands and child invocations;
+- [x] Organize retained tools, update current commands and child invocations;
   verify the full suite, native acceptance and wheel contents.
