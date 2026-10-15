@@ -11,10 +11,10 @@ from typing import cast
 import numpy as np
 from imgui_bundle import hello_imgui
 from numpy.typing import NDArray
+from support.tables import make_table
 
 from datelier.analysis.types import Algorithm, ClusteringResult
 from datelier.application.sessions import EditorController
-from datelier.feasibility.fixtures import make_table
 from datelier.gui.app import InspectionEvidence, run_gui
 from datelier.gui.components.probe import GuiProbe
 

@@ -9,11 +9,6 @@ def main() -> None:
     )
     parser.add_argument("--workspace", type=Path, help="restore a referenced workspace")
     parser.add_argument(
-        "--feasibility",
-        action="store_true",
-        help="open the synthetic docking/plot probe",
-    )
-    parser.add_argument(
         "--smoke-frames",
         type=int,
         default=0,
@@ -22,24 +17,14 @@ def main() -> None:
     args = parser.parse_args()
     if args.smoke_frames < 0:
         parser.error("--smoke-frames requires a nonnegative count")
-    if (
-        sum(bool(value) for value in (args.dataset, args.workspace, args.feasibility))
-        > 1
-    ):
-        parser.error("Choose a dataset, --workspace or --feasibility")
-    if args.feasibility:
-        from datelier.feasibility.fixtures import make_table
-        from datelier.feasibility.gui import run_gui
+    if args.dataset is not None and args.workspace is not None:
+        parser.error("Choose a dataset or --workspace")
+    from datelier.gui.app import run_gui
 
-        evidence = run_gui(make_table(256), smoke_frames=args.smoke_frames)
-        print(f"Rendered {evidence.frames} frames; {evidence.plot_frames} plot frames.")
-    else:
-        from datelier.gui.app import run_gui
-
-        evidence = run_gui(
-            args.dataset,
-            smoke_frames=args.smoke_frames,
-            initial_workspace=args.workspace,
-        )
-        if args.smoke_frames:
-            print(f"Rendered {evidence.frames} frames.")
+    evidence = run_gui(
+        args.dataset,
+        smoke_frames=args.smoke_frames,
+        initial_workspace=args.workspace,
+    )
+    if args.smoke_frames:
+        print(f"Rendered {evidence.frames} frames.")

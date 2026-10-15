@@ -47,9 +47,10 @@ responsive preview/job gates;
 [docs/phase-1.md](docs/phase-1.md) records evidence. Phase 2 has passed format
 coverage and tabular XML/nested-input gates;
 [docs/phase-2.md](docs/phase-2.md) records correctness, GUI, and memory evidence.
-The CLI opens the tabular workbench by default and retains the synthetic
-feasibility window. Linux GUI rendering is verified with Mesa software OpenGL
-on the reference machine; accelerated rendering remains unverified.
+The CLI opens the workbench by default. The historical synthetic feasibility
+window and its CLI command were retired on 2026-10-15; shared verification
+fixtures now live outside the application in `scripts/support/`. Linux GUI
+rendering is verified with Mesa software OpenGL on the reference machine; accelerated rendering remains unverified.
 Phase 3 has passed reversible-operation/history, typed-transform/expression,
 and explicit CSV/Parquet export gates; [docs/phase-3.md](docs/phase-3.md) records
 correctness, GUI, and resource evidence. Phase 4 has passed automatic

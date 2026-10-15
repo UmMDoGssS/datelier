@@ -15,9 +15,9 @@ from time import perf_counter
 
 import numpy as np
 import soundfile as sf
+from support.multimodal import MultimodalFixtures, make_multimodal
 
 import datelier
-from datelier.feasibility.multimodal import MultimodalFixtures, make_multimodal
 from datelier.gui.fonts import FALLBACK_FONTS
 from datelier.inspection.arrays import (
     ArrayLayout,

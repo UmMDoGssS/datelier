@@ -10,7 +10,6 @@ from audio_playback_fixtures import Devices
 
 from datelier.application.sessions import EditorController, FileController
 from datelier.application.sessions.workspace import capture_session, install_file
-from datelier.feasibility.multimodal import make_multimodal
 from datelier.inspection.arrays import (
     ArrayLayout,
     ArrayRecordMapping,
@@ -28,6 +27,7 @@ from datelier.pipeline.transforms import CastColumn, TargetType
 from datelier.workspace.sessions.jobs import save_snapshot
 from datelier.workspace.sessions.restore import restore_session_workspace
 from datelier.workspace.single.storage import save_workspace
+from scripts.support.multimodal import make_multimodal
 
 
 def until(editor: EditorController, ready: Callable[[], bool]) -> None:

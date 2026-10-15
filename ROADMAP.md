@@ -1015,3 +1015,18 @@ recovery and simplified file-tab controls.
 - [x] Add View switches for every closable panel.
 - [x] Remove the Context/Table toolbar buttons and place `+` beside file tabs.
 - [x] Verify native menu/tab input, restoration and the full suite.
+
+## Authorized development tool cleanup (2026-10-15)
+
+The user authorized removal of the historical `--feasibility` command and its
+synthetic implementation, retirement of obsolete scripts, and grouping retained
+verification tools by responsibility. This supersedes the earlier requirement
+to retain the feasibility package and flat script organization. Shared fixtures
+used by current checks move outside the shipped application; domain engines,
+acceptance coverage and historical evidence remain. See
+[development-tools.md](docs/development-tools.md) for scope and verification.
+
+- [x] Retire the feasibility implementation and obsolete probes; verify the CLI,
+  retained fixture consumers, Pyrefly/Ruff and a current-workbench native launch.
+- [ ] Organize retained tools, update current commands and child invocations;
+  verify the full suite, native acceptance and wheel contents.

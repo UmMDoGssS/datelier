@@ -14,8 +14,8 @@ from time import perf_counter
 from xml.sax.saxutils import escape
 
 import polars as pl
+from support.tables import make_table
 
-from datelier.feasibility.fixtures import make_table
 from datelier.inspection.table import prepare_inspection, prepare_page
 from datelier.io.importing import load_file
 from datelier.io.types import ImportFormat

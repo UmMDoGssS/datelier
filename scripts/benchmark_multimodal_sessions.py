@@ -12,9 +12,9 @@ from tempfile import TemporaryDirectory
 from time import monotonic, perf_counter, sleep
 
 import numpy as np
+from support.multimodal import make_multimodal
 
 from datelier.application.sessions import EditorController, FileController
-from datelier.feasibility.multimodal import make_multimodal
 from datelier.inspection.arrays import (
     ArrayLayout,
     ArrayRecordMapping,

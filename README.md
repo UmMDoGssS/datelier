@@ -701,39 +701,3 @@ columns in the active order. Parquet retains scalar schemas; CSV is text, so
 reimport may need schema/date options for numeric-looking strings and dates.
 A requested export finishes if the window closes. See
 [Phase 3 evidence](docs/phase-3.md) for correctness and performance checks.
-
-## Phase 0 GUI probe
-
-On a Linux graphical session with OpenGL support:
-
-```sh
-uv run datelier --feasibility
-uv run datelier --feasibility --smoke-frames 120
-```
-
-The verified renderer on the Phase 0 reference machine is Mesa software OpenGL:
-use `LIBGL_ALWAYS_SOFTWARE=1 uv run datelier --feasibility` if the default
-renderer stalls. Accelerated rendering remains unverified on that machine.
-
-The probe shows a deterministic synthetic Polars table and a bounded scatter
-plot in two dockable panels. Drag the tabs to rearrange them; zoom and pan in
-the plot. This remains a stack integration probe alongside the data workbench.
-Loading the probe does not run machine learning.
-
-Run the tiny analysis compatibility probes explicitly:
-
-```sh
-OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 uv run scripts/analysis_smoke.py
-```
-
-See [Phase 0 evidence](docs/phase-0.md) for dependency versions, settings,
-GUI observations, and performance measurements.
-
-Reproduce the synthetic table benchmark (large CSVs are temporary):
-
-```sh
-POLARS_MAX_THREADS=8 uv run scripts/benchmark_feasibility.py
-```
-
-The JSON report is written to `/tmp/datelier-benchmark.json`. The plot probe
-defaults to the first 2,000 finite rows and labels truncation explicitly.

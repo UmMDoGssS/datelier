@@ -13,8 +13,8 @@ from tempfile import TemporaryDirectory
 from time import perf_counter, sleep
 
 import polars as pl
+from support.tables import make_table
 
-from datelier.feasibility.fixtures import make_table
 from datelier.inspection.table import (
     PAGE_COLUMNS,
     PAGE_ROWS,

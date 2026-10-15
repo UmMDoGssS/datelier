@@ -36,7 +36,7 @@ url = "https://download.pytorch.org/whl/cpu"
 explicit = true
 
 [tool.pyrefly]
-search-path = ["src", "scripts", "tests"]
+search-path = ["src", ".", "scripts", "tests"]
 project-includes = [
     "**/*.py*",
     "**/*.ipynb",
@@ -58,6 +58,7 @@ dev = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
 
 [tool.ruff]
 target-version = "py314"

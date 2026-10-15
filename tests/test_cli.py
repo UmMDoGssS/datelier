@@ -14,7 +14,7 @@ def test_installed_cli_launches() -> None:
         timeout=10,
     )
     assert "Datelier data inspection workbench" in result.stdout
-    assert "--feasibility" in result.stdout
+    assert "--feasibility" not in result.stdout
     assert "--workspace" in result.stdout
     assert result.stderr == ""
 
@@ -24,11 +24,7 @@ def test_installed_cli_launches() -> None:
     [
         (["--smoke-frames", "-1"], "nonnegative"),
         (["example.csv", "--workspace", "example.datelier"], "Choose a dataset"),
-        (["--feasibility", "--workspace", "example.datelier"], "Choose a dataset"),
-        (
-            ["example.csv", "--feasibility"],
-            "Choose a dataset, --workspace or --feasibility",
-        ),
+        (["--feasibility"], "unrecognized arguments: --feasibility"),
     ],
 )
 def test_invalid_cli_arguments_fail_before_gui_launch(

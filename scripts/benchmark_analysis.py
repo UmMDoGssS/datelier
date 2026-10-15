@@ -9,6 +9,8 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from time import perf_counter, sleep
 
+from support.tables import make_table
+
 from datelier.analysis.algorithms import ALGORITHMS
 from datelier.analysis.jobs import AnalysisJobs
 from datelier.analysis.parameters import DBSCANParameters
@@ -19,7 +21,6 @@ from datelier.analysis.types import (
     ClusteringResult,
 )
 from datelier.core import Dataset, SourceReference
-from datelier.feasibility.fixtures import make_table
 
 
 def main() -> None:
