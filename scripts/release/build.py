@@ -15,6 +15,7 @@ import sys
 from importlib.metadata import version
 from pathlib import Path
 
+from scripts.release.archive import sha256
 from scripts.release.notices import collect_notices
 
 
@@ -108,6 +109,9 @@ def main() -> None:
         "libc": platform.libc_ver(),
         "packages": {name: version(name) for name in packages},
         "checkpoint_support": "CPU only",
+        "executables": {
+            name: sha256(bundle / name) for name in ("datelier", "datelier-verify")
+        },
         "source_sha256": source_digest(root),
         "lock_sha256": hashlib.sha256((root / "uv.lock").read_bytes()).hexdigest(),
         "portaudio_sha256": hashlib.sha256(portaudio.read_bytes()).hexdigest(),

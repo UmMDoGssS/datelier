@@ -4,6 +4,10 @@ Install the locked tools and build from the checkout::
 
     uv sync --locked --extra checkpoints --group freeze
     uv run --no-sync python -m scripts.release.build
+    uv run --no-sync python -m scripts.release.archive
+    uv run --no-sync python -m scripts.release.verify \
+        dist/release/datelier-1.0.0-linux-x86_64.tar.gz \
+        --output /tmp/datelier-release-verification --native
 
 Building requires the Ubuntu libportaudio2 runtime and its provider notice.
 When it is not installed, apt-get download libportaudio2 and dpkg-deb -x can
