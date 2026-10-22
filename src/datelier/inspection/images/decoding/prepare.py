@@ -3,7 +3,6 @@
 from collections.abc import Callable
 from dataclasses import replace
 from math import ceil
-from typing import cast
 
 import numpy as np
 from numpy.typing import NDArray
@@ -118,7 +117,7 @@ def prepare_window(
     if locator.asset is not None:
         with images.open_file(locator.asset, stopped) as array:
             oriented = orient_array(array, metadata.orientation)
-            raw = cast(NDArray[np.generic], oriented[spatial].copy())
+            raw = oriented[spatial].copy()
     else:
         catalog, mapping = locator.catalog, locator.mapping
         if catalog is None or mapping is None or locator.source_index is None:
@@ -152,12 +151,9 @@ def prepare_window(
                 axes = (*axes, mapping.channel_axis)
         with arrays.open_member(catalog, mapping.member, stopped) as array:
             selected = np.asarray(array[tuple(selectors)])
-            raw = cast(
-                NDArray[np.generic],
-                selected.transpose(
-                    tuple(sorted(axes).index(axis) for axis in axes)
-                ).copy(),
-            )
+            raw = selected.transpose(
+                tuple(sorted(axes).index(axis) for axis in axes)
+            ).copy()
     raw.flags.writeable = False
     values = normalize(raw, display.value_range) if metadata.mode == "Numeric" else None
     if values is not None:

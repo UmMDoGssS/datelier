@@ -101,7 +101,7 @@ def prepare_slice(
                 selected = selected.transpose(
                     tuple(sorted(axes).index(axis) for axis in axes)
                 )
-            raw = cast(NDArray[np.generic], selected.copy())
+            raw = selected.copy()
     return prepare_array_display(raw, settings, shape, axes, starts, window.limited)
 
 

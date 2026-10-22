@@ -69,12 +69,12 @@ def audio_metadata(
                 "Use a supported WAV, FLAC, OGG or MP3 source."
             ) from error
         result = AudioMetadata(
-            int(info.frames),
-            int(info.channels),
-            int(info.samplerate),
+            info.frames,
+            info.channels,
+            info.samplerate,
             np.dtype("float64"),
-            str(info.format),
-            str(info.subtype),
+            info.format,
+            info.subtype,
             "full-scale amplitude",
             f"{info.format}/{info.subtype}; original {info.samplerate} Hz; "
             "decoded float64 amplitude; no resampling",

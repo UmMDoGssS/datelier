@@ -28,7 +28,7 @@ def clipping_bounds(
         return -thresholds.clipping, thresholds.clipping
     if metadata.dtype.kind in "iu":
         limits = np.iinfo(metadata.dtype.str)
-        return int(limits.min), int(limits.max)
+        return limits.min, limits.max
     bits = {"PCM_U8": 8, "PCM_S8": 8, "PCM_16": 16, "PCM_24": 24, "PCM_32": 32}.get(
         metadata.subtype
     )

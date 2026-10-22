@@ -1,6 +1,6 @@
 """Worker-only signal blocks; leases and decoder handles cannot escape a command."""
 
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Generator, Iterator
 from concurrent.futures import CancelledError
 from contextlib import contextmanager
 from typing import cast
@@ -40,7 +40,7 @@ def audio_blocks(
     block_bytes: int = BLOCK_BYTES,
     stopped: Callable[[], bool] | None = None,
     channel: int | None = None,
-) -> Iterator[Iterator[AudioBlock]]:
+) -> Generator[Iterator[AudioBlock]]:
     """Read original decoded/file or raw/array values without rate conversion.
 
     Each block is an owned copy. Consumers may retain a visible block after its
@@ -121,7 +121,7 @@ def audio_blocks(
                         )
                     else:
                         raw = raw[:, None]
-                    owned = cast(NDArray[np.generic], raw.copy())
+                    owned = raw.copy()
                     owned.flags.writeable = False
                     yield AudioBlock(offset, owned)
 

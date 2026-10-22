@@ -30,6 +30,7 @@ class HDBSCANAlgorithm(ClusteringAlgorithm):
     def build(
         self, prepared: PreparedInput
     ) -> tuple[ClusterEstimator, NDArray[np.float64], tuple[tuple[str, str], ...]]:
+        # Upstream annotations omit this supported public re-export.
         from sklearn.cluster import (
             HDBSCAN,  # pyrefly: ignore [missing-module-attribute]
         )

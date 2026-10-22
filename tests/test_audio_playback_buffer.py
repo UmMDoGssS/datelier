@@ -24,7 +24,7 @@ def test_integer_pcm_mapping_preserves_original_values_and_midpoint(
     dtype: str,
 ) -> None:
     bounds = np.iinfo(dtype)
-    midpoint = 0 if bounds.min < 0 else (int(bounds.max) + 1) // 2
+    midpoint = 0 if bounds.min < 0 else (bounds.max + 1) // 2
     raw = np.array([[bounds.min], [midpoint], [bounds.max]], dtype=dtype)
     before = raw.copy()
     converted = output_samples(raw)

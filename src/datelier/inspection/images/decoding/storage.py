@@ -1,7 +1,7 @@
 """Worker-owned decoded files with mapped leases and bounded disk retention."""
 
 from collections import OrderedDict
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Generator
 from concurrent.futures import CancelledError
 from contextlib import contextmanager
 from dataclasses import dataclass
@@ -103,7 +103,7 @@ class ImageStore:
     @contextmanager
     def open_file(
         self, asset: AssetIdentity, stopped: Callable[[], bool] | None = None
-    ) -> Iterator[NDArray[np.generic]]:
+    ) -> Generator[NDArray[np.generic]]:
         self._check(stopped)
         check_asset(asset)
         with self._lock:

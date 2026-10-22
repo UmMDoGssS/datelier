@@ -102,7 +102,11 @@ def test_finished_and_failed_jobs_release_owner_bookkeeping() -> None:
     with SharedWorkers(workers=1) as workers:
         owner = JobExecutor(workers, max_workers=1, name="test")
         assert owner.submit(lambda: 5).result(3) == 5
-        failure = owner.submit(lambda: 1 / 0)
+
+        def fail() -> None:
+            raise ZeroDivisionError("Worker failure")
+
+        failure = owner.submit(fail)
         with pytest.raises(ZeroDivisionError):
             failure.result(3)
         owner.shutdown()

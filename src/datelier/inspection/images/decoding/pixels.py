@@ -1,6 +1,6 @@
 """Leased original image grids and bounded exact/seeded pixel batches for workers."""
 
-from collections.abc import Iterator
+from collections.abc import Generator, Iterator
 from concurrent.futures import CancelledError
 from contextlib import contextmanager
 from threading import Event
@@ -28,7 +28,7 @@ def original_pixels(
     images: ImageStore,
     arrays: ArrayStore,
     stop: Event,
-) -> Iterator[NDArray[np.generic]]:
+) -> Generator[NDArray[np.generic]]:
     check_cancelled(stop)
     if locator.asset is not None:
         with images.open_file(locator.asset, stop.is_set) as raw:
@@ -48,11 +48,8 @@ def original_pixels(
             selectors[mapping.channel_axis] = slice(None)
             axes = (*axes, mapping.channel_axis)
         with arrays.open_member(catalog, mapping.member, stop.is_set) as raw:
-            selected = cast(
-                NDArray[np.generic],
-                np.asarray(raw[tuple(selectors)]).transpose(
-                    tuple(sorted(axes).index(axis) for axis in axes)
-                ),
+            selected = np.asarray(raw[tuple(selectors)]).transpose(
+                tuple(sorted(axes).index(axis) for axis in axes)
             )
             yield selected[:, :, None] if selected.ndim == 2 else selected
     check_cancelled(stop)

@@ -53,7 +53,7 @@ def prepare_array_records(
         selectors: list[int | slice] = list(support.fixed or (0,) * len(metadata.shape))
         selectors[support.record_axis] = slice(None)
         with store.open_member(catalog, support.member) as array:
-            selected = cast(NDArray[np.generic], np.asarray(array[tuple(selectors)]))
+            selected = np.asarray(array[tuple(selectors)])
             if support.field is not None:
                 if (
                     selected.dtype.names is None

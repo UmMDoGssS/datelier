@@ -1,6 +1,6 @@
 """Read-only annotation snapshots and narrow scalar parsing boundaries."""
 
-from collections.abc import Iterable, Iterator
+from collections.abc import Generator, Iterable
 from contextlib import contextmanager
 from math import isfinite
 from pathlib import Path
@@ -10,7 +10,7 @@ from datelier.inspection.references import AssetIdentity
 
 
 @contextmanager
-def annotation_source(path: Path) -> Iterator[tuple[AssetIdentity, BinaryIO]]:
+def annotation_source(path: Path) -> Generator[tuple[AssetIdentity, BinaryIO]]:
     path = path.expanduser().resolve()
     before = path.stat()
     asset = AssetIdentity(path, before.st_size, before.st_mtime_ns)

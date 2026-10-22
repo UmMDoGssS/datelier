@@ -1,7 +1,7 @@
 """Worker-only selected NPZ extraction and read-only mapped member leases."""
 
 from collections import OrderedDict
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Generator
 from concurrent.futures import CancelledError
 from contextlib import contextmanager
 from dataclasses import dataclass
@@ -159,7 +159,7 @@ class ArrayStore:
         catalog: ArrayCatalog,
         name: str,
         stopped: Callable[[], bool] | None = None,
-    ) -> Iterator[NDArray[np.generic]]:
+    ) -> Generator[NDArray[np.generic]]:
         self._check(stopped)
         self.check_source(catalog)
         member = catalog.member(name)

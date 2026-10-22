@@ -1,6 +1,6 @@
 """Bounded original-rate FFT frames without whole-record signal copies."""
 
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Generator, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import cast
@@ -37,7 +37,7 @@ def power_frames(
     arrays: ArrayStore,
     stopped: Callable[[], bool] | None = None,
     progress: AudioProgress | None = None,
-) -> Iterator[SpectralScan]:
+) -> Generator[SpectralScan]:
     """No detrending/resampling. Short windows zero-pad only the FFT, not samples.
 
     Complete windows start at the chosen frame and advance by hop. At most

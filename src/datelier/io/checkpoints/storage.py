@@ -1,6 +1,6 @@
 """Worker-only leases over restricted CPU checkpoint storage."""
 
-from collections.abc import Callable, Iterator, Mapping
+from collections.abc import Callable, Generator, Mapping
 from concurrent.futures import CancelledError
 from contextlib import contextmanager
 from threading import Event, RLock
@@ -43,7 +43,7 @@ class CheckpointStore:
         catalog: CheckpointCatalog,
         name: str,
         stopped: Callable[[], bool] | None = None,
-    ) -> Iterator[TensorValue]:
+    ) -> Generator[TensorValue]:
         info = catalog.tensor(name)
         if info.diagnostic:
             raise ValueError(info.diagnostic)

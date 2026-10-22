@@ -85,7 +85,7 @@ def categorical_comparison(
             )
         )
         by_key = dict(visible.iter_rows())
-        values = [int(by_key.get(key, 0)) for key in keys]
+        values = [by_key.get(key, 0) for key in keys]
         if other:
             values.append(len(original) - sum(values))
         array = np.asarray(values, dtype=np.int64)

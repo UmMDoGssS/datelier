@@ -24,7 +24,7 @@ def read_header(
 ) -> tuple[Header, int]:
     if not 1 <= max_header_bytes <= 16 * 1024 * 1024:
         raise ValueError("Header limit must be between one byte and 16 MiB")
-    version = cast(tuple[int, int], npformat.read_magic(source))
+    version = npformat.read_magic(source)
     if version not in ((1, 0), (2, 0), (3, 0)):
         raise ValueError(f"Unsupported NPY version {version}")
     length_size = 2 if version == (1, 0) else 4

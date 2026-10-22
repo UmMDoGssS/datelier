@@ -7,7 +7,7 @@ Callbacks stay owned until GUI disposal, after the queued draws have rendered.
 """
 
 import ctypes as ct
-from collections.abc import Iterator
+from collections.abc import Generator
 from contextlib import contextmanager
 from importlib.util import find_spec
 
@@ -81,7 +81,7 @@ class NearestSampling:
         self._bridge: _OpenGlCallbacks | None = None
 
     @contextmanager
-    def draw(self) -> Iterator[None]:
+    def draw(self) -> Generator[None]:
         if self._bridge is None:
             if "OpenGL3" not in hello_imgui.get_backend_description():
                 raise RuntimeError("Sharp image sampling requires the OpenGL3 renderer")

@@ -4,7 +4,7 @@ import argparse
 import hashlib
 import json
 import resource
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Generator
 from contextlib import contextmanager
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -56,7 +56,7 @@ def main() -> None:
         self: ImageStore,
         asset: AssetIdentity,
         stopped: Callable[[], bool] | None = None,
-    ) -> Iterator[NDArray[np.generic]]:
+    ) -> Generator[NDArray[np.generic]]:
         nonlocal peak_image_disk, peak_image_files, retained_image, decodes
         with image_open(self, asset, stopped) as raw:
             if self.temporary_path is not None:
@@ -75,7 +75,7 @@ def main() -> None:
         catalog: ArrayCatalog,
         name: str,
         stopped: Callable[[], bool] | None = None,
-    ) -> Iterator[NDArray[np.generic]]:
+    ) -> Generator[NDArray[np.generic]]:
         nonlocal peak_array_disk
         with array_open(self, catalog, name, stopped) as raw:
             if self.temporary_path is not None:

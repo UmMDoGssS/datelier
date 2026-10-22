@@ -100,7 +100,7 @@ def main() -> None:
                         stage_frame = evidence.frames
                     return
                 assert context and context.size.x >= 270
-                assert bool(context.dock_id == 0) == (args.width < 1100)
+                assert (context.dock_id == 0) == (args.width < 1100)
                 checked["context_drawer"] = args.width < 1100
                 suffix = ("features", "open")
             elif phase == 8 and age > 3:
