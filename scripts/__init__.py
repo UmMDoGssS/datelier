@@ -2,7 +2,7 @@
 
 Install development dependencies with ``uv sync --locked``. The normal checks are::
 
-    uv run pyrefly check
+    uv run pyrefly check --min-severity warn
     uv run pytest
     uv run ruff check .
     uv run ruff format --check .
@@ -10,7 +10,8 @@ Install development dependencies with ``uv sync --locked``. The normal checks ar
 ``gui`` owns serial native interaction/restoration checks; ``benchmarks`` owns
 measured timing/memory/source-preservation gates; ``environment`` probes real
 codecs/devices/optional CPU dependencies; ``installation`` verifies installed
-wheels. ``support`` supplies shared fixtures/input/instrumentation. These tools
+wheels; ``release`` builds and verifies the frozen Linux bundle.
+``support`` supplies shared fixtures/input/instrumentation. These tools
 stay outside the application wheel. Consult each module's docstring and --help
 before running resource-intensive or real-device checks.
 

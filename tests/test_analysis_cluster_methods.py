@@ -46,6 +46,11 @@ def test_clusters_group_separated_blobs_and_preserve_sampled_ids(
     np.testing.assert_array_equal(result.row_ids, prepared.row_ids)
     assert sum(result.counts) + result.noise_count == len(prepared.row_ids)
     assert not result.labels.flags.writeable
+    if algorithm == Algorithm.SPECTRAL_CLUSTERING:
+        assert any(
+            name == "Fit warning" and "not fully connected" in message
+            for name, message in result.details
+        )
     if algorithm == Algorithm.AFFINITY_PROPAGATION:
         # Exemplar clustering may split a blob; each group should remain pure.
         fitted_truth = truth[prepared.row_ids]

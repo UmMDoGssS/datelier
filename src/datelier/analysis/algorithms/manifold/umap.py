@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar
+from warnings import catch_warnings, filterwarnings
 
 import numpy as np
 from numpy.typing import NDArray
@@ -41,7 +42,17 @@ class UMAPAlgorithm(DecompositionAlgorithm):
         self, prepared: PreparedInput
     ) -> tuple[EmbeddingEstimator, NDArray[np.float64], Details]:
         from numba import set_num_threads
-        from umap import UMAP
+
+        # Datelier uses ordinary UMAP; its separate TensorFlow estimator is not
+        # required. Ignore only that optional-estimator import notice.
+        with catch_warnings():
+            filterwarnings(
+                "ignore",
+                message="Tensorflow not installed; ParametricUMAP will be unavailable$",
+                category=ImportWarning,
+                module="umap",
+            )
+            from umap import UMAP
 
         request = prepared.request
         set_num_threads(1)

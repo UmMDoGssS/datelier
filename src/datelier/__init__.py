@@ -26,11 +26,15 @@ listening remain open as described in gui and inspection.audio.playback.
 """
 
 import argparse
+from importlib.metadata import version
 from pathlib import Path
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Datelier data inspection workbench")
+    parser.add_argument(
+        "--version", action="version", version=f"%(prog)s {version('datelier')}"
+    )
     parser.add_argument(
         "dataset", nargs="?", type=Path, help="open a dataset in the desktop workbench"
     )

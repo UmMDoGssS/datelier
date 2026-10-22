@@ -5,7 +5,8 @@ handling. Play/pause/resume/seek/stop are commands; open/restore never starts so
 Device/rate errors remain diagnostic. Linux requires the PortAudio runtime
 (``libportaudio2`` on Debian/Ubuntu); device availability is host-dependent.
 Automated command/lifecycle checks pass, but human listening was deferred by the
-user on 2026-10-08 and remains unverified.
+user on 2026-10-08 and retained as a known 1.0 limitation on 2026-10-22.
+Listening remains unverified.
 """
 
 from datelier.inspection.audio.playback.settings import (

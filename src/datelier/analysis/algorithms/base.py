@@ -122,7 +122,10 @@ class DecompositionAlgorithm(Algorithm, ABC):
         self.check_input(prepared)
         started = perf_counter()
         estimator, values, details = self.build(prepared)
-        with catch_warnings(record=True) as captured, threadpool_limits(limits=1):
+        with (
+            catch_warnings(record=True, action="always") as captured,
+            threadpool_limits(limits=1),
+        ):
             coordinates = cast(
                 NDArray[np.float64], estimator.fit_transform(values)
             ).astype(np.float64)
@@ -226,7 +229,10 @@ class ClusteringAlgorithm(Algorithm, ABC):
         self.check_input(prepared)
         started = perf_counter()
         estimator, values, details = self.build(prepared)
-        with catch_warnings(record=True) as captured, threadpool_limits(limits=1):
+        with (
+            catch_warnings(record=True, action="always") as captured,
+            threadpool_limits(limits=1),
+        ):
             labels = cast(NDArray[np.int64], estimator.fit_predict(values)).astype(
                 np.int64
             )
