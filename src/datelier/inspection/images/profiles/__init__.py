@@ -1,4 +1,10 @@
-"""Public inspection images profiles API."""
+"""Explicit exact/sampled image collection statistics with source outcomes.
+
+Scopes support current rows, ranges, selections, seeded records, and separately
+seeded pixels. Original pixels are exact by default; statistics, dimensions,
+colors, failures, and sampling provenance accompany every result. Preparation
+uses bounded scans/stores rather than retaining decoded collections.
+"""
 
 from datelier.inspection.images.profiles.types import ChannelKey as ChannelKey
 from datelier.inspection.images.profiles.types import ChannelSummary as ChannelSummary

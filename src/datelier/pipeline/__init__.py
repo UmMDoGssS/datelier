@@ -1,4 +1,11 @@
-"""Public pipeline API."""
+"""Replayable operations and transactional undo/redo against an immutable source.
+
+Transforms operate on Polars tables while carrying stable source-row IDs.
+Pipeline candidates publish only after successful preparation; failed edits
+retain the active table and history. A new edit after undo discards the redo
+branch. Role overrides participate in the same saved history as data edits.
+Derived columns use the constrained expression grammar, never Python execution.
+"""
 
 from datelier.pipeline.history import Pipeline as Pipeline
 from datelier.pipeline.history import replay as replay

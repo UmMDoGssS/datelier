@@ -41,6 +41,15 @@ class ClusterEstimator(Protocol):
 
 
 class Algorithm(ABC):
+    """Executable method contract shared by fitting, forms, and saved recipes.
+
+    Concrete immutable dataclasses own parameter fields/metadata, limits, input
+    validation, and estimator construction. Extend the trusted catalog with such
+    a class rather than adding a separate parameter record or dispatch wrapper.
+    Keep estimator imports inside worker-side build/fit methods and recipe names
+    stable for existing workspaces.
+    """
+
     algorithm: ClassVar[AlgorithmId]
     recipe_kind: ClassVar[str]
     row_limit: ClassVar[int]
@@ -149,6 +158,12 @@ class ClusteringAlgorithm(Algorithm, ABC):
     def predict(
         self, dataset: Dataset, positions: NDArray[np.uint64], result: ClusteringResult
     ) -> NDArray[np.int64]:
+        """Color displayed rows using fitted centers or known fitting identities.
+
+        Labels -1 and -2 distinguish noise from unassigned/excluded rows. Only the
+        nearest-center family predicts unseen rows, in its fitted preprocessing space.
+        """
+
         import polars as pl
 
         if not self.same_configuration(result.provenance.request.method):

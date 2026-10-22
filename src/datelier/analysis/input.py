@@ -15,6 +15,14 @@ from datelier.plotting.scatter import numeric_columns
 
 
 def prepare_input(dataset: Dataset, request: AnalysisRequest) -> PreparedInput:
+    """Prepare bounded, read-only ML arrays with source IDs and display positions.
+
+    Exclude nonfinite rows unless imputation is requested, sample by source ID
+    and seed, estimate medians on that sample, and remove constant features.
+    Convert only selected features to NumPy at this library boundary. The result
+    retains exclusions and fitted preprocessing for aligned later prediction.
+    """
+
     request.validate()
     if any(name not in numeric_columns(dataset) for name in request.features):
         raise ValueError("Analysis features must be existing numeric columns")

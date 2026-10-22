@@ -1,4 +1,10 @@
-"""Public inspection text profiles API."""
+"""Exact corpus statistics with bounded chart buffers and complete raw tables.
+
+Profiles retain document/token totals, original and normalized lengths, quantiles,
+vocabulary/hapax ratios, entropy in bits, token/document frequencies, and record
+outcomes. Empty, null, failed, and tokenless records remain distinguishable.
+List[Text] inputs stream leaves with their source row and nested element path.
+"""
 
 from datelier.inspection.text.profiles.statistics import (
     LengthStatistics as LengthStatistics,

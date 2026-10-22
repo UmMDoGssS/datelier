@@ -18,6 +18,12 @@ class SourceReference:
 
 @dataclass(frozen=True)
 class DatasetRevision:
+    """Identity of one dataset state, not a row number or a display position.
+
+    The dataset UUID survives edits; each published state has a fresh token so
+    late jobs cannot replace newer prepared results.
+    """
+
     dataset_id: UUID
     token: UUID = field(default_factory=uuid4)
 

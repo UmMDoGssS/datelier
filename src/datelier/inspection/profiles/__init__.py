@@ -1,4 +1,11 @@
-"""Public inspection profiles API."""
+"""Type-aware profiles with explicit sampling and separate data-quality counts.
+
+Numeric moments and quantiles use finite values in original units. Non-null and
+unique counts exclude nulls but retain NaN/infinity as non-null values. Categorical
+counts use a bounded leading cohort, with named missing values and top categories
+plus Other. Nested lists profile flattened leaves and separately report container
+lengths/shapes; Inspect retains complete object/list values.
+"""
 
 from datelier.inspection.profiles.numeric import NumericStatistics as NumericStatistics
 from datelier.inspection.profiles.numeric import (

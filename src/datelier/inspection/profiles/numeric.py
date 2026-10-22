@@ -38,6 +38,13 @@ def _number(value: object) -> float | None:
 def prepare_numeric_statistics(
     series: pl.Series, *, uniques: int | None = None
 ) -> NumericStatistics:
+    """Summarize original units, excluding nonfinite values from moments/quantiles.
+
+    Use sample standard deviation (ddof=1) and linear quantiles. Integer extrema
+    and modes retain precision; other modes round to cents where representable,
+    choosing the smallest tie. Undefined/unrepresentable statistics are None.
+    """
+
     series = series.rename("value")
     values = series.cast(pl.Float64)
     finite = values.filter(values.is_finite())

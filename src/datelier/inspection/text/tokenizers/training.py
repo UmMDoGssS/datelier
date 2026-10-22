@@ -73,6 +73,13 @@ def train_tokenizer(
     stop: Event,
     progress: TextProgress,
 ) -> TrainedTokenizer:
+    """Train on an explicit corpus and create new tokenizer/provenance files.
+
+    Stream selected records or list leaves with source hashes and exclusions.
+    Cooperative abandonment may wait for native work; callers discard the result
+    and remove only matching artifacts created by this job.
+    """
+
     settings.validate()
     training = settings.training
     if not training.output_path.strip():

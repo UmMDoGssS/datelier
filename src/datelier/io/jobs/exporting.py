@@ -51,6 +51,14 @@ def export_dataset(
     overwrite: bool = False,
     sources: tuple[Path, ...] = (),
 ) -> ExportResult:
+    """Atomically write the captured revision's user columns to CSV or Parquet.
+
+    Check source aliases and overwrite policy before and after preparation.
+    Temporary files are cleaned on failure; no-overwrite publication also rejects
+    a destination created during the write. CSV requires explicit type inference
+    on reimport; Parquet retains the supported physical schema.
+    """
+
     path = path.expanduser().resolve()
     temporary: Path | None = None
     try:

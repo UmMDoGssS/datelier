@@ -1,4 +1,11 @@
-"""Column meaning inferred in data workers, with explicit user overrides."""
+"""Infer analysis meaning without changing physical types or original values.
+
+Lexical media/path/prose evidence takes precedence over identifier inference.
+A unique, non-null integer/string first source column is otherwise an identifier;
+floating-point uniqueness alone does not make an ID. Overrides are constrained
+by physical type, replayable, and retained while compatible after edits.
+List roles describe flattened leaves; container lengths remain separate.
+"""
 
 import re
 from dataclasses import dataclass

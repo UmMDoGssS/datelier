@@ -63,6 +63,12 @@ def require_torch() -> TorchRuntime:
 
 
 def load_restricted(path: Path, *, metadata: bool, mapped: bool = False) -> object:
+    """Load on CPU with weights_only; metadata mode avoids tensor storage reads.
+
+    Unsupported objects fail with a diagnostic. Never retry with unrestricted
+    unpickling or user-supplied allowlists.
+    """
+
     runtime = require_torch()
     try:
         if metadata:

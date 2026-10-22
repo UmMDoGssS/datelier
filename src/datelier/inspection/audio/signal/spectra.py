@@ -29,6 +29,13 @@ def prepare_spectrogram(
     stopped: Callable[[], bool] | None = None,
     progress: AudioProgress | None = None,
 ) -> SpectralView:
+    """Stream original-rate power into a bounded PSD or mel display grid.
+
+    Retained time/frequency groups use peak power, not averaged power. Preserve
+    aggregation factors, nonfinite counts, omitted trailing samples, and physical
+    axes so the display cannot be mistaken for an unaggregated spectrum.
+    """
+
     settings.validate()
     rate = metadata.require_rate()
     start, stop = selected.bounds(metadata.frames)

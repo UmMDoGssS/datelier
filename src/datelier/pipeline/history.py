@@ -15,6 +15,13 @@ def replay(source: Dataset, operations: tuple[Operation, ...]) -> Dataset:
 
 @dataclass(frozen=True)
 class Pipeline:
+    """Immutable source, active result, and full operation history with a cursor.
+
+    Successful edits branch at the cursor; undo replays from the source and redo
+    applies the next operation. Candidates return a new Pipeline, so exceptions
+    leave the caller's table, cursor, and redo history intact.
+    """
+
     source: Dataset
     current: Dataset
     history: tuple[Operation, ...] = ()

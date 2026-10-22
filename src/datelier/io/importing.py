@@ -61,6 +61,12 @@ def load_file(
     *,
     format: ImportFormat | None = None,
 ) -> ImportResult:
+    """Load a source with matching format options, preserving its original bytes.
+
+    Run in a worker: adapters may read complete tables or build metadata catalogs.
+    Failures raise ImportFailure without publishing a partially loaded dataset.
+    """
+
     selected = (
         format
         if format is not None
@@ -112,7 +118,11 @@ def load_inspectable_file(
     *,
     format: ImportFormat | None = None,
 ) -> ImportResult:
-    """Editor opening preserves flat JSON defaults and browses other JSON shapes."""
+    """Open editor inputs, falling back from automatic JSON records to a tree.
+
+    Fallback applies only when both format and options are unspecified; explicit
+    import choices keep their diagnostics instead of changing interpretation.
+    """
     try:
         return load_file(path, options, format=format)
     except ImportFailure:

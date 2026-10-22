@@ -45,6 +45,12 @@ def column_mapping(catalog: ArrayCatalog, column: str) -> ArrayRecordMapping | N
 def prepare_aligned_records(
     store: ArrayStore, catalog: ArrayCatalog
 ) -> tuple[Dataset, tuple[str, ...]]:
+    """Build aligned scalar columns while leaving multidimensional payloads lazy.
+
+    Rows retain original first-axis identity. A lazy cell is resolved with both
+    its member column and source-row ID, never its sorted display position.
+    """
+
     count = aligned_record_count(catalog)
     if count is None:
         raise ValueError("NPZ members do not share a usable first dimension")

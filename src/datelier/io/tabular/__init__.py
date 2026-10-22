@@ -1,4 +1,13 @@
-"""Public io tabular API."""
+"""CSV/TSV, JSON/JSONL, Parquet, and tabular XML import adapters.
+
+CSV/TSV expose delimiter, quoting, null, inference, and date settings. JSON record
+objects preserve compatible nested structs/lists and union missing fields as
+null; duplicate keys and nonstandard nonfinite literals fail. Text mode handles
+incompatible scalar types. Parquet retains supported stored types. XML accepts
+explicit scalar-record paths and namespaces, rejecting unsupported nesting or
+mixed content rather than dropping it. Batched parsers still produce a complete
+in-memory table; they are not an out-of-core table engine.
+"""
 
 from datelier.io.tabular.csv import CsvImport as CsvImport
 from datelier.io.tabular.csv import CsvOptions as CsvOptions

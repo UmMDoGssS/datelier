@@ -102,8 +102,9 @@ class SharedWorkers(Executor):
 class JobExecutor(Executor):
     """Track one controller's futures without owning an injected shared pool.
 
-    A scope can cancel its queued jobs and await its executing jobs independently.
-    Standalone controllers retain their small private pool for CLI/test use.
+    Closing cancels queued work where possible; executing threads may finish.
+    Callers must abandon publication separately rather than equating cancellation
+    with execution having stopped. Standalone controllers use a private pool.
     """
 
     def __init__(

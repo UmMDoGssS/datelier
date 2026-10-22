@@ -7,6 +7,13 @@ from datelier.inspection.images.geometry import oriented_point
 
 
 def pixel_box(record: BoxRecord, width: int, height: int) -> PixelBox:
+    """Convert source boxes to continuous original-image pixel edges.
+
+    VOC uses one-based inclusive extrema; COCO uses x/y/width/height; YOLO uses
+    normalized center/size. Preserve out-of-bounds coordinates with diagnostics
+    and reject nonfinite or nonpositive geometry.
+    """
+
     if min(width, height) < 1:
         raise ValueError("Annotation conversion requires positive source dimensions")
     a, b, c, d = record.original

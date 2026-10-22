@@ -1,4 +1,10 @@
-"""Worker-side JSON/TOML hierarchy loading and typed record extraction."""
+"""Read JSON/TOML hierarchies and extract independent named record views in workers.
+
+Node paths retain string keys and integer indices. Opening a record array makes
+a Polars table with typed nested fields while preserving the original tree;
+each view can then own its history and selection. Mixed incompatible values
+require explicit text conversion rather than implicit data loss.
+"""
 
 import math
 import tomllib

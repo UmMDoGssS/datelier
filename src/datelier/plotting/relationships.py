@@ -1,4 +1,10 @@
-"""Bounded relationship matrix with shared, correctly oriented pair data."""
+"""Bounded Pearson matrices and pair grids with a shared finite-pair cohort.
+
+Correlation cells retain pair counts and undefined values. Pair-grid diagonals
+reuse the column's profile representation and mirrored scatter cells share a
+bounded row sample. Feature and cohort limits are explicit so wide tables do
+not silently trigger unbounded pairwise work.
+"""
 
 from dataclasses import dataclass, replace
 from itertools import combinations
