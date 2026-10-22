@@ -14,13 +14,13 @@ from numpy.typing import NDArray
 from datelier.core import Dataset, DatasetRevision
 from datelier.inspection.references import ReferenceSettings
 from datelier.inspection.references.index import ReferenceIndex
+from datelier.inspection.text.lists import is_text_list
 from datelier.inspection.text.profiles.corpus import (
     TextProgress,
     check_abandoned,
     corpus_documents,
     corpus_positions,
 )
-from datelier.inspection.text.profiles.lists import is_text_list
 from datelier.inspection.text.tokenizers import TextTokenizer
 from datelier.inspection.text.types import TextSettings, TextStatus
 

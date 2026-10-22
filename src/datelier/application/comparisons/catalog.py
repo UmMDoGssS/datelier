@@ -13,7 +13,7 @@ from datelier.inspection.comparisons import ComparisonSelection
 from datelier.inspection.references import ReferenceSettings
 from datelier.inspection.references.index import ReferenceIndex
 from datelier.inspection.table import Inspection
-from datelier.inspection.text.profiles.lists import is_text_field
+from datelier.inspection.text import is_text_field
 from datelier.inspection.text.types import TextSettings
 from datelier.io.arrays import ArrayStore
 

@@ -34,7 +34,7 @@ from datelier.inspection.exploration import Explorer, PlotSettings
 from datelier.inspection.preview import PreviewCache
 from datelier.inspection.references.jobs import ReferenceJobs
 from datelier.inspection.table import Inspection
-from datelier.inspection.text.profiles.lists import is_text_field
+from datelier.inspection.text import is_text_field
 from datelier.io.arrays import ArrayStore
 from datelier.io.jobs import DatasetExporter, DatasetLoader, LoadPhase
 from datelier.io.types import ArrayOptions, ImportFormat, ImportOptions, MediaOptions

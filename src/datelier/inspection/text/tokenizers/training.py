@@ -16,13 +16,13 @@ from tokenizers import Tokenizer, models, pre_tokenizers, trainers
 from datelier.core import Dataset
 from datelier.inspection.references import ReferenceSettings
 from datelier.inspection.references.index import ReferenceIndex
+from datelier.inspection.text.lists import is_text_list
 from datelier.inspection.text.profiles.corpus import (
     TextProgress,
     check_abandoned,
     corpus_documents,
     corpus_positions,
 )
-from datelier.inspection.text.profiles.lists import is_text_list
 from datelier.inspection.text.tokenizers.tokenization import normalization
 from datelier.inspection.text.types import (
     TextSettings,

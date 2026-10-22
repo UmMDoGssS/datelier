@@ -8,7 +8,7 @@ import polars as pl
 from datelier.core import ColumnRole, Dataset
 from datelier.inspection.references import ReferenceSettings
 from datelier.inspection.references.index import ReferenceIndex, resolve
-from datelier.inspection.text.profiles.lists import is_text_list, read_list_document
+from datelier.inspection.text.lists import is_text_list, read_list_document
 from datelier.inspection.text.types import (
     TextDocument,
     TextOrigin,

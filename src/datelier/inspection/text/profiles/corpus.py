@@ -11,7 +11,7 @@ from datelier.inspection.records import InspectSettings, RecordMode
 from datelier.inspection.records.prepare import prepare_records
 from datelier.inspection.references import ReferenceSettings
 from datelier.inspection.references.index import ReferenceIndex
-from datelier.inspection.text.profiles.lists import (
+from datelier.inspection.text.lists import (
     element_documents,
     is_text_field,
     is_text_list,

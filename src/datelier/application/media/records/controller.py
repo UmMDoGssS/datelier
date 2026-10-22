@@ -18,7 +18,7 @@ from datelier.inspection.records import (
 )
 from datelier.inspection.records.jobs import RecordJobs
 from datelier.inspection.table import Inspection
-from datelier.inspection.text.profiles.lists import is_text_list
+from datelier.inspection.text import is_text_list
 from datelier.io.arrays.storage import ArrayStore
 from datelier.io.types import ArrayOptions
 from datelier.plotting.scatter import LinkedSelection

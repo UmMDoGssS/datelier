@@ -1,4 +1,8 @@
-"""Stream string leaves with exact source-row and nested-element provenance."""
+"""Shared text-list field predicates and source-row/nested-element traversal.
+
+Record reading and corpus profiling both depend on these primitives. Keep them
+below the profiling package so either API can be imported first.
+"""
 
 from collections.abc import Iterator
 from dataclasses import replace

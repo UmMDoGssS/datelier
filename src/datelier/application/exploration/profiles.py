@@ -11,7 +11,7 @@ from datelier.inspection.arrays import ArrayLayout
 from datelier.inspection.exploration import Explorer
 from datelier.inspection.profiles.preview import ProfileRequest
 from datelier.inspection.table import Inspection
-from datelier.inspection.text.profiles.lists import is_text_field
+from datelier.inspection.text import is_text_field
 
 
 class ProfileFamily(StrEnum):

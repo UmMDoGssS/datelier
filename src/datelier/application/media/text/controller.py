@@ -5,9 +5,9 @@ from dataclasses import replace
 
 from datelier.application.media.base import MediaController, MediaInput
 from datelier.application.media.text.profiles import length_rows, statistic_rows
+from datelier.inspection.text import is_text_list
 from datelier.inspection.text.display.jobs import TextPageJobs
 from datelier.inspection.text.jobs import TextJobs
-from datelier.inspection.text.profiles.lists import is_text_list
 
 
 class TextController(MediaController):
