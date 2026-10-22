@@ -1,5 +1,0 @@
-{
-  "normalized_definitions_compared": 505,
-  "behavior_body_differences": [],
-  "comparison": "8fea1e4 versus moved modules; imports/docstrings removed; split form definitions matched by class name"
-}

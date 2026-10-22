@@ -1,4 +1,17 @@
-"""Run current native acceptance harnesses serially on a Linux display."""
+"""Run the current native acceptance inventory serially on a Linux display.
+
+From the checkout::
+
+    uv run python -m scripts.gui.acceptance --list --matrix
+    uv run python -m scripts.gui.acceptance --matrix --output /tmp/datelier-native
+
+--list inventories commands without importing GUI/optional runtimes. Normal runs
+select Mesa software rendering and eight Polars threads, saving per-command logs
+and native-acceptance.json. --matrix adds shell/media checks at 1024x768, 1280x800,
+and 1600x1000 in Dark/Light/Classic. --resume requires the same options/output and
+validates the saved inventory before skipping successful commands. Resource and
+real-output-device probes remain separate from this native interaction inventory.
+"""
 
 import argparse
 import json

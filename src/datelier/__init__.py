@@ -1,3 +1,30 @@
+"""Personal Linux desktop workbench for in-memory data inspection.
+
+The completed tabular and editor/multimodal baseline supports independent source
+tabs, reversible Polars operations, explicit analyses, referenced workspaces,
+and structured/text/image/audio inspection. Larger-than-memory tables, third-party
+plugins, arbitrary Python mappings, and extra platforms need concrete future
+requirements. Lazy media stores do not imply an out-of-core table engine.
+
+From a checkout with Python 3.14+ and uv::
+
+    uv sync --locked --no-dev
+    uv run --no-dev datelier /path/to/data.csv
+    uv run --no-dev datelier --workspace /path/to/session.datelier
+
+Omit the path to open Welcome. The verified renderer is Linux Mesa software
+OpenGL; LIBGL_ALWAYS_SOFTWARE=1 selects it. Tables must fit in memory; one million
+rows is a benchmark direction, not a capacity guarantee. Optional CPU checkpoints
+need --extra checkpoints on both sync and run. Audio playback requires a system
+PortAudio runtime; codecs depend on the host's libsndfile build.
+
+Subsystem package/API docstrings own current behavior and constraints. The scripts
+package documents verification commands. Completed reports, screenshots, and
+the original delivery roadmap remain recoverable at Git snapshot b1b332c; their
+commands describe historical checkouts. Titanic human usability and actual audio
+listening remain open as described in gui and inspection.audio.playback.
+"""
+
 import argparse
 from pathlib import Path
 

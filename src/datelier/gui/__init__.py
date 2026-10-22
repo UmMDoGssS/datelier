@@ -6,10 +6,13 @@ bootstrap/composition boundary. Pre-frame polling coordinates workers; file
 reads, table-wide statistics, and fitting never belong in frame callbacks.
 Native font loading and GPU texture ownership remain on the GUI thread.
 
-Automated replacement-GUI acceptance does not close the unfinished Titanic human
-usability review. It still needs unaided import/missingness, readable chart/legend,
-grouped survival, explicit PCA/exclusions, filter/undo/brush, and save/export/relink
-workflows across sizes/themes. Proposed timings from the historical review are
-targets, not measured results. Accelerated rendering and other platforms remain
-unverified; native Linux verification uses Mesa software OpenGL.
+The unfinished Titanic human usability review requires unaided workflows: find
+size/age missingness within 30 seconds, sex counts within 15, switch distributions
+in one change, resize within 5, and produce colored age/fare and grouped survival
+within 30 seconds. Also verify explicit PCA/exclusions, filter/undo/brush, and
+save/export/relink. At 1280x800, chart focus targets 340 pixels including axes and
+table focus ten rows. Repeat at 1024x768, 1280x800, and 1600x1000 across themes.
+These are unmeasured acceptance targets; automated feature gates do not close
+them. Accelerated rendering and other platforms remain unverified; native Linux
+verification uses Mesa software OpenGL.
 """

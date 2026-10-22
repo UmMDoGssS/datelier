@@ -1,1 +1,0 @@
-{"frames": 91, "p95_ms": 13.073813999653794, "native_open_activates_pending_view": true, "native_close_pending_view_rejects_late_publication": true, "controller_focus_change_preserved_at_completion": true, "native_explicit_open_reuses_ready_view": true, "source_preserved": true, "implicit_analysis_playback": false}

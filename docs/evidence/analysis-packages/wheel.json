@@ -1,9 +1,0 @@
-{
-  "wheel": "datelier-0.1.0-py3-none-any.whl",
-  "algorithms": 26,
-  "legacy_extra_defaults": 22,
-  "legacy_embedding_defaults": 11,
-  "round_trip": true,
-  "heavy_imports": [],
-  "imports_from_extracted_wheel": true
-}

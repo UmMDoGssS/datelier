@@ -1,8 +1,0 @@
-{
-  "datelier.gui.context.transforms": [
-    "datelier.gui.context.transforms.base",
-    "datelier.gui.context.transforms.selection",
-    "datelier.gui.context.transforms.values",
-    "datelier.gui.context.transforms.view"
-  ]
-}

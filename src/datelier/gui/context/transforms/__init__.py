@@ -4,6 +4,10 @@ Sort/filter/select, casts, missing values, lookup, and derived columns construct
 typed operations for background replay. Lookup exposes unmatched-key policy;
 derived columns use the constrained expression interface and explicit replacement.
 Failed operations preserve active history/table; new edits branch after undo.
+
+The pending Titanic interaction follow-up also calls for direct header sorting,
+graphical lookup/missing-value editing, and impact previews. Existing transform
+correctness does not establish acceptance of those interaction workflows.
 """
 
 from datelier.gui.context.transforms.base import OperationForm as OperationForm
