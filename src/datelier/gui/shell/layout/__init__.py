@@ -1,4 +1,10 @@
-"""Public gui shell layout API."""
+"""Adaptive docking, menus, file tabs, and panel visibility.
+
+Default layouts adapt to window size; custom docking and splitters persist.
+View-menu actions restore every closable panel. Reset layout changes presentation
+only. Layout migrations reset obsolete native state while retaining data recipes,
+theme, plot settings, and selections.
+"""
 
 from datelier.gui.shell.layout.docking import DockHost as DockHost
 from datelier.gui.shell.layout.docking import DockPanel as DockPanel

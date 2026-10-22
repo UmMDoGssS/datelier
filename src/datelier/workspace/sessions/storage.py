@@ -72,6 +72,13 @@ def read_session_workspace(path: Path) -> SessionWorkspace:
 
 
 def read_session_with_notice(path: Path) -> tuple[SessionWorkspace, str]:
+    """Validate/migrate a session and resolve source paths beside its workspace.
+
+    Version-one source recipes become one-file sessions. Old native layouts reset
+    with a notice while histories/settings/selections survive; source loading and
+    per-tab recovery happen later, outside this codec boundary.
+    """
+
     path = path.expanduser().resolve()
     raw = read_recipe(path)
     notice = ""

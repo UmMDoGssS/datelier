@@ -1,4 +1,10 @@
-"""Public gui components inputs API."""
+"""Typed native fields and a shared virtualized column picker.
+
+Callers inject selection policy, ordering, eligibility, and bulk actions. Profiles
+retain numeric/non-numeric exclusivity; analysis and correlations enforce their
+own feature limits. Search and role groups change visibility without silently
+altering saved column choices.
+"""
 
 from datelier.gui.components.inputs.bindings import StateFields as StateFields
 from datelier.gui.components.inputs.columns import ColumnList as ColumnList

@@ -21,6 +21,13 @@ from datelier.workspace.sessions.restore import SourceRecovery
 
 
 class EditorController:
+    """Own editor tabs, shared services, and explicit navigation commands.
+
+    Poll before rendering; route file/view completions to their owners without
+    changing focus. Sources used by ready, pending, or recoverable views remain
+    protected from export. Closing one tab leaves other tabs/services usable.
+    """
+
     def __init__(
         self,
         preferences_path: Path | None = None,

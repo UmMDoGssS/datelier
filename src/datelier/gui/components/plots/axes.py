@@ -1,4 +1,10 @@
-"""Reusable axis editor components and isolated native coordinate bindings."""
+"""Session-only numeric axis ranges and scale controls shared by 2D plots.
+
+Apply validates both ranges before changing the view; wheel zoom/pan remain
+available afterward. Linear and symmetric-log scales support signed data; log10
+requires positive ranges. Category/temporal axes retain their native labels.
+Plot/column changes reset these transient axis edits.
+"""
 
 from abc import ABC, abstractmethod
 

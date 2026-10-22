@@ -40,6 +40,12 @@ def fingerprint(path: Path) -> WorkspaceSource:
 
 
 def reference_source(source: SourceReference) -> WorkspaceSource:
+    """Fingerprint a source and reject changes since its imported size/mtime.
+
+    Run in a worker: hashing reads source bytes or a media directory signature.
+    Saving references never silently accepts an externally changed source.
+    """
+
     result = fingerprint(source.path)
     if (result.size_bytes, result.modified_ns) != (
         source.size_bytes,

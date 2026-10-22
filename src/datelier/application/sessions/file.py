@@ -48,6 +48,13 @@ from datelier.workspace.single.restore import RestoredWorkspace
 
 
 class FileController:
+    """Own one source/view's domain services and prepared state, without widgets.
+
+    Its identity scopes jobs, caches, selections, and saved recipes independently
+    of the source path. Named views use their own controllers even when they share
+    underlying source metadata or stores. Closing invalidates publication.
+    """
+
     def __init__(
         self,
         executor: Executor,

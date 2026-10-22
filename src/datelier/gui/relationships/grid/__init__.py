@@ -1,4 +1,10 @@
-"""Public gui relationships grid API."""
+"""Annotated Pearson heatmaps and named pair grids using prepared shared cohorts.
+
+Heatmaps show coefficients, finite-pair counts, an r color scale, and undefined
+cells. Pair grids support up to eight features, share diagonal profile controls,
+and navigate to a column profile or raw pair scatter. Scrollable chart regions
+retain axis names and readable cells instead of clipping wide grids.
+"""
 
 from datelier.gui.relationships.grid.content import (
     CorrelationContent as CorrelationContent,

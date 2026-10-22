@@ -1,4 +1,10 @@
-"""Reversible operation form families and their contextual view."""
+"""Explicit reversible transform forms and contextual history presentation.
+
+Sort/filter/select, casts, missing values, lookup, and derived columns construct
+typed operations for background replay. Lookup exposes unmatched-key policy;
+derived columns use the constrained expression interface and explicit replacement.
+Failed operations preserve active history/table; new edits branch after undo.
+"""
 
 from datelier.gui.context.transforms.base import OperationForm as OperationForm
 from datelier.gui.context.transforms.history import HistoryView as HistoryView

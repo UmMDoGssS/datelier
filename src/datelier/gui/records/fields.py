@@ -1,4 +1,10 @@
-"""Type-neutral record fields share preview styles and explicit detailed tools."""
+"""Type-neutral record fields using shared table styles and explicit detailed tools.
+
+Gallery previews are bounded and labeled; detail retains full strings/nested
+values. Image fields suppress cell tint. Identifier values remain neutral and
+containers use prepared element-mean numeric colors rather than their lengths.
+Selection shading takes precedence without changing the source value.
+"""
 
 from dataclasses import replace
 

@@ -55,6 +55,14 @@ def restore_session_file(
     *,
     source_import: ImportResult | None = None,
 ) -> RestoredSessionFile:
+    """Restore one source/view without making sibling source failures fatal.
+
+    Changed content requires explicit acceptance. Clear tabular selections after
+    content changes; fixed media manifests/line counts can retain known IDs and
+    missing-record placeholders. Explicit array mappings defer scalar replay
+    until prepare_records, while automatic aligned tables reopen normally.
+    """
+
     file.validate()
     if recovery is not None and recovery.file_id != file.identity:
         raise ValueError("Recovery belongs to another file tab")

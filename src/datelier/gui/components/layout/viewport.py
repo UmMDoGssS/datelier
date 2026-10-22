@@ -1,4 +1,10 @@
-"""Shared native viewport sizing and direct-child content composition."""
+"""Shared viewport sizing without replacing the mounted content instance.
+
+Auto restores adaptive height; dragging sets a persisted manual height.
+Expand/Restore moves the same content under a stable native ID, preserving
+plot axes, camera, token span, or image zoom. Fit asks the specialized content
+to reset its own bounds. Temporary expanded state is not a saved data recipe.
+"""
 
 from collections.abc import Callable
 

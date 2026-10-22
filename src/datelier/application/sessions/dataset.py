@@ -1,4 +1,10 @@
-"""Dataset publication and worker ownership without presentation dependencies."""
+"""Publish source changes before dependent preview/profile results.
+
+Loads bind a new pipeline; edits publish one prepared inspection atomically.
+Restoration returns to the coordinator so saved settings can be installed before
+exploration is requested. Revision changes rebind pages and linked selection;
+closed runtimes cannot publish late completions.
+"""
 
 from dataclasses import dataclass
 

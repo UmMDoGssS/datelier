@@ -1,4 +1,13 @@
-"""Public gui relationships scatter API."""
+"""Native 2D/3D scatter with source-linked picking, brushing, and legends.
+
+Views retain independent heights/axes/cameras; reduction components match the
+chosen dimension and require an explicit rerun when incompatible. Native legend
+visibility hides both points and their highlights from picking while preserving
+table selection. Continuous colors use a color bar; noise, missing, Other, and
+unassigned groups retain distinct labels. Ctrl-click toggles; Shift-drag brushes
+displayed points. In 3D right-drag rotates, left-drag pans, and the wheel zooms;
+camera gestures pause during brushing. Face controls preserve zoom/selection.
+"""
 
 from datelier.gui.relationships.scatter.primitives import (
     draw_color_items as draw_color_items,

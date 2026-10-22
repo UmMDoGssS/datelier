@@ -23,6 +23,12 @@ class FrameContext:
 
 
 class Component(ABC):
+    """Render prepared state under a scoped native/probe identity.
+
+    Containers invoke immediate children. Components owning native resources must
+    release them in close before the renderer shuts down.
+    """
+
     def __init__(self, key: str) -> None:
         self.key = key
 

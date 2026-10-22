@@ -1,4 +1,10 @@
-"""Load installed Linux Unicode fonts once during native GUI initialization."""
+"""Load installed Linux Unicode fonts once on the native initialization thread.
+
+Noto Sans/DejaVu Sans and Noto Sans CJK provide multilingual text (Debian/Ubuntu
+packages fonts-noto-core and fonts-noto-cjk). Packaged outline Noto Emoji uses the
+SIL OFL license in assets/fonts/OFL-NotoEmoji.txt. Glyph/font availability depends
+on the host; initialization does not install system fonts.
+"""
 
 from pathlib import Path
 

@@ -1,4 +1,11 @@
-"""Small, versioned user preferences with section-level recovery."""
+"""Versioned preferences with section-level recovery and notices.
+
+The default path is $XDG_CONFIG_HOME/datelier/preferences.json, falling back to
+~/.config/datelier/preferences.json. Theme, docking/panel visibility, plot/view
+defaults, and recent sources persist; workspace settings take precedence on
+restore. Invalid sections reset independently. Legacy layout migration preserves
+other settings and recipes.
+"""
 
 import json
 import os
