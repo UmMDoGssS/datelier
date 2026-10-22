@@ -12,12 +12,15 @@ from datelier.gui.components.layout import FrameContext
 from datelier.gui.components.probe import GuiProbe, ViewScope
 from datelier.gui.fonts import load_fonts
 from datelier.gui.shell.composition import WorkbenchPage
+from datelier.inspection.audio.playback.controller import PlaybackPhase
 from datelier.inspection.audio.playback.device import DeviceFactory, SoundDeviceOutput
 from datelier.workspace.preferences import preference_path
 
 
 @dataclass
 class InspectionEvidence:
+    """Frame counts, with timing samples retained only for verification runs."""
+
     frames: int = 0
     frame_intervals_ms: list[float] = field(default_factory=list)
 
@@ -30,11 +33,24 @@ def run_gui(
     window_size: tuple[int, int] = (1280, 800),
     preferences_path: Path | None = None,
     playback_factory: DeviceFactory = SoundDeviceOutput,
+    verification: bool | None = None,
     on_probe_frame: Callable[[EditorController, GuiProbe, InspectionEvidence], None]
     | None = None,
 ) -> InspectionEvidence:
+    """Run the workbench with idle pacing and no timing retention by default.
+
+    Smoke/probe runs collect timings and disable idle pacing for reproducible
+    measurements. Explicit verification=False lets native probes exercise normal
+    pacing without saving user preferences. Background work and active playback
+    keep normal sessions responsive at the active refresh rate.
+    """
     if smoke_frames < 0:
         raise ValueError("Smoke frame count must be nonnegative")
+    verifying = (
+        bool(smoke_frames or on_probe_frame is not None)
+        if verification is None
+        else verification
+    )
     preference_file = (
         preferences_path
         if preferences_path
@@ -58,7 +74,7 @@ def run_gui(
     params.imgui_window_params.show_menu_view_themes = False
     params.imgui_window_params.show_menu_view = False
     params.ini_disable = True
-    params.fps_idling.enable_idling = False
+    params.fps_idling.enable_idling = not verifying
     params.callbacks.load_additional_fonts = load_fonts
     frame = FrameContext(ViewScope(""), probe)
     previous = perf_counter()
@@ -77,11 +93,21 @@ def run_gui(
         probe.begin_frame()
         editor.poll()
         frame = page.prepare()
+        params.fps_idling.enable_idling = (
+            not verifying
+            and editor.workers.pending == 0
+            and editor.playback.snapshot.phase
+            not in (
+                PlaybackPhase.STARTING,
+                PlaybackPhase.PLAYING,
+                PlaybackPhase.STOPPING,
+            )
+        )
 
     def draw() -> None:
         nonlocal previous
         now = perf_counter()
-        if evidence.frames >= 10:
+        if verifying and evidence.frames >= 10:
             evidence.frame_intervals_ms.append((now - previous) * 1000)
         previous = now
         page.render(frame)
